@@ -20,3 +20,6 @@ The code repository resides on this machine.
 
 ### Shapefiles <a id="shapefiles"></a>
 [toc](#table-of-contents)
+
+The main code for analyzing ESRI shapefiles is derived from [OpenJump](https://sourceforge.net/projects/jump-pilot/files/latest/download).
+Further details of the  format were gleaned from `QGIS` C++ code downloadable [here](https://github.com/qgis/QGIS).
