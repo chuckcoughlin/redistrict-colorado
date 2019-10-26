@@ -40,6 +40,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.sql.DriverManager;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -48,6 +49,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeSet;
+import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -64,6 +66,7 @@ import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.plaf.FontUIResource;
 
+import org.locationtech.jts.util.StringUtil;
 import org.openjump.OpenJumpConfiguration;
 
 import com.vividsolutions.jump.I18N;
@@ -71,12 +74,10 @@ import com.vividsolutions.jump.JUMPVersion;
 import com.vividsolutions.jump.task.TaskMonitor;
 import com.vividsolutions.jump.util.Blackboard;
 import com.vividsolutions.jump.util.LangUtil;
-import com.vividsolutions.jump.util.StringUtil;
 import com.vividsolutions.jump.util.commandline.CommandLine;
 import com.vividsolutions.jump.util.commandline.Option;
 import com.vividsolutions.jump.util.commandline.OptionSpec;
 import com.vividsolutions.jump.util.commandline.ParseException;
-import com.vividsolutions.jump.workbench.driver.DriverManager;
 import com.vividsolutions.jump.workbench.plugin.PlugInManager;
 import com.vividsolutions.jump.workbench.ui.ErrorDialog;
 import com.vividsolutions.jump.workbench.ui.SplashPanelV2;
@@ -93,7 +94,9 @@ import com.vividsolutions.jump.workbench.ui.plugin.skin.InstallSkinsPlugIn;
  */
 
 public class JUMPWorkbench {
-  private static ImageIcon splashImage;
+	private static final String CLSS = "JUMPWorkbench";
+	private static final Logger LOGGER = Logger.getLogger(CLSS);
+	private static ImageIcon splashImage;
 
   public static ImageIcon splashImage() {
     // Lazily initialize it, as it may not even be called (e.g. EZiLink),
@@ -236,7 +239,7 @@ public class JUMPWorkbench {
         // files
         // properties = new WorkbenchPropertiesFile(defaultFile, frame);
       } else {
-        Logger.warn("Default plugins file does not exist: "
+        LOGGER.warning("Default plugins file does not exist: "
                 + defaultFile);
       }
     }
@@ -251,7 +254,7 @@ public class JUMPWorkbench {
         // properties = new WorkbenchPropertiesFile(propertiesFile, frame);
         propertiesFileExists = true;
       } else {
-        Logger.warn("Properties file does not exist: "
+    	  LOGGER.warning("Properties file does not exist: "
             + propertiesFile);
       }
     }
@@ -271,7 +274,7 @@ public class JUMPWorkbench {
       extensionsDirectory = new File(commandLine.getOption(
           PLUG_IN_DIRECTORY_OPTION).getArg(0));
       if (!extensionsDirectory.exists()) {
-        Logger.warn("Extensions directory does not exist: "
+    	  LOGGER.warning("Extensions directory does not exist: "
                 + extensionsDirectory);
         extensionsDirectory = null;
       }
@@ -280,7 +283,7 @@ public class JUMPWorkbench {
       if (!extensionsDirectory.exists()) {
         // Added further information so that debug user will know where
         // it is actually looking for as the extension directory. [Ed Deen]
-        Logger.warn("Extensions directory does not exist: "
+    	  LOGGER.warning("Extensions directory does not exist: "
                 + extensionsDirectory + " where homedir = ["
                 + System.getProperty("user.dir") + "]");
         extensionsDirectory = null;
@@ -322,7 +325,7 @@ public class JUMPWorkbench {
   }
 
   public static void main(String[] args) {
-    long start = PlugInManager.milliSecondsSince(0);
+    long start = System.currentTimeMillis();
     try {
       // first fetch parameters, locale might be changed with -i18n switch
       parseCommandLine(args);
@@ -384,8 +387,7 @@ public class JUMPWorkbench {
       splashPanel.addProgressMonitor(progressMonitor);
 
       main(args, I18N.get("JUMPWorkbench.jump"), splashPanel, progressMonitor);
-      Logger.info("OJ start took "
-          + PlugInManager.secondsSinceString(start) + "s alltogether.");
+      LOGGER.info(String.format("OJ start took %d millisecs .",System.currentTimeMillis()-start));
 
     } catch (final Throwable t) {
       try {
@@ -402,9 +404,9 @@ public class JUMPWorkbench {
           }
         });
       } catch (Throwable t2) {
-        Logger.error(t2);
+        LOGGER.severe(t2.getLocalizedMessage());
       }
-      Logger.error(t);
+      LOGGER.severe(t.getLocalizedMessage());
       System.exit(1);
     }
   }

@@ -1,15 +1,32 @@
 package org.geotools.shapefile;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.EOFException;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
-import com.vividsolutions.jts.geom.*;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryCollection;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.MultiLineString;
+import org.locationtech.jts.geom.MultiPoint;
+import org.locationtech.jts.geom.MultiPolygon;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.Polygon;
+
 import com.vividsolutions.jump.io.EndianDataInputStream;
 import com.vividsolutions.jump.io.EndianDataOutputStream;
-import com.vividsolutions.jump.workbench.Logger;
 
 /**
  * This class represents an ESRI Shape file.<p>
@@ -29,7 +46,8 @@ import com.vividsolutions.jump.workbench.Logger;
  * <a href="mailto:j.macgill@geog.leeds.ac.uk">Mail the Author</a>
  */
 public class Shapefile  {
-
+	private static final String CLSS = "Shapefile";
+	private static final Logger LOGGER = Logger.getLogger(CLSS);
     static final int    SHAPEFILE_ID = 9994;
     static final int    VERSION = 1000;
     
@@ -80,7 +98,7 @@ public class Shapefile  {
             if (shpInputStream != null) shpInputStream.close();
         }
         catch (IOException ex){
-            Logger.error(ex);
+            LOGGER.severe(ex.getLocalizedMessage());
         }
     }
     
@@ -91,7 +109,7 @@ public class Shapefile  {
             // a 16 kb buffer may be up to 20% faster than the default 2 kb buffer
             shpInputStream = new BufferedInputStream(uc.getInputStream(), 16 * 1024);
           } catch (Exception e) {
-            Logger.error(e);
+        	  LOGGER.severe(String.format("%s.getInputStream: ERROR (%s)",CLSS,e.getLocalizedMessage()));
           }
           if (shpInputStream == null) {
             throw new IOException("Couldn't make a connection to the URL: " + baseURL);
@@ -119,7 +137,7 @@ public class Shapefile  {
 
             ShapefileHeader mainHeader = new ShapefileHeader(file);
             if(mainHeader.getVersion() != VERSION){
-                Logger.warn(String.format("Unknown shapefile version (%s) : try to read anyway", mainHeader.getVersion()));
+                LOGGER.warning(String.format("%s.read: Unknown shapefile version (%s) : try to read anyway",CLSS, mainHeader.getVersion()));
             }
             pos += 50;
 
@@ -135,23 +153,23 @@ public class Shapefile  {
             while(true){
                 int recordNumber=file.readIntBE(); pos+=2;
                 if (recordNumber != count) {
-                    Logger.warn("wrong record number (" + recordNumber + ")");
+                	LOGGER.warning(String.format("%s.read: wrong record number (%d)",CLSS,recordNumber));
                     continue;
                 }
                 int contentLength=file.readIntBE(); pos+=2;
                 if (contentLength <= 0) {
-                    Logger.warn("found a negative content length (" + contentLength + ")");
+                	LOGGER.warning("found a negative content length (" + contentLength + ")");
                     continue;
                 }
                 try{
                     body = handler.read(file,geometryFactory,contentLength);
-                    Logger.debug("" + recordNumber + " : from " + (pos-4) + " for " + contentLength + " (" + body.getNumPoints() + " pts)");
+                    LOGGER.fine("" + recordNumber + " : from " + (pos-4) + " for " + contentLength + " (" + body.getNumPoints() + " pts)");
                     pos += contentLength;
                     list.add(body);
                     count++;
                     if (body.getUserData() != null) errors++;
                 } catch(Exception e) {
-                    Logger.warn("Error processing record " +recordNumber + " : " + e.getMessage(), e);
+                	LOGGER.warning(String.format("%s.read: Error processing record %d (%s)",CLSS,recordNumber,e.getLocalizedMessage()));
                     errors++;
                 }
             }
@@ -379,12 +397,12 @@ public class Shapefile  {
             EndianDataInputStream shp = new EndianDataInputStream(new ByteArrayInputStream(bytes));
             ShapefileHeader shpMainHeader = new ShapefileHeader(shp);
             if (shpMainHeader.getVersion() != VERSION) {
-                Logger.warn(String.format("Unknown shp version (%s) : try to read anyway", shpMainHeader.getVersion()));
+                LOGGER.warning(String.format("Unknown shp version (%s) : try to read anyway", shpMainHeader.getVersion()));
             }
 
             ShapefileHeader shxMainHeader = new ShapefileHeader(shx);
             if (shxMainHeader.getVersion() != VERSION) {
-                Logger.warn(String.format("Unknown shx version (%s) : try to read anyway", shxMainHeader.getVersion()));
+                LOGGER.warning(String.format("Unknown shx version (%s) : try to read anyway", shxMainHeader.getVersion()));
             }
 
             Geometry body;
@@ -403,12 +421,12 @@ public class Shapefile  {
                     raf.getChannel().read(bb, offset*2 + 8);
                     shp = new EndianDataInputStream(new ByteArrayInputStream(bytes));
                     body = handler.read(shp, geometryFactory, length);
-                    Logger.debug("" + recordNumber + " : from " + offset + " for " + length + " (" + body.getNumPoints() + " pts)");
+                    LOGGER.fine("" + recordNumber + " : from " + offset + " for " + length + " (" + body.getNumPoints() + " pts)");
                     list.add(body);
                     if (body.getUserData() != null) errors++;
                 } catch(Exception e) {
-                    Logger.warn("Error processing record " + recordNumber + ": " + e.getMessage(), e);
-                    Logger.warn("an empty Geometry has been returned");
+                    LOGGER.warning("Error processing record " + recordNumber + ": " + e.getMessage());
+                    LOGGER.warning("an empty Geometry has been returned");
                     list.add(handler.getEmptyGeometry(geometryFactory));
                     errors++;
                 }
@@ -419,7 +437,7 @@ public class Shapefile  {
         finally {
             if (tmpShp.exists()) {
                 if (!tmpShp.delete()) {
-                    Logger.warn(tmpShp + " could not be deleted");
+                	LOGGER.warning(tmpShp + " could not be deleted");
                 }
             }
         }

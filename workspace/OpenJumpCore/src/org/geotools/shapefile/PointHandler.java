@@ -2,8 +2,11 @@ package org.geotools.shapefile;
 
 import java.io.IOException;
 
-import com.vividsolutions.jts.geom.*;
-import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.impl.CoordinateArraySequence;
+
 import com.vividsolutions.jump.io.EndianDataInputStream;
 import com.vividsolutions.jump.io.EndianDataOutputStream;
 

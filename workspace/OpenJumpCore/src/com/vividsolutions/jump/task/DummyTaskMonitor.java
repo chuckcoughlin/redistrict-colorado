@@ -31,26 +31,32 @@
  * www.vividsolutions.com
  */
 
-package com.vividsolutions.jump;
+package com.vividsolutions.jump.task;
 
 
 /**
- * Base exception for JUMP-related problems.
+ * Implementation of TaskMonitor that does nothing.
+ * Can be used for Tasks that do not need to report on their status
+ * (for instance, tasks run only in batch mode).
  */
-public class JUMPException extends Exception {
-    /**
-     * Constructs a JUMPException object.
-     * @param message  a description of the problem
-     */
-    public JUMPException(String message) {
-        super(message);
+public class DummyTaskMonitor implements TaskMonitor {
+    public DummyTaskMonitor() {
     }
 
-    public JUMPException(String message, Throwable cause) {
-      super(message, cause);
+    public void report(String description) {
     }
 
-    public JUMPException(Throwable cause) {
-      super(cause);
+    public void report(int subtasksDone, int totalSubtasks,
+        String subtaskDescription) {
+    }
+
+    public void allowCancellationRequests() {
+    }
+
+    public boolean isCancelRequested() {
+        return false;
+    }
+
+    public void report(Exception exception) {
     }
 }

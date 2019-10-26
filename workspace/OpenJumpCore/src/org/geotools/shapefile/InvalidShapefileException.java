@@ -5,7 +5,9 @@ package org.geotools.shapefile;
  * which contains an error such as an invalid shape
  */
 public class InvalidShapefileException extends ShapefileException{
-    public InvalidShapefileException(String s){
+	private static final long serialVersionUID = -5628824966383673439L;
+
+	public InvalidShapefileException(String s){
         super(s);
     }
 }

@@ -7,7 +7,13 @@ package org.geotools.shapefile;
 
 import java.io.IOException;
 
-import com.vividsolutions.jts.geom.*;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.MultiLineString;
+
 import com.vividsolutions.jump.io.EndianDataInputStream;
 import com.vividsolutions.jump.io.EndianDataOutputStream;
 

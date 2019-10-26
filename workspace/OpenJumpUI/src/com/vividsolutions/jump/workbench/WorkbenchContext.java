@@ -32,14 +32,12 @@
 
 package com.vividsolutions.jump.workbench;
 
-import com.vividsolutions.jump.util.Blackboard;
-import com.vividsolutions.jump.workbench.driver.DriverManager;
+import java.sql.DriverManager;
+
 import com.vividsolutions.jump.workbench.model.LayerManager;
 import com.vividsolutions.jump.workbench.model.LayerManagerProxy;
-import com.vividsolutions.jump.workbench.model.Task;
 import com.vividsolutions.jump.workbench.plugin.PlugInContext;
 import com.vividsolutions.jump.workbench.registry.Registry;
-import com.vividsolutions.jump.workbench.ui.ErrorHandler;
 import com.vividsolutions.jump.workbench.ui.LayerNamePanel;
 import com.vividsolutions.jump.workbench.ui.LayerNamePanelProxy;
 import com.vividsolutions.jump.workbench.ui.LayerViewPanel;

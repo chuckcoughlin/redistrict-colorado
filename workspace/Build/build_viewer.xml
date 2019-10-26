@@ -5,7 +5,7 @@
 	<property name="src.dir" value="${basedir}/../ShapeViewer/src" />
 	
 	<!-- This target will build the core application and deploy it to the robot -->
-	<target name="all" depends="clean, build, jar, deploy" />
+	<target name="all" depends="clean, build, deploy" />
 	
 	<!-- Remove the existing target -->
 	<target name="clean" description="Remove existing build products">
@@ -17,41 +17,79 @@
 		<delete file="${lib.dir}/${jump-ui-jar}" />
 		<delete file="${lib.dir}/${shapefile-viewer-jar}" />
 		<delete dir="${temp.dir}" />
+		<delete file="${install.dir}/lib/${jump-core-jar}" />
+		<delete file="${install.dir}/lib/${jump-ui-jar}" />
+		<delete file="${install.dir}/lib/${shapefile-viewer-jar}" />
 	</target>
 	
-	<target name="build" description="Compile the source">
-		<echo message="Compile  ${src.dir}" />
+	<target name="build" depends="jump-core,jump-ui,shape-viewer" />
+	<target name="jump-core" description="Build OpenJUMP core jar">
+		<echo message="Compile Open JUMP core" />
+		<delete dir="${temp.dir}" />
 		<mkdir dir="${temp.dir}"/>
-		<javac	srcdir="${src.dir}"
-				destdir="${temp.dir}"
+		<javac	srcdir="../OpenJumpCore/src"
+			destdir="${temp.dir}"
+			compiler="javac10+"
+			source="10" target="10"
+			debug="true"
+			modulepathref="common-modulepath"
+			includeantruntime="false"
+		/>
+		<jar destfile="${lib.dir}/${jump-core-jar}" includes="**/*.class,**/*.png" basedir="${temp.dir}">
+		</jar>
+	</target>
+	<target name="jump-ui" description="Build OpenJUMP UI jar">
+		<echo message="Compile Open JUMP UI" />
+		<delete dir="${temp.dir}" />
+		<mkdir dir="${temp.dir}"/>
+		<javac	srcdir="../OpenJumpUI/src"
+		       	destdir="${temp.dir}"
 				compiler="javac10+"
 				source="10" target="10"
-				debug = "true"
+				debug="true"
 				modulepathref="common-modulepath"
 				includeantruntime="false"
 		/>
+	    <jar destfile="${lib.dir}/${jump-ui-jar}" includes="**/*.class,**/*.png" basedir="${temp.dir}"/>
 	</target>
 	
-	<!-- Bundle the application code into a jar file -->
-	<target name ="jar" description="Create a jar ">
-	    <jar destfile="${lib.dir}/${shapefile-viewer-jar}" includes="**/*.class,**/*.png" basedir="${temp.dir}">
-		    <manifest>
-		      	<attribute name="Main-Class"
-		                   value="redistrict.colorado.ShapefileViewer"/>
-		    </manifest>
-	    </jar>
+	<!-- Shapefile Viewer -->
+	<target name="shape-viewer" description="Build the Shapefile Viewer">
+		<echo message="Compile the Shapefile Viewer" />
+		<delete dir="${temp.dir}" />
+		<mkdir dir="${temp.dir}"/>
+		<javac	srcdir="../ShapeViewer/src"
+				destdir="${temp.dir}"
+				compiler="javac10+"
+				source="10" target="10"
+				debug="true"
+				modulepathref="common-modulepath"
+				includeantruntime="false"
+		/>
+		<jar destfile="${lib.dir}/${shape-viewer-jar}" includes="**/*.class,**/*.png" basedir="${temp.dir}">
+			<manifest>
+				<attribute name="Main-Class" value="redistrict.colorado.ShapefileViewer"/>
+			</manifest>
+		</jar>
 	</target>
 	
 	<!-- Copy the new jar file into the local deployment area. -->
 	<target name="deploy" >
-		<echo message="Copying script files into ${bin.dir}" />
-		<mkdir dir="${bin.dir}" />
-		<copy todir="${bin.dir}">
+		<echo message="Copying jar files into ${install.dir}/lib" />
+		<mkdir dir="${install.dir}/lib" />
+		<copy todir="${install.dir}/lib">
+			<fileset dir="${lib.dir}">
+				<include name="*.jar"/>
+			</fileset>
+		</copy>
+		<echo message="Copying script files into ${install.dir}/bin" />
+		<mkdir dir="${install.dir}/bin" />
+		<copy todir="${install.dir}/bin">
 			<fileset dir="${basedir}">
 				<include name="*.sh"/>
 			</fileset>
-		</copy>
-		<chmod dir="${bin.dir}" perm="ugo+rx"
-						       includes="*.sh"/>
-	</target>		
+			</copy>
+		<chmod dir="${install.dir}/bin" perm="ugo+rx"
+			includes="*.sh"/>
+	</target>
 </project>

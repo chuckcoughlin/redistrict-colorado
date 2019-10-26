@@ -1,13 +1,18 @@
 package org.geotools.dbffile;
 
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.nio.charset.Charset;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Vector;
 
 import org.geotools.misc.FormatedString;
 
 import com.vividsolutions.jump.io.EndianDataOutputStream;
-import java.nio.charset.Charset;
 
 
 

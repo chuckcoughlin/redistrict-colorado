@@ -32,11 +32,10 @@
 
 package com.vividsolutions.jump.workbench;
 
-import com.vividsolutions.jump.util.Blackboard;
-import com.vividsolutions.jump.workbench.driver.DriverManager;
+import java.sql.DriverManager;
+
 import com.vividsolutions.jump.workbench.model.LayerManager;
 import com.vividsolutions.jump.workbench.model.LayerManagerProxy;
-import com.vividsolutions.jump.workbench.model.Task;
 import com.vividsolutions.jump.workbench.ui.*;
 
 /**

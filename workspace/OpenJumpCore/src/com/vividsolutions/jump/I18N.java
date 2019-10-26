@@ -33,16 +33,13 @@ package com.vividsolutions.jump;
 
 import java.io.File;
 import java.text.MessageFormat;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Map;
-import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-
 import java.util.logging.Logger;
+
 
 
 /**
@@ -210,6 +207,7 @@ public final class I18N {
    *          The key of the text in the language file.
    * @return The I18Nized text.
    */
+  @Deprecated
   public static String getText(final String categoryPrefix, final String key) {
     return getMessage((Object)categoryPrefix, key);
   }

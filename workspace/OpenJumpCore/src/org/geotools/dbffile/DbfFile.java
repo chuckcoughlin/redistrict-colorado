@@ -1,20 +1,20 @@
 package org.geotools.dbffile;
 
-import com.vividsolutions.jump.io.EndianDataInputStream;
-
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.nio.charset.Charset;
-
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-
-import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Vector;
+import java.util.logging.Logger;
+
+import com.vividsolutions.jump.io.EndianDataInputStream;
 
 
 /**
@@ -27,7 +27,8 @@ import java.util.Vector;
  * Computaional Geography, University of Leeds, LS2 9JT, 1998.
  */
 public class DbfFile implements DbfConsts, AutoCloseable {
-
+	private static final String CLSS = "DbfFile";
+	private static final Logger LOGGER = Logger.getLogger(CLSS); 
     private int dbf_id;
     private int last_update_d;
     private int last_update_m;
@@ -72,7 +73,7 @@ public class DbfFile implements DbfConsts, AutoCloseable {
      */
     public DbfFile(String file, Charset charset) throws IOException {
 		    this.charset = charset;
-        Logger.debug("DbfFile constructor");
+        LOGGER.fine("DbfFile constructor");
         // InputStream to read the header and read the file sequentially
         InputStream in = new FileInputStream(file);
         EndianDataInputStream sfile = new EndianDataInputStream(in);
@@ -185,7 +186,7 @@ public class DbfFile implements DbfConsts, AutoCloseable {
         }
 
         sfile.skipBytes(1); // end of field defs marker
-        Logger.debug("Dbf file initialized");
+        LOGGER.fine("Dbf file initialized");
     }
 
     /**
@@ -339,27 +340,27 @@ public class DbfFile implements DbfConsts, AutoCloseable {
             throws IOException {
 
             dbf_id = file.readUnsignedByteLE();
-            Logger.debug("Dbf header id: " + dbf_id);
+            LOGGER.fine("Dbf header id: " + dbf_id);
 
             last_update_y = file.readUnsignedByteLE() + DBF_CENTURY;
             last_update_m = file.readUnsignedByteLE();
             last_update_d = file.readUnsignedByteLE();
-            Logger.debug(String.format("Dbf last update: %s/%s/%s", last_update_d, last_update_m, last_update_y));
+            LOGGER.fine(String.format("Dbf last update: %s/%s/%s", last_update_d, last_update_m, last_update_y));
 
             last_rec = file.readIntLE();
-            Logger.debug("Dbf las record: " + last_rec);
+            LOGGER.fine("Dbf las record: " + last_rec);
 
             data_offset = (char)file.readShortLE();
-            Logger.debug("Dbf data offset: " + data_offset);
+            LOGGER.fine("Dbf data offset: " + data_offset);
 
             rec_size = (char)file.readShortLE();
-            Logger.debug("Dbf rec size: " + rec_size);
+            LOGGER.fine("Dbf rec size: " + rec_size);
 
             filesize = (rec_size * last_rec) + data_offset + 1;
-            Logger.debug("Dbf file size :" + filesize);
+            LOGGER.fine("Dbf file size :" + filesize);
 
             numfields = (int)((data_offset - DBF_BUFFSIZE - 1) / DBF_BUFFSIZE);
-            Logger.debug("Dbf number of fields :" + numfields);
+            LOGGER.fine("Dbf number of fields :" + numfields);
 
             file.skipBytes(20);
         }

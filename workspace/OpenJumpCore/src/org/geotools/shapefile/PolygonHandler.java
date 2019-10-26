@@ -1,13 +1,21 @@
 package org.geotools.shapefile;
 
-import com.vividsolutions.jts.algorithm.CGAlgorithms;
-import com.vividsolutions.jts.geom.*;
-import com.vividsolutions.jump.io.EndianDataInputStream;
-import com.vividsolutions.jump.io.EndianDataOutputStream;
-
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+
+import org.locationtech.jts.algorithm.CGAlgorithms;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.LinearRing;
+import org.locationtech.jts.geom.MultiPolygon;
+import org.locationtech.jts.geom.Polygon;
+
+import com.vividsolutions.jump.io.EndianDataInputStream;
+import com.vividsolutions.jump.io.EndianDataOutputStream;
 
 /**
  * Wrapper for a Shapefile Polygon.

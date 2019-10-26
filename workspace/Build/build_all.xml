@@ -13,12 +13,14 @@
 		<mkdir dir="${temp.dir}"/>
 		<delete dir="${lib.dir}"/>
 		<mkdir dir="${lib.dir}"/>
-		<mkdir dir="${bin.dir}/bin"/>
 		<delete dir="${bin.dir}/bin"/>
+		<mkdir dir="${bin.dir}/bin"/>
+		<delete dir="${install.dir}/bin"/>
+		<mkdir dir="${install.dir}/bin"/>
 	</target>
 	
-	<target name="build" depends="core,ui,viewer" />
-	<target name="core" description="Build OpenJUMP core jar">
+	<target name="build" depends="jump-core,jump-ui,shape-viewer" />
+	<target name="jump-core" description="Build OpenJUMP core jar">
 		<echo message="Compile Open JUMP core" />
 		<delete dir="${temp.dir}" />
 		<mkdir dir="${temp.dir}"/>
@@ -33,72 +35,56 @@
 		<jar destfile="${lib.dir}/${jump-core-jar}" includes="**/*.class,**/*.png" basedir="${temp.dir}">
 		</jar>
 	</target>
-	<target name="ui" description="Compile the database library">
-		<echo message="Compile the database library" />
+	<target name="jump-ui" description="Build OpenJUMP UI jar">
+		<echo message="Compile Open JUMP UI" />
 		<delete dir="${temp.dir}" />
 		<mkdir dir="${temp.dir}"/>
-		<javac	srcdir="../Database/src"
-		       	destdir="${temp.dir}"
+		<javac	srcdir="../OpenJumpUI/src"
+		    	destdir="${temp.dir}"
 				compiler="javac10+"
 				source="10" target="10"
 				debug="true"
 				modulepathref="common-modulepath"
 				includeantruntime="false"
 		/>
-	    <jar destfile="${lib.dir}/bert-database.jar" includes="**/*.class,**/*.png" basedir="${temp.dir}"/>
+	    <jar destfile="${lib.dir}/${jump-ui-jar}" includes="**/*.class,**/*.png" basedir="${temp.dir}"/>
 	</target>
-	<target name="viewer" description="Compile the dispatcher">
-		<echo message="Compile the Server" />
+	<target name="shape-viewer" description="Build the Shapefile Viewer">
+		<echo message="Compile the Shapefile Viewer" />
 		<delete dir="${temp.dir}" />
 		<mkdir dir="${temp.dir}"/>
-		<javac	srcdir="../Dispatcher/src"
+		<javac	srcdir="../ShapeViewer/src"
 				destdir="${temp.dir}"
 				compiler="javac10+"
 				source="10" target="10"
 				debug="true"
 				modulepathref="common-modulepath"
 				includeantruntime="false"
-			/>
-			<jar destfile="${lib.dir}/bert-dispatcher.jar" includes="**/*.class,**/*.png" basedir="${temp.dir}">
-				<manifest>
-					 <attribute name="Main-Class" value="bert.dispatch.controller.Dispatcher"/>
-				</manifest>
-			</jar>
+		/>
+		<jar destfile="${lib.dir}/${shape-viewer-jar}" includes="**/*.class,**/*.png" basedir="${temp.dir}">
+			<manifest>
+				<attribute name="Main-Class" value="redistrict.colorado.ShapefileViewer"/>
+			</manifest>
+		</jar>
 	</target>
 	
-	<!-- Copy the new jar files and scripts into the local deployment area. -->
+	<!-- Copy the new jar files and scripts into the installation area. -->
 	<target name="deploy" >
-		<!-- Make substitutions in XML configuration file -->
-		<antcall target="ReplacePlacehlders">
-			<param name="template" value="${config.template}"/>
-			<param name="result" value="${config.file}"/>
-		</antcall>
-		
-		<echo message="Copying configuration files locally into ${bert.home}" />
-		<mkdir dir="${robot.dir}/bin" />
-		<copy todir="${robot.dir}/bin">
-			<fileset dir="${bin.dir}" />
-		</copy>
-		<chmod dir="${robot.dir}/bin" perm="ugo+rx" includes="**/*.sh"/>
-		<mkdir dir="${robot.dir}/etc" />
-		<copy todir="${robot.dir}/etc">
-			<fileset dir="${config.dir}" />
-		</copy>
-		<echo message="Copying jar files locally into ${bert.home}/lib" />
-		<mkdir dir="${bert.home}/lib" />
-		<copy todir="${bert.home}/lib">
+		<echo message="Copying jar files into ${install.dir}/lib" />
+		<mkdir dir="${install.dir}/lib" />
+		<copy todir="${install.dir}/lib">
 			<fileset dir="${lib.dir}">
 				<include name="*.jar"/>
 			</fileset>
 		</copy>
-		<chmod dir="${robot.dir}/lib" perm="ugo+rx" includes="**/*.jar"/>
-		<echo message="Copying modules locally into ${bert.home}/mods" />
-		<mkdir dir="${bert.home}/mods" />
-		<copy todir="${bert.home}/mods">
-			<fileset dir="${archive.dir}">
-				<include name="*.jar"/>
+		<echo message="Copying script files into ${install.dir}/bin" />
+		<mkdir dir="${install.dir}/bin" />
+		<copy todir="${install.dir}/bin">
+			<fileset dir="${basedir}">
+				<include name="*.sh"/>
 			</fileset>
-		</copy>
-		<chmod dir="${robot.dir}/mods" perm="ugo+rx" includes="**/*.jar"/>
-	</target>			
+			</copy>
+		<chmod dir="${install.dir}/bin" perm="ugo+rx"
+			includes="*.sh"/>
+	</target>		
 </project>
