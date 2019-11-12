@@ -1,9 +1,9 @@
 package org.geotools.dbffile;
 
 import java.io.IOException;
-
-import com.vividsolutions.jump.io.EndianDataInputStream;
 import java.nio.charset.Charset;
+
+import org.openjump.io.EndianDataInputStream;
 
 /**
  * class to hold infomation about the fields in the file

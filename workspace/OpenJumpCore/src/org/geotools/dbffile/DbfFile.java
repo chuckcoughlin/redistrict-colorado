@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import com.vividsolutions.jump.io.EndianDataInputStream;
+import org.openjump.io.EndianDataInputStream;
 
 
 /**
@@ -24,7 +24,7 @@ import com.vividsolutions.jump.io.EndianDataInputStream;
  * Later queries return rows or columns of the database.
  * <hr>
  * @author <a href="mailto:ian@geog.leeds.ac.uk">Ian Turton</a> Centre for
- * Computaional Geography, University of Leeds, LS2 9JT, 1998.
+ * Computational Geography, University of Leeds, LS2 9JT, 1998.
  */
 public class DbfFile implements DbfConsts, AutoCloseable {
 	private static final String CLSS = "DbfFile";

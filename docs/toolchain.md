@@ -8,6 +8,7 @@ This document describes the prerequisites and credits the pre-cursors for instal
 
   * [Software](#software)
     * [Third party jar files](#jarfiles)
+    * [Open Jump](#jump)
     * [Shapefiles](#shapefiles)
   * [Validation](#validation)
     * [DRA2020](#DRA2020)
@@ -25,7 +26,9 @@ used in the applications. These have all been updated for compatibility with
 Java 11.
 
 * https://commons.apache.org/proper/commons-compress/ commons-compress-1.19.jar Apache commons compression handling
+*  https://commons.apache.org/proper/commons-lang commons-lang3-3.9.jar Apache commons helper utilities
 * https://github.com/locationtech/jts/releases jts-core-16.1.jar VividSolutions JTS Topology Suite
+* https://repo1.maven.org/maven2/com/googlecode/json-simple/json-simple/1.1.1/ json-simple-1.1.1.jar JSON parser
 
 *** Modularization ***<br/>
 The open source jar files listed above have all been manually updated for Java11 module compatibility and then stored in our `git`  repository.
@@ -45,6 +48,26 @@ The directory containing the un-modularized jar is the starting point. The  modu
    cd ../..
    jar -uf lib/jts-core-1.16.1.jar -C classes module-info.class
 ```
+  ### OpenJUMP  <a id="jump"></a>
+  [toc](#table-of-contents)
+
+The core of the user interface is based on the open source project [OpenJUMP](https://live.osgeo.org/en/overview/openjump_overview.html). The application has
+been modified for our purposes chiefly allowing it to build under current versions of Java. We have also added actions specifically for dealing with
+redistricting metrics.
+
+* Modifications:
+  * Package structure - organized classes separating `core` from `ui`
+  * Logging - use java.util/logging instead of log4j
+  * XML - use java.xml instead of jdom
+  * Serialization - use Jackson instead of custom java2xml.
+* Features removed:
+  * Database integration
+  * `tiff`,
+  * GML - Geography Markup Language
+* New features:
+  * Spreadsheet - provide output to Google sheets
+
+
 ### Shapefiles <a id="shapefiles"></a>
 [toc](#table-of-contents)
 

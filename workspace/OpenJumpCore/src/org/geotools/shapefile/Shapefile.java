@@ -24,9 +24,8 @@ import org.locationtech.jts.geom.MultiPoint;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
-
-import com.vividsolutions.jump.io.EndianDataInputStream;
-import com.vividsolutions.jump.io.EndianDataOutputStream;
+import org.openjump.io.EndianDataInputStream;
+import org.openjump.io.EndianDataOutputStream;
 
 /**
  * This class represents an ESRI Shape file.<p>

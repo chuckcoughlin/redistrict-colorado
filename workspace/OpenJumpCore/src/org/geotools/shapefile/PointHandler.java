@@ -6,9 +6,8 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.impl.CoordinateArraySequence;
-
-import com.vividsolutions.jump.io.EndianDataInputStream;
-import com.vividsolutions.jump.io.EndianDataOutputStream;
+import org.openjump.io.EndianDataInputStream;
+import org.openjump.io.EndianDataOutputStream;
 
 /**
  * Wrapper for a Shapefile Point.

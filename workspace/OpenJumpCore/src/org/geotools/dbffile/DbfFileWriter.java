@@ -11,8 +11,7 @@ import java.util.GregorianCalendar;
 import java.util.Vector;
 
 import org.geotools.misc.FormatedString;
-
-import com.vividsolutions.jump.io.EndianDataOutputStream;
+import org.openjump.io.EndianDataOutputStream;
 
 
 

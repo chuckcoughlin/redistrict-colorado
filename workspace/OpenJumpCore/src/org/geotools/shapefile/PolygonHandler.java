@@ -13,9 +13,8 @@ import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.LinearRing;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Polygon;
-
-import com.vividsolutions.jump.io.EndianDataInputStream;
-import com.vividsolutions.jump.io.EndianDataOutputStream;
+import org.openjump.io.EndianDataInputStream;
+import org.openjump.io.EndianDataOutputStream;
 
 /**
  * Wrapper for a Shapefile Polygon.

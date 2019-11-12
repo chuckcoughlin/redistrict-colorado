@@ -19,7 +19,22 @@
 		<mkdir dir="${install.dir}/bin"/>
 	</target>
 	
-	<target name="build" depends="jump-core,jump-ui,shape-viewer" />
+	<target name="build" depends="cts,jump-core,jump-ui,shape-viewer" />
+	<target name="cts" description="Build CTS jar">
+		<echo message="Compile CTS" />
+		<delete dir="${temp.dir}" />
+		<mkdir dir="${temp.dir}"/>
+		<javac	srcdir="../CTS/src"
+			    destdir="${temp.dir}"
+				compiler="javac10+"
+				source="10" target="10"
+				debug="true"
+				modulepathref="common-modulepath"
+				includeantruntime="false"
+			/>
+		<jar destfile="${lib.dir}/${cts-jar}" includes="**/*.class,**/*.png" basedir="${temp.dir}">
+		</jar>
+	</target>
 	<target name="jump-core" description="Build OpenJUMP core jar">
 		<echo message="Compile Open JUMP core" />
 		<delete dir="${temp.dir}" />
@@ -49,6 +64,24 @@
 		/>
 	    <jar destfile="${lib.dir}/${jump-ui-jar}" includes="**/*.class,**/*.png" basedir="${temp.dir}"/>
 	</target>
+	<target name="map-analyzer" description="Build the Map Analyzer">
+			<echo message="Compile the Map Analyzer" />
+			<delete dir="${temp.dir}" />
+			<mkdir dir="${temp.dir}"/>
+			<javac	srcdir="MapAnalyzer"
+					destdir="${temp.dir}"
+					compiler="javac10+"
+					source="10" target="10"
+					debug="true"
+					modulepathref="common-modulepath"
+					includeantruntime="false"
+			/>
+			<jar destfile="${lib.dir}/${map-analyzer-jar}" includes="**/*.class,**/*.png" basedir="${temp.dir}">
+				<manifest>
+					<attribute name="Main-Class" value="redistrict.colorado.MapAnalyzer"/>
+				</manifest>
+			</jar>
+		</target>
 	<target name="shape-viewer" description="Build the Shapefile Viewer">
 		<echo message="Compile the Shapefile Viewer" />
 		<delete dir="${temp.dir}" />
