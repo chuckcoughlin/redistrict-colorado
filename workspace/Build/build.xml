@@ -6,11 +6,9 @@
 	<property name="install.dir" location="${basedir}/../../app" />
 	<property name="lib.dir" value="${basedir}/lib" />
 	<property name="temp.dir" value="${basedir}/temp" />
-	<property name="cts-jar" value="cts-1.5.1.jar" />
-	<property name="jump-core-jar" value="open-jump-core.jar" />
-	<property name="jump-ui-jar" value="open-jump-ui.jar" />
-	<property name="map-analyzer-jar" value="map-analyzer.jar" />
-	<property name="shape-viewer-jar" value="shapefile-viewer.jar" />
+	<property name="rc-core-jar" value="rc-core.jar" />
+	<property name="rc-ui-jar" value="rc-ui.jar" />
+	<property name="rc-analyzer-jar" value="rc-analyzer.jar" />
 	
 	<tstamp>
 		<format property="build.date" pattern="MM/dd/yyyy HH:mm" />

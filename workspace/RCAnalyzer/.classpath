@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/OpenJumpCore">
+	<classpathentry combineaccessrules="false" kind="src" path="/Archive">
 		<attributes>
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry combineaccessrules="false" kind="src" path="/OpenJumpUI">
+	<classpathentry combineaccessrules="false" kind="src" path="/RCCore">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry combineaccessrules="false" kind="src" path="/RCUI">
 		<attributes>
 			<attribute name="module" value="true"/>
 		</attributes>
@@ -17,6 +22,11 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="/Archive/lib/jts-core-1.16.1.jar">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/Archive/lib/javafx.controls.jmod">
 		<attributes>
 			<attribute name="module" value="true"/>
 		</attributes>
