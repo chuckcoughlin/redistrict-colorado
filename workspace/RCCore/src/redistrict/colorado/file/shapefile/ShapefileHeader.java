@@ -1,14 +1,15 @@
 package redistrict.colorado.file.shapefile;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.logging.Logger;
 
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
 
-import redistrict.colorado.io.EndianDataInputStream;
-import redistrict.colorado.io.EndianDataOutputStream;
 
 /**
  * Wrapper for a shapefile header.
@@ -16,8 +17,8 @@ import redistrict.colorado.io.EndianDataOutputStream;
  * @author  jamesm
  */
 public class ShapefileHeader{
-    
-    private final static boolean DEBUG = false;
+	private static final String CLSS = "ShapefileHeader";
+	private static final Logger LOGGER = Logger.getLogger(CLSS);
     private int fileCode = -1;
     public int fileLength = -1;
     private int indexLength = -1;
@@ -30,23 +31,23 @@ public class ShapefileHeader{
     private double zmin = 0.0;
     private double zmax = 0.0;
     
-    public ShapefileHeader(EndianDataInputStream file) throws IOException {
+    public ShapefileHeader(DataInputStream file) throws IOException {
         
-        fileCode = file.readIntBE();
+        fileCode = file.readInt();
         if ( fileCode != Shapefile.SHAPEFILE_ID )
-            System.err.println("Sfh->WARNING filecode " + fileCode + " not a match for documented shapefile code " + Shapefile.SHAPEFILE_ID);
+            LOGGER.warning(String.format("%s: WARNING - filecode (%d) does not match code for a shapefile (%d)",CLSS,fileCode,Shapefile.SHAPEFILE_ID));
         
         for(int i=0 ; i<5 ; i++){
-            int tmp = file.readIntBE();
+            int tmp = file.readInt();
         }
-        fileLength = file.readIntBE();
+        fileLength = file.readInt();
         
-        version=file.readIntLE();
-        shapeType=file.readIntLE();
+        version=file.readInt();
+        shapeType=file.readInt();
        
         //read in and for now ignore the bounding box
         for(int i=0 ; i<4 ; i++){
-            file.readDoubleLE();
+            file.readDouble();
         }
         
         //skip remaining unused bytes
@@ -99,7 +100,7 @@ public class ShapefileHeader{
         this.fileLength = fileLength;
     }
         
-    public void write(EndianDataOutputStream file) throws IOException {
+    public void write(DataOutputStream file) throws IOException {
         int pos = 0;
         
         file.writeIntBE(fileCode);
@@ -136,10 +137,10 @@ public class ShapefileHeader{
         file.writeDoubleLE(0.0);//Skip unused part of header
         pos+=8;
         
-        if(DEBUG)System.out.println("Sfh->Position "+pos);
+        LOGGER.info(String.format("%s.write: Position = %d",CLSS,pos));
     }
     
-    public void writeToIndex(EndianDataOutputStream file)throws IOException {
+    public void writeToIndex(DataOutputStream file)throws IOException {
         int pos = 0;
         
         file.writeIntBE(fileCode);
@@ -175,7 +176,7 @@ public class ShapefileHeader{
             pos+=8;
         }
         
-        if(DEBUG)System.out.println("Sfh->Index Position "+pos);
+        LOGGER.info(String.format("%s.writeToIndex: Position = %d",CLSS,pos));
     }
     
     public int getShapeType(){

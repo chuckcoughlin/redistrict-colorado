@@ -1,12 +1,12 @@
 package redistrict.colorado.file.shapefile;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 
-import redistrict.colorado.io.EndianDataInputStream;
-import redistrict.colorado.io.EndianDataOutputStream;
 
 /**
  * Interface implemented by all the ShapeType handlers
@@ -33,10 +33,8 @@ public interface ShapeHandler {
     */
     public int getShapeType();
     
-    public Geometry read(EndianDataInputStream file, GeometryFactory geometryFactory, int contentLength) throws IOException, InvalidShapefileException;
-    
-    public void write(Geometry geometry, EndianDataOutputStream file) throws IOException;
-    
+    public Geometry read(DataInputStream file, GeometryFactory geometryFactory, int contentLength) throws IOException, ShapefileException;
+    public void write(Geometry geometry, DataOutputStream file) throws IOException;
     public int getLength(Geometry geometry); //length in 16bit words
     
     /**

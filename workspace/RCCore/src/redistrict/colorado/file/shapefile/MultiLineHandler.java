@@ -28,16 +28,16 @@ public class MultiLineHandler implements ShapeHandler {
         myShapeType = 3;
     }
     
-    public MultiLineHandler(int type) throws InvalidShapefileException {
+    public MultiLineHandler(int type) throws ShapefileException {
         if ((type != 3) &&  (type != 13) &&  (type != 23)) {
-            throw new InvalidShapefileException("MultiLineHandler constructor - expected type to be 3, 13 or 23");
+            throw new ShapefileException("MultiLineHandler constructor - expected type to be 3, 13 or 23");
         }
         myShapeType = type;
     }
     
     public Geometry read(EndianDataInputStream file,
                          GeometryFactory geometryFactory,
-                         int contentLength) throws IOException, InvalidShapefileException {
+                         int contentLength) throws IOException, ShapefileException {
         
         double junk;
 		int actualReadWords = 0; //actual number of 16 bits words read
@@ -51,7 +51,7 @@ public class MultiLineHandler implements ShapeHandler {
         }
         
         else if (shapeType != myShapeType) {
-            throw new InvalidShapefileException("MultilineHandler.read()  - file says its type "+shapeType+" but i'm expecting type "+myShapeType);
+            throw new ShapefileException("MultilineHandler.read()  - file says its type "+shapeType+" but i'm expecting type "+myShapeType);
         }
         
         else {

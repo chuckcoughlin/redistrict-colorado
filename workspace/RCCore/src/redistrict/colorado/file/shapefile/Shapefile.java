@@ -72,22 +72,6 @@ public class Shapefile  {
     private InputStream shpInputStream;
     private int errors;
     
-    /**
-     * Creates and initialises a shapefile from a url
-     * @param url The url of the shapefile
-     */
-    public Shapefile(URL url) {
-        baseURL=url;
-        //shpInputStream= null;
-        //try {
-        //    URLConnection uc = baseURL.openConnection();
-        //    // a 16 kb buffer may be up to 20% faster than the default 2 kb buffer
-        //    shpInputStream = new BufferedInputStream(uc.getInputStream(), 16*1024);
-        //}
-        //catch (Exception e){
-        //    Logger.error(e);
-        //}
-    }
     
     public Shapefile(InputStream is) {
         shpInputStream = is;
@@ -145,7 +129,7 @@ public class Shapefile  {
 
             int type = mainHeader.getShapeType();
             ShapeHandler handler = getShapeHandler(type);
-            if(handler==null) throw new ShapeTypeNotSupportedException("Unsuported shape type: " + type);
+            if(handler==null) throw new ShapefileException("Unsuported shape type: " + type);
 
             errors = 0;
             int count = 1;
@@ -408,7 +392,7 @@ public class Shapefile  {
             Geometry body;
             int type = shpMainHeader.getShapeType();
             ShapeHandler handler = getShapeHandler(type);
-            if(handler==null) throw new ShapeTypeNotSupportedException("Unsupported shape type:" + type);
+            if(handler==null) throw new ShapefileException("Unsupported shape type:" + type);
 
             int recordNumber = 0;
             while (true) {
