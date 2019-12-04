@@ -6,8 +6,8 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.impl.CoordinateArraySequence;
 
-import redistrict.colorado.io.EndianDataInputStream;
-import redistrict.colorado.io.EndianDataOutputStream;
+import redistrict.colorado.io.EndianAwareDataInputStream;
+import redistrict.colorado.io.EndianAwareDataOutputStream;
 
 /**
  * Null Shape handler for files containing only null shapes.
@@ -27,7 +27,7 @@ public class NullShapeHandler implements ShapeHandler {
         myShapeType = 0;
     }
     
-    public Geometry read(EndianDataInputStream file,
+    public Geometry read(EndianAwareDataInputStream file,
                          GeometryFactory geometryFactory,
                          int contentLength) throws IOException, ShapefileException {
 
@@ -52,7 +52,7 @@ public class NullShapeHandler implements ShapeHandler {
         return geom;
     }
     
-    public void write(Geometry geometry, EndianDataOutputStream file) throws IOException {
+    public void write(Geometry geometry, EndianAwareDataOutputStream file) throws IOException {
         file.writeIntLE(0);
     }
     

@@ -25,8 +25,8 @@ import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 
-import redistrict.colorado.io.EndianDataInputStream;
-import redistrict.colorado.io.EndianDataOutputStream;
+import redistrict.colorado.io.EndianAwareDataInputStream;
+import redistrict.colorado.io.EndianAwareDataOutputStream;
 
 /**
  * This class represents an ESRI Shape file.<p>
@@ -86,7 +86,7 @@ public class Shapefile  {
         }
     }
     
-    private EndianDataInputStream getInputStream() throws IOException {
+    private EndianAwareDataInputStream getInputStream() throws IOException {
         if (shpInputStream == null && baseURL != null) {
           try {
             URLConnection uc = baseURL.openConnection();
@@ -99,12 +99,12 @@ public class Shapefile  {
             throw new IOException("Couldn't make a connection to the URL: " + baseURL);
           }
         }
-        return new EndianDataInputStream(shpInputStream);
+        return new EndianAwareDataInputStream(shpInputStream);
     }
     
-    private EndianDataOutputStream getOutputStream() throws IOException {
+    private EndianAwareDataOutputStream getOutputStream() throws IOException {
         BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(baseURL.getFile()));
-        return new EndianDataOutputStream(out);
+        return new EndianAwareDataOutputStream(out);
     }
         
     
@@ -117,7 +117,7 @@ public class Shapefile  {
 
         ArrayList<Geometry> list = new ArrayList<>();
         int pos = 0;
-        try (EndianDataInputStream file = getInputStream()) {
+        try (EndianAwareDataInputStream file = getInputStream()) {
 
             ShapefileHeader mainHeader = new ShapefileHeader(file);
             if(mainHeader.getVersion() != VERSION){
@@ -174,7 +174,7 @@ public class Shapefile  {
      * @param ShapeFileDimension shapefile dimension (2=x,y ; 3=x,y,m ; 4=x,y,z,m)
      */
     public  void write(GeometryCollection geometries, int ShapeFileDimension) throws Exception {
-        try(EndianDataOutputStream file = getOutputStream()) {
+        try(EndianAwareDataOutputStream file = getOutputStream()) {
             ShapefileHeader mainHeader = new ShapefileHeader(geometries, ShapeFileDimension);
             mainHeader.write(file);
             int pos = 50; // header length in WORDS
@@ -210,7 +210,7 @@ public class Shapefile  {
      * @param ShapeFileDimension shapefile dimension (2=x,y ; 3=x,y,m ; 4=x,y,z,m)
      */
     public synchronized void writeIndex(GeometryCollection geometries,
-                                        EndianDataOutputStream file,
+                                        EndianAwareDataOutputStream file,
                                         int ShapeFileDimension) throws Exception {
         Geometry geom;    
         
@@ -366,7 +366,7 @@ public class Shapefile  {
         try (BufferedInputStream bis= new BufferedInputStream(shpInputStream, 4096);
              BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(tmpShp), 4096);
              RandomAccessFile raf = new RandomAccessFile(tmpShp, "r");
-             EndianDataInputStream shx = new EndianDataInputStream(is)) {
+             EndianAwareDataInputStream shx = new EndianAwareDataInputStream(is)) {
             int nb;
             byte[] bytes = new byte[4096];
             while (-1 != (nb = bis.read(bytes))) {
@@ -378,7 +378,7 @@ public class Shapefile  {
             ByteBuffer bb = ByteBuffer.wrap(bytes);
             raf.getChannel().read(bb);
 
-            EndianDataInputStream shp = new EndianDataInputStream(new ByteArrayInputStream(bytes));
+            EndianAwareDataInputStream shp = new EndianAwareDataInputStream(new ByteArrayInputStream(bytes));
             ShapefileHeader shpMainHeader = new ShapefileHeader(shp);
             if (shpMainHeader.getVersion() != VERSION) {
                 LOGGER.warning(String.format("Unknown shp version (%s) : try to read anyway", shpMainHeader.getVersion()));
@@ -403,7 +403,7 @@ public class Shapefile  {
                     bytes = new byte[length*2];
                     bb = ByteBuffer.wrap(bytes);
                     raf.getChannel().read(bb, offset*2 + 8);
-                    shp = new EndianDataInputStream(new ByteArrayInputStream(bytes));
+                    shp = new EndianAwareDataInputStream(new ByteArrayInputStream(bytes));
                     body = handler.read(shp, geometryFactory, length);
                     LOGGER.fine("" + recordNumber + " : from " + offset + " for " + length + " (" + body.getNumPoints() + " pts)");
                     list.add(body);

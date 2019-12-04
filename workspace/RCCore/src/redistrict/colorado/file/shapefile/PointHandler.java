@@ -7,8 +7,8 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.impl.CoordinateArraySequence;
 
-import redistrict.colorado.io.EndianDataInputStream;
-import redistrict.colorado.io.EndianDataOutputStream;
+import redistrict.colorado.io.EndianAwareDataInputStream;
+import redistrict.colorado.io.EndianAwareDataOutputStream;
 
 /**
  * Wrapper for a Shapefile Point.
@@ -20,9 +20,9 @@ public class PointHandler implements ShapeHandler {
     int Ncoords=2; //2 = x,y ;  3= x,y,m ; 4 = x,y,z,m
     int myShapeType = -1;
     
-    public PointHandler(int type) throws InvalidShapefileException {
+    public PointHandler(int type) throws ShapefileException {
         if ((type != 1) && (type != 11) && (type != 21)) {
-            throw new InvalidShapefileException("PointHandler constructor: expected a type of 1, 11 or 21");
+            throw new ShapefileException("PointHandler constructor: expected a type of 1, 11 or 21");
         }
         myShapeType = type;
     }
@@ -31,9 +31,9 @@ public class PointHandler implements ShapeHandler {
         myShapeType = 1; //2d
     }
     
-    public Geometry read(EndianDataInputStream file,
+    public Geometry read(EndianAwareDataInputStream file,
                          GeometryFactory geometryFactory,
-                         int contentLength) throws IOException, InvalidShapefileException {
+                         int contentLength) throws IOException, ShapefileException {
 
 	    int actualReadWords = 0; //actual number of 16 bits words
 	    Geometry geom = null;
@@ -45,7 +45,7 @@ public class PointHandler implements ShapeHandler {
 		    geom = geometryFactory.createPoint(new CoordinateArraySequence(0));
 		}
         else if (shapeType != myShapeType) {
-            throw new InvalidShapefileException("pointhandler.read() - handler's shapetype doesnt match file's");
+            throw new ShapefileException("pointhandler.read() - handler's shapetype doesnt match file's");
         }
         else {
             double x = file.readDoubleLE();
@@ -79,7 +79,7 @@ public class PointHandler implements ShapeHandler {
         return geom;
     }
     
-    public void write(Geometry geometry, EndianDataOutputStream file) throws IOException {
+    public void write(Geometry geometry, EndianAwareDataOutputStream file) throws IOException {
         if (geometry.isEmpty()) {
             file.writeIntLE(0);
             return;

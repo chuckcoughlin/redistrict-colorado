@@ -14,8 +14,8 @@ import org.locationtech.jts.geom.LinearRing;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Polygon;
 
-import redistrict.colorado.io.EndianDataInputStream;
-import redistrict.colorado.io.EndianDataOutputStream;
+import redistrict.colorado.io.EndianAwareDataInputStream;
+import redistrict.colorado.io.EndianAwareDataOutputStream;
 
 /**
  * Wrapper for a Shapefile Polygon.
@@ -32,14 +32,14 @@ public class PolygonHandler implements ShapeHandler {
     
     public PolygonHandler(int type) throws InvalidShapefileException {
         if ((type != 5) && (type != 15) && (type != 25)) {
-            throw new InvalidShapefileException("PolygonHandler constructor - expected type to be 5, 15, or 25.");
+            throw new ShapefileException("PolygonHandler constructor - expected type to be 5, 15, or 25.");
         }
         myShapeType = type;
     }
     
-    public Geometry read(EndianDataInputStream file ,
+    public Geometry read(EndianAwareDataInputStream file ,
                          GeometryFactory geometryFactory,
-                         int contentLength) throws IOException, InvalidShapefileException {
+                         int contentLength) throws IOException, ShapefileException {
     
         int actualReadWords = 0; //actual number of 16 bits words read
         Geometry geom = null;
@@ -52,7 +52,7 @@ public class PolygonHandler implements ShapeHandler {
         }
         
         else if ( shapeType != myShapeType ) {
-            throw new InvalidShapefileException(
+            throw new ShapefileException(
                 "PolygonHandler.read() - got shape type " + shapeType + " but was expecting " + myShapeType
             );
         }
@@ -302,7 +302,7 @@ public class PolygonHandler implements ShapeHandler {
         return lr.getFactory().createLinearRing(newCoords);
     }
 
-     public void write(Geometry geometry, EndianDataOutputStream file) throws IOException{
+     public void write(Geometry geometry, EndianAwareDataOutputStream file) throws IOException{
 
         if (geometry.isEmpty()) {
             file.writeIntLE(0);

@@ -1,4 +1,4 @@
-/*
+/**
  * MapAnalyzer is an interactive tool to load and display a ESRI Shape file. It has tools specially
  * designed to evaluate submissions for the State of Colorado 2020 re-districting activity. The display
  * makes use of Google maps in addition to publicly available maps and voter registration data.

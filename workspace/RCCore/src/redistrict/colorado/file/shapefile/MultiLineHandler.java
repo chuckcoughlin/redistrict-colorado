@@ -14,8 +14,8 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.MultiLineString;
 
-import redistrict.colorado.io.EndianDataInputStream;
-import redistrict.colorado.io.EndianDataOutputStream;
+import redistrict.colorado.io.EndianAwareDataInputStream;
+import redistrict.colorado.io.EndianAwareDataOutputStream;
 
 /**
  * Wrapper for a Shapefile PolyLine.
@@ -35,7 +35,7 @@ public class MultiLineHandler implements ShapeHandler {
         myShapeType = type;
     }
     
-    public Geometry read(EndianDataInputStream file,
+    public Geometry read(EndianAwareDataInputStream file,
                          GeometryFactory geometryFactory,
                          int contentLength) throws IOException, ShapefileException {
         
@@ -143,7 +143,7 @@ public class MultiLineHandler implements ShapeHandler {
         return geom;
     }
     
-    public void write(Geometry geometry, EndianDataOutputStream file) throws IOException {
+    public void write(Geometry geometry, EndianAwareDataOutputStream file) throws IOException {
         
         if (geometry.isEmpty()) {
             file.writeIntLE(0);
@@ -267,50 +267,5 @@ public class MultiLineHandler implements ShapeHandler {
      public Geometry getEmptyGeometry(GeometryFactory factory) {
          return factory.createMultiLineString(new LineString[0]);
      }
-    
 }
 
-/*
- * $Log$
- * Revision 1.1  2005/06/16 14:54:43  javamap
- * *** empty log message ***
- *
- * Revision 1.1  2005/04/29 13:30:59  javamap
- * *** empty log message ***
- *
- * Revision 1.4  2003/07/25 18:49:15  dblasby
- * Allow "extra" data after the content.  Fixes the ICI shapefile bug.
- *
- * Revision 1.3  2003/02/04 02:10:37  jaquino
- * Feature: EditWMSQuery dialog
- *
- * Revision 1.2  2003/01/22 18:31:05  jaquino
- * Enh: Make About Box configurable
- *
- * Revision 1.3  2002/10/30 22:36:11  dblasby
- * Line reader now returns LINESTRING(..) if there is only one part to the arc
- * polyline.
- *
- * Revision 1.2  2002/09/09 20:46:22  dblasby
- * Removed LEDatastream refs and replaced with EndianData[in/out]putstream
- *
- * Revision 1.1  2002/08/27 21:04:58  dblasby
- * orginal
- *
- * Revision 1.2  2002/03/05 10:23:59  jmacgill
- * made sure geometries were created using the factory methods
- *
- * Revision 1.1  2002/02/28 00:38:50  jmacgill
- * Renamed files to more intuitve names
- *
- * Revision 1.3  2002/02/13 00:23:53  jmacgill
- * First semi working JTS version of Shapefile code
- *
- * Revision 1.2  2002/02/11 18:42:45  jmacgill
- * changed read and write statements so that they produce and take Geometry objects instead of specific MultiLine objects
- * changed parts[] array name to partOffsets[] for clarity and consistency with ShapePolygon
- *
- * Revision 1.1  2002/02/11 16:54:43  jmacgill
- * added shapefile code and directories
- *
- */

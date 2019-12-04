@@ -15,8 +15,8 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.MultiPoint;
 import org.locationtech.jts.geom.Point;
 
-import redistrict.colorado.io.EndianDataInputStream;
-import redistrict.colorado.io.EndianDataOutputStream;
+import redistrict.colorado.io.EndianAwareDataInputStream;
+import redistrict.colorado.io.EndianAwareDataOutputStream;
 
 /**
  * Wrapper for a Shapefile MultiPoint.
@@ -31,16 +31,16 @@ public class MultiPointHandler  implements ShapeHandler  {
         myShapeType = 8;
     }
     
-    public MultiPointHandler(int type) throws InvalidShapefileException {
+    public MultiPointHandler(int type) throws ShapefileException {
         if ((type != 8) && (type != 18) && (type != 28)) {
-            throw new InvalidShapefileException("Multipointhandler constructor - expected type to be 8, 18, or 28");
+            throw new ShapefileException("Multipointhandler constructor - expected type to be 8, 18, or 28");
         }
         myShapeType = type;
     }
     
-    public Geometry read(EndianDataInputStream file,
+    public Geometry read(EndianAwareDataInputStream file,
                          GeometryFactory geometryFactory,
-                         int contentLength) throws IOException, InvalidShapefileException {
+                         int contentLength) throws IOException, ShapefileException {
 	
 		int actualReadWords = 0; //actual number of 16 bits words read
 		Geometry geom = null;
@@ -52,7 +52,7 @@ public class MultiPointHandler  implements ShapeHandler  {
             geom = geometryFactory.createMultiPoint(new Point[0]);
         }
         else if (shapeType != myShapeType) {
-            throw new InvalidShapefileException("Multipointhandler.read() - expected type code "+myShapeType+" but got "+shapeType);
+            throw new ShapefileException("Multipointhandler.read() - expected type code "+myShapeType+" but got "+shapeType);
         }
         else {
             //read bbox
@@ -149,7 +149,7 @@ public class MultiPointHandler  implements ShapeHandler  {
     }
     
     
-    public void write(Geometry geometry, EndianDataOutputStream file) throws IOException {
+    public void write(Geometry geometry, EndianAwareDataOutputStream file) throws IOException {
         
         if (geometry.isEmpty()) {
             file.writeIntLE(0);
