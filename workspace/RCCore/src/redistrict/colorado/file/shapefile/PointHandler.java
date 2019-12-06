@@ -1,14 +1,13 @@
 package redistrict.colorado.file.shapefile;
 
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.IOException;
 
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.impl.CoordinateArraySequence;
-
-import redistrict.colorado.io.EndianAwareDataInputStream;
-import redistrict.colorado.io.EndianAwareDataOutputStream;
 
 /**
  * Wrapper for a Shapefile Point.
@@ -31,14 +30,14 @@ public class PointHandler implements ShapeHandler {
         myShapeType = 1; //2d
     }
     
-    public Geometry read(EndianAwareDataInputStream file,
+    public Geometry read(DataInput in,
                          GeometryFactory geometryFactory,
                          int contentLength) throws IOException, ShapefileException {
 
 	    int actualReadWords = 0; //actual number of 16 bits words
 	    Geometry geom = null;
 	
-        int shapeType = file.readIntLE();
+        int shapeType = in.readInt();
 		actualReadWords += 2;
 		
 		if (shapeType == 0) {
@@ -48,21 +47,21 @@ public class PointHandler implements ShapeHandler {
             throw new ShapefileException("pointhandler.read() - handler's shapetype doesnt match file's");
         }
         else {
-            double x = file.readDoubleLE();
-            double y = file.readDoubleLE();
+            double x = in.readDouble();
+            double y = in.readDouble();
             double m , z = Double.NaN;
 		    actualReadWords += 8;
             
             if ( shapeType ==21 ) {
-                m= file.readDoubleLE();
+                m= in.readDouble();
                 actualReadWords += 4;
             }
             
             else if ( shapeType ==11 ) {
-                z = file.readDoubleLE();
+                z = in.readDouble();
                 actualReadWords += 4;
                 if (contentLength>actualReadWords) {
-                    m = file.readDoubleLE();
+                    m = in.readDouble();
                     actualReadWords += 8;
                 }
             }
@@ -72,31 +71,31 @@ public class PointHandler implements ShapeHandler {
         }
         //verify that we have read everything we need
         while (actualReadWords < contentLength) {
-            int junk2 = file.readShortBE();	
+            int junk2 = in.readShort();	
             actualReadWords += 1;
         }
         
         return geom;
     }
     
-    public void write(Geometry geometry, EndianAwareDataOutputStream file) throws IOException {
+    public void write(Geometry geometry, DataOutput out) throws IOException {
         if (geometry.isEmpty()) {
-            file.writeIntLE(0);
+            out.writeInt(0);
             return;
         }
-        file.writeIntLE(getShapeType());
+        out.writeInt(getShapeType());
         Coordinate c = geometry.getCoordinates()[0];
-        file.writeDoubleLE(c.x);
-        file.writeDoubleLE(c.y);
+        out.writeDouble(c.x);
+        out.writeDouble(c.y);
         
         if  (myShapeType ==11) {
              if (Double.isNaN(c.z)) // nan means not defined
-                 file.writeDoubleLE(0.0);
+                 out.writeDouble(0.0);
              else
-                 file.writeDoubleLE(c.z); 
+                 out.writeDouble(c.z); 
         }
         if ( (myShapeType ==11) || (myShapeType ==21) ) {
-             file.writeDoubleLE(-10E40); //M
+             out.writeDouble(-10E40); //M
         }
     }
     

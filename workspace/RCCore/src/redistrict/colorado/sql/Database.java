@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,14 +31,14 @@ public class Database {
 	
 	private Connection connection = null;
 	private static Database instance = null;
-	private final LayerConfigurationTable pose;
+	private final LayerConfigurationTable layerConfiguration;
  
 
 	/**
 	 * Constructor is private per Singleton pattern.
 	 */
 	private Database() {
-		this.pose = new LayerConfigurationTable();
+		this.layerConfiguration = new LayerConfigurationTable();
 	}
 	/**
 	 * Static method to create and/or fetch the single instance.
@@ -50,52 +51,19 @@ public class Database {
 		}
 		return instance;
 	}
-	/**
-	 * @param command user entered string
-	 * @return the corresponding pose name if it exists, otherwise NULL
-	 */
-	public String getPoseForCommand(String command) {
-		return pose.getPoseForCommand(connection,command);
-	}
 
 	
-	/** Return a list of column names with non-null values for the indicated pose
+	/** Return a list of names of defined layers
 	 * property.
 	 * @param mcmap a map of configurations. Joints not present are ignored.
 	 * @param pose
 	 * @param parameter, e.g. "position","speed","torque"
 	 * @return list of upper-case joint names.
 	 */
-	public Map<String,Double> getPoseJointValuesForParameter(Map<String,MotorConfiguration>mcmap,String poseName,String parameter) {
-		return pose.getPoseJointValuesForParameter(connection,mcmap,poseName,parameter);
+	public Map<String,String> getAttributesForLayer(String key) {
+		return layerConfiguration.getAttributesForLayer(connection,key);
 	}
-	/**
-	 * @param user-entered command user 
-	 * @param the corresponding pose name
-	 */
-	public void mapCommandToPose(String cmd, String poseName) {
-		 pose.mapCommandToPose(connection,cmd,poseName);
-		 return;
-	}
-
-	/** 
-	 * Save a list of motor position values as a pose.
-	 * @param mcmap contains a map of motor configurations with positions that define the pose.
-	 * @param poseName
-	 */
-	public void saveJointPositionsForPose(Map<Joint,MotorConfiguration>mcmap,String poseName) {
-		 pose.saveJointPositionsForPose(connection,mcmap,poseName);
-		 return;
-	}
-	/** 
-	 * Save a list of motor position values as a pose. Assign the pose a name equal to the
-	 * id of the new database record.
-	 * @param mcmap contains a map of motor configurations with positions that define the pose.
-	 * @return the new record id as a string.
-	 */
-	public String saveJointPositionsAsNewPose(Map<Joint,MotorConfiguration>mcmap) {
-		 return pose.saveJointPositionsAsNewPose(connection,mcmap);
-	}
+	
 	/**
 	 * Create a database connection. Use this for all subsequent queries. 
 	 * @param path to database instance

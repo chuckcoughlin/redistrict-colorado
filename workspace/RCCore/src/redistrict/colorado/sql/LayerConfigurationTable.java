@@ -9,6 +9,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -29,25 +31,25 @@ public class LayerConfigurationTable {
 	}
 	
 	/**
-	 * Find the pose associated with a command.
+	 * List the names of all defined Layers.
 	 * @cxn an open database connection
-	 * @param command user entered string
-	 * @return the corresponding pose name if it exists, otherwise NULL
+	 * @return the corresponding list. It may be empty.
 	 */
-	public String getPoseForCommand(Connection cxn,String command) {
+	public Map<String,String> getAttributesForLayer(Connection cxn,String key) {
+		Map<String,String> map = new HashMap<>();
+		String attribute = "";
 		PreparedStatement statement = null;
 		ResultSet rs = null;
-		command = command.toLowerCase();
-		String pose = null;
-		String SQL = "select pose from PoseMap where command = ?"; 
+		String SQL = "select name from LayerConfiguration where name = ?"; 
 		try {
 			statement = cxn.prepareStatement(SQL);
 			statement.setQueryTimeout(10);  // set timeout to 10 sec.
-			statement.setString(1,command);
+			statement.setString(1,key);
 			rs = statement.executeQuery();
 			while(rs.next()) {
-				pose = rs.getString("pose");
-				LOGGER.info(String.format("%s.getPoseForCommand: %s is %s",CLSS,command,pose));
+				attribute = rs.getString("name");
+				map.put("name",attribute);
+				LOGGER.info(String.format("%s.getAttributesForLayer %s: %s is %s",CLSS,key,"name",attribute));
 				break;
 			}
 			rs.close();
@@ -65,42 +67,41 @@ public class LayerConfigurationTable {
 				try { statement.close(); } catch(SQLException ignore) {}
 			}
 		}
-		return pose;
+		return map;
 	}
 	
 
 	/**
-	 * Associate a pose with the specified command. If the command already exists
+	 * Associate a layer giving it a new name
 	 * it will be updated.
 	 * @cxn an open database connection
-	 * @param command user entered string
-	 * @param pose the name of the pose to assume
+	 * @param oldName
+	 * @param newName
 	 */
-	public void mapCommandToPose(Connection cxn,String command,String pose) {
+	public void updateLayerName(Connection cxn,String oldName,String newName) {
 		PreparedStatement statement = null;
-		command = command.toLowerCase();
-		pose = pose.toLowerCase();
+		oldName = oldName.toLowerCase();
+		newName = newName.toLowerCase();
 
-		String SQL = "UPDATE PoseMap SET pose=? WHERE command = ?";
+		String SQL = "UPDATE LayerConfiguration SET name=? WHERE name = ?";
 		
 		try {
-			LOGGER.info(String.format("%s.mapCommandToPose: \n%s",CLSS,SQL));
+			LOGGER.info(String.format("%s.updateLayerName: \n%s",CLSS,SQL));
 			statement = cxn.prepareStatement(SQL);
-			statement.setString(1,pose);
-			statement.setString(2,command);
+			statement.setString(1,newName);
+			statement.setString(2,oldName);
 			statement.executeUpdate();
 			if( statement.getUpdateCount()==0) {
 				statement.close();
-				SQL = "INSERT INTO PoseMap (command,pose) VALUES(?,?)";
-				LOGGER.info(String.format("%s.mapCommandToPose: \n%s",CLSS,SQL));
+				SQL = "INSERT INTO LayerConfiguration (name) VALUES(?)";
+				LOGGER.info(String.format("%s.updateLayerName: \n%s",CLSS,SQL));
 				statement = cxn.prepareStatement(SQL);
-				statement.setString(1,command);
-				statement.setString(2,pose);
+				statement.setString(1,newName);
 				statement.executeUpdate();
 			}
 		}
 		catch(SQLException e) {
-			LOGGER.severe(String.format("%s.mapCommandToPose: Database error (%s)",CLSS,e.getMessage()));
+			LOGGER.severe(String.format("%s.updateLayerName: updateLayerName error (%s)",CLSS,e.getMessage()));
 		}
 		finally {
 			if( statement!=null) {

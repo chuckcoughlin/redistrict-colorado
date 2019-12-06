@@ -76,6 +76,16 @@
 			<fileset dir="${lib.dir}">
 				<include name="*.jar"/>
 			</fileset>
+			<fileset dir="${ext.dir}">
+				<include name="*.jar"/>
+			</fileset>
+		</copy>
+		<echo message="Copying javaFX mod files into ${install.dir}/mod" />
+		<mkdir dir="${install.dir}/lib" />
+		<copy todir="${install.dir}/mod">
+			<fileset dir="${fx.jmod.dir}">
+				<include name="*.jmod"/>
+			</fileset>
 		</copy>
 		<echo message="Copying script files into ${install.dir}/bin" />
 		<mkdir dir="${install.dir}/bin" />

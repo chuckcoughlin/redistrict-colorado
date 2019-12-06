@@ -1,10 +1,16 @@
-/*
+/**  
+ * Copyright (C) 2019 Charles Coughlin
+ * 
+ * This program is free software; you may redistribute it and/or
+ * modify it under the terms of the GNU General Public License.
+ * 
  * $Id: MultiLineHandler.java 2110 2010-10-10 15:07:03Z michaudm $
- *
  */
 
 package redistrict.colorado.file.shapefile;
 
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.IOException;
 
 import org.locationtech.jts.geom.Coordinate;
@@ -14,11 +20,8 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.MultiLineString;
 
-import redistrict.colorado.io.EndianAwareDataInputStream;
-import redistrict.colorado.io.EndianAwareDataOutputStream;
-
 /**
- * Wrapper for a Shapefile PolyLine.
+ * Wrapper for a Shapefile PolyLine. The streams should be configured as LITTLE endian.
  */
 public class MultiLineHandler implements ShapeHandler {
     
@@ -35,7 +38,7 @@ public class MultiLineHandler implements ShapeHandler {
         myShapeType = type;
     }
     
-    public Geometry read(EndianAwareDataInputStream file,
+    public Geometry read(DataInput in,
                          GeometryFactory geometryFactory,
                          int contentLength) throws IOException, ShapefileException {
         
@@ -43,7 +46,7 @@ public class MultiLineHandler implements ShapeHandler {
 		int actualReadWords = 0; //actual number of 16 bits words read
 		Geometry geom = null;
         
-        int shapeType = file.readIntLE();
+        int shapeType = in.readInt();
 		actualReadWords += 2;
         
         if (shapeType == 0) {
@@ -56,20 +59,20 @@ public class MultiLineHandler implements ShapeHandler {
         
         else {
             //read bounding box (not needed)
-            junk = file.readDoubleLE();
-            junk = file.readDoubleLE();
-            junk = file.readDoubleLE();
-            junk = file.readDoubleLE();
+            junk = in.readDouble();
+            junk = in.readDouble();
+            junk = in.readDouble();
+            junk = in.readDouble();
 		    actualReadWords += 4*4;
             
-            int numParts = file.readIntLE();
-            int numPoints = file.readIntLE(); //total number of points
+            int numParts = in.readInt();
+            int numPoints = in.readInt(); //total number of points
 		    actualReadWords += 4;      
             
             int[] partOffsets = new int[numParts];
             
             for (int i=0 ; i<numParts ; i++){
-                partOffsets[i]=file.readIntLE();
+                partOffsets[i]=in.readInt();
 		    	actualReadWords += 2;
             }
             
@@ -77,16 +80,16 @@ public class MultiLineHandler implements ShapeHandler {
             Coordinate[] coords = new Coordinate[numPoints];
             
             for (int t=0 ; t<numPoints ; t++) {
-                coords[t] = new Coordinate(file.readDoubleLE(),file.readDoubleLE());
+                coords[t] = new Coordinate(in.readDouble(),in.readDouble());
 		    	actualReadWords += 8;
             }
             
             if (myShapeType == 13) {
-                junk =file.readDoubleLE();  //z min, max
-                junk =file.readDoubleLE();
+                junk =in.readDouble();  //z min, max
+                junk =in.readDouble();
                 actualReadWords += 8;
                 for (int t = 0 ; t<numPoints ; t++) {
-                    coords[t].z =   file.readDoubleLE(); //z value
+                    coords[t].z =   in.readDouble(); //z value
 		       	    actualReadWords += 4;
                 }
             }
@@ -100,11 +103,11 @@ public class MultiLineHandler implements ShapeHandler {
 		    		fullLength =  22 + 2*numParts + (numPoints * 8) + 4+4+4*numPoints;
                 }
                 if (contentLength >= fullLength) { //are ms actually there?
-                    junk =file.readDoubleLE();  //m min, max
-                    junk =file.readDoubleLE();
+                    junk =in.readDouble();  //m min, max
+                    junk =in.readDouble();
 		    	    actualReadWords += 8;
                     for (int t = 0 ; t<numPoints ; t++) {
-                         junk =file.readDoubleLE(); //m value
+                         junk =in.readDouble(); //m value
 		    			 actualReadWords += 4;
                     }
                 }
@@ -136,76 +139,76 @@ public class MultiLineHandler implements ShapeHandler {
         
         //verify that we have read everything we need
 	    while (actualReadWords < contentLength) {
-		    int junk2 = file.readShortBE();	
+		    int junk2 = in.readShort();	
 		    actualReadWords += 1;
 	    }
 	    
         return geom;
     }
     
-    public void write(Geometry geometry, EndianAwareDataOutputStream file) throws IOException {
+    public void write(Geometry geometry, DataOutput out) throws IOException {
         
         if (geometry.isEmpty()) {
-            file.writeIntLE(0);
+            out.writeInt(0);
             return;
         }
         
         MultiLineString multi = (MultiLineString)geometry;
         int npoints;
         Coordinate[] coords;
-        file.writeIntLE(getShapeType());
+        out.writeInt(getShapeType());
         
         Envelope box = multi.getEnvelopeInternal();
-        file.writeDoubleLE(box.getMinX());
-        file.writeDoubleLE(box.getMinY());
-        file.writeDoubleLE(box.getMaxX());
-        file.writeDoubleLE(box.getMaxY());
+        out.writeDouble(box.getMinX());
+        out.writeDouble(box.getMinY());
+        out.writeDouble(box.getMaxX());
+        out.writeDouble(box.getMaxY());
         
         int numParts = multi.getNumGeometries();
         
-        file.writeIntLE(numParts);
+        out.writeInt(numParts);
         npoints= multi.getNumPoints();
-        file.writeIntLE(npoints);
+        out.writeInt(npoints);
         
         LineString[] lines = new LineString[numParts];
         int idx = 0;
         
         for(int i=0 ; i<numParts ; i++){
             lines[i] = (LineString)multi.getGeometryN(i);
-            file.writeIntLE(idx);
+            out.writeInt(idx);
             idx = idx + lines[i].getNumPoints();
         }
         
         coords = multi.getCoordinates();
         for(int t=0 ; t<npoints ; t++) {
-               file.writeDoubleLE(coords[t].x);
-               file.writeDoubleLE(coords[t].y);
+               out.writeDouble(coords[t].x);
+               out.writeDouble(coords[t].y);
         }
         
         if (myShapeType == 13) { //z
             double[] zExtreame = zMinMax(multi);
             if (Double.isNaN(zExtreame[0] )) {
-                file.writeDoubleLE(0.0);
-                file.writeDoubleLE(0.0);
+                out.writeDouble(0.0);
+                out.writeDouble(0.0);
             }
             else {
-                file.writeDoubleLE(zExtreame[0]);
-                file.writeDoubleLE(zExtreame[1]);
+                out.writeDouble(zExtreame[0]);
+                out.writeDouble(zExtreame[1]);
             }
             for (int t=0 ; t<npoints ; t++) {
                 double z = coords[t].z;
                 if (Double.isNaN(z))
-                     file.writeDoubleLE(0.0);
+                     out.writeDouble(0.0);
                 else
-                     file.writeDoubleLE(z);
+                     out.writeDouble(z);
             }
         }
         
         if (myShapeType >= 13) { //m
-            file.writeDoubleLE(-10E40);
-            file.writeDoubleLE(-10E40);
+            out.writeDouble(-10E40);
+            out.writeDouble(-10E40);
             for(int t=0 ; t<npoints ; t++) {
-                file.writeDoubleLE(-10E40);
+                out.writeDouble(-10E40);
             }
         }
         

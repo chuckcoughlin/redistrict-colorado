@@ -1,7 +1,11 @@
+/**  
+ * Copyright (C) 2019 Charles Coughlin
+ * 
+ * This program is free software; you may redistribute it and/or
+ * modify it under the terms of the GNU General Public License.
+ */
 package redistrict.colorado.file.shapefile;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.logging.Logger;
 
@@ -10,9 +14,14 @@ import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
 
+import redistrict.colorado.io.EndianAwareInputStream;
+import redistrict.colorado.io.EndianAwareOutputStream;
+import redistrict.colorado.io.EndianType;
+
 
 /**
- * Wrapper for a shapefile header.
+ * Wrapper for a shapefile header. The Input/Output streams should be BIG Endian up
+ * through the length, then LITTLE.
  *
  * @author  jamesm
  */
@@ -31,27 +40,28 @@ public class ShapefileHeader{
     private double zmin = 0.0;
     private double zmax = 0.0;
     
-    public ShapefileHeader(DataInputStream file) throws IOException {
-        
-        fileCode = file.readInt();
+    public ShapefileHeader(EndianAwareInputStream inputStream) throws IOException {
+    	inputStream.setType(EndianType.BIG);
+        fileCode = inputStream.readInt();
         if ( fileCode != Shapefile.SHAPEFILE_ID )
             LOGGER.warning(String.format("%s: WARNING - filecode (%d) does not match code for a shapefile (%d)",CLSS,fileCode,Shapefile.SHAPEFILE_ID));
         
         for(int i=0 ; i<5 ; i++){
-            int tmp = file.readInt();
+            int tmp = inputStream.readInt();
         }
-        fileLength = file.readInt();
+        fileLength = inputStream.readInt();
         
-        version=file.readInt();
-        shapeType=file.readInt();
+        inputStream.setType(EndianType.LITTLE);
+        version=inputStream.readInt();
+        shapeType=inputStream.readInt();
        
         //read in and for now ignore the bounding box
         for(int i=0 ; i<4 ; i++){
-            file.readDouble();
+            inputStream.readDouble();
         }
         
         //skip remaining unused bytes
-        file.skipBytes(32);
+        inputStream.skipBytes(32);
     }
     
     public ShapefileHeader(GeometryCollection geometries, int dims) throws Exception
@@ -100,79 +110,80 @@ public class ShapefileHeader{
         this.fileLength = fileLength;
     }
         
-    public void write(DataOutputStream file) throws IOException {
+    public void write(EndianAwareOutputStream out) throws IOException {
         int pos = 0;
-        
-        file.writeIntBE(fileCode);
+        out.setType(EndianType.BIG);
+        out.writeInt(fileCode);
         pos+=4;
         
         for(int i=0;i<5;i++){
-            file.writeIntBE(0); //Skip unused part of header
+            out.writeInt(0); //Skip unused part of header
             pos+=4;
         }
-        
-        file.writeIntBE(fileLength);
+        out.writeInt(fileLength);  // The writer was BIG, reader LITTLE?
         pos+=4;
         
-        file.writeIntLE(version);
+        out.setType(EndianType.LITTLE);
+        out.writeInt(version);
         pos+=4;
         
-        file.writeIntLE(shapeType);
+        out.writeInt(shapeType);
         pos+=4;
         
         //write the bounding box
-        file.writeDoubleLE(bounds.getMinX());
-        file.writeDoubleLE(bounds.getMinY());
-        file.writeDoubleLE(bounds.getMaxX());
-        file.writeDoubleLE(bounds.getMaxY());
+        out.writeDouble(bounds.getMinX());
+        out.writeDouble(bounds.getMinY());
+        out.writeDouble(bounds.getMaxX());
+        out.writeDouble(bounds.getMaxY());
         pos+=8*4;
         
         // added by mmichaud on 4 nov. 2004
-        file.writeDoubleLE(zmin);
-        file.writeDoubleLE(zmax);
+        out.writeDouble(zmin);
+        out.writeDouble(zmax);
         pos+=8*2;
         
         //skip remaining unused bytes
-        file.writeDoubleLE(0.0);
-        file.writeDoubleLE(0.0);//Skip unused part of header
+        out.writeDouble(0.0);
+        out.writeDouble(0.0);//Skip unused part of header
         pos+=8;
         
         LOGGER.info(String.format("%s.write: Position = %d",CLSS,pos));
     }
     
-    public void writeToIndex(DataOutputStream file)throws IOException {
+    public void writeToIndex(EndianAwareOutputStream out)throws IOException {
         int pos = 0;
-        
-        file.writeIntBE(fileCode);
+        out.setType(EndianType.BIG);
+        out.writeInt(fileCode);
         pos+=4;
         
         for(int i=0;i<5;i++){
-            file.writeIntBE(0);//Skip unused part of header
+            out.writeInt(0);//Skip unused part of header
             pos+=4;
         }
         
-        file.writeIntBE(indexLength);
+        out.writeInt(indexLength);
         pos+=4;
         
-        file.writeIntLE(version);
+        out.setType(EndianType.LITTLE);
+        out.writeInt(version);
         pos+=4;
         
-        file.writeIntLE(shapeType);
+        out.writeInt(shapeType);
         pos+=4;
         
         //write the bounding box
         pos+=8;
-        file.writeDoubleLE(bounds.getMinX() );
+        out.writeDouble(bounds.getMinX() );
         pos+=8;
-        file.writeDoubleLE(bounds.getMinY() );
+        out.writeDouble(bounds.getMinY() );
         pos+=8;
-        file.writeDoubleLE(bounds.getMaxX() );
+        out.writeDouble(bounds.getMaxX() );
         pos+=8;
-        file.writeDoubleLE(bounds.getMaxY() );
+        out.writeDouble(bounds.getMaxY() );
         
         //skip remaining unused bytes
         for(int i=0;i<4;i++){
-            file.writeDoubleLE(0.0);//Skip unused part of header
+            out.writeDouble(0.0);//Skip unused part of header
             pos+=8;
         }
         

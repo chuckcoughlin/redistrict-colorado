@@ -1,6 +1,6 @@
 # Toolchain
 
-This document describes the prerequisites and credits the pre-cursors for installation and construction of the various tools in this repository.
+This document describes the construction and installation of the "MapAnalyzer" application. It defines prerequisites and credits its pre-cursors.
 
 
 ***
@@ -16,9 +16,20 @@ This document describes the prerequisites and credits the pre-cursors for instal
 
 ***
 ## Software <a id="software"/>
-The development host is an iMac running OSX Mohave (10.14) and Java 10. It is downloadable from [here](https://www.oracle.com/technetwork/java/javase/downloads/java-archive-javase10-4425482.html). Make sure to download the JDK and install the “Development tools” into the default location (e.g. /usr/local/bin). Extend the system path to include this area.
 
-The code repository resides on this machine.
+The development host is an iMac running OSX Mohave (10.14) and Java 13 with the JavaFX 13 graphics classes. Java is downloadable from [here](https://www.oracle.com/technetwork/java/javase/downloads/jdk13-downloads-5672538.html). Make sure to download the JDK and install the “Development tools” into the default location (e.g. /usr/local/bin). Extend the system path to include this area. JavaFX 13 is available from [here](https://openjfx.io/)
+
+The build environment is *eclipse*, the 2019-09 version is available from [The Eclipse Foundation](https://www.eclipse.org/downloads/packages/). It requires a plugin update for Java 13 installable by drag and drop from [here](https://marketplace.eclipse.org/content/java-13-support-eclipse-2019-09-413).
+
+JavaFX must be configured and available as a user library for both *eclipse* and the application. The steps to do so are explained [here](https://stackoverflow.com/questions/52144931/how-to-add-javafx-runtime-to-eclipse-in-java-11).
+  * Download the JavaFX SDK from [here](https://gluonhq.com/products/javafx)
+  * Unzip the resulting file into Archive/lib.
+  * From Eclipse Preferences/Java/Build Path/User Libraries create a new user library name JavaFX13. Add all jar files from the download.
+  * Configure projects to use this library.
+
+
+
+
 ### Third-party Jar Files  <a id="jarfiles"></a>
 [toc](#table-of-contents)
 The *Archive* eclipse project is a collection of open-source library modules
@@ -26,6 +37,7 @@ used in the applications. These have all been updated for compatibility with
 Java 11.
 
 * https://commons.apache.org/proper/commons-compress/ commons-compress-1.19.jar Apache commons compression handling
+* https://github.com/orbisgis/cts cts-1.5.1.jar Coordinate Transformation Suite
 *  https://commons.apache.org/proper/commons-lang commons-lang3-3.9.jar Apache commons helper utilities
 * https://github.com/locationtech/jts/releases jts-core-16.1.jar VividSolutions JTS Topology Suite
 * https://repo1.maven.org/maven2/com/googlecode/json-simple/json-simple/1.1.1/ json-simple-1.1.1.jar JSON parser
@@ -51,7 +63,7 @@ The directory containing the un-modularized jar is the starting point. The  modu
   ### OpenJUMP  <a id="jump"></a>
   [toc](#table-of-contents)
 
-The core of the user interface is based on the open source project [OpenJUMP](https://live.osgeo.org/en/overview/openjump_overview.html). The application has
+The core of the user interface is based on the open source project [OpenJUMP](http://www.openjump.org). The application has
 been modified for our purposes chiefly allowing it to build under current versions of Java. We have also added actions specifically for dealing with
 redistricting metrics.
 
@@ -72,4 +84,3 @@ redistricting metrics.
 [toc](#table-of-contents)
 
 The main code for analyzing ESRI shape files is derived from the Unified Mapping Platform, [OpenJump](https://sourceforge.net/projects/jump-pilot/files/latest/download). Code at version 1.14.1 was simplified and upgraded for Java 11.
-Further details of the format were gleaned from `QGIS` C++ code downloadable [here](https://github.com/qgis/QGIS).

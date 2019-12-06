@@ -1,5 +1,7 @@
 package redistrict.colorado.file.shapefile;
 
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -14,11 +16,8 @@ import org.locationtech.jts.geom.LinearRing;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Polygon;
 
-import redistrict.colorado.io.EndianAwareDataInputStream;
-import redistrict.colorado.io.EndianAwareDataOutputStream;
-
 /**
- * Wrapper for a Shapefile Polygon.
+ * Wrapper for a Shapefile Polygon. The file should be read in LITTLE endian mode.
  */
 public class PolygonHandler implements ShapeHandler {
 
@@ -30,21 +29,21 @@ public class PolygonHandler implements ShapeHandler {
         myShapeType = 5;
     }
     
-    public PolygonHandler(int type) throws InvalidShapefileException {
+    public PolygonHandler(int type) throws ShapefileException {
         if ((type != 5) && (type != 15) && (type != 25)) {
             throw new ShapefileException("PolygonHandler constructor - expected type to be 5, 15, or 25.");
         }
         myShapeType = type;
     }
     
-    public Geometry read(EndianAwareDataInputStream file ,
+    public Geometry read(DataInput file ,
                          GeometryFactory geometryFactory,
                          int contentLength) throws IOException, ShapefileException {
     
         int actualReadWords = 0; //actual number of 16 bits words read
         Geometry geom = null;
 
-        int shapeType = file.readIntLE();
+        int shapeType = file.readInt();
         actualReadWords += 2;
         
         if (shapeType == 0) {
@@ -60,22 +59,22 @@ public class PolygonHandler implements ShapeHandler {
         else {
             
             //bounds
-            file.readDoubleLE();
-            file.readDoubleLE();
-            file.readDoubleLE();
-            file.readDoubleLE();
+            file.readDouble();
+            file.readDouble();
+            file.readDouble();
+            file.readDouble();
             actualReadWords += 4*4;
             
             int partOffsets[];
             
-            int numParts = file.readIntLE();
-            int numPoints = file.readIntLE();
+            int numParts = file.readInt();
+            int numPoints = file.readInt();
             actualReadWords += 4;
             
             partOffsets = new int[numParts];
             
             for(int i = 0 ; i<numParts ; i++) {
-                partOffsets[i]=file.readIntLE();
+                partOffsets[i]=file.readInt();
                 actualReadWords += 2;
             }
             
@@ -87,16 +86,16 @@ public class PolygonHandler implements ShapeHandler {
             Coordinate[] coords = new Coordinate[numPoints];
             
             for(int t=0 ; t<numPoints ; t++) {
-                coords[t]= new Coordinate(file.readDoubleLE(),file.readDoubleLE());
+                coords[t]= new Coordinate(file.readDouble(),file.readDouble());
                 actualReadWords += 8;
             }
             
             if (myShapeType == 15) {  // PolygonZ
-                file.readDoubleLE();  //zmin
-                file.readDoubleLE();  //zmax
+                file.readDouble();  //zmin
+                file.readDouble();  //zmax
                 actualReadWords += 8;
                  for(int t=0 ; t<numPoints ; t++) {
-                    coords[t].z = file.readDoubleLE();
+                    coords[t].z = file.readDouble();
                     actualReadWords += 4;
                 }
             }
@@ -110,11 +109,11 @@ public class PolygonHandler implements ShapeHandler {
                     fullLength = 22 + (2*numParts) + (8*numPoints) + 8+ (4*numPoints) ;
                 }
                 if (contentLength >= fullLength) {
-                    file.readDoubleLE();  //mmin
-                    file.readDoubleLE();  //mmax
+                    file.readDouble();  //mmin
+                    file.readDouble();  //mmax
                     actualReadWords += 8;
                     for(int t=0 ; t<numPoints ; t++) {
-                         file.readDoubleLE();
+                         file.readDouble();
                          actualReadWords += 4;
                     }
                 }
@@ -243,7 +242,7 @@ public class PolygonHandler implements ShapeHandler {
         }
         //verify that we have read everything we need
         while (actualReadWords < contentLength) {
-            int junk = file.readShortBE();	
+            int junk = file.readShort();	
             actualReadWords += 1;
         }
         return geom;
@@ -302,10 +301,10 @@ public class PolygonHandler implements ShapeHandler {
         return lr.getFactory().createLinearRing(newCoords);
     }
 
-     public void write(Geometry geometry, EndianAwareDataOutputStream file) throws IOException{
+     public void write(Geometry geometry, DataOutput file) throws IOException{
 
         if (geometry.isEmpty()) {
-            file.writeIntLE(0);
+            file.writeInt(0);
             return;
         }
         
@@ -317,13 +316,13 @@ public class PolygonHandler implements ShapeHandler {
             multi = geometry.getFactory().createMultiPolygon(new Polygon[]{(Polygon)geometry});
         }
         
-        file.writeIntLE(getShapeType());
+        file.writeInt(getShapeType());
         
         Envelope box = multi.getEnvelopeInternal();
-        file.writeDoubleLE(box.getMinX());
-        file.writeDoubleLE(box.getMinY());
-        file.writeDoubleLE(box.getMaxX());
-        file.writeDoubleLE(box.getMaxY());
+        file.writeDouble(box.getMinX());
+        file.writeDouble(box.getMinY());
+        file.writeDouble(box.getMaxX());
+        file.writeDouble(box.getMaxY());
         
         //need to find the total number of rings and points
         int nrings=0;
@@ -348,12 +347,12 @@ public class PolygonHandler implements ShapeHandler {
 
         int npoints = multi.getNumPoints();
 
-        file.writeIntLE(nrings);
-        file.writeIntLE(npoints);
+        file.writeInt(nrings);
+        file.writeInt(npoints);
 
         int count =0;
         for(int t=0 ; t<nrings ; t++) {
-            file.writeIntLE(count);
+            file.writeInt(count);
             count = count + pointsPerRing[t] ;
         }
 
@@ -362,34 +361,34 @@ public class PolygonHandler implements ShapeHandler {
         int num;
         num = Array.getLength(coords);
         for(int t=0 ; t<num ; t++) {
-            file.writeDoubleLE(coords[t].x);
-            file.writeDoubleLE(coords[t].y);
+            file.writeDouble(coords[t].x);
+            file.writeDouble(coords[t].y);
         }
 
         if (myShapeType == 15) {  //z
             double[] zExtreame = zMinMax(multi);
             if (Double.isNaN(zExtreame[0] )) {
-                file.writeDoubleLE(0.0);
-                file.writeDoubleLE(0.0);
+                file.writeDouble(0.0);
+                file.writeDouble(0.0);
             }
             else {
-                file.writeDoubleLE(zExtreame[0]);
-                file.writeDoubleLE(zExtreame[1]);
+                file.writeDouble(zExtreame[0]);
+                file.writeDouble(zExtreame[1]);
             }
             for (int t=0 ; t<npoints ; t++) {
                 double z = coords[t].z;
                 if (Double.isNaN(z))
-                     file.writeDoubleLE(0.0);
+                     file.writeDouble(0.0);
                 else
-                     file.writeDoubleLE(z);
+                     file.writeDouble(z);
             }
         }
 
         if (myShapeType >= 15) {  //m
-            file.writeDoubleLE(-10E40);
-            file.writeDoubleLE(-10E40);
+            file.writeDouble(-10E40);
+            file.writeDouble(-10E40);
             for(int t=0 ; t<npoints ; t++) {
-                file.writeDoubleLE(-10E40);
+                file.writeDouble(-10E40);
             }
         }
     }

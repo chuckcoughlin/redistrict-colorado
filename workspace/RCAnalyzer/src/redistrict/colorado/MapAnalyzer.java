@@ -17,19 +17,22 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 public class MapAnalyzer extends Application {
-
+	public final static String TITLE  = "Map Analyzer";
+	public final static int STAGE_WIDTH  = 1200;
+	public final static int STAGE_HEIGHT = 1000;
+	/**
+	 * Create the root stage and add left and right scenes.
+	 */
     @Override
-    public void start(Stage stage) {
-        String javaVersion = System.getProperty("java.version");
-        String javafxVersion = System.getProperty("javafx.version");
-        Label l = new Label("Hello, JavaFX " + javafxVersion + ", running on Java " + javaVersion + ".");
-        Scene scene = new Scene(new StackPane(l), 640, 480);
-        stage.setScene(scene);
-        stage.show();
+    public void start(Stage root) {
+        Label layerLabel = new Label("===== Layer Definitions =======");
+        Scene left = new Scene(new StackPane(layerLabel), STAGE_WIDTH, STAGE_HEIGHT);
+        root.setTitle(TITLE);
+        root.setScene(left);
+        root.show();
     }
 
     public static void main(String[] args) {
-        launch();
+        launch(args);
     }
 }
-

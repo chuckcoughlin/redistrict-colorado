@@ -1,7 +1,7 @@
 package redistrict.colorado.file.shapefile;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.IOException;
 
 import org.locationtech.jts.geom.Geometry;
@@ -33,8 +33,8 @@ public interface ShapeHandler {
     */
     public int getShapeType();
     
-    public Geometry read(DataInputStream file, GeometryFactory geometryFactory, int contentLength) throws IOException, ShapefileException;
-    public void write(Geometry geometry, DataOutputStream file) throws IOException;
+    public Geometry read(DataInput stream, GeometryFactory geometryFactory, int contentLength) throws IOException, ShapefileException;
+    public void write(Geometry geometry, DataOutput file) throws IOException;
     public int getLength(Geometry geometry); //length in 16bit words
     
     /**

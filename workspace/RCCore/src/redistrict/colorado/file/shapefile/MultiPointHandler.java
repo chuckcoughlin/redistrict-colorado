@@ -6,6 +6,8 @@
 
 package redistrict.colorado.file.shapefile;
 
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.IOException;
 
 import org.locationtech.jts.geom.Coordinate;
@@ -15,11 +17,8 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.MultiPoint;
 import org.locationtech.jts.geom.Point;
 
-import redistrict.colorado.io.EndianAwareDataInputStream;
-import redistrict.colorado.io.EndianAwareDataOutputStream;
-
 /**
- * Wrapper for a Shapefile MultiPoint.
+ * Wrapper for a Shapefile MultiPoint. Streams should be configured as LITTLE endian.
  *
  * @author  dblasby
  */
@@ -38,14 +37,14 @@ public class MultiPointHandler  implements ShapeHandler  {
         myShapeType = type;
     }
     
-    public Geometry read(EndianAwareDataInputStream file,
+    public Geometry read(DataInput in,
                          GeometryFactory geometryFactory,
                          int contentLength) throws IOException, ShapefileException {
 	
 		int actualReadWords = 0; //actual number of 16 bits words read
 		Geometry geom = null;
 	
-        int shapeType = file.readIntLE();  
+        int shapeType = in.readInt();  
 		actualReadWords += 2;
         
         if (shapeType == 0) {
@@ -56,30 +55,30 @@ public class MultiPointHandler  implements ShapeHandler  {
         }
         else {
             //read bbox
-            file.readDoubleLE();
-            file.readDoubleLE();
-            file.readDoubleLE();
-            file.readDoubleLE();
+            in.readDouble();
+            in.readDouble();
+            in.readDouble();
+            in.readDouble();
             
 		    actualReadWords += 4*4;
             
-            int numpoints = file.readIntLE(); 
+            int numpoints = in.readInt(); 
 		    actualReadWords += 2;
 	        
             Coordinate[] coords = new Coordinate[numpoints];
             for (int t=0 ; t<numpoints ; t++) {
-                double x = file.readDoubleLE();
-                double y = file.readDoubleLE();
+                double x = in.readDouble();
+                double y = in.readDouble();
 		    	actualReadWords += 8;
                 coords[t] = new Coordinate(x,y);
             }
             
             if (myShapeType == 18) {
-                file.readDoubleLE(); //z min/max
-                file.readDoubleLE();
+                in.readDouble(); //z min/max
+                in.readDouble();
 		    	actualReadWords += 8;
                 for (int t=0 ; t<numpoints ; t++) { 
-                    double z =  file.readDoubleLE();//z
+                    double z =  in.readDouble();//z
 		    		actualReadWords += 4;
                     coords[t].z = z;
                 }
@@ -94,11 +93,11 @@ public class MultiPointHandler  implements ShapeHandler  {
 		    		fullLength = 20 + (numpoints * 8)  +8 +4*numpoints;
 		    	}
                 if (contentLength >= fullLength) { //is the M portion actually there?
-                    file.readDoubleLE(); //m min/max
-                    file.readDoubleLE();
+                    in.readDouble(); //m min/max
+                    in.readDouble();
 		    		actualReadWords += 8;
                     for (int t=0 ; t<numpoints ; t++) { 
-                        file.readDoubleLE();//m
+                        in.readDouble();//m
 		    			actualReadWords += 4;
                     }
                 }
@@ -109,7 +108,7 @@ public class MultiPointHandler  implements ShapeHandler  {
         
 	    //verify that we have read everything we need
 	    while (actualReadWords < contentLength) {
-		    int junk2 = file.readShortBE();	
+		    int junk2 = in.readShort();	
 		    actualReadWords += 1;
 	    }
 	
@@ -149,56 +148,56 @@ public class MultiPointHandler  implements ShapeHandler  {
     }
     
     
-    public void write(Geometry geometry, EndianAwareDataOutputStream file) throws IOException {
+    public void write(Geometry geometry, DataOutput out) throws IOException {
         
         if (geometry.isEmpty()) {
-            file.writeIntLE(0);
+            out.writeInt(0);
             return;
         }
         
         MultiPoint mp = (MultiPoint) geometry;
-        file.writeIntLE(getShapeType());
+        out.writeInt(getShapeType());
         
         Envelope box = mp.getEnvelopeInternal();
-        file.writeDoubleLE(box.getMinX());
-        file.writeDoubleLE(box.getMinY());
-        file.writeDoubleLE(box.getMaxX());
-        file.writeDoubleLE(box.getMaxY());
+        out.writeDouble(box.getMinX());
+        out.writeDouble(box.getMinY());
+        out.writeDouble(box.getMaxX());
+        out.writeDouble(box.getMaxY());
         
         int numParts = mp.getNumGeometries();
-        file.writeIntLE(numParts);
+        out.writeInt(numParts);
         
         for (int t=0;t<mp.getNumGeometries(); t++) {
             Coordinate c = (mp.getGeometryN(t)).getCoordinate();
-            file.writeDoubleLE(c.x);
-            file.writeDoubleLE(c.y);            
+            out.writeDouble(c.x);
+            out.writeDouble(c.y);            
         }
         if (myShapeType == 18) {
             double[] zExtreame = zMinMax(mp);
             if (Double.isNaN(zExtreame[0])) {
-                file.writeDoubleLE(0.0);
-                file.writeDoubleLE(0.0);
+                out.writeDouble(0.0);
+                out.writeDouble(0.0);
             }
             else {
-                file.writeDoubleLE(zExtreame[0]);
-                file.writeDoubleLE(zExtreame[1]);
+                out.writeDouble(zExtreame[0]);
+                out.writeDouble(zExtreame[1]);
             }
             for (int t=0;t<mp.getNumGeometries(); t++) {
                 Coordinate c = (mp.getGeometryN(t)).getCoordinate();
                 double z = c.z;
                 if (Double.isNaN(z)) {
-                    file.writeDoubleLE(0.0);
+                    out.writeDouble(0.0);
                 }
                 else {
-                    file.writeDoubleLE(z);
+                    out.writeDouble(z);
                 }
             }
         }
         if (myShapeType >= 18) {
-            file.writeDoubleLE(-10E40);
-            file.writeDoubleLE(-10E40);
+            out.writeDouble(-10E40);
+            out.writeDouble(-10E40);
             for (int t=0;t<mp.getNumGeometries(); t++) {   
-                file.writeDoubleLE(-10E40);
+                out.writeDouble(-10E40);
             }
         }
     }
