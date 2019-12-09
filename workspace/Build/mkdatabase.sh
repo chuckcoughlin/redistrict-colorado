@@ -1,12 +1,12 @@
 
-#  Build a database for installation on the robot. It contains
-#  the current repertoire of poses and actions.
-#
-# The current directory is the build project.
+#	Build a database for atorage of redistriction map definitions.
+#	We do not store the actual maps, only their definitions. We
+#	still require the original data-files.	
+#	The current directory is the build project.
 #
 #!/bin/sh
 #set -x
-DB=bert.db
+DB=rc.db
 BUILD=`pwd`
 CONFIG=${BUILD}/../Configuration
 CSV=${CONFIG}/csv

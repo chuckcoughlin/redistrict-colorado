@@ -1,6 +1,6 @@
 -- Copyright 2019. Charles Coughlin. All rights reserved.
--- These tables are used by the robot to access poses, state
--- arrays and action lists.
+-- These tables are used by the application to hold layer definitions
+-- and other configuration information.
 --
 
 -- The Action table shows motor positions over time for named "actions".

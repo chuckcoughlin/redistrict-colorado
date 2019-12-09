@@ -12,7 +12,7 @@ module rc.analyzer {
 	requires jdk.jfr;
 	requires javafx.base;
 	requires transitive javafx.graphics;
-	requires javafx.controls;
+	requires transitive javafx.controls;
 	
 	exports redistrict.colorado;
 }

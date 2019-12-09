@@ -19,7 +19,16 @@
 		<mkdir dir="${install.dir}/bin"/>
 	</target>
 	
-	<target name="build" depends="rc-core,rc-ui,rc-analyzer" />
+	<target name="build" depends="version,rc-core,rc-ui,rc-analyzer" />
+	<target name="version" description="Copy VERSION file for building">
+		<copy todir="${basedir}/../RCAnalyzer/src/redistrict/colorado/common/">
+			<fileset dir="${install.dir}/../release/">
+				<include name="VERSION"/>
+			</fileset>
+		</copy>
+		<move file="${basedir}/../RCAnalyzer/src/redistrict/colorado/common/VERSION/" 
+			  tofile="${basedir}/../RCAnalyzer/src/redistrict/colorado/common/Version.java/"/>
+	</target>
 	<target name="rc-core" description="Build RC core jar">
 		<echo message="Compile Redistrict Colorado core" />
 		<delete dir="${temp.dir}" />

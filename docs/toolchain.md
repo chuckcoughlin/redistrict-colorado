@@ -19,22 +19,20 @@ This document describes the construction and installation of the "MapAnalyzer" a
 
 The development host is an iMac running OSX Mohave (10.14) and Java 13 with the JavaFX 13 graphics classes. Java is downloadable from [here](https://www.oracle.com/technetwork/java/javase/downloads/jdk13-downloads-5672538.html). Make sure to download the JDK and install the “Development tools” into the default location (e.g. /usr/local/bin). Extend the system path to include this area. JavaFX 13 is available from [here](https://openjfx.io/)
 
-The build environment is *eclipse*, the 2019-09 version is available from [The Eclipse Foundation](https://www.eclipse.org/downloads/packages/). It requires a plugin update for Java 13 installable by drag and drop from [here](https://marketplace.eclipse.org/content/java-13-support-eclipse-2019-09-413).
+The build environment is *eclipse*, the 2019-09 version is available from [The Eclipse Foundation](https://www.eclipse.org/downloads/packages/). It requires a plugin update for Java 13, installable by drag and drop from [here](https://marketplace.eclipse.org/content/java-13-support-eclipse-2019-09-413).
 
 JavaFX must be configured and available as a user library for both *eclipse* and the application. The steps to do so are explained [here](https://stackoverflow.com/questions/52144931/how-to-add-javafx-runtime-to-eclipse-in-java-11).
-  * Download the JavaFX SDK from [here](https://gluonhq.com/products/javafx)
-  * Unzip the resulting file into Archive/lib.
-  * From Eclipse Preferences/Java/Build Path/User Libraries create a new user library name JavaFX13. Add all jar files from the download.
+  * Download the JavaFX SDK and jmod files from [here](https://gluonhq.com/products/javafx)
+  * Unzip the SDK file into Archive/lib and the modules into Archive/jmod.
+  * From Eclipse Preferences/Java/Build Path/User Libraries create a new user library named __JavaFX13__. Add all jar files from the SDK download.
   * Configure projects to use this library.
-
-
-
+  * Install the *eclipse* plugin `ShellWax`. This allows *bash* scripts to be run directly from *eclipse*.
 
 ### Third-party Jar Files  <a id="jarfiles"></a>
 [toc](#table-of-contents)
 The *Archive* eclipse project is a collection of open-source library modules
 used in the applications. These have all been updated for compatibility with
-Java 11.
+Java 13.
 
 * https://commons.apache.org/proper/commons-compress/ commons-compress-1.19.jar Apache commons compression handling
 * https://github.com/orbisgis/cts cts-1.5.1.jar Coordinate Transformation Suite
