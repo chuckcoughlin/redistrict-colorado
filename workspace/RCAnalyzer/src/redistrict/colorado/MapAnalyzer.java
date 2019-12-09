@@ -16,12 +16,13 @@ import javafx.scene.Scene;
 import javafx.scene.SubScene;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
-import redistrict.colorado.ui.AddDeleteButtonHolder;
+import redistrict.colorado.ui.ButtonPane;
 import redistrict.colorado.ui.MainMenuBar;
 import redistrict.colorado.ui.MapCanvas;
 import redistrict.colorado.ui.layer.LayerConfigurationPage;
@@ -30,7 +31,8 @@ import redistrict.colorado.ui.region.RegionListHolder;
 
 public class MapAnalyzer extends Application {
 	public final static String TITLE  = "Map Analyzer";
-	public final static double BUTTON_PANEL_HEIGHT  = 100.;
+	public final static double BUTTON_PANEL_HEIGHT  = 40.;
+	public static final double FRAME_HEIGHT = 2000;
 	public final static double SCENE_WIDTH  = 900.;
 	public final static double SCENE_HEIGHT = 1800.;
 	public final static double STAGE_WIDTH  = 1800.;
@@ -50,30 +52,30 @@ public class MapAnalyzer extends Application {
 		
 		MainMenuBar mbar = new MainMenuBar();
 		SplitPane splitPane = new SplitPane();
-		AddDeleteButtonHolder buttonPane = new AddDeleteButtonHolder();
-	
+		ButtonPane buttonPane = new ButtonPane();
+		
 		ScrollPane left = new ScrollPane();
 		left.fitToWidthProperty().set(true);
 		left.setCursor(Cursor.HAND);
 		StackPane leftStack = new StackPane();
+		//leftStack.setPrefHeight(FRAME_HEIGHT);
 		leftStack.getChildren().addAll(new RegionListHolder(),new LayerListHolder());
 		leftStack.getChildren().get(0).setVisible(true);
 		leftStack.getChildren().get(1).setVisible(false);
-		SubScene leftStackScene = new SubScene(leftStack,SCENE_WIDTH,SCENE_HEIGHT);
-		SubScene leftScene = new SubScene(new VBox(),SCENE_WIDTH,BUTTON_PANEL_HEIGHT);  // Holds left scroll and buttons
-		((VBox) leftScene.getRoot()).getChildren().addAll(leftStackScene,buttonPane);
+		SubScene leftStackScene = new SubScene(leftStack,SCENE_WIDTH,SCENE_HEIGHT-2*BUTTON_PANEL_HEIGHT);    // Holds scroll area
 		left.setContent(leftStackScene);
+		
 		
 		ScrollPane right = new ScrollPane();
 		right.pannableProperty().set(true);
 		right.setCursor(Cursor.OPEN_HAND);
 		StackPane rightStack = new StackPane();
 		rightStack.getChildren().addAll(new MapCanvas(),new LayerConfigurationPage());
-		Rectangle rect = new Rectangle(200, 200, Color.RED);
+		Rectangle rect = new Rectangle(SCENE_WIDTH, SCENE_HEIGHT, Color.RED);
 		right.setContent(rect);
 			
 		splitPane.getItems().addAll(left,right);
-		((VBox) mainScene.getRoot()).getChildren().addAll(mbar,splitPane);
+		((VBox) mainScene.getRoot()).getChildren().addAll(mbar,splitPane,buttonPane);
 
 		root.setScene(mainScene);
 		root.show();

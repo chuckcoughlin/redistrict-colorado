@@ -10,8 +10,9 @@ import javafx.scene.layout.VBox;
 
 public class RegionListHolder extends VBox {
 	Label regionLabel = new Label("===== Region Definitions =======");
-	
+	public static final double FRAME_HEIGHT = 2000;
 	public RegionListHolder() {
+		this.setPrefHeight(FRAME_HEIGHT);
 		this.getChildren().add(regionLabel);
 	}
 }
