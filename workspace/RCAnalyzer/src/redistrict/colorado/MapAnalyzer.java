@@ -16,7 +16,6 @@ import javafx.scene.Scene;
 import javafx.scene.SubScene;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -76,6 +75,9 @@ public class MapAnalyzer extends Application {
 			
 		splitPane.getItems().addAll(left,right);
 		((VBox) mainScene.getRoot()).getChildren().addAll(mbar,splitPane,buttonPane);
+		
+		// Wire the event paths
+		mbar.registerEventReceiver(buttonPane.getRCEventDispatcher());   // Buttons receive menu selections
 
 		root.setScene(mainScene);
 		root.show();

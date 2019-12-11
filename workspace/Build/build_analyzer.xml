@@ -56,6 +56,11 @@
 				modulepathref="common-modulepath"
 				includeantruntime="false"
 		/>
+		<copy todir="${temp.dir}">
+			<fileset dir="../RCUI/src">
+				<include name="**/*.png"/>
+			</fileset>
+		</copy>
 	    <jar destfile="${lib.dir}/${rc-ui-jar}" includes="**/*.class,**/*.png" basedir="${temp.dir}"/>
 	</target>
 	<target name="rc-analyzer" description="Build the RC analyzer">

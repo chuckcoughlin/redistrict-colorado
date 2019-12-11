@@ -11,6 +11,7 @@ module rc.ui {
 	requires transitive javafx.controls;
 	
 	exports redistrict.colorado.ui;
+	exports redistrict.colorado.ui.common;
 	exports redistrict.colorado.ui.layer;
 	exports redistrict.colorado.ui.region;
 	
