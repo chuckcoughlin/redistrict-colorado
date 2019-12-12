@@ -66,6 +66,7 @@ public class ButtonPane extends FlowPane implements EventSource<ActionEvent>, Ev
 		setMargin(addButton,new Insets(VGAP,HGAP,VGAP,LMARGIN));
 	}
 	
+	
 	public RCEventDispatcher<ActionEvent> getRCEventDispatcher() { return eventDispatcher; }
 	
 	/**

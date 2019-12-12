@@ -9,12 +9,12 @@ import java.util.logging.Logger;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.Node;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import redistrict.colorado.ui.common.ComponentIds;
 import redistrict.colorado.ui.common.EventSource;
+import redistrict.colorado.ui.common.GuiUtil;
 import redistrict.colorado.ui.common.RCEventDispatchChain;
 import redistrict.colorado.ui.common.RCEventDispatcher;
 
@@ -55,9 +55,11 @@ public class MainMenuBar extends MenuBar implements EventSource<ActionEvent> {
 		Menu menu =  new Menu("Selections");
 		layers = new MenuItem("Layers");
 		layers.setId(ComponentIds.MENU_LAYER);
+		layers.setOnAction(eventHandler);
 		layers.setDisable(true);
 		regions  = new MenuItem("Regions");
 		regions.setId(ComponentIds.MENU_REGION);
+		regions.setOnAction(eventHandler);
 		menu.getItems().addAll(layers,regions);
 		return menu;
 	}
@@ -66,13 +68,14 @@ public class MainMenuBar extends MenuBar implements EventSource<ActionEvent> {
 	}
 	
 	/**
-	 * One of the buttons has been pressed. The source of the event is the button.
+	 * One of the menu items has been selected. The source of the event is the item.
 	 * Dispatch to receivers. Receivers can sort things out by the ID.
 	 */
 	public class MenuBarEventHandler implements EventHandler<ActionEvent> {
 		@Override
 		public void handle(ActionEvent event) {
-			String src = ((Node)event.getSource()).getId();
+			String src = GuiUtil.idFromSource(event.getSource());
+			LOGGER.info(String.format("%s.handle: ActionEvent source = %s",CLSS,src));
 			if( src.equalsIgnoreCase(ComponentIds.MENU_LAYER)) {
 				layers.setDisable(true);
 				regions.setDisable(false);
@@ -81,7 +84,6 @@ public class MainMenuBar extends MenuBar implements EventSource<ActionEvent> {
 				layers.setDisable(false);
 				regions.setDisable(true);
 			}
-			LOGGER.info(String.format("%s.handle: ActionEvent source = %s",CLSS,src));
 			eventChain.dispatchEvent(event);
 		}
 	}
