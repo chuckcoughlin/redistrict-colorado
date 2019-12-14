@@ -3,10 +3,10 @@
 # Synchronize the distribution area with the current build products.
 # The link_run_analyzer script has already created a stripped down JVM
 # if the APP area.
-export APP=../../app
+BUILD=`pwd`
+export APP=${BUILD}/../../app
 mkdir -p ${APP}/bin
-mkdir -p ${APP}/etc
-mkdir -p ${APP}/sql
+mkdir -p ${APP}/db
 export PATH=$PATH:/usr/local/bin
 
 cd ../Configuration

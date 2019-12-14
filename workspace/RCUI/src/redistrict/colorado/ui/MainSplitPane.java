@@ -7,6 +7,8 @@
 package redistrict.colorado.ui;
 import java.util.logging.Logger;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Cursor;
@@ -17,12 +19,10 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import redistrict.colorado.ui.common.ComponentIds;
-import redistrict.colorado.ui.common.EventReceiver;
-import redistrict.colorado.ui.common.EventSource;
 import redistrict.colorado.ui.common.GuiUtil;
-import redistrict.colorado.ui.common.RCEventDispatchChain;
-import redistrict.colorado.ui.common.RCEventDispatcher;
+import redistrict.colorado.ui.common.PropertyBindingHub;
 import redistrict.colorado.ui.common.UIConstants;
+import redistrict.colorado.ui.common.ViewMode;
 import redistrict.colorado.ui.layer.LayerConfigurationPage;
 import redistrict.colorado.ui.layer.LayerListHolder;
 import redistrict.colorado.ui.region.RegionListHolder;
@@ -31,21 +31,18 @@ import redistrict.colorado.ui.region.RegionListHolder;
  * Create the menu hierarchy for the menubar.
  * The leaf nodes are class MenuItem.
  */
-public class MainSplitPane extends SplitPane implements EventSource<ActionEvent>,EventReceiver<ActionEvent> {
+public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode> {
 	private static final String CLSS = "MainSplitPane";
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
 	private final EventHandler<ActionEvent> eventHandler;
-	private final RCEventDispatchChain<ActionEvent> eventChain;
-	private final RCEventDispatcher<ActionEvent> eventDispatcher;
 	private final StackPane leftStack;
 	private final StackPane rightStack;
 	
 	public MainSplitPane() {
 		this.eventHandler = new SplitPaneEventHandler();
-		this.eventChain   = new RCEventDispatchChain<ActionEvent>();
-		this.eventDispatcher = new RCEventDispatcher<ActionEvent>(eventHandler);
 		leftStack = new StackPane();
 		rightStack = new StackPane();
+
 		this.init();
 	}
 	
@@ -69,9 +66,9 @@ public class MainSplitPane extends SplitPane implements EventSource<ActionEvent>
 		right.setContent(rect);
 			
 		getItems().addAll(left,right);
+		PropertyBindingHub.getInstance().addModeListener(this);
 	}
 	
-	public RCEventDispatcher<ActionEvent> getRCEventDispatcher() { return eventDispatcher; }
 	/**
 	 * The menu bar can flip the current pane.
 	 */
@@ -88,12 +85,12 @@ public class MainSplitPane extends SplitPane implements EventSource<ActionEvent>
 				leftStack.getChildren().get(0).setVisible(false);
 				leftStack.getChildren().get(1).setVisible(true);
 			}
-			eventChain.dispatchEvent(event);
 		}
 	}
 	
 	@Override
-	public void registerEventReceiver(RCEventDispatcher<ActionEvent> rce) {
-		eventChain.append(rce);
+	public void changed(ObservableValue<? extends ViewMode> source, ViewMode oldValue, ViewMode newValue) {
+		LOGGER.info("Got a value!");
+		
 	}
 }

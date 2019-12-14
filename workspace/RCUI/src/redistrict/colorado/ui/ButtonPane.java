@@ -18,17 +18,13 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
 import redistrict.colorado.ui.common.ComponentIds;
-import redistrict.colorado.ui.common.EventReceiver;
-import redistrict.colorado.ui.common.EventSource;
 import redistrict.colorado.ui.common.GuiUtil;
-import redistrict.colorado.ui.common.RCEventDispatchChain;
-import redistrict.colorado.ui.common.RCEventDispatcher;
 
 /**
- * Hold the add and delete buttons, Insets are top,right,bottom,left
- *
+ * Hold the add and delete buttons, Insets are top,right,bottom,left. Panels are specific to the 
+ * view mode, because it tells what to add or delete.
  */
-public class ButtonPane extends FlowPane implements EventSource<ActionEvent>, EventReceiver<ActionEvent> {
+public class ButtonPane extends FlowPane {
 	private static final String CLSS = "ButtonPane";
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
 	
@@ -41,14 +37,10 @@ public class ButtonPane extends FlowPane implements EventSource<ActionEvent>, Ev
 	private final Label message = new Label("");  // Most recent message
 	private final GuiUtil guiu = new GuiUtil();
 	private final EventHandler<ActionEvent> eventHandler;
-	private final RCEventDispatchChain<ActionEvent> eventChain;
-	private final RCEventDispatcher<ActionEvent> eventDispatcher;
 	
 	public ButtonPane() {
 		super(Orientation.HORIZONTAL,HGAP,VGAP);
 		this.eventHandler = new ButtonPaneEventHandler();
-		this.eventChain   = new RCEventDispatchChain<ActionEvent>();
-		this.eventDispatcher = new RCEventDispatcher<ActionEvent>(eventHandler);
 		addButton = new Button("",guiu.loadImage("images/add.png"));
 		addButton.setId(ComponentIds.BUTTON_ADD);
 		addButton.setOnAction(eventHandler);
@@ -66,9 +58,6 @@ public class ButtonPane extends FlowPane implements EventSource<ActionEvent>, Ev
 		setMargin(addButton,new Insets(VGAP,HGAP,VGAP,LMARGIN));
 	}
 	
-	
-	public RCEventDispatcher<ActionEvent> getRCEventDispatcher() { return eventDispatcher; }
-	
 	/**
 	 * One of the buttons has been pressed. The source of the event is the button.
 	 * Dispatch to receivers. Receivers can sort things out by the ID.
@@ -77,14 +66,7 @@ public class ButtonPane extends FlowPane implements EventSource<ActionEvent>, Ev
 		@Override
 		public void handle(ActionEvent event) {
 			LOGGER.info(String.format("%s.handle: ActionEvent source = %s",CLSS,((Node)event.getSource()).getId()));
-			eventChain.dispatchEvent(event);
 		}
 	}
 
-
-	// ================================= Event Source ======================
-	@Override
-	public void registerEventReceiver(RCEventDispatcher<ActionEvent> rce) {
-		eventChain.append(rce);
-	}
 }

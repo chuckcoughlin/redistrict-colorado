@@ -14,5 +14,6 @@ public interface ComponentIds {
 	public final static String BUTTON_ADD 		= "ButtonAdd";
 	public final static String BUTTON_DELETE 	= "ButtonDelete";
 	public final static String MENU_LAYER 	    = "MenuLayer";
+	public final static String MENU_PLAN	    = "MenuPlan";
 	public final static String MENU_REGION 	    = "MenuRegion";
 }

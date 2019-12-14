@@ -10,17 +10,27 @@
  */
 package redistrict.colorado;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.logging.Logger;
+
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import redistrict.colorado.core.common.LoggerUtility;
+import redistrict.colorado.core.common.PathConstants;
+import redistrict.colorado.sql.Database;
 import redistrict.colorado.ui.ButtonPane;
 import redistrict.colorado.ui.MainMenuBar;
 import redistrict.colorado.ui.MainSplitPane;
 import redistrict.colorado.ui.common.UIConstants;
 
 public class MapAnalyzer extends Application {
+	private final static String CLSS = "MapAnalyzer";
+	private static Logger LOGGER = Logger.getLogger(CLSS);
+	private static final String LOG_ROOT = CLSS.toLowerCase();
 	public final static String TITLE  = "Map Analyzer";
 
 	/**
@@ -41,15 +51,26 @@ public class MapAnalyzer extends Application {
 		ButtonPane buttonPane = new ButtonPane();
 		((VBox) mainScene.getRoot()).getChildren().addAll(mbar,splitPane,buttonPane);
 		
-		// Wire the event paths
-		mbar.registerEventReceiver(buttonPane.getRCEventDispatcher());   // Buttons receive menu selections
-		mbar.registerEventReceiver(splitPane.getRCEventDispatcher());    // Panes receive menu selections
 
 		root.setScene(mainScene);
 		root.show();
 	}
+	
+	@Override
+	public void stop() {
+		Database.getInstance().shutdown();
+	}
 
+	// The installation home directory can be altered via command-line argument (usually "")
+	// Data, database, and log locations are fixed relative to home.
     public static void main(String[] args) {
+    	String arg = args[0];
+    	Path path = Paths.get(arg);
+    	PathConstants.setHome(path);
+    	// Logging setup routes to console and file withing "log" directory
+    	LoggerUtility.getInstance().configureRootLogger(LOG_ROOT);
+		Database.getInstance().startup(PathConstants.DB_PATH);
+		
         launch(args);
     }
 }
