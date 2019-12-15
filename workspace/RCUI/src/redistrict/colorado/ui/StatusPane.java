@@ -14,48 +14,39 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
 
 /**
- * Hold the add and delete buttons, Insets are top,right,bottom,left. We have a generic listening
- * scheme because there may be multiple instances of this class.
+ * Hold a label and status field. Subscribe to the generic application-wide status message.
  */
-public class ButtonPane extends FlowPane {
-	private static final String CLSS = "ButtonPane";
+public class StatusPane extends FlowPane {
+	private static final String CLSS = "StatusPane";
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
 	
 	private static final double HGAP = 8.;
 	private static final double VGAP = 8.;
 	private static final double LMARGIN = 32.;
-	private final Button addButton;
-	private final Button deleteButton;
+	private final Label statusLabel = new Label("Status:");
+	private final Label message = new Label("");  // Most recent message
 	private final GuiUtil guiu = new GuiUtil();
 	private final EventHandler<ActionEvent> eventHandler;
 	
-	public ButtonPane() {
+	public StatusPane() {
 		super(Orientation.HORIZONTAL,HGAP,VGAP);
-		this.eventHandler = new ButtonPaneEventHandler();
-		addButton = new Button("",guiu.loadImage("images/add.png"));
-		addButton.setId(ComponentIds.BUTTON_ADD);
-		addButton.setOnAction(eventHandler);
-		
-		deleteButton = new Button("",guiu.loadImage("images/delete.png"));
-		deleteButton.setId(ComponentIds.BUTTON_DELETE);
-		deleteButton.setDisable(true);
-		deleteButton.setOnAction(eventHandler);
+		this.eventHandler = new StatusPaneEventHandler();
 
-		this.getChildren().add(addButton);
-		this.getChildren().add(deleteButton);
+		this.getChildren().add(statusLabel);
+		this.getChildren().add(message);
 		
-		setMargin(addButton,new Insets(VGAP,HGAP,VGAP,LMARGIN));
+		setMargin(statusLabel,new Insets(VGAP,HGAP,VGAP,LMARGIN));
 	}
 	
 	/**
 	 * One of the buttons has been pressed. The source of the event is the button.
 	 * Dispatch to receivers. Receivers can sort things out by the ID.
 	 */
-	public class ButtonPaneEventHandler implements EventHandler<ActionEvent> {
+	public class StatusPaneEventHandler implements EventHandler<ActionEvent> {
 		@Override
 		public void handle(ActionEvent event) {
 			LOGGER.info(String.format("%s.handle: ActionEvent source = %s",CLSS,((Node)event.getSource()).getId()));

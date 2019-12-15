@@ -9,6 +9,6 @@ module rc.core {
 	requires sqlite.jdbc;
 	requires org.locationtech.jts;
 	
-	exports redistrict.colorado.core.common;
-	exports redistrict.colorado.sql;
+	exports redistrict.colorado.core;
+	exports redistrict.colorado.db;
 }

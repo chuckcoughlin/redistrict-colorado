@@ -13,10 +13,7 @@ import javafx.event.EventHandler;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
-import redistrict.colorado.ui.common.ComponentIds;
-import redistrict.colorado.ui.common.GuiUtil;
-import redistrict.colorado.ui.common.PropertyBindingHub;
-import redistrict.colorado.ui.common.ViewMode;
+import redistrict.colorado.bind.PropertyBindingHub;
 
 /**
  * Create the menu hierarchy for the menubar.

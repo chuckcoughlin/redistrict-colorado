@@ -12,8 +12,7 @@ module rc.ui {
 	requires rc.core;
 	
 	exports redistrict.colorado.ui;
-	exports redistrict.colorado.ui.common;
-	exports redistrict.colorado.ui.layer;
-	exports redistrict.colorado.ui.region;
+	exports redistrict.colorado.layer;
+	exports redistrict.colorado.region;
 	
 }

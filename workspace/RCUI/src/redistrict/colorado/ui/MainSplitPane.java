@@ -12,58 +12,45 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Cursor;
-import javafx.scene.SubScene;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import redistrict.colorado.ui.common.ComponentIds;
-import redistrict.colorado.ui.common.GuiUtil;
-import redistrict.colorado.ui.common.PropertyBindingHub;
-import redistrict.colorado.ui.common.UIConstants;
-import redistrict.colorado.ui.common.ViewMode;
-import redistrict.colorado.ui.layer.LayerConfigurationPage;
-import redistrict.colorado.ui.layer.LayerListHolder;
-import redistrict.colorado.ui.region.RegionListHolder;
+import redistrict.colorado.bind.PropertyBindingHub;
+import redistrict.colorado.layer.LayerConfigurationPage;
+import redistrict.colorado.layer.LayerListHolder;
+import redistrict.colorado.region.RegionListHolder;
 
 /**
- * Create the menu hierarchy for the menubar.
- * The leaf nodes are class MenuItem.
+ * Create the main split panel. The left side is a stack of three options. The right side
+ * has more. Options are dependent on selections from the left.
  */
 public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode> {
 	private static final String CLSS = "MainSplitPane";
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
 	private final EventHandler<ActionEvent> eventHandler;
-	private final StackPane leftStack;
-	private final StackPane rightStack;
+	private final StackPane left;
+	private final StackPane right;
 	
 	public MainSplitPane() {
 		this.eventHandler = new SplitPaneEventHandler();
-		leftStack = new StackPane();
-		rightStack = new StackPane();
+		left = new StackPane();
+		right = new StackPane();
 
 		this.init();
 	}
 	
 	private void init() {
-		ScrollPane left = new ScrollPane();
-		left.fitToWidthProperty().set(true);
 		left.setCursor(Cursor.HAND);
-		//leftStack.setPrefHeight(FRAME_HEIGHT);
-		leftStack.getChildren().addAll(new LayerListHolder(),new RegionListHolder());
-		leftStack.getChildren().get(0).setVisible(true);
-		leftStack.getChildren().get(1).setVisible(false);
-		SubScene leftStackScene = new SubScene(leftStack,UIConstants.SCENE_WIDTH,UIConstants.SCENE_HEIGHT-2*UIConstants.BUTTON_PANEL_HEIGHT);    // Holds scroll area
-		left.setContent(leftStackScene);
+		left.setPrefHeight(UIConstants.FRAME_HEIGHT);
+		left.getChildren().addAll(new LayerListHolder(),new RegionListHolder());
+		left.getChildren().get(0).setVisible(true);
+		left.getChildren().get(1).setVisible(false);
 		
-		
-		ScrollPane right = new ScrollPane();
-		right.pannableProperty().set(true);
 		right.setCursor(Cursor.OPEN_HAND);
-		rightStack.getChildren().addAll(new MapCanvas(),new LayerConfigurationPage());
+		right.getChildren().addAll(new MapCanvas(),new LayerConfigurationPage());
 		Rectangle rect = new Rectangle(UIConstants.SCENE_WIDTH, UIConstants.SCENE_HEIGHT, Color.RED);
-		right.setContent(rect);
+		right.getChildren().addAll(rect);
 			
 		getItems().addAll(left,right);
 		PropertyBindingHub.getInstance().addModeListener(this);
@@ -78,12 +65,12 @@ public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode>
 			String src = GuiUtil.idFromSource(event.getSource());
 			LOGGER.info(String.format("%s.handle: ActionEvent source = %s",CLSS,src));
 			if( src.equalsIgnoreCase(ComponentIds.MENU_LAYER)) {
-				leftStack.getChildren().get(0).setVisible(true);
-				leftStack.getChildren().get(1).setVisible(false);
+				left.getChildren().get(0).setVisible(true);
+				left.getChildren().get(1).setVisible(false);
 			}
 			else if( src.equalsIgnoreCase(ComponentIds.MENU_REGION)) {
-				leftStack.getChildren().get(0).setVisible(false);
-				leftStack.getChildren().get(1).setVisible(true);
+				left.getChildren().get(0).setVisible(false);
+				left.getChildren().get(1).setVisible(true);
 			}
 		}
 	}

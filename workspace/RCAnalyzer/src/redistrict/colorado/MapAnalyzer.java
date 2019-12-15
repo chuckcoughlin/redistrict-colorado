@@ -19,13 +19,13 @@ import javafx.scene.Scene;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import redistrict.colorado.core.common.LoggerUtility;
-import redistrict.colorado.core.common.PathConstants;
-import redistrict.colorado.sql.Database;
-import redistrict.colorado.ui.ButtonPane;
+import redistrict.colorado.core.LoggerUtility;
+import redistrict.colorado.core.PathConstants;
+import redistrict.colorado.db.Database;
 import redistrict.colorado.ui.MainMenuBar;
 import redistrict.colorado.ui.MainSplitPane;
-import redistrict.colorado.ui.common.UIConstants;
+import redistrict.colorado.ui.StatusPane;
+import redistrict.colorado.ui.UIConstants;
 
 public class MapAnalyzer extends Application {
 	private final static String CLSS = "MapAnalyzer";
@@ -43,15 +43,14 @@ public class MapAnalyzer extends Application {
 		root.setWidth(UIConstants.STAGE_WIDTH);
 		root.setHeight(UIConstants.STAGE_HEIGHT);
 	
-		Scene mainScene = new Scene(new VBox());  // Holds menu bar and split pane
+		Scene mainScene = new Scene(new VBox());  // Holds menu bar,split pane and status
 		mainScene.setFill(Color.OLDLACE);
 		
 		MainMenuBar mbar = new MainMenuBar();
 		MainSplitPane splitPane = new MainSplitPane();
-		ButtonPane buttonPane = new ButtonPane();
-		((VBox) mainScene.getRoot()).getChildren().addAll(mbar,splitPane,buttonPane);
+		StatusPane statusPane = new StatusPane();
+		((VBox) mainScene.getRoot()).getChildren().addAll(mbar,splitPane,statusPane);
 		
-
 		root.setScene(mainScene);
 		root.show();
 	}
