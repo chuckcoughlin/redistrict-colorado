@@ -59,7 +59,7 @@ public class MainMenuBar extends MenuBar  {
 		regions  = new MenuItem("Regions");
 		regions.setId(ComponentIds.MENU_REGION);
 		regions.setOnAction(eventHandler);
-		menu.getItems().addAll(layers,regions);
+		menu.getItems().addAll(plans,layers,regions);
 		return menu;
 	}
 	public Menu rightMenu() {

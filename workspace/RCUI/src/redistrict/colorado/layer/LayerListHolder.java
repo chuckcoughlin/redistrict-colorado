@@ -16,6 +16,7 @@ import javafx.scene.layout.AnchorPane;
 import redistrict.colorado.bind.BasicEventDispatcher;
 import redistrict.colorado.bind.EventReceiver;
 import redistrict.colorado.ui.ButtonPane;
+import redistrict.colorado.ui.UIConstants;
 
 
 
@@ -33,15 +34,19 @@ public class LayerListHolder extends AnchorPane implements EventReceiver<ActionE
 		this.auxEventHandler = new LayerListHolderEventHandler();
 		this.auxEventDispatcher = new BasicEventDispatcher<ActionEvent>(auxEventHandler);
 		layerList = new ListView<String>();
-		headerLabel.setPrefHeight(50.);
+		headerLabel.setPrefHeight(40.);
 		getChildren().add(headerLabel);
 		getChildren().add(buttons);
 		getChildren().add(layerList);
 		//layerList.setMinHeight(100);
-		//this.setPrefHeight(UIConstants.SCENE_HEIGHT/2);
+		//this.setPrefHeight(UIConstants.SCENE_HEIGHT/4);
 		setTopAnchor(headerLabel,20.);
 		setTopAnchor(layerList,100.);
 		setBottomAnchor(buttons,10.);
+		setLeftAnchor(headerLabel,10.);
+		setRightAnchor(headerLabel,10.);
+		setLeftAnchor(layerList,10.);
+		setRightAnchor(layerList,10.);
 		setLeftAnchor(buttons,10.);
 		setRightAnchor(buttons,10.);
 		

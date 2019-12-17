@@ -11,7 +11,7 @@ package redistrict.colorado.ui;
  */
 public interface UIConstants {
 	public final static double BUTTON_PANEL_HEIGHT  = 40.;
-	public static final double FRAME_HEIGHT = 700;
+	public static final double FRAME_HEIGHT = 700;  
 	public final static double SCENE_WIDTH  = 900.;
 	public final static double SCENE_HEIGHT = 900.;
 	public final static double STAGE_WIDTH  = 1800.;
