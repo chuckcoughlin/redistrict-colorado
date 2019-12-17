@@ -13,7 +13,7 @@ import javafx.event.EventHandler;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
-import redistrict.colorado.bind.PropertyBindingHub;
+import redistrict.colorado.bind.EventRoutingHub;
 
 /**
  * Create the menu hierarchy for the menubar.
@@ -49,7 +49,7 @@ public class MainMenuBar extends MenuBar  {
 	public Menu leftMenu() {
 		Menu menu =  new Menu("View");
 		plans = new MenuItem("Plans");
-		plans.setId(ComponentIds.MENU_LAYER);
+		plans.setId(ComponentIds.MENU_PLAN);
 		plans.setOnAction(eventHandler);
 		plans.setDisable(true);
 		layers = new MenuItem("Layers");
@@ -73,7 +73,7 @@ public class MainMenuBar extends MenuBar  {
 	public class MenuBarEventHandler implements EventHandler<ActionEvent> {
 		@Override
 		public void handle(ActionEvent event) {
-			PropertyBindingHub hub = PropertyBindingHub.getInstance();
+			EventRoutingHub hub = EventRoutingHub.getInstance();
 			String src = GuiUtil.idFromSource(event.getSource());
 			LOGGER.info(String.format("%s.handle: ActionEvent source = %s",CLSS,src));
 			if( src.equalsIgnoreCase(ComponentIds.MENU_LAYER)) {

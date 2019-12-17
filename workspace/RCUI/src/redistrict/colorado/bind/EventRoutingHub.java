@@ -17,30 +17,28 @@ import redistrict.colorado.ui.ViewMode;
  * 
  * The listeners must support ChangeListener of the appropriate class. Nodes can also bind to this.
  */
-public class PropertyBindingHub {
-	private static PropertyBindingHub instance = null;
+public class EventRoutingHub {
+	private static EventRoutingHub instance = null;
 	private final SimpleObjectProperty<ViewMode> mode;
 	/**
 	 * Constructor is private per Singleton pattern.
 	 */
-	private PropertyBindingHub() {
+	private EventRoutingHub() {
 		this.mode = new SimpleObjectProperty<ViewMode>();
 	}
 	/**
 	 * Static method to create and/or fetch the single instance.
 	 */
-	public static PropertyBindingHub getInstance() {
+	public static EventRoutingHub getInstance() {
 		if( instance==null) {
-			synchronized(PropertyBindingHub.class) {
-				instance = new PropertyBindingHub();
+			synchronized(EventRoutingHub.class) {
+				instance = new EventRoutingHub();
 			}
 		}
 		return instance;
 	}
 	
-	/**
-	 * Application view mode is determined from the choose list.
-	 */
+	// Application view mode is determined from the choose list.
 	public ViewMode getMode() { return mode.get(); }
 	public void setMode(ViewMode mt) { mode.set(mt); }
 	public void addModeListener(ChangeListener<ViewMode> listener) {

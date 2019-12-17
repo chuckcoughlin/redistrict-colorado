@@ -16,12 +16,18 @@ import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.layout.FlowPane;
+import redistrict.colorado.bind.BasicEventDispatchChain;
+import redistrict.colorado.bind.BasicEventDispatcher;
+import redistrict.colorado.bind.EventSource;
 
 /**
- * Hold the add and delete buttons, Insets are top,right,bottom,left. We have a generic listening
- * scheme because there may be multiple instances of this class.
+ * Hold the add and delete buttons, Insets are top,right,bottom,left. 
+ * There may be multiple instances of this class, so we use the event
+ * chain to properly inform our parent of the button presses.
+ * 
+ * We provide a method to enable/disable the delete button.
  */
-public class ButtonPane extends FlowPane {
+public class ButtonPane extends FlowPane implements EventSource<ActionEvent> {
 	private static final String CLSS = "ButtonPane";
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
 	
@@ -32,10 +38,12 @@ public class ButtonPane extends FlowPane {
 	private final Button deleteButton;
 	private final GuiUtil guiu = new GuiUtil();
 	private final EventHandler<ActionEvent> eventHandler;
+	private final BasicEventDispatchChain<ActionEvent> eventChain;
 	
 	public ButtonPane() {
 		super(Orientation.HORIZONTAL,HGAP,VGAP);
 		this.eventHandler = new ButtonPaneEventHandler();
+		this.eventChain   = new BasicEventDispatchChain<ActionEvent>();
 		addButton = new Button("",guiu.loadImage("images/add.png"));
 		addButton.setId(ComponentIds.BUTTON_ADD);
 		addButton.setOnAction(eventHandler);
@@ -51,6 +59,8 @@ public class ButtonPane extends FlowPane {
 		setMargin(addButton,new Insets(VGAP,HGAP,VGAP,LMARGIN));
 	}
 	
+	public void setDeleteDisabled(boolean flag) { this.deleteButton.setDisable(flag); }
+	
 	/**
 	 * One of the buttons has been pressed. The source of the event is the button.
 	 * Dispatch to receivers. Receivers can sort things out by the ID.
@@ -59,7 +69,13 @@ public class ButtonPane extends FlowPane {
 		@Override
 		public void handle(ActionEvent event) {
 			LOGGER.info(String.format("%s.handle: ActionEvent source = %s",CLSS,((Node)event.getSource()).getId()));
+			eventChain.dispatchEvent(event);
 		}
+	}
+
+	@Override
+	public void registerEventReceiver(BasicEventDispatcher<ActionEvent> bed) {
+		eventChain.append(bed);	
 	}
 
 }

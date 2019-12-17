@@ -16,7 +16,7 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import redistrict.colorado.bind.PropertyBindingHub;
+import redistrict.colorado.bind.EventRoutingHub;
 import redistrict.colorado.layer.LayerConfigurationPage;
 import redistrict.colorado.layer.LayerListHolder;
 import redistrict.colorado.region.RegionListHolder;
@@ -53,7 +53,7 @@ public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode>
 		right.getChildren().addAll(rect);
 			
 		getItems().addAll(left,right);
-		PropertyBindingHub.getInstance().addModeListener(this);
+		EventRoutingHub.getInstance().addModeListener(this);
 	}
 	
 	/**
