@@ -1,0 +1,37 @@
+/* Stylesheet for MapAnalyzer */
+/* ======== Variables ======= */
+* {
+	-ma-light-background: #FAFAFA;
+}
+/* ======== Core Classes ======= */
+.root {
+  -fx-background-color:-ma-light-background;
+  -fx-font-family: "Arial";
+  -fx-padding: 2px;
+}
+.button{
+  -fx-background-color: white;
+}
+.menu {
+	-fx-font-weight: bold;
+}
+/* ======== Custom Classes ======= */
+.list-header-label {
+	-fx-background-color:-ma-light-background;
+	-fx-font-size: 16pt;
+	-fx-font-weight: bold;
+	-fx-alignment: center;
+	-fx-text-alignment: center;
+	-fx-text-overrun: ellipsis;
+	-fx-pref-height: 40;
+	-fx-max-height:40;
+}
+/* ======== By Component ID ======= */
+#ButtonAdd {
+	-fx-background-color:-ma-light-background;
+	-fx-border-radius: 3;
+}
+#ButtonDelete {
+	 -fx-border-radius: 3;
+	
+}

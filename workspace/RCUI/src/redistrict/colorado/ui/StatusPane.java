@@ -34,6 +34,7 @@ public class StatusPane extends FlowPane {
 	
 	public StatusPane() {
 		super(Orientation.HORIZONTAL,HGAP,VGAP);
+		this.setPrefHeight(40.);
 		this.eventHandler = new StatusPaneEventHandler();
 
 		this.getChildren().add(statusLabel);

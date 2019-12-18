@@ -6,6 +6,7 @@
  */
 package redistrict.colorado.bind;
 
+import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import redistrict.colorado.ui.ViewMode;
@@ -16,6 +17,9 @@ import redistrict.colorado.ui.ViewMode;
  * provides easy access to the instance from anywhere.
  * 
  * The listeners must support ChangeListener of the appropriate class. Nodes can also bind to this.
+ * 
+ * The entities that are tracked include:
+ * 	ViewMode - plans, layers or routes
  */
 public class EventRoutingHub {
 	private static EventRoutingHub instance = null;
@@ -40,7 +44,10 @@ public class EventRoutingHub {
 	
 	// Application view mode is determined from the choose list.
 	public ViewMode getMode() { return mode.get(); }
-	public void setMode(ViewMode mt) { mode.set(mt); }
+	// Run after current activity to avoid ConcurrentModification exception
+	public void setMode(ViewMode mt) { 
+		mode.set(mt); 
+	}
 	public void addModeListener(ChangeListener<ViewMode> listener) {
 		mode.addListener(listener);
 	}

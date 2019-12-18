@@ -23,8 +23,9 @@ import redistrict.colorado.ui.UIConstants;
 public class LayerListHolder extends AnchorPane implements EventReceiver<ActionEvent>  {
 	private final static String CLSS = "LayerListHolder";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
-	private Label headerLabel = new Label("===== Layer Definitions =======");
+	private Label headerLabel = new Label("Layers");
 	private ButtonPane buttons = new ButtonPane();
+	
 	private ListView<String> layerList;
 	private final BasicEventDispatcher<ActionEvent> auxEventDispatcher;
 	private final EventHandler<ActionEvent> auxEventHandler;
@@ -34,21 +35,19 @@ public class LayerListHolder extends AnchorPane implements EventReceiver<ActionE
 		this.auxEventHandler = new LayerListHolderEventHandler();
 		this.auxEventDispatcher = new BasicEventDispatcher<ActionEvent>(auxEventHandler);
 		layerList = new ListView<String>();
-		headerLabel.setPrefHeight(40.);
+		headerLabel.getStyleClass().add("list-header-label");
 		getChildren().add(headerLabel);
 		getChildren().add(buttons);
 		getChildren().add(layerList);
-		//layerList.setMinHeight(100);
-		//this.setPrefHeight(UIConstants.SCENE_HEIGHT/4);
-		setTopAnchor(headerLabel,20.);
-		setTopAnchor(layerList,100.);
+		setTopAnchor(headerLabel,0.);
+		setTopAnchor(layerList,40.);
 		setBottomAnchor(buttons,10.);
-		setLeftAnchor(headerLabel,10.);
-		setRightAnchor(headerLabel,10.);
-		setLeftAnchor(layerList,10.);
-		setRightAnchor(layerList,10.);
-		setLeftAnchor(buttons,10.);
-		setRightAnchor(buttons,10.);
+		setLeftAnchor(headerLabel,UIConstants.LIST_PANEL_LEFT_MARGIN);
+		setRightAnchor(headerLabel,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+		setLeftAnchor(layerList,UIConstants.LIST_PANEL_LEFT_MARGIN);
+		setRightAnchor(layerList,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+		setLeftAnchor(buttons,UIConstants.LIST_PANEL_LEFT_MARGIN);
+		setRightAnchor(buttons,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 		
 		buttons.registerEventReceiver(this.auxEventDispatcher);
 	}

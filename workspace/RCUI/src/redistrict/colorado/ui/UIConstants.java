@@ -11,9 +11,12 @@ package redistrict.colorado.ui;
  */
 public interface UIConstants {
 	public final static double BUTTON_PANEL_HEIGHT  = 40.;
-	public static final double FRAME_HEIGHT = 700;  
-	public final static double SCENE_WIDTH  = 900.;
-	public final static double SCENE_HEIGHT = 900.;
-	public final static double STAGE_WIDTH  = 1800.;
-	public final static double STAGE_HEIGHT = 1000.;
+	public final static double LIST_PANEL_LEFT_MARGIN = 2.;
+	public final static double LIST_PANEL_RIGHT_MARGIN = 2.;
+	public final static double STACK_PANE_MIN_HEIGHT = 200.; // Min size before +/- disappear
+	public static final double FRAME_HEIGHT = 600;  
+	public final static double SCENE_WIDTH  = 800.;  // Size for right-side panes
+	public final static double SCENE_HEIGHT = 750.;
+	public final static double STAGE_WIDTH  = 1200.; // Default size for main window
+	public final static double STAGE_HEIGHT = 800.;   
 }

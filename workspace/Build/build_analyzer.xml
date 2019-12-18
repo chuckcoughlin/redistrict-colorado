@@ -41,7 +41,7 @@
 				modulepathref="common-modulepath"
 				includeantruntime="false"
 		/>
-		<jar destfile="${lib.dir}/${rc-core-jar}" includes="**/*.class,**/*.png" basedir="${temp.dir}">
+		<jar destfile="${lib.dir}/${rc-core-jar}" includes="**/*.class,**/*.png,**/*.css" basedir="${temp.dir}">
 		</jar>
 	</target>
 	<target name="rc-ui" description="Build RC UI jar">
@@ -58,10 +58,11 @@
 		/>
 		<copy todir="${temp.dir}">
 			<fileset dir="../RCUI/src">
+				<include name="**/*.css"/>
 				<include name="**/*.png"/>
 			</fileset>
 		</copy>
-	    <jar destfile="${lib.dir}/${rc-ui-jar}" includes="**/*.class,**/*.png" basedir="${temp.dir}"/>
+	    <jar destfile="${lib.dir}/${rc-ui-jar}" includes="**/*.class,**/*.png,**/*.css" basedir="${temp.dir}"/>
 	</target>
 	<target name="rc-analyzer" description="Build the RC analyzer">
 		<echo message="Compile the Redistrict Colorado analyzer" />
@@ -75,7 +76,13 @@
 				modulepathref="common-modulepath"
 				includeantruntime="false"
 		/>
-		<jar destfile="${lib.dir}/${rc-analyzer-jar}" includes="**/*.class,**/*.png" basedir="${temp.dir}">
+		<copy todir="${temp.dir}">
+			<fileset dir="../RCAnalyzer/src">
+				<include name="**/*.css"/>
+				<include name="**/*.png"/>
+			</fileset>
+		</copy>
+		<jar destfile="${lib.dir}/${rc-analyzer-jar}" includes="**/*.class,**/*.png,**/*.css" basedir="${temp.dir}">
 			<manifest>
 				<attribute name="Main-Class" value="redistrict.colorado.MapAnalyzer"/>
 			</manifest>
@@ -91,6 +98,13 @@
 				<include name="*.jar"/>
 			</fileset>
 			<fileset dir="${ext.dir}">
+				<include name="*.jar"/>
+			</fileset>
+		</copy>
+		<echo message="Copying javaFX jar files into ${install.dir}/fxlib" />
+		<mkdir dir="${install.dir}/fxlib" />
+		<copy todir="${install.dir}/fxlib">
+			<fileset dir="${fx.sdk.dir}">
 				<include name="*.jar"/>
 			</fileset>
 		</copy>

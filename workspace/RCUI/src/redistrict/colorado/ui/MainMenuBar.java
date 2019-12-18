@@ -17,7 +17,8 @@ import redistrict.colorado.bind.EventRoutingHub;
 
 /**
  * Create the menu hierarchy for the menubar.
- * The leaf nodes are class MenuItem.
+ * The leaf nodes are class MenuItem. Initially show
+ * "Plans".
  */
 public class MainMenuBar extends MenuBar  {
 	private static final String CLSS = "MainMenuBar";
@@ -55,13 +56,15 @@ public class MainMenuBar extends MenuBar  {
 		layers = new MenuItem("Layers");
 		layers.setId(ComponentIds.MENU_LAYER);
 		layers.setOnAction(eventHandler);
-		layers.setDisable(true);
+		layers.setDisable(false);
 		regions  = new MenuItem("Regions");
 		regions.setId(ComponentIds.MENU_REGION);
 		regions.setOnAction(eventHandler);
+		regions.setDisable(false);
 		menu.getItems().addAll(plans,layers,regions);
 		return menu;
 	}
+	
 	public Menu rightMenu() {
 		return new Menu("Detail");
 	}
@@ -76,25 +79,13 @@ public class MainMenuBar extends MenuBar  {
 			EventRoutingHub hub = EventRoutingHub.getInstance();
 			String src = GuiUtil.idFromSource(event.getSource());
 			LOGGER.info(String.format("%s.handle: ActionEvent source = %s",CLSS,src));
-			if( src.equalsIgnoreCase(ComponentIds.MENU_LAYER)) {
-				plans.setDisable(true);
-				layers.setDisable(true);
-				regions.setDisable(false);
-				hub.setMode(ViewMode.LAYER);
-			}
-			else if( src.equalsIgnoreCase(ComponentIds.MENU_PLAN)) {
-				plans.setDisable(false);
-				layers.setDisable(true);
-				regions.setDisable(true);
-				hub.setMode(ViewMode.PLAN);
-			}
-			else if( src.equalsIgnoreCase(ComponentIds.MENU_REGION)) {
-				plans.setDisable(true);
-				layers.setDisable(false);
-				regions.setDisable(true);
-				hub.setMode(ViewMode.REGION);
-			}
+			layers.setDisable(src.equalsIgnoreCase(ComponentIds.MENU_LAYER));
+			plans.setDisable(src.equalsIgnoreCase(ComponentIds.MENU_PLAN));
+			regions.setDisable(src.equalsIgnoreCase(ComponentIds.MENU_REGION));
+
+			if( layers.isDisable() ) hub.setMode(ViewMode.LAYER);
+			else if( plans.isDisable() ) hub.setMode(ViewMode.PLAN);
+			else if( regions.isDisable() ) hub.setMode(ViewMode.REGION);
 		}
 	}
-	
 }

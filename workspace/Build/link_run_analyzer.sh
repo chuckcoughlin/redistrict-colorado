@@ -3,6 +3,9 @@
 # The custom JRE makes the application portable.
 # (also I couldn't get this to work any other way)
 # The current directory is Build
+#
+# NOTE: To use ScenicView, start botth the tool and application outside
+#        of Eclipse. Scripts are in ~/bin. 
 export PATH=$PATH:/usr/local/bin
 export APP=../../app
 cd $APP

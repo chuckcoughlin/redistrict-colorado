@@ -14,5 +14,9 @@ module rc.analyzer {
 	requires transitive javafx.graphics;
 	requires transitive javafx.controls;
 	
+	/* For debuggubg */
+	requires java.instrument;
+	requires java.rmi;
+	
 	exports redistrict.colorado;
 }

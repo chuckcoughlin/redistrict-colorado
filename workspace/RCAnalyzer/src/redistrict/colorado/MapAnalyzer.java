@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -40,16 +41,19 @@ public class MapAnalyzer extends Application {
 	@Override
 	public void start(Stage root) {
 		root.setTitle(TITLE);
-		root.setWidth(UIConstants.STAGE_WIDTH);
 		root.setHeight(UIConstants.STAGE_HEIGHT);
-	
-		Scene mainScene = new Scene(new VBox());  // Holds menu bar,split pane and status
+		root.setWidth(UIConstants.STAGE_WIDTH);
+		
+		VBox vbox = new VBox();  // Holds menu bar,split pane and status
+		Scene mainScene = new Scene(vbox);  
 		mainScene.setFill(Color.OLDLACE);
+		mainScene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
 		
 		MainMenuBar mbar = new MainMenuBar();
 		MainSplitPane splitPane = new MainSplitPane();
 		StatusPane statusPane = new StatusPane();
-		((VBox) mainScene.getRoot()).getChildren().addAll(mbar,splitPane,statusPane);
+		vbox.getChildren().addAll(mbar,splitPane,statusPane);
+		VBox.setVgrow(splitPane, Priority.ALWAYS);
 		
 		root.setScene(mainScene);
 		root.show();
