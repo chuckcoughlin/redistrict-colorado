@@ -36,8 +36,8 @@ public class PlanListHolder extends AnchorPane implements EventReceiver<ActionEv
 		getChildren().add(buttons);
 		getChildren().add(planList);
 		setTopAnchor(headerLabel,0.);
-		setTopAnchor(planList,40.);
-		setBottomAnchor(planList,40.);
+		setTopAnchor(planList,UIConstants.BUTTON_PANEL_HEIGHT);
+		setBottomAnchor(planList,UIConstants.BUTTON_PANEL_HEIGHT);
 		setBottomAnchor(buttons,0.);
 		setLeftAnchor(headerLabel,UIConstants.LIST_PANEL_LEFT_MARGIN);
 		setRightAnchor(headerLabel,UIConstants.LIST_PANEL_RIGHT_MARGIN);
@@ -45,6 +45,8 @@ public class PlanListHolder extends AnchorPane implements EventReceiver<ActionEv
 		setRightAnchor(planList,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 		setLeftAnchor(buttons,UIConstants.LIST_PANEL_LEFT_MARGIN);
 		setRightAnchor(buttons,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+		
+		buttons.setDeleteDisabled(true);
 		buttons.registerEventReceiver(this.auxEventDispatcher);;
 	}
 	

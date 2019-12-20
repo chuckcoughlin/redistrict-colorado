@@ -1,7 +1,8 @@
-/**
- * Copyright 2018-2019. Charles Coughlin. All Rights Reserved.
- *                 MIT License.
- *
+/**  
+ * Copyright (C) 2020 Charles Coughlin
+ * 
+ * This program is free software; you may redistribute it and/or
+ * modify it under the terms of the GNU General Public License.
  */
 package redistrict.colorado.db;
 
@@ -30,14 +31,13 @@ public class Database {
 	
 	private Connection connection = null;
 	private static Database instance = null;
-	private final LayerConfigurationTable layerConfiguration;
+	private final LayerTable layerTable;
  
-
 	/**
 	 * Constructor is private per Singleton pattern.
 	 */
 	private Database() {
-		this.layerConfiguration = new LayerConfigurationTable();
+		this.layerTable = new LayerTable();
 	}
 	/**
 	 * Static method to create and/or fetch the single instance.
@@ -50,21 +50,13 @@ public class Database {
 		}
 		return instance;
 	}
-
 	
-	/** Return a list of names of defined layers
-	 * property.
-	 * @param mcmap a map of configurations. Joints not present are ignored.
-	 * @param pose
-	 * @param parameter, e.g. "position","speed","torque"
-	 * @return list of upper-case joint names.
-	 */
-	public Map<String,String> getAttributesForLayer(String key) {
-		return layerConfiguration.getAttributesForLayer(connection,key);
-	}
 	
 	/**
-	 * Create a database connection. Use this for all subsequent queries. 
+	 * Create a database connection. Use this for all subsequent queries.
+	 * The expectation is that this method is called in the main() method
+	 * before any class requires database access.
+	 *  
 	 * @param path to database instance
 	 */
 	public void startup(Path path) {
@@ -73,6 +65,7 @@ public class Database {
 
 		try {
 			connection = DriverManager.getConnection(connectPath);
+			layerTable.setConnection(connection);
 		}
 		catch(SQLException e) {
 			// if the error message is "out of memory", 

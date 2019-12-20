@@ -16,6 +16,19 @@
 	-fx-font-weight: bold;
 }
 /* ======== Custom Classes ======= */
+.list-cell-name {
+    -fx-font-size: 1.2em;
+    -fx-font-weight: bold;
+}
+ 
+.list-cell-icon {
+    -fx-text-fill: #444444;
+    -fx-effect: dropshadow( three-pass-box, rgba(0,0,0,0.4), 3, 0.0, 1, 1);
+}
+ 
+.list-cell-selected .list-cell-icon {
+    -fx-text-fill: #669900;
+}
 .list-header-label {
 	-fx-background-color:-ma-light-background;
 	-fx-font-size: 16pt;

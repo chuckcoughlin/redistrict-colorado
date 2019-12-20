@@ -77,11 +77,11 @@ public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode>
 	public class SplitPaneEventHandler implements EventHandler<ActionEvent> {
 		@Override
 		public void handle(ActionEvent event) {
-			String src = GuiUtil.idFromSource(event.getSource());
-			LOGGER.info(String.format("%s.handle: ActionEvent source = %s",CLSS,src));
+			String id = GuiUtil.idFromSource(event.getSource());
+			LOGGER.info(String.format("%s.handle: ActionEvent source = %s",CLSS,id));
 			ViewMode mode = ViewMode.PLAN;
-			if( src.equalsIgnoreCase(ComponentIds.MENU_LAYER))      mode = ViewMode.LAYER;
-			else if( src.equalsIgnoreCase(ComponentIds.MENU_REGION))mode = ViewMode.REGION;
+			if( id.equalsIgnoreCase(ComponentIds.MENU_LAYER))      mode = ViewMode.LAYER;
+			else if( id.equalsIgnoreCase(ComponentIds.MENU_REGION))mode = ViewMode.REGION;
 			updateUIForViewMode(mode);
 		}
 	}

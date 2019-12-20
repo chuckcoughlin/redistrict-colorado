@@ -18,5 +18,15 @@ public interface UIConstants {
 	public final static double SCENE_WIDTH  = 800.;  // Size for right-side panes
 	public final static double SCENE_HEIGHT = 750.;
 	public final static double STAGE_WIDTH  = 1200.; // Default size for main window
-	public final static double STAGE_HEIGHT = 800.;   
+	public final static double STAGE_HEIGHT = 800.;  
+	
+	// UI Names for the left-side lists
+	public static final String LIST_CELL_SELECTED_CLASS = "list-cell-selected";
+	public static final String LIST_CELL_NOT_SELECTED_CLASS = "list-cell-not-selected";
+	public static final String LIST_CELL_NAME_CLASS = "list-cell-name";
+	public static final String LIST_CELL_DT_CLASS   = "list-cell-dt";
+	public static final String LIST_CELL_ICON_CLASS = "list-cell-icon";
+	public static final String LIST_CELL_FONT = "Arial";
+    
+	public final static long UNSET_KEY = -1;         // Indicator for no key selected
 }

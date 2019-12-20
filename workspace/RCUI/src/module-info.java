@@ -9,7 +9,7 @@ module rc.ui {
 	requires javafx.base;
 	requires transitive javafx.graphics;
 	requires transitive javafx.controls;
-	requires rc.core;
+	requires transitive rc.core;
 	
 	exports redistrict.colorado.ui;
 	exports redistrict.colorado.layer;

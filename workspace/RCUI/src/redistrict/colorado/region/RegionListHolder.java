@@ -36,8 +36,8 @@ public class RegionListHolder extends AnchorPane implements EventReceiver<Action
 		getChildren().add(buttons);
 		getChildren().add(regionList);
 		setTopAnchor(headerLabel,0.);
-		setTopAnchor(regionList,40.);
-		setBottomAnchor(regionList,40.);
+		setTopAnchor(regionList,UIConstants.BUTTON_PANEL_HEIGHT);
+		setBottomAnchor(regionList,UIConstants.BUTTON_PANEL_HEIGHT);
 		setBottomAnchor(buttons,0.);
 		setLeftAnchor(headerLabel,UIConstants.LIST_PANEL_LEFT_MARGIN);
 		setRightAnchor(headerLabel,UIConstants.LIST_PANEL_RIGHT_MARGIN);
@@ -46,6 +46,7 @@ public class RegionListHolder extends AnchorPane implements EventReceiver<Action
 		setLeftAnchor(buttons,UIConstants.LIST_PANEL_LEFT_MARGIN);
 		setRightAnchor(buttons,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 		
+		buttons.setDeleteDisabled(true);
 		buttons.registerEventReceiver(this.auxEventDispatcher);
 	}
 	

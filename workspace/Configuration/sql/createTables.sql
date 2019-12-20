@@ -9,7 +9,7 @@
 -- The time increment between rows is unspecified, by default 1 second.
 DROP TABLE IF EXISTS Layer;
 CREATE TABLE Layer (
-	id		integer   PRAMARY KEY AUTOINCREMENT,
+	id		INTEGER  PRIMARY KEY,
 	name	text NOT NULL,
 	description text NULL,
 	displayOrder integer default(0),
@@ -24,7 +24,7 @@ CREATE TABLE Layer (
 -- The time increment between rows is unspecified, by default 1 second.
 DROP TABLE IF EXISTS Plan;
 CREATE TABLE Plan (
-	id		integer   PRAMARY KEY AUTOINCREMENT,
+	id		INTEGER  PRIMARY KEY,
 	name	text NOT NULL,
 	description text NULL,
 	displayOrder integer default(0),
