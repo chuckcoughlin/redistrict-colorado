@@ -51,6 +51,7 @@ public class Database {
 		return instance;
 	}
 	
+	public LayerTable getLayerTable() { return this.layerTable; }
 	
 	/**
 	 * Create a database connection. Use this for all subsequent queries.

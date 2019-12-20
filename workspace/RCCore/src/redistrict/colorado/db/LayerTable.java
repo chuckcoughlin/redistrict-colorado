@@ -33,22 +33,20 @@ public class LayerTable {
 	/**
 	 * Create a new row. If there is already a row called "NewLayer", a null will be returned.
 	 */
-	public LayerModel createNewRow() {
+	public LayerModel createLayer() {
 		LayerModel model = null;
 		if( cxn==null ) return model;
 		
-		String SQL = "INSERT INTO Layer(name.description,displayOrder,shapefilePath,role) values ('newLayer','',0,'','')";
+		String SQL = "INSERT INTO Layer(name,description,displayOrder,shapefilePath,role) values ('newLayer','',0,'','')";
 		Statement statement = null;
 		try {
-			LOGGER.info(String.format("%s.createNewRow: \n%s",CLSS,SQL));
+			LOGGER.info(String.format("%s.createLayer: \n%s",CLSS,SQL));
 			statement = cxn.createStatement();
-			statement.executeUpdate(SQL,Statement.RETURN_GENERATED_KEYS);
+			statement.executeUpdate(SQL);
 			ResultSet rs = statement.getGeneratedKeys();
-
 		    if (rs.next()) {
 		        model = new LayerModel(rs.getInt(1),"newLayer","");
 		    } 
-
 		}
 		catch(SQLException e) {
 			LOGGER.severe(String.format("%s.createNewRow: error (%s)",CLSS,e.getMessage()));
@@ -60,7 +58,30 @@ public class LayerTable {
 		}
 		return model;
 	}
-	
+	/**
+	 * Delete a row given its id.
+	 */
+	public boolean deleteLayer(long key) {
+		PreparedStatement statement = null;
+		String SQL = "DELETE FROM Layer WHERE id = ?";
+		boolean success = false;
+		try {
+			LOGGER.info(String.format("%s.deleteLayer: \n%s",CLSS,SQL));
+			statement = cxn.prepareStatement(SQL);
+			statement.setLong(1, key);
+			statement.executeUpdate();
+			if( statement.getUpdateCount()>0) success = true;
+		}
+		catch(SQLException e) {
+			LOGGER.severe(String.format("%s.deleteLayerName: error (%s)",CLSS,e.getMessage()));
+		}
+		finally {
+			if( statement!=null) {
+				try { statement.close(); } catch(SQLException ignore) {}
+			}
+		}
+		return success;
+	}
 	/**
 	 * @return a list of all defined Layers. It may be empty.
 	 */
