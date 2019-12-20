@@ -60,7 +60,7 @@ public class ButtonPane extends FlowPane implements EventSource<ActionEvent> {
 		setMargin(addButton,new Insets(VGAP,HGAP,VGAP,LMARGIN));
 	}
 	
-	public void setDeleteDisabled(boolean flag) { this.deleteButton.setDisable(flag); }
+	public void setDeleteDisabled(boolean flag) { deleteButton.setDisable(flag); }
 	
 	/**
 	 * One of the buttons has been pressed. The source of the event is the button.

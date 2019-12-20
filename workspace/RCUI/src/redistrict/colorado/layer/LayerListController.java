@@ -5,6 +5,7 @@
  * modify it under the terms of the GNU General Public License.
  */
 package redistrict.colorado.layer;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javafx.beans.value.ChangeListener;
@@ -26,9 +27,9 @@ import redistrict.colorado.ui.UIConstants;
 
 
 
-public class LayerListHolder extends AnchorPane 
-							implements EventReceiver<ActionEvent>,ChangeListener<Number>  {
-	private final static String CLSS = "LayerListHolder";
+public class LayerListController extends AnchorPane 
+							implements EventReceiver<ActionEvent>,ChangeListener<LayerModel> {
+	private final static String CLSS = "LayerListController";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private Label headerLabel = new Label("Layers");
 	private ButtonPane buttons = new ButtonPane();
@@ -39,12 +40,13 @@ public class LayerListHolder extends AnchorPane
 	private final EventRoutingHub hub;
 	
 	
-	public LayerListHolder() {
+	public LayerListController() {
 		this.auxEventHandler = new LayerListHolderEventHandler();
 		this.auxEventDispatcher = new BasicEventDispatcher<ActionEvent>(auxEventHandler);
 		this.hub = EventRoutingHub.getInstance();
-		hub.addLayerListener(this);
 		layerList = new ListView<LayerModel>();
+		layerList.setCellFactory(new LayerCellFactory());
+		layerList.getSelectionModel().selectedItemProperty().addListener(this);
 		headerLabel.getStyleClass().add("list-header-label");
 		getChildren().add(headerLabel);
 		getChildren().add(buttons);
@@ -62,6 +64,7 @@ public class LayerListHolder extends AnchorPane
 		
 		buttons.setDeleteDisabled(true);
 		buttons.registerEventReceiver(this.auxEventDispatcher);
+		updateUIFromDatabase();
 	}
 
 
@@ -80,28 +83,47 @@ public class LayerListHolder extends AnchorPane
 			LOGGER.info(String.format("%s.handle: Action event: source = %s", CLSS,id));
 			if( id.equalsIgnoreCase(ComponentIds.BUTTON_ADD))       {
 				LayerModel model = Database.getInstance().getLayerTable().createLayer();
-				layerList.getItems().add(model);
-				hub.setSelectedLayer(model.getId());
-				buttons.setDeleteDisabled(false);
+				updateUIFromDatabase();
 			}
 			// Delete the selected layer, then refresh
 			else if( id.equalsIgnoreCase(ComponentIds.BUTTON_DELETE)) {
-				if( hub.isLayerSelected()) {
-					Database.getInstance().getLayerTable().deleteLayer(hub.getSelectedLayer());
-					hub.unselectLayer();
-					buttons.setDeleteDisabled(true);
+				LayerModel selectedModel = layerList.getSelectionModel().getSelectedItem();
+				if( selectedModel!=null) {
+					Database.getInstance().getLayerTable().deleteLayer(selectedModel.getId());
+					layerList.getItems().remove(selectedModel);
+					updateUIFromDatabase();
 				}
 			}
 		}
 	}
 	/**
-	 * Listen for changes to the selected layer.
+	 * Query the Layer table and update the list accordingly. Retain the same selection, if any.
+	 */
+	private void updateUIFromDatabase() {
+		LayerModel selectedModel = layerList.getSelectionModel().getSelectedItem();
+		long selectedId = UIConstants.UNSET_KEY;
+		if( selectedModel!=null ) selectedId = selectedModel.getId();
+		selectedModel = null;
+		
+		List<LayerModel> layers = Database.getInstance().getLayerTable().getLayers();
+		layerList.getItems().clear();
+		for(LayerModel model:layers) {
+			layerList.getItems().add(model);
+			if( model.getId()==selectedId) selectedModel = model;
+		}
+		buttons.setDeleteDisabled(selectedModel==null);	
+	}
+
+	/**
+	 * Listen for changes to the selected layer based on actions in the list.
 	 */
 	@Override
-	public void changed(ObservableValue<? extends Number> arg0, Number oldValue, Number newValue) {
-		LOGGER.info(String.format("%s.changed: selected = %d", CLSS,newValue.longValue()));
-		
+	public void changed(ObservableValue<? extends LayerModel> source, LayerModel oldValue, LayerModel newValue) {
+		long selectedId = UIConstants.UNSET_KEY;
+		if( newValue!=null ) selectedId = newValue.getId();
+		LOGGER.info(String.format("%s.changed: selected = %d", CLSS,selectedId));
+		buttons.setDeleteDisabled(selectedId==UIConstants.UNSET_KEY);
+		hub.setSelectedLayer(selectedId);
+		LOGGER.info(String.format("%s.changed: complete = %d", CLSS,selectedId));
 	}
-	
-
 }

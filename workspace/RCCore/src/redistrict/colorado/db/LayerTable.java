@@ -17,11 +17,14 @@ import java.util.logging.Logger;
 
 /**
  * A Layer is an overlay within a Plan. This class contains convenience methods to query,
- * create and update them. The database class sets the connection once it is created.
+ * create and update them. It encapsulates the Layer SQLite table. The Database class 
+ * sets the connection once it is created.
  */
 public class LayerTable {
 	private static final String CLSS = "LayerTable";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
+	private final static String DEFAULT_NAME = "New layer";
+	private final static String DEFAULT_DESCRIPTION = "";
 	private Connection cxn = null;
 	/** 
 	 * Constructor: 
@@ -31,13 +34,14 @@ public class LayerTable {
 	
 	
 	/**
-	 * Create a new row. If there is already a row called "NewLayer", a null will be returned.
+	 * Create a new row. If there is already a row called "New layer", a null will be returned.
 	 */
 	public LayerModel createLayer() {
 		LayerModel model = null;
 		if( cxn==null ) return model;
 		
-		String SQL = "INSERT INTO Layer(name,description,displayOrder,shapefilePath,role) values ('newLayer','',0,'','')";
+		String SQL = String.format("INSERT INTO Layer(name,description,displayOrder,shapefilePath,role) values ('%s','%s',0,'','')",
+				DEFAULT_NAME,DEFAULT_DESCRIPTION);
 		Statement statement = null;
 		try {
 			LOGGER.info(String.format("%s.createLayer: \n%s",CLSS,SQL));
@@ -45,7 +49,7 @@ public class LayerTable {
 			statement.executeUpdate(SQL);
 			ResultSet rs = statement.getGeneratedKeys();
 		    if (rs.next()) {
-		        model = new LayerModel(rs.getInt(1),"newLayer","");
+		        model = new LayerModel(rs.getInt(1),DEFAULT_NAME,DEFAULT_DESCRIPTION);
 		    } 
 		}
 		catch(SQLException e) {
@@ -90,7 +94,7 @@ public class LayerTable {
 		LayerModel model = null;
 		PreparedStatement statement = null;
 		ResultSet rs = null;
-		String SQL = "SELECT id,name,description,displayOrder,shapefilePath,rolw from Layer"; 
+		String SQL = "SELECT id,name,description,displayOrder,shapefilePath,role from Layer"; 
 		try {
 			statement = cxn.prepareStatement(SQL);
 			statement.setQueryTimeout(10);  // set timeout to 10 sec.

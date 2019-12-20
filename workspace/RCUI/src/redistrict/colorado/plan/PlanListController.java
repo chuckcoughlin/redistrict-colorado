@@ -4,7 +4,7 @@
  * This program is free software; you may redistribute it and/or
  * modify it under the terms of the GNU General Public License.
  */
-package redistrict.colorado.region;
+package redistrict.colorado.plan;
 import java.util.logging.Logger;
 
 import javafx.event.ActionEvent;
@@ -18,36 +18,36 @@ import redistrict.colorado.bind.EventReceiver;
 import redistrict.colorado.ui.ButtonPane;
 import redistrict.colorado.ui.UIConstants;
 
-public class RegionListHolder extends AnchorPane implements EventReceiver<ActionEvent> {
-	private final static String CLSS = "RegionListHolder";
+public class PlanListController extends AnchorPane implements EventReceiver<ActionEvent> {
+	private final static String CLSS = "PlanListController";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
-	private Label headerLabel = new Label("Regions");
+	private Label headerLabel = new Label("Plans");
 	private ButtonPane buttons = new ButtonPane();
-	private ListView<String> regionList;
+	private ListView<String> planList;
 	private final BasicEventDispatcher<ActionEvent> auxEventDispatcher;
 	private final EventHandler<ActionEvent> auxEventHandler;
 	
-	public RegionListHolder() {
-		this.auxEventHandler = new RegionListHolderEventHandler();
+	public PlanListController() {
+		this.auxEventHandler = new PlanListHolderEventHandler();
 		this.auxEventDispatcher = new BasicEventDispatcher<ActionEvent>(auxEventHandler);
-		regionList = new ListView<String>();
+		planList = new ListView<String>();
 		headerLabel.getStyleClass().add("list-header-label");
 		getChildren().add(headerLabel);
 		getChildren().add(buttons);
-		getChildren().add(regionList);
+		getChildren().add(planList);
 		setTopAnchor(headerLabel,0.);
-		setTopAnchor(regionList,UIConstants.BUTTON_PANEL_HEIGHT);
-		setBottomAnchor(regionList,UIConstants.BUTTON_PANEL_HEIGHT);
+		setTopAnchor(planList,UIConstants.BUTTON_PANEL_HEIGHT);
+		setBottomAnchor(planList,UIConstants.BUTTON_PANEL_HEIGHT);
 		setBottomAnchor(buttons,0.);
 		setLeftAnchor(headerLabel,UIConstants.LIST_PANEL_LEFT_MARGIN);
 		setRightAnchor(headerLabel,UIConstants.LIST_PANEL_RIGHT_MARGIN);
-		setLeftAnchor(regionList,UIConstants.LIST_PANEL_LEFT_MARGIN);
-		setRightAnchor(regionList,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+		setLeftAnchor(planList,UIConstants.LIST_PANEL_LEFT_MARGIN);
+		setRightAnchor(planList,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 		setLeftAnchor(buttons,UIConstants.LIST_PANEL_LEFT_MARGIN);
 		setRightAnchor(buttons,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 		
 		buttons.setDeleteDisabled(true);
-		buttons.registerEventReceiver(this.auxEventDispatcher);
+		buttons.registerEventReceiver(this.auxEventDispatcher);;
 	}
 	
 	@Override
@@ -58,7 +58,7 @@ public class RegionListHolder extends AnchorPane implements EventReceiver<Action
 	/**
 	 * We've received an event from the button panel (or other). React.
 	 */
-	public class RegionListHolderEventHandler implements EventHandler<ActionEvent> {
+	public class PlanListHolderEventHandler implements EventHandler<ActionEvent> {
 		@Override
 		public void handle(ActionEvent event) {
 			LOGGER.info(String.format("%s.handle: Action event: source = %s", CLSS,((Node)event.getSource()).getId()));

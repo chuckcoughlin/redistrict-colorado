@@ -19,9 +19,9 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import redistrict.colorado.bind.EventRoutingHub;
 import redistrict.colorado.layer.LayerConfigurationPage;
-import redistrict.colorado.layer.LayerListHolder;
-import redistrict.colorado.plan.PlanListHolder;
-import redistrict.colorado.region.RegionListHolder;
+import redistrict.colorado.layer.LayerListController;
+import redistrict.colorado.plan.PlanListController;
+import redistrict.colorado.region.RegionListController;
 
 /**
  * Create the main split panel. The left side is a stack of three options. The right side
@@ -41,9 +41,9 @@ public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode>
 		left = new StackPane();
 		right = new StackPane();
 		leftChildren = new Node[3];
-		leftChildren[0] = new PlanListHolder();
-		leftChildren[1] = new LayerListHolder();
-		leftChildren[2] = new RegionListHolder();
+		leftChildren[0] = new PlanListController();
+		leftChildren[1] = new LayerListController();
+		leftChildren[2] = new RegionListController();
 		
 		this.init();
 	}
