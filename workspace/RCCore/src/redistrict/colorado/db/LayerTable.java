@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import redistrict.colorado.core.LayerRole;
+
 /**
  * A Layer is an overlay within a Plan. This class contains convenience methods to query,
  * create and update them. It encapsulates the Layer SQLite table. The Database class 
@@ -40,8 +42,8 @@ public class LayerTable {
 		LayerModel model = null;
 		if( cxn==null ) return model;
 		
-		String SQL = String.format("INSERT INTO Layer(name,description,displayOrder,shapefilePath,role) values ('%s','%s',0,'','')",
-				DEFAULT_NAME,DEFAULT_DESCRIPTION);
+		String SQL = String.format("INSERT INTO Layer(name,description,displayOrder,shapefilePath,role) values ('%s','%s',0,'','%s')",
+				DEFAULT_NAME,DEFAULT_DESCRIPTION,LayerRole.BOUNDARIES.name());
 		Statement statement = null;
 		try {
 			LOGGER.info(String.format("%s.createLayer: \n%s",CLSS,SQL));
@@ -49,7 +51,7 @@ public class LayerTable {
 			statement.executeUpdate(SQL);
 			ResultSet rs = statement.getGeneratedKeys();
 		    if (rs.next()) {
-		        model = new LayerModel(rs.getInt(1),DEFAULT_NAME,DEFAULT_DESCRIPTION);
+		        model = new LayerModel(rs.getInt(1),DEFAULT_NAME);
 		    } 
 		}
 		catch(SQLException e) {
@@ -102,10 +104,12 @@ public class LayerTable {
 			while(rs.next()) {
 				model = new LayerModel(
 							rs.getLong("id"),
-							rs.getString("name"),
-							rs.getString("description")
+							rs.getString("name")
 						);
-
+				model.setDescription(rs.getString("description"));
+				model.setShapefilePath(rs.getString("shapefilePath"));
+				model.setDisplayOrder(rs.getInt("displayOrder"));
+				model.setRole(LayerRole.valueOf(rs.getString("role")));
 				list.add(model);
 				LOGGER.info(String.format("%s.getLayers %d: %s is %s",CLSS,model.getId(),model.getName(),model.getDescription()));
 				break;

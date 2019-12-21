@@ -71,6 +71,7 @@ public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode>
 		right.setMinHeight(UIConstants.STACK_PANE_MIN_HEIGHT);
 		
 		left.setPrefWidth(800.);
+		right.setMinWidth(UIConstants.STACK_PANE_MIN_WIDTH);
 	}
 	
 	/**

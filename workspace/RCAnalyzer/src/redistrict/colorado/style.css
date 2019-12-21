@@ -24,7 +24,10 @@
     -fx-font-size: 12px;
     -fx-font-weight: normal;
 }
- 
+.list-cell-field-small {
+    -fx-font-size: 10px;
+    -fx-font-weight: normal;
+} 
 .list-cell-button {
     -fx-pref-height: 40;
     -fx-pref-width: 40;
@@ -33,7 +36,6 @@
     -fx-pref-height: 48;
     -fx-pref-width: 48;
 }
- 
 .list-cell-selected .list-cell-icon {
     -fx-text-fill: #669900;
 }

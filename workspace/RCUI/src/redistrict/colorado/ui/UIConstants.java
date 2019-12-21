@@ -14,6 +14,7 @@ public interface UIConstants {
 	public final static double LIST_PANEL_LEFT_MARGIN = 2.;
 	public final static double LIST_PANEL_RIGHT_MARGIN = 2.;
 	public final static double STACK_PANE_MIN_HEIGHT = 200.; // Min size before +/- disappear
+	public final static double STACK_PANE_MIN_WIDTH = 200.;
 	public static final double FRAME_HEIGHT = 600;  
 	public final static double SCENE_WIDTH  = 800.;  // Size for right-side panes
 	public final static double SCENE_HEIGHT = 750.;
@@ -24,6 +25,7 @@ public interface UIConstants {
 	public static final String LIST_CELL_SELECTED_CLASS = "list-cell-selected";
 	public static final String LIST_CELL_NOT_SELECTED_CLASS = "list-cell-not-selected";
 	public static final String LIST_CELL_FIELD_CLASS = "list-cell-field";
+	public static final String LIST_CELL_FIELD_CLASS_SMALL = "list-cell-field-small";
 	public static final String LIST_CELL_NAME_CLASS = "list-cell-name";
 	public static final String LIST_CELL_BUTTON_CLASS = "list-cell-button";
 	public static final String LIST_CELL_ICON_CLASS = "list-cell-icon";

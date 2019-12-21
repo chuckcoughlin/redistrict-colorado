@@ -35,7 +35,6 @@ public class MainMenuBar extends MenuBar  {
 		setUseSystemMenuBar(false);
 		getMenus().add(systemMenu());
 		getMenus().add(leftMenu());
-		getMenus().add(rightMenu());
 	}
 	
 	public Menu systemMenu() {
@@ -65,9 +64,6 @@ public class MainMenuBar extends MenuBar  {
 		return menu;
 	}
 	
-	public Menu rightMenu() {
-		return new Menu("Detail");
-	}
 	
 	/**
 	 * One of the menu items has been selected. The source of the event is the item.
