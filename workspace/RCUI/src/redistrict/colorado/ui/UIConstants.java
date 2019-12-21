@@ -23,8 +23,9 @@ public interface UIConstants {
 	// UI Names for the left-side lists
 	public static final String LIST_CELL_SELECTED_CLASS = "list-cell-selected";
 	public static final String LIST_CELL_NOT_SELECTED_CLASS = "list-cell-not-selected";
+	public static final String LIST_CELL_FIELD_CLASS = "list-cell-field";
 	public static final String LIST_CELL_NAME_CLASS = "list-cell-name";
-	public static final String LIST_CELL_DT_CLASS   = "list-cell-dt";
+	public static final String LIST_CELL_BUTTON_CLASS = "list-cell-button";
 	public static final String LIST_CELL_ICON_CLASS = "list-cell-icon";
 	public static final String LIST_CELL_FONT = "Arial";
     

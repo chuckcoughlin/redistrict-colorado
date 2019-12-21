@@ -59,7 +59,8 @@ public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode>
 		
 		right.setCursor(Cursor.OPEN_HAND);
 		right.getChildren().addAll(new MapCanvas(),new LayerConfigurationPage());
-		Rectangle rect = new Rectangle(UIConstants.SCENE_WIDTH, UIConstants.SCENE_HEIGHT, Color.RED);
+		// The rectangle is a place holder for when there is no selection in the left pane.
+		Rectangle rect = new Rectangle(UIConstants.SCENE_WIDTH, UIConstants.SCENE_HEIGHT, Color.ANTIQUEWHITE);
 		right.getChildren().addAll(rect);
 			
 		getItems().addAll(left,right);
@@ -68,6 +69,8 @@ public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode>
 		// Set min height before starting to lose button panel.
 		left.setMinHeight(UIConstants.STACK_PANE_MIN_HEIGHT);
 		right.setMinHeight(UIConstants.STACK_PANE_MIN_HEIGHT);
+		
+		left.setPrefWidth(800.);
 	}
 	
 	/**

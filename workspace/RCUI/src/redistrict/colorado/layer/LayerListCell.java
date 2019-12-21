@@ -1,50 +1,57 @@
 package redistrict.colorado.layer;
 
 import javafx.geometry.Insets;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.layout.GridPane;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import redistrict.colorado.db.LayerModel;
+import redistrict.colorado.ui.GuiUtil;
 import redistrict.colorado.ui.UIConstants;
 
 public class LayerListCell extends ListCell<LayerModel> {
+	private static final GuiUtil guiu = new GuiUtil();
 	private GridPane grid = new GridPane();
-    private Label icon = new Label();
-    private Label name = new Label();
-    private Label description = new Label();
-    private boolean selected = false;
+    private final Label tag;   // Identifies the pane class
+    private final Label name;
+    private final Label description;
+    private final Button edit;
     
 	public LayerListCell() {
+		tag = new Label("",guiu.loadImage("images/table.png"));
+		name = new Label();
+	    description = new Label();
+	    edit = new Button("",guiu.loadImage("images/edit.png"));
         configureGrid();        
-        configureIcon();
-        configureName();
-        configureDescription();
+        configureLabels();
+        addLabelsToGrid();
+        configureControls();
         addControlsToGrid();            
     } 
-	
+	private void configureControls() {
+		edit.getStyleClass().add(UIConstants.LIST_CELL_BUTTON_CLASS);
+    }
 	private void configureGrid() {
         grid.setHgap(10);
         grid.setVgap(4);
         grid.setPadding(new Insets(0, 10, 0, 10));
     }
 	
-	private void configureIcon() {
-        icon.setFont(Font.font(UIConstants.LIST_CELL_FONT, FontWeight.BOLD, 24));
-        icon.getStyleClass().add(UIConstants.LIST_CELL_ICON_CLASS);
-    }
-	private void configureName() {
+	private void configureLabels() {
+		tag.getStyleClass().add(UIConstants.LIST_CELL_ICON_CLASS);
         name.getStyleClass().add(UIConstants.LIST_CELL_NAME_CLASS);
-    }
-	private void configureDescription() {
-        name.getStyleClass().add(UIConstants.LIST_CELL_NAME_CLASS);
+        description.getStyleClass().add(UIConstants.LIST_CELL_FIELD_CLASS);
     }
 	
-    private void addControlsToGrid() {
-        grid.add(icon, 0, 0, 1, 2);                    
+    private void addLabelsToGrid() {
+        grid.add(tag, 0, 0, 1, 1);                    
         grid.add(name, 1, 0);        
-        grid.add(description, 1, 1);
+        grid.add(description, 2, 0);
+    }
+    private void addControlsToGrid() {
+        grid.add(edit, 3, 0);                    
+        //grid.add(name, 1, 0);        
+        //grid.add(description, 1, 1);
     }
 	
     @Override
@@ -56,7 +63,7 @@ public class LayerListCell extends ListCell<LayerModel> {
             addContent(model);
         }
     }
- 
+    // Empty cells have no corresponding LayerModel
     private void clearContent() {
         setText(null);
         setGraphic(null);

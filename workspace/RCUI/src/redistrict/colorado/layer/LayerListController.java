@@ -124,6 +124,5 @@ public class LayerListController extends AnchorPane
 		LOGGER.info(String.format("%s.changed: selected = %d", CLSS,selectedId));
 		buttons.setDeleteDisabled(selectedId==UIConstants.UNSET_KEY);
 		hub.setSelectedLayer(selectedId);
-		LOGGER.info(String.format("%s.changed: complete = %d", CLSS,selectedId));
 	}
 }
