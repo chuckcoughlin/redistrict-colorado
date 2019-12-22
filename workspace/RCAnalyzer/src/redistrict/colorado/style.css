@@ -36,8 +36,8 @@
     -fx-pref-height: 48;
     -fx-pref-width: 48;
 }
-.list-cell-selected .list-cell-icon {
-    -fx-text-fill: #669900;
+.list-cell-icon {
+    -fx-background-color: rgba(0, 0, 0, 0)
 }
 .list-header-label {
 	-fx-background-color:-ma-light-background;

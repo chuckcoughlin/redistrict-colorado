@@ -6,6 +6,9 @@
  */
 package redistrict.colorado.io;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * "endian" refers to byte order.
  */
@@ -15,17 +18,15 @@ public enum EndianType
 	LITTLE
 	;
 
-
 	/**
-	 * @return  a comma-separated list of all endian states in a single String.
+	 * @return endian types in a list.
 	 */
-	public static String names()
-	{
-		StringBuffer names = new StringBuffer();
+	public static List<String> names() {
+		List<String> names = new ArrayList<>();
 		for (EndianType type : EndianType.values())
 		{
-			names.append(type.name()+", ");
+			names.add(type.name());
 		}
-		return names.substring(0, names.length()-2);
+		return names;
 	}
 }

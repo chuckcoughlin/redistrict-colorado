@@ -12,7 +12,6 @@ CREATE TABLE Layer (
 	id		INTEGER  PRIMARY KEY,
 	name	text NOT NULL,
 	description text NULL,
-	displayOrder integer default(0),
 	shapeFilePath text NULL,
 	role text NULL,
 	UNIQUE (name)
@@ -27,7 +26,6 @@ CREATE TABLE Plan (
 	id		INTEGER  PRIMARY KEY,
 	name	text NOT NULL,
 	description text NULL,
-	displayOrder integer default(0),
 	shapeFilePath text NULL,
 	role text NULL,
 	UNIQUE (name)

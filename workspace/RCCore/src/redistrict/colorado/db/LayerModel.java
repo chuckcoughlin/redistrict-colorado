@@ -15,7 +15,6 @@ public class LayerModel {
 	private final long id;
 	private String name;
 	private String description;
-	private int displayOrder;
 	private String shapefilePath;
 	private LayerRole role;
 	
@@ -23,7 +22,6 @@ public class LayerModel {
 		this.id = id;
 		this.name = nam;
 		this.description = "";
-		this.displayOrder = 0;
 		this.shapefilePath = "";
 		this.role = LayerRole.BOUNDARIES;
 	}
@@ -32,11 +30,9 @@ public class LayerModel {
 	public String getName() { return this.name; }
 	public String getDescription() { return this.description; }
 	public String getShapefilePath() { return this.shapefilePath; }
-	public int getDisplayOrder() { return this.displayOrder; }
 	public LayerRole getRole() { return this.role; }
 	public void setName(String nam) { this.name = nam; }
 	public void setDescription(String desc) { this.description = desc; }
 	public void setShapefilePath(String path) { this.shapefilePath = path; }
-	public void setDisplayOrder(int order) { this.displayOrder = order; }
 	public void setRole(LayerRole r) { this.role = r; }
 }

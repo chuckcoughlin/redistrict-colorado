@@ -18,7 +18,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import redistrict.colorado.bind.EventRoutingHub;
-import redistrict.colorado.layer.LayerConfigurationPage;
+import redistrict.colorado.layer.LayerConfigurationDialog;
 import redistrict.colorado.layer.LayerListController;
 import redistrict.colorado.plan.PlanListController;
 import redistrict.colorado.region.RegionListController;
@@ -58,7 +58,7 @@ public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode>
 		leftChildren[2].setVisible(false);
 		
 		right.setCursor(Cursor.OPEN_HAND);
-		right.getChildren().addAll(new MapCanvas(),new LayerConfigurationPage());
+		right.getChildren().addAll(new MapCanvas());
 		// The rectangle is a place holder for when there is no selection in the left pane.
 		Rectangle rect = new Rectangle(UIConstants.SCENE_WIDTH, UIConstants.SCENE_HEIGHT, Color.ANTIQUEWHITE);
 		right.getChildren().addAll(rect);

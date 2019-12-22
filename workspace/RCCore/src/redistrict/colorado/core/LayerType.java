@@ -6,6 +6,9 @@
  */
 package redistrict.colorado.core;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Specify allowable types of map overlays.
  */
@@ -15,17 +18,15 @@ public enum LayerType
 	SHAPEFILE
 	;
 
-
 	/**
-	 * @return  a comma-separated list of all layer types in a single String.
+	 * @return layer types in a list.
 	 */
-	public static String names()
-	{
-		StringBuffer names = new StringBuffer();
+	public static List<String> names() {
+		List<String> names = new ArrayList<>();
 		for (LayerType type : LayerType.values())
 		{
-			names.append(type.name()+", ");
+			names.add(type.name());
 		}
-		return names.substring(0, names.length()-2);
+		return names;
 	}
 }

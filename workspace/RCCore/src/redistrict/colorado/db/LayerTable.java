@@ -42,7 +42,7 @@ public class LayerTable {
 		LayerModel model = null;
 		if( cxn==null ) return model;
 		
-		String SQL = String.format("INSERT INTO Layer(name,description,displayOrder,shapefilePath,role) values ('%s','%s',0,'','%s')",
+		String SQL = String.format("INSERT INTO Layer(name,description,shapefilePath,role) values ('%s','%s','','%s')",
 				DEFAULT_NAME,DEFAULT_DESCRIPTION,LayerRole.BOUNDARIES.name());
 		Statement statement = null;
 		try {
@@ -96,7 +96,7 @@ public class LayerTable {
 		LayerModel model = null;
 		PreparedStatement statement = null;
 		ResultSet rs = null;
-		String SQL = "SELECT id,name,description,displayOrder,shapefilePath,role from Layer"; 
+		String SQL = "SELECT id,name,description,shapefilePath,role from Layer ORDER BY name"; 
 		try {
 			statement = cxn.prepareStatement(SQL);
 			statement.setQueryTimeout(10);  // set timeout to 10 sec.
@@ -108,11 +108,14 @@ public class LayerTable {
 						);
 				model.setDescription(rs.getString("description"));
 				model.setShapefilePath(rs.getString("shapefilePath"));
-				model.setDisplayOrder(rs.getInt("displayOrder"));
-				model.setRole(LayerRole.valueOf(rs.getString("role")));
+				LayerRole role = LayerRole.BOUNDARIES;   // Default
+				try {
+					role = LayerRole.valueOf(rs.getString("role"));
+				}
+				catch(IllegalArgumentException ignore) {}
+				model.setRole(role);
 				list.add(model);
-				LOGGER.info(String.format("%s.getLayers %d: %s is %s",CLSS,model.getId(),model.getName(),model.getDescription()));
-				break;
+				LOGGER.info(String.format("%s.getLayers %d: %s is %s",CLSS,model.getId(),model.getName(),model.getRole().name()));
 			}
 			rs.close();
 		}
@@ -142,14 +145,16 @@ public class LayerTable {
 	 */
 	public boolean updateLayer(LayerModel model) {
 		PreparedStatement statement = null;
-		String SQL = "UPDATE Layer SET name=?,description=? WHERE id = ?";
+		String SQL = "UPDATE Layer SET name=?,description=?,shapefilePath=?,role=? WHERE id = ?";
 		boolean success = false;
 		try {
 			LOGGER.info(String.format("%s.updateLayer: \n%s",CLSS,SQL));
 			statement = cxn.prepareStatement(SQL);
 			statement.setString(1,model.getName());
 			statement.setString(2,model.getDescription());
-			statement.setLong(3, model.getId());
+			statement.setString(3,model.getShapefilePath());
+			statement.setString(4,model.getRole().name());
+			statement.setLong(5, model.getId());
 			statement.executeUpdate();
 			if( statement.getUpdateCount()>0) success = true;
 		}

@@ -6,6 +6,9 @@
  */
 package redistrict.colorado.ui;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * These are the modes for the UI. The left side of the split pane reflects this.
  */
@@ -16,17 +19,15 @@ public enum ViewMode
 	REGION
 	;
 
-
 	/**
-	 * @return  a comma-separated list of all mode types in a single String.
+	 * @return view modes in a list.
 	 */
-	public static String names()
-	{
-		StringBuffer names = new StringBuffer();
-		for (ViewMode type : ViewMode.values())
+	public static List<String> names() {
+		List<String> names = new ArrayList<>();
+		for (ViewMode mode : ViewMode.values())
 		{
-			names.append(type.name()+", ");
+			names.add(mode.name());
 		}
-		return names.substring(0, names.length()-2);
+		return names;
 	}
 }

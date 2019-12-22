@@ -6,6 +6,9 @@
  */
 package redistrict.colorado.core;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Specify allowable uses of map overlays.
  */
@@ -16,17 +19,15 @@ public enum LayerRole
 	AFFILIATIONS
 	;
 
-
 	/**
-	 * @return  a comma-separated list of all layer roles in a single String.
+	 * @return layer roles in a list.
 	 */
-	public static String names()
-	{
-		StringBuffer names = new StringBuffer();
-		for (LayerRole type : LayerRole.values())
+	public static List<String> names() {
+		List<String> names = new ArrayList<>();
+		for (LayerRole role : LayerRole.values())
 		{
-			names.append(type.name()+", ");
+			names.add(role.name());
 		}
-		return names.substring(0, names.length()-2);
+		return names;
 	}
 }
