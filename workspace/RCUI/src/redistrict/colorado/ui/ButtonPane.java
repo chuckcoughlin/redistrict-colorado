@@ -42,7 +42,7 @@ public class ButtonPane extends FlowPane implements EventSource<ActionEvent> {
 	
 	public ButtonPane() {
 		super(Orientation.HORIZONTAL,HGAP,VGAP);
-		this.setPrefHeight(40.);
+		this.setPrefHeight(UIConstants.BUTTON_PANEL_HEIGHT);
 		this.eventHandler = new ButtonPaneEventHandler();
 		this.eventChain   = new BasicEventDispatchChain<ActionEvent>();
 		addButton = new Button("",guiu.loadImage("images/add.png"));

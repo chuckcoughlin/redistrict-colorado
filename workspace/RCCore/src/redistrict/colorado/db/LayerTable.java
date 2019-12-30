@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import redistrict.colorado.core.LayerModel;
 import redistrict.colorado.core.LayerRole;
 
 /**

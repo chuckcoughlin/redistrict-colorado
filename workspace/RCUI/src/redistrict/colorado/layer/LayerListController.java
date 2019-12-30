@@ -18,8 +18,8 @@ import javafx.scene.layout.AnchorPane;
 import redistrict.colorado.bind.BasicEventDispatcher;
 import redistrict.colorado.bind.EventReceiver;
 import redistrict.colorado.bind.EventRoutingHub;
+import redistrict.colorado.core.LayerModel;
 import redistrict.colorado.db.Database;
-import redistrict.colorado.db.LayerModel;
 import redistrict.colorado.ui.ButtonPane;
 import redistrict.colorado.ui.ComponentIds;
 import redistrict.colorado.ui.GuiUtil;
@@ -47,6 +47,7 @@ public class LayerListController extends AnchorPane
 		layerList = new ListView<LayerModel>();
 		layerList.setCellFactory(new LayerCellFactory());
 		layerList.getSelectionModel().selectedItemProperty().addListener(this);
+		layerList.setMinWidth(UIConstants.LIST_PANEL_WIDTH);
 		headerLabel.getStyleClass().add("list-header-label");
 		getChildren().add(headerLabel);
 		getChildren().add(buttons);
@@ -119,10 +120,8 @@ public class LayerListController extends AnchorPane
 	 */
 	@Override
 	public void changed(ObservableValue<? extends LayerModel> source, LayerModel oldValue, LayerModel newValue) {
-		long selectedId = UIConstants.UNSET_KEY;
-		if( newValue!=null ) selectedId = newValue.getId();
-		LOGGER.info(String.format("%s.changed: selected = %d", CLSS,selectedId));
-		buttons.setDeleteDisabled(selectedId==UIConstants.UNSET_KEY);
-		hub.setSelectedLayer(selectedId);
+		LOGGER.info(String.format("%s.changed: selected = %s", CLSS,(newValue==null?"null":newValue.getName())));
+		buttons.setDeleteDisabled(newValue==null);
+		hub.setSelectedLayer(newValue);
 	}
 }

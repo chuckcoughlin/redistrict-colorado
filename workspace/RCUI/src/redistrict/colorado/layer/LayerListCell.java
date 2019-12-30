@@ -21,9 +21,12 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.RowConstraints;
+import redistrict.colorado.core.LayerModel;
 import redistrict.colorado.db.Database;
-import redistrict.colorado.db.LayerModel;
 import redistrict.colorado.ui.GuiUtil;
 import redistrict.colorado.ui.UIConstants;
 
@@ -33,6 +36,12 @@ import redistrict.colorado.ui.UIConstants;
 public class LayerListCell extends ListCell<LayerModel> implements ChangeListener<Toggle> {
 	private static final String CLSS = "LayerListCell";
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
+	private final static double COL1_WIDTH = 40.;
+	private final static double COL2_WIDTH = 100.;
+	private final static double COL3_WIDTH = 40.;
+	private final static double COL4_WIDTH = 45.;
+	private final static double COL5_WIDTH = 45.;
+	private final static double ROW1_HEIGHT = 40.;
 	private static final GuiUtil guiu = new GuiUtil();
 	private final static String MAP_DATA = "map";
 	private final static String DETAIL_DATA = "detail";
@@ -50,6 +59,7 @@ public class LayerListCell extends ListCell<LayerModel> implements ChangeListene
     
 	public LayerListCell() {
 		cellHandler = new EditEventHandler();
+		setPrefWidth(UIConstants.LIST_PANEL_WIDTH);
 		tag = new Label("",guiu.loadImage("images/layers.png"));
 		name = new Label();
 	    description = new Label();
@@ -81,6 +91,14 @@ public class LayerListCell extends ListCell<LayerModel> implements ChangeListene
         grid.setHgap(0);
         grid.setVgap(4);
         grid.setPadding(new Insets(10, 10, 10, 10));
+        grid.getColumnConstraints().add(new ColumnConstraints(COL1_WIDTH)); 					// tag
+        ColumnConstraints col2 = new ColumnConstraints(COL2_WIDTH,COL2_WIDTH,Double.MAX_VALUE); // name
+        col2.setHgrow(Priority.ALWAYS);
+        grid.getColumnConstraints().add(col2);
+        grid.getColumnConstraints().add(new ColumnConstraints(COL3_WIDTH)); 					// edit
+        grid.getColumnConstraints().add(new ColumnConstraints(COL4_WIDTH)); 					// map
+        grid.getColumnConstraints().add(new ColumnConstraints(COL5_WIDTH)); 					// detail
+        grid.getRowConstraints().add(new RowConstraints(ROW1_HEIGHT)); // column 0 is 40 wide
     }
 	
 	private void configureLabels() {
@@ -92,11 +110,11 @@ public class LayerListCell extends ListCell<LayerModel> implements ChangeListene
     }
 	
     private void addLabelsToGrid() {
-        grid.add(tag, 0, 0, 1, 1);                    
+        grid.add(tag, 0, 0);                    
         grid.add(name, 1, 0);        
-        grid.add(description, 2, 0);
-        grid.add(shapefilePath, 2, 1, 3, 1);
-        grid.add(role, 5, 1);
+        grid.add(description, 1,1,2,1);
+        grid.add(shapefilePath, 1,2,3,1);
+        grid.add(role, 4,1,2,1);
     }
     private void addControlsToGrid() {
         grid.add(edit, 3, 0);                    
@@ -123,7 +141,7 @@ public class LayerListCell extends ListCell<LayerModel> implements ChangeListene
         setText(null);
         name.setText(model.getName());
         description.setText(model.getDescription());
-        shapefilePath.setText(model.getDescription());
+        shapefilePath.setText(model.getShapefilePath());
         role.setText(model.getRole().name());      
         setGraphic(grid);
     }

@@ -16,6 +16,10 @@
 	-fx-font-weight: bold;
 }
 /* ======== Custom Classes ======= */
+.layer-edit-diagram {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
 .list-cell-name {
     -fx-font-size: 18px;
     -fx-font-weight: bold;
@@ -31,6 +35,10 @@
 .list-cell-button {
     -fx-pref-height: 40;
     -fx-pref-width: 40;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-background-radius: 0;
+    -fx-background-color: transparent;
 }
 .list-cell-icon {
     -fx-pref-height: 48;

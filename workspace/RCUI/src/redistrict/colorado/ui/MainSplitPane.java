@@ -30,38 +30,44 @@ import redistrict.colorado.region.RegionListController;
 public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode> {
 	private static final String CLSS = "MainSplitPane";
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
+	private final static int N_CHILDREN_RIGHT = 2;
+	private final static int N_CHILDREN_LEFT = 3;
 	private final EventHandler<ActionEvent> eventHandler;
 	private final StackPane left;
 	private final StackPane right;
 	private final Node[] leftChildren;
+	private final Node[] rightChildren;
 	private ViewMode currentViewMode = ViewMode.PLAN;  // Initially
 	
 	public MainSplitPane() {
 		this.eventHandler = new SplitPaneEventHandler();
 		left = new StackPane();
 		right = new StackPane();
-		leftChildren = new Node[3];
+		leftChildren = new Node[N_CHILDREN_LEFT];
 		leftChildren[0] = new PlanListController();
 		leftChildren[1] = new LayerListController();
 		leftChildren[2] = new RegionListController();
 		
+		rightChildren = new Node[N_CHILDREN_RIGHT];
+		rightChildren[0] = new SplashScreen();
+		rightChildren[1] = new MapCanvas();
 		this.init();
 	}
 	
 	private void init() {
 		left.setCursor(Cursor.HAND);
-		left.getChildren().add(leftChildren[0]);
-		left.getChildren().add(leftChildren[1]);
-		left.getChildren().add(leftChildren[2]);
-		leftChildren[0].toFront();
-		leftChildren[1].setVisible(false);
-		leftChildren[2].setVisible(false);
-		
+		for(int i=0;i<N_CHILDREN_LEFT;i++) {
+			left.getChildren().add(leftChildren[i]);
+			if( i==0 )leftChildren[0].toFront();
+			else leftChildren[i].setVisible(false);
+		}
+	
 		right.setCursor(Cursor.OPEN_HAND);
-		right.getChildren().addAll(new MapCanvas());
-		// The rectangle is a place holder for when there is no selection in the left pane.
-		Rectangle rect = new Rectangle(UIConstants.SCENE_WIDTH, UIConstants.SCENE_HEIGHT, Color.ANTIQUEWHITE);
-		right.getChildren().addAll(rect);
+		for(int i=0;i<N_CHILDREN_RIGHT;i++) {
+			right.getChildren().add(rightChildren[i]);
+			if( i==0 )rightChildren[0].toFront();
+			else rightChildren[i].setVisible(false);
+		}
 			
 		getItems().addAll(left,right);
 		EventRoutingHub.getInstance().addModeListener(this);
@@ -120,8 +126,6 @@ public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode>
 			}
 			index++;
 		}
-
-
 	}
 	
 }

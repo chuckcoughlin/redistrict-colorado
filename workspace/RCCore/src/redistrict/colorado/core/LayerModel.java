@@ -4,21 +4,21 @@
  * This program is free software; you may redistribute it and/or
  * modify it under the terms of the GNU General Public License.
  */
-package redistrict.colorado.db;
-
-import redistrict.colorado.core.LayerRole;
+package redistrict.colorado.core;
 
 /**
- * Encapsulate values from one row of the Layer table.
+ * A Layer is on overlay on the map. It must be one of two types:
+ * - Google map
+ * - Shapefile
  */
-public class LayerModel {
+public class LayerModel{
 	private final long id;
 	private String name;
 	private String description;
 	private String shapefilePath;
 	private LayerRole role;
 	
-	LayerModel(long id,String nam) {
+	public LayerModel(long id,String nam) {
 		this.id = id;
 		this.name = nam;
 		this.description = "";
