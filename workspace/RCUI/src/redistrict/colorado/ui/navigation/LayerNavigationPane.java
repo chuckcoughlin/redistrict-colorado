@@ -23,11 +23,17 @@ public class LayerNavigationPane extends AbstractNavigationPane implements Chang
 	}
 
 	/**
-	 * One of the right-side selections has changed. Compose a message to display.
+	 * One of the right-side selections has changed. Compose a message to display. This is only called if the
+	 * layer is edited.
 	 */
 	@Override
-	public void changed(ObservableValue<? extends LayerModel> arg0, LayerModel arg1, LayerModel arg2) {
-		// TODO Auto-generated method stub
-		
+	public void changed(ObservableValue<? extends LayerModel> source, LayerModel oldValue, LayerModel newValue) {
+		LOGGER.info(String.format("%s.changed: got %s", CLSS,newValue.getName()));
+		updateTextForModel();
+	}
+
+	@Override
+	public void updateTextForModel() {
+		navigationLabel.setText(String.format("Layer: %s",hub.getSelectedLayer().getName()));	
 	}
 }

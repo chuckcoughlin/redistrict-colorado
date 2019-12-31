@@ -10,14 +10,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * These are the modes for the UI. The left side of the split pane reflects this.
+ * These are the choices for the type of display to show on the right-side pane
  */
-public enum ViewMode
+public enum DisplayOption
 {
-	PLAN,
-	LAYER,
-	REGION,
-	UNSELECTED
+	DETAIL,
+	MAP,
+	NONE
 	;
 
 	/**
@@ -25,7 +24,7 @@ public enum ViewMode
 	 */
 	public static List<String> names() {
 		List<String> names = new ArrayList<>();
-		for (ViewMode mode : ViewMode.values())
+		for (DisplayOption mode : DisplayOption.values())
 		{
 			names.add(mode.name());
 		}

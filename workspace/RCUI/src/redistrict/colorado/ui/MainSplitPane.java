@@ -15,13 +15,15 @@ import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import redistrict.colorado.bind.EventRoutingHub;
-import redistrict.colorado.layer.LayerConfigurationDialog;
 import redistrict.colorado.layer.LayerListController;
 import redistrict.colorado.plan.PlanListController;
 import redistrict.colorado.region.RegionListController;
+import redistrict.colorado.ui.right.BasicRightSideNode;
+import redistrict.colorado.ui.right.LayerDetailPane;
+import redistrict.colorado.ui.right.MapCanvas;
+import redistrict.colorado.ui.right.RightSideController;
+import redistrict.colorado.ui.right.SplashScreen;
 
 /**
  * Create the main split panel. The left side is a stack of three options. The right side
@@ -30,14 +32,15 @@ import redistrict.colorado.region.RegionListController;
 public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode> {
 	private static final String CLSS = "MainSplitPane";
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
-	private final static int N_CHILDREN_RIGHT = 2;
+	private final static int N_CHILDREN_RIGHT = 3;
 	private final static int N_CHILDREN_LEFT = 3;
 	private final EventHandler<ActionEvent> eventHandler;
 	private final StackPane left;
 	private final StackPane right;
 	private final Node[] leftChildren;
-	private final Node[] rightChildren;
+	private final BasicRightSideNode[] rightChildren;
 	private ViewMode currentViewMode = ViewMode.PLAN;  // Initially
+	private final RightSideController rightController;
 	
 	public MainSplitPane() {
 		this.eventHandler = new SplitPaneEventHandler();
@@ -48,9 +51,12 @@ public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode>
 		leftChildren[1] = new LayerListController();
 		leftChildren[2] = new RegionListController();
 		
-		rightChildren = new Node[N_CHILDREN_RIGHT];
+		rightChildren = new BasicRightSideNode[N_CHILDREN_RIGHT];
 		rightChildren[0] = new SplashScreen();
 		rightChildren[1] = new MapCanvas();
+		rightChildren[2] = new LayerDetailPane();
+		
+		this.rightController = new RightSideController(rightChildren);
 		this.init();
 	}
 	
@@ -65,7 +71,7 @@ public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode>
 		right.setCursor(Cursor.OPEN_HAND);
 		for(int i=0;i<N_CHILDREN_RIGHT;i++) {
 			right.getChildren().add(rightChildren[i]);
-			if( i==0 )rightChildren[0].toFront();
+			if( i==0 )rightChildren[0].toFront();    // SplashScreen
 			else rightChildren[i].setVisible(false);
 		}
 			

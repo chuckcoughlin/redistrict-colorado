@@ -31,6 +31,7 @@ public class EventRoutingHub {
 	private static final String CLSS = "EventRoutingHub";
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
 	private static EventRoutingHub instance = null;
+	private final SimpleObjectProperty<LeftSelectionEvent> leftSideSelection;
 	private final SimpleObjectProperty<ViewMode> mode;
 	private final SimpleStringProperty message;
 	private final SimpleObjectProperty<LayerModel> selectedLayer;
@@ -42,6 +43,7 @@ public class EventRoutingHub {
 	private EventRoutingHub() {
 		this.mode = new SimpleObjectProperty<ViewMode>();
 		this.message = new SimpleStringProperty();
+		this.leftSideSelection = new SimpleObjectProperty<LeftSelectionEvent>();
 		this.selectedLayer = new SimpleObjectProperty<LayerModel>();
 		this.selectedPlan = new SimpleObjectProperty<PlanModel>();
 		this.selectedRegion = new SimpleObjectProperty<RegionModel>();
@@ -74,7 +76,13 @@ public class EventRoutingHub {
 		message.addListener(listener);
 	}
 	public SimpleStringProperty messageProperty(){return message;}
-	
+	// Left-side Selection
+	public LeftSelectionEvent getSelection() { return leftSideSelection.get(); }
+	public boolean isLeftSideSelected() { return (leftSideSelection.get()!=null); }
+	public void setLeftSideSelection(LeftSelectionEvent event) { leftSideSelection.set(event); }
+	public void unselectLeftSide() { leftSideSelection.set(null); }
+	public void addLeftSideSelectionListener(ChangeListener<LeftSelectionEvent> listener) {leftSideSelection.addListener(listener);}
+	public SimpleObjectProperty<LeftSelectionEvent> leftSideSelectionProperty(){return leftSideSelection;}
 	// Selected Layer
 	public LayerModel getSelectedLayer() { return selectedLayer.get(); }
 	public boolean isLayerSelected() { return (selectedLayer.get()!=null); }

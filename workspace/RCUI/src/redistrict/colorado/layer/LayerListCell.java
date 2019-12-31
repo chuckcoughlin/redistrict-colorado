@@ -25,10 +25,14 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
+import redistrict.colorado.bind.EventRoutingHub;
+import redistrict.colorado.bind.LeftSelectionEvent;
 import redistrict.colorado.core.LayerModel;
 import redistrict.colorado.db.Database;
+import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.GuiUtil;
 import redistrict.colorado.ui.UIConstants;
+import redistrict.colorado.ui.ViewMode;
 
 /**
  * This is the UI element for a list view that represents a layer.
@@ -56,6 +60,7 @@ public class LayerListCell extends ListCell<LayerModel> implements ChangeListene
     private final ToggleButton detailButton;
     private final ToggleGroup toggleGroup;
     private final EditEventHandler cellHandler;
+    private LayerModel model = null;
     
 	public LayerListCell() {
 		cellHandler = new EditEventHandler();
@@ -165,7 +170,8 @@ public class LayerListCell extends ListCell<LayerModel> implements ChangeListene
     }
 
     /**
-     * The toggle group has changed. 
+     * The toggle group has changed. Inform the binding hub. If the user clicks on a button in a non-selected row,
+     * the model will have changed also.
      * @param source
      * @param oldValue
      * @param newValue
@@ -176,9 +182,16 @@ public class LayerListCell extends ListCell<LayerModel> implements ChangeListene
 			LOGGER.info(String.format("%s.changed: toggle button no new value", CLSS));
 		}
 		else {
+			EventRoutingHub.getInstance().setSelectedLayer(getItem());
 			Object data = newValue.getUserData();
 			if( data==null ) data = "null";
-			LOGGER.info(String.format("%s.changed: toggle button = %s", CLSS,data.toString()));
+			if( data.toString().equalsIgnoreCase(MAP_DATA)) {
+				EventRoutingHub.getInstance().setLeftSideSelection(new LeftSelectionEvent(ViewMode.LAYER,DisplayOption.MAP));
+			}
+			else if(data.toString().equalsIgnoreCase(DETAIL_DATA)) {
+				EventRoutingHub.getInstance().setLeftSideSelection(new LeftSelectionEvent(ViewMode.LAYER,DisplayOption.DETAIL));
+			}
+			//LOGGER.info(String.format("%s.changed: toggle button = %s", CLSS,data.toString()));
 		}
 	}
 }

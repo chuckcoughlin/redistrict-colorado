@@ -22,8 +22,8 @@ import redistrict.colorado.ui.UIConstants;
  * This abstract base class sets a common size.
  */
 public abstract class AbstractNavigationPane extends FlowPane {
-	private static final String CLSS = "NavigationPane";
-	private static final Logger LOGGER = Logger.getLogger(CLSS);
+	protected static final String CLSS = "NavigationPane";
+	protected static final Logger LOGGER = Logger.getLogger(CLSS);
 	protected final EventRoutingHub hub;
 	private static final double HGAP = 8.;
 	private static final double VGAP = 8.;
@@ -40,4 +40,6 @@ public abstract class AbstractNavigationPane extends FlowPane {
 		
 		setMargin(navigationLabel,new Insets(VGAP,HGAP,VGAP,LMARGIN));
 	}
+	
+	public abstract void updateTextForModel();
 }

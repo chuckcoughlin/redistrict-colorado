@@ -23,11 +23,17 @@ public class PlanNavigationPane extends AbstractNavigationPane implements Change
 	}
 
 	/**
-	 * One of the right-side selections has changed. Compose a message to display.
+	 * One of the right-side selections has changed. Compose a message to display. This is only called if the
+	 * layer is edited.
 	 */
 	@Override
-	public void changed(ObservableValue<? extends PlanModel> arg0, PlanModel arg1, PlanModel arg2) {
-		// TODO Auto-generated method stub
-		
+	public void changed(ObservableValue<? extends PlanModel> source, PlanModel oldValue, PlanModel newValue) {
+		LOGGER.info(String.format("%s.changed: got %s", CLSS,newValue.getName()));
+		updateTextForModel();
+	}
+	
+	@Override
+	public void updateTextForModel() {
+		navigationLabel.setText(String.format("Plan: %s",hub.getSelectedPlan().getName()));	
 	}
 }
