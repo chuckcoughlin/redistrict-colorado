@@ -105,7 +105,7 @@ public class Shapefile  {
 
             int type = mainHeader.getShapeType();
             ShapeHandler handler = getShapeHandler(type);
-            if(handler==null) throw new ShapefileException("Unsuported shape type: " + type);
+            if(handler==null) throw new ShapefileException("Unsupported shape type: " + type);
 
             errorCount = 0;
             int count = 1;

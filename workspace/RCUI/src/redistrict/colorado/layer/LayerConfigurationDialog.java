@@ -28,6 +28,7 @@ import javafx.stage.Window;
 import javafx.util.Callback;
 import redistrict.colorado.core.LayerModel;
 import redistrict.colorado.core.LayerRole;
+import redistrict.colorado.ui.GuiUtil;
 import redistrict.colorado.ui.UIConstants;
 
 public class LayerConfigurationDialog extends Dialog<LayerModel> implements EventHandler<ActionEvent>{
@@ -35,6 +36,8 @@ public class LayerConfigurationDialog extends Dialog<LayerModel> implements Even
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private final static double COL0_WIDTH = 100.;    // margin
 	private final static double COL1_WIDTH = 300.;
+	private final static double COL2_WIDTH = 40.;
+	private static final GuiUtil guiu = new GuiUtil();
 	private final LayerModel model;
 	private ButtonType buttonCancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
 	private ButtonType buttonOK = new ButtonType("Save", ButtonData.OK_DONE);
@@ -47,6 +50,7 @@ public class LayerConfigurationDialog extends Dialog<LayerModel> implements Even
 	private final TextField descriptionField;
 	private final TextField pathField;
 	private final ComboBox<String> roleChooser;
+	private final Label indicator;
 
 	public LayerConfigurationDialog(LayerModel m) {
 		this.model = m;
@@ -61,7 +65,16 @@ public class LayerConfigurationDialog extends Dialog<LayerModel> implements Even
         roleChooser = new ComboBox<>();
         roleChooser.getItems().addAll(LayerRole.names());
         roleChooser.getSelectionModel().select(model.getRole().name());
-    
+        if( model.getShapefilePath()==null) {
+        	indicator = new Label("",guiu.loadImage("images/ball_gray.png"));
+        }
+        else if ( model.getShape()==null){
+        	indicator = new Label("",guiu.loadImage("images/ball_red.png"));
+        }
+        else {
+        	indicator = new Label("",guiu.loadImage("images/ball_green.png"));
+        }
+        
         grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(4);
@@ -71,15 +84,18 @@ public class LayerConfigurationDialog extends Dialog<LayerModel> implements Even
 		ColumnConstraints col1 = new ColumnConstraints(COL1_WIDTH,COL1_WIDTH,Double.MAX_VALUE);
 		col1.setHalignment(HPos.LEFT);
 		col1.setHgrow(Priority.ALWAYS);
-		grid.getColumnConstraints().addAll(col0,col1); 
+		ColumnConstraints col2 = new ColumnConstraints(COL2_WIDTH);
+		col2.setHalignment(HPos.CENTER);
+		grid.getColumnConstraints().addAll(col0,col1,col2); 
 		grid.add(nameLabel,0, 0);
 		grid.add(nameField, 1, 0);
 		grid.add(descriptionLabel, 0, 1);
-		grid.add(descriptionField, 1, 1);
+		grid.add(descriptionField, 1, 1, 2, 1);
 		grid.add(fileButton, 0, 2);
-		grid.add(pathField, 1, 2);
+		grid.add(pathField, 1, 2,  2, 1);
 		grid.add(roleLabel, 0, 3);
 		grid.add(roleChooser, 1, 3);
+		grid.add(indicator, 2, 3);
 		
 		DialogPane dialog = this.getDialogPane();
 		dialog.setContent(grid);
@@ -101,6 +117,9 @@ public class LayerConfigurationDialog extends Dialog<LayerModel> implements Even
 			}
 		});
 	}
+	/**
+	 * Analyze the shape file
+	 */
 	@Override
 	public void handle(ActionEvent arg0) {
 		FileChooser fc = new FileChooser();

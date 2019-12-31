@@ -60,7 +60,6 @@ public class LayerListCell extends ListCell<LayerModel> implements ChangeListene
     private final ToggleButton detailButton;
     private final ToggleGroup toggleGroup;
     private final EditEventHandler cellHandler;
-    private LayerModel model = null;
     
 	public LayerListCell() {
 		cellHandler = new EditEventHandler();
