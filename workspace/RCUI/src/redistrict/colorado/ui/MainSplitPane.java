@@ -15,7 +15,7 @@ import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.StackPane;
-import redistrict.colorado.bind.EventRoutingHub;
+import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.layer.LayerListController;
 import redistrict.colorado.plan.PlanListController;
 import redistrict.colorado.region.RegionListController;
@@ -76,7 +76,7 @@ public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode>
 		}
 			
 		getItems().addAll(left,right);
-		EventRoutingHub.getInstance().addModeListener(this);
+		EventBindingHub.getInstance().addModeListener(this);
 		
 		// Set min height before starting to lose button panel.
 		left.setMinHeight(UIConstants.STACK_PANE_MIN_HEIGHT);

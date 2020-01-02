@@ -34,7 +34,7 @@ The *Archive* eclipse project is a collection of open-source library modules
 used in the applications. These have all been updated for compatibility with
 Java 13.
 
-* https://commons.apache.org/proper/commons-compress/ commons-compress-1.19.jar Apache commons compression handling
+* https://commons.apache.org/proper/commons-compress/ commons-compress-1.19.jar Apache commons compression handling. I modified code to remove dependencies on compression types that required external references. These included: 7Zip, Brotli, LZMA, XZ and ZStandard.
 * https://github.com/orbisgis/cts cts-1.5.1.jar Coordinate Transformation Suite
 *  https://commons.apache.org/proper/commons-lang commons-lang3-3.9.jar Apache commons helper utilities
 * https://github.com/locationtech/jts/releases jts-core-16.1.jar VividSolutions JTS Topology Suite

@@ -19,7 +19,7 @@
 		<mkdir dir="${install.dir}/bin"/>
 	</target>
 	
-	<target name="build" depends="version,rc-core,rc-ui,rc-analyzer" />
+	<target name="build" depends="version,open-jump,rc-core,rc-ui,rc-analyzer" />
 	<target name="version" description="Copy VERSION file for building">
 		<copy todir="${basedir}/../RCAnalyzer/src/redistrict/colorado/common/">
 			<fileset dir="${install.dir}/../release/">
@@ -28,6 +28,21 @@
 		</copy>
 		<move file="${basedir}/../RCAnalyzer/src/redistrict/colorado/common/VERSION/" 
 			  tofile="${basedir}/../RCAnalyzer/src/redistrict/colorado/common/Version.java/"/>
+	</target>
+	<target name="open-jump" description="Build OpenJUMP jar">
+			<echo message="Compile OpenJUMP" />
+			<delete dir="${temp.dir}" />
+			<mkdir dir="${temp.dir}"/>
+			<javac	srcdir="../OpenJUMP/src"
+			       	destdir="${temp.dir}"
+					compiler="javac10+"
+					source="13" target="13"
+					debug="true"
+					modulepathref="common-modulepath"
+					includeantruntime="false"
+			/>
+			<jar destfile="${lib.dir}/${open-jump-jar}" includes="**/*.class,**/*.png,**/*.css" basedir="${temp.dir}">
+			</jar>
 	</target>
 	<target name="rc-core" description="Build RC core jar">
 		<echo message="Compile Redistrict Colorado core" />
@@ -97,7 +112,7 @@
 			<fileset dir="${lib.dir}">
 				<include name="*.jar"/>
 			</fileset>
-			<fileset dir="${ext.dir}">
+			<fileset dir="${arch.mod.dir}">
 				<include name="*.jar"/>
 			</fileset>
 		</copy>

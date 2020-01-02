@@ -17,7 +17,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.AnchorPane;
 import redistrict.colorado.bind.BasicEventDispatcher;
 import redistrict.colorado.bind.EventReceiver;
-import redistrict.colorado.bind.EventRoutingHub;
+import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.LayerModel;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.ui.ButtonPane;
@@ -37,13 +37,13 @@ public class LayerListController extends AnchorPane
 	private ListView<LayerModel> layerList;
 	private final BasicEventDispatcher<ActionEvent> auxEventDispatcher;
 	private final EventHandler<ActionEvent> auxEventHandler;
-	private final EventRoutingHub hub;
+	private final EventBindingHub hub;
 	
 	
 	public LayerListController() {
 		this.auxEventHandler = new LayerListHolderEventHandler();
 		this.auxEventDispatcher = new BasicEventDispatcher<ActionEvent>(auxEventHandler);
-		this.hub = EventRoutingHub.getInstance();
+		this.hub = EventBindingHub.getInstance();
 		layerList = new ListView<LayerModel>();
 		layerList.setCellFactory(new LayerCellFactory());
 		layerList.getSelectionModel().selectedItemProperty().addListener(this);

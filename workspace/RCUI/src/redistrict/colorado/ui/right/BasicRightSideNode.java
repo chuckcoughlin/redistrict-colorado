@@ -1,18 +1,18 @@
 package redistrict.colorado.ui.right;
 
 import javafx.scene.layout.AnchorPane;
-import redistrict.colorado.bind.EventRoutingHub;
+import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.ViewMode;
 
 public abstract class BasicRightSideNode extends AnchorPane {
 	public static final long serialVersionUID = 5234544498000865338L;
-	protected final EventRoutingHub hub;
+	protected final EventBindingHub hub;
 	private final DisplayOption option;
 	private final ViewMode mode;
 	
 	public BasicRightSideNode(ViewMode vm, DisplayOption dopt) {
-		this.hub = EventRoutingHub.getInstance();
+		this.hub = EventBindingHub.getInstance();
 		this.option = dopt;
 		this.mode = vm;
 	}

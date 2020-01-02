@@ -16,12 +16,13 @@
  * www.vividsolutions.com
  */
 
-package redistrict.colorado.io;
+package org.openjump.io;
 
 import java.io.BufferedInputStream;
 import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  *  A class that gives most of the functionality of DataInputStream, but is endian aware.
@@ -37,7 +38,10 @@ public class EndianAwareInputStream implements DataInput, AutoCloseable {
         this.in = new DataInputStream(bis);
         this.type = et;
     }
-
+    public EndianAwareInputStream(InputStream is) {
+        this.in = new DataInputStream(is);
+        this.type = EndianType.BIG;
+    }
     public void setType(EndianType et) { this.type = et; }
     
     /** close the stream**/
@@ -142,7 +146,7 @@ public class EndianAwareInputStream implements DataInput, AutoCloseable {
 
 	@Override
 	public int readUnsignedShort() throws IOException {
-	    	if( type.equals(EndianType.BIG)) {
+	    	if( type.equals(EndianType.LITTLE)) {
 	    		return in.readUnsignedShort();
 	    	}
 	    	else {

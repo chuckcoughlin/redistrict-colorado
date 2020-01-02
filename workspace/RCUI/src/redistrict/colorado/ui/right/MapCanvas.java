@@ -7,7 +7,10 @@
 package redistrict.colorado.ui.right;
 import java.util.logging.Logger;
 
+import org.openjump.io.ShapefileReader;
+
 import javafx.scene.control.Label;
+import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.LayerModel;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.UIConstants;
@@ -41,6 +44,17 @@ import redistrict.colorado.ui.navigation.LayerNavigationPane;
 		@Override
 		public void updateModel() {
 			model = hub.getSelectedLayer();
-			navPane.updateTextForModel();	
+			navPane.updateTextForModel();
+			if( model.getFeatures()==null ) {
+				try {
+					model.setFeatures(ShapefileReader.read(model.getShapefilePath()));
+				}
+				catch( Exception ex) {
+					model.setFeatures(null);
+					String msg = String.format("%s: Failed to parse shapefile %s (%s)",CLSS,model.getShapefilePath(),ex.getLocalizedMessage());
+					LOGGER.warning(msg);
+					EventBindingHub.getInstance().setMessage(msg);
+				}
+			}
 		}
 }

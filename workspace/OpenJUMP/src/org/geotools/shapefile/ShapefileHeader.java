@@ -4,7 +4,7 @@
  * This program is free software; you may redistribute it and/or
  * modify it under the terms of the GNU General Public License.
  */
-package redistrict.colorado.shapefile;
+package org.geotools.shapefile;
 
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -13,10 +13,9 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
-
-import redistrict.colorado.io.EndianAwareInputStream;
-import redistrict.colorado.io.EndianAwareOutputStream;
-import redistrict.colorado.io.EndianType;
+import org.openjump.io.EndianAwareInputStream;
+import org.openjump.io.EndianAwareOutputStream;
+import org.openjump.io.EndianType;
 
 
 /**

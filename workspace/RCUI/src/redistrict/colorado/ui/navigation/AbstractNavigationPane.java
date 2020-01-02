@@ -13,7 +13,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
-import redistrict.colorado.bind.EventRoutingHub;
+import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.ui.GuiUtil;
 import redistrict.colorado.ui.UIConstants;
 
@@ -24,7 +24,7 @@ import redistrict.colorado.ui.UIConstants;
 public abstract class AbstractNavigationPane extends FlowPane {
 	protected static final String CLSS = "NavigationPane";
 	protected static final Logger LOGGER = Logger.getLogger(CLSS);
-	protected final EventRoutingHub hub;
+	protected final EventBindingHub hub;
 	private static final double HGAP = 8.;
 	private static final double VGAP = 8.;
 	private static final double LMARGIN = 32.;
@@ -33,7 +33,7 @@ public abstract class AbstractNavigationPane extends FlowPane {
 	
 	public AbstractNavigationPane() {
 		super(Orientation.HORIZONTAL,HGAP,VGAP);
-		this.hub = EventRoutingHub.getInstance();
+		this.hub = EventBindingHub.getInstance();
 		this.setPrefHeight(UIConstants.BUTTON_PANEL_HEIGHT);
 		this.navigationLabel = new Label("");
 		this.getChildren().add(navigationLabel);

@@ -16,7 +16,7 @@
  * www.vividsolutions.com
  */
 
-package redistrict.colorado.io;
+package org.openjump.io;
 
 import java.io.DataOutput;
 import java.io.DataOutputStream;

@@ -4,7 +4,7 @@
  * This program is free software; you may redistribute it and/or
  * modify it under the terms of the GNU General Public License.
  */
-package redistrict.colorado.shapefile;
+package org.geotools.shapefile;
 
 /**
   * Thrown when an error relating to the shapefile occurs.

@@ -4,7 +4,7 @@
  * Created on July 17, 2002, 4:13 PM
  */
 
-package redistrict.colorado.shapefile;
+package org.geotools.shapefile;
 
 import java.io.DataInput;
 import java.io.DataOutput;

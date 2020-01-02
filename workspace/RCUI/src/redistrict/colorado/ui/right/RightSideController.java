@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import redistrict.colorado.bind.EventRoutingHub;
+import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.bind.LeftSelectionEvent;
 
 
@@ -22,11 +22,11 @@ public class RightSideController implements ChangeListener<LeftSelectionEvent> {
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private final BasicRightSideNode[] nodes;
 	
-	private final EventRoutingHub hub;
+	private final EventBindingHub hub;
 	
 	
 	public RightSideController(BasicRightSideNode[] brnodes) {
-		this.hub = EventRoutingHub.getInstance();
+		this.hub = EventBindingHub.getInstance();
 		this.nodes = brnodes;
 		hub.addLeftSideSelectionListener(this);
 	}

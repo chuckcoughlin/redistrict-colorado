@@ -5,10 +5,11 @@
 	<property name="build.version" value="1.0" />
 	<property name="install.dir" location="${basedir}/../../app" />
 	<property name="lib.dir" value="${basedir}/lib" />
-	<property name="ext.dir" value="${basedir}/../Archive/lib" />
+	<property name="arch.mod.dir" value="${basedir}/../Archive/lib" />
 	<property name="fx.sdk.dir" value="${basedir}/../Archive/lib/javafx-sdk-13.0.1/lib" />
 	<property name="fx.jmod.dir" value="${basedir}/../Archive/jmod/javafx-jmods-13.0.1" />
 	<property name="temp.dir" value="${basedir}/temp" />
+	<property name="open-jump-jar" value="open-jump-1.14.jar" />
 	<property name="rc-core-jar" value="rc-core.jar" />
 	<property name="rc-ui-jar" value="rc-ui.jar" />
 	<property name="rc-analyzer-jar" value="rc-analyzer.jar" />
@@ -23,9 +24,6 @@
 	    	<include name="*.jar"/>
 		</fileset>
 		<fileset dir="${archive.dir}/lib">
-			<include name="*.jar"/>
-		</fileset>
-		<fileset dir="${archive.dir}/jars">
 			<include name="*.jar"/>
 		</fileset>
 		<fileset dir="${fx.sdk.dir}">

@@ -27,10 +27,10 @@ import redistrict.colorado.ui.ViewMode;
  * 	ViewMode - plans, layers or routes
  *  Message  - string status message used for logging and status panel.
  */
-public class EventRoutingHub {
+public class EventBindingHub {
 	private static final String CLSS = "EventRoutingHub";
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
-	private static EventRoutingHub instance = null;
+	private static EventBindingHub instance = null;
 	private final SimpleObjectProperty<LeftSelectionEvent> leftSideSelection;
 	private final SimpleObjectProperty<ViewMode> mode;
 	private final SimpleStringProperty message;
@@ -40,7 +40,7 @@ public class EventRoutingHub {
 	/**
 	 * Constructor is private per Singleton pattern.
 	 */
-	private EventRoutingHub() {
+	private EventBindingHub() {
 		this.mode = new SimpleObjectProperty<ViewMode>();
 		this.message = new SimpleStringProperty();
 		this.leftSideSelection = new SimpleObjectProperty<LeftSelectionEvent>();
@@ -51,10 +51,10 @@ public class EventRoutingHub {
 	/**
 	 * Static method to create and/or fetch the single instance.
 	 */
-	public static EventRoutingHub getInstance() {
+	public static EventBindingHub getInstance() {
 		if( instance==null) {
-			synchronized(EventRoutingHub.class) {
-				instance = new EventRoutingHub();
+			synchronized(EventBindingHub.class) {
+				instance = new EventBindingHub();
 			}
 		}
 		return instance;

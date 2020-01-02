@@ -8,6 +8,8 @@ package redistrict.colorado.layer;
 import java.io.File;
 import java.util.logging.Logger;
 
+import org.openjump.io.ShapefileReader;
+
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
@@ -26,6 +28,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Popup;
 import javafx.stage.Window;
 import javafx.util.Callback;
+import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.LayerModel;
 import redistrict.colorado.core.LayerRole;
 import redistrict.colorado.ui.GuiUtil;
@@ -68,7 +71,7 @@ public class LayerConfigurationDialog extends Dialog<LayerModel> implements Even
         if( model.getShapefilePath()==null) {
         	indicator = new Label("",guiu.loadImage("images/ball_gray.png"));
         }
-        else if ( model.getShape()==null){
+        else if ( model.getFeatures()==null){
         	indicator = new Label("",guiu.loadImage("images/ball_red.png"));
         }
         else {
@@ -111,6 +114,15 @@ public class LayerConfigurationDialog extends Dialog<LayerModel> implements Even
 					model.setDescription(descriptionField.getText());
 					model.setShapefilePath(pathField.getText());
 					model.setRole(LayerRole.valueOf(roleChooser.getValue()));
+					try {
+						model.setFeatures(ShapefileReader.read(model.getShapefilePath()));
+					}
+					catch( Exception ex) {
+						model.setFeatures(null);
+						String msg = String.format("%s: Failed to parse shapefile %s (%s)",CLSS,model.getShapefilePath(),ex.getLocalizedMessage());
+						LOGGER.warning(msg);
+						EventBindingHub.getInstance().setMessage(msg);
+					}
 					return model;
 				}
 				return null;

@@ -1,4 +1,4 @@
-package redistrict.colorado.shapefile;
+package org.geotools.shapefile;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -7,6 +7,7 @@ import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,10 +25,9 @@ import org.locationtech.jts.geom.MultiPoint;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
-
-import redistrict.colorado.io.EndianAwareInputStream;
-import redistrict.colorado.io.EndianAwareOutputStream;
-import redistrict.colorado.io.EndianType;
+import org.openjump.io.EndianAwareInputStream;
+import org.openjump.io.EndianAwareOutputStream;
+import org.openjump.io.EndianType;
 
 /**
  * This class represents an ESRI Shape file.<p>
@@ -41,7 +41,7 @@ import redistrict.colorado.io.EndianType;
  * <a href="http://www.esri.com/library/whitepapers/pdfs/shapefile.pdf"><b>"ESRI(r) Shapefile - A Technical Description"</b><br>
  * <i>'An ESRI White Paper . May 1997'</i></a><p>
  *
- * This code is coverd by the LGPL.
+ * This code is covered by the LGPL.
  *
  * <a href="mailto:j.macgill@geog.leeds.ac.uk">Mail the Author</a>
  */
@@ -68,8 +68,9 @@ public class Shapefile  {
     public static final int UNDEFINED   = -1;
     //Types 2,4,6,7 and 9 were undefined at time or writeing
     
-    private final File infile;
+    private File infile;
     private File outfile = null;
+    private InputStream shpInputStream = null;
     private int errorCount;
     
     /**
@@ -78,21 +79,46 @@ public class Shapefile  {
      */
     public Shapefile(File f) {
     	this.infile = f;
+    	try {
+    		this.shpInputStream = new FileInputStream(infile);
+    	}
+    	catch(FileNotFoundException e) {
+        	LOGGER.severe(String.format("%s: %s not found (%s)",CLSS, infile.getAbsolutePath(),e.getLocalizedMessage()));
+        }
     	this.errorCount = 0;
     }
     
-        
+    /**
+     * Creates a shapefile from an open stream.
+     * @param file the shapefile
+     */
+    public Shapefile(InputStream in) {
+    	this.shpInputStream = in;
+    	this.errorCount = 0;
+    }
+    
+    public void close() {
+    	if(shpInputStream!=null ) {
+    		try {
+    			shpInputStream.close();
+    			shpInputStream = null;
+    		}
+    		catch(IOException ioe) {
+    			LOGGER.warning(String.format("%s: Failed to close input stream (%s)",CLSS,ioe.getLocalizedMessage()));
+    		}
+    	}
+    }
     
     /**
-     * Initializes a shapefile from disk.
+     * Initializes a shapefile using either the file or stream supplied in the constructor.
      * @param geometryFactory the geometry factory to use to read the shapes
      */
     public GeometryCollection read(GeometryFactory geometryFactory) throws Exception {
-
+    	LOGGER.info(String.format("%s.read: Started read",CLSS));
         ArrayList<Geometry> list = new ArrayList<>();
         int pos = 0;
         try (
-    		BufferedInputStream reader = new BufferedInputStream(new DataInputStream(new FileInputStream(infile)));
+    		BufferedInputStream reader = new BufferedInputStream(new DataInputStream(shpInputStream));
         	EndianAwareInputStream eais = new EndianAwareInputStream(reader,EndianType.LITTLE); )  {
     
             ShapefileHeader mainHeader = new ShapefileHeader(eais);
@@ -102,7 +128,6 @@ public class Shapefile  {
             pos += 50;
 
             Geometry body;
-
             int type = mainHeader.getShapeType();
             ShapeHandler handler = getShapeHandler(type);
             if(handler==null) throw new ShapefileException("Unsupported shape type: " + type);
@@ -114,16 +139,16 @@ public class Shapefile  {
                 int recordNumber=eais.readInt(); pos+=2;
                 if (recordNumber != count) {
                 	LOGGER.warning(String.format("%s.read: wrong record number (%d)",CLSS,recordNumber));
-                    continue;
+                    break;
                 }
                 int contentLength=eais.readInt(); pos+=2;
                 if (contentLength <= 0) {
                 	LOGGER.warning(String.format("%s.read: found a negative content length (%d)",CLSS,contentLength));
-                    continue;
+                    break;
                 }
                 try{
                     body = handler.read(eais,geometryFactory,contentLength);
-                    LOGGER.fine(String.format("%s.read: record %d : from %d for %d (%d pts)",CLSS,recordNumber,pos-4,contentLength, body.getNumPoints()));
+                    LOGGER.info(String.format("%s.read: record %d : from %d for %d (%d pts)",CLSS,recordNumber,pos-4,contentLength, body.getNumPoints()));
                     pos += contentLength;
                     list.add(body);
                     count++;
@@ -135,10 +160,9 @@ public class Shapefile  {
                 }
             }
         }
-        catch(EOFException e) {
-        	LOGGER.severe(String.format("%s.read: shapefile %s end-of-file (%s)",CLSS, e.getLocalizedMessage()));
+    	catch(EOFException e) {
+        	LOGGER.info(String.format("%s.read: EOF (%d records)",CLSS, list.size()));
         }
-
 
         return geometryFactory.createGeometryCollection((Geometry[])list.toArray(new Geometry[]{}));
     }
@@ -150,11 +174,11 @@ public class Shapefile  {
     
     /**
      * Saves a shapefile to an output stream. Use the same path as the file used to generate the 
-     * shapefile in the first place.
+     * shapefile in the first place. Infile must be defined in the constructor.
      * @param geometries geometry collection to write
      * @param ShapeFileDimension shapefile dimension (2=x,y ; 3=x,y,m ; 4=x,y,z,m)
      */
-     public  void write(GeometryCollection geometries, int shapefileDimension) throws Exception {
+     public void write(GeometryCollection geometries, int shapefileDimension) throws Exception {
     	 this.outfile = infile;
     	 try( BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(outfile));
     		  EndianAwareOutputStream eaos = new EndianAwareOutputStream(out,EndianType.BIG);) {
@@ -342,66 +366,72 @@ public class Shapefile  {
      * While the legacy reader #read(GeometryFactory geometryFactory) read the shapefile sequentially
      * and don't need the shx index file, this new parser read the shx file and access the shp file
      * with a RandomAccessReader.
-     * Because the shapefile may come from a compressed input stream, the method first write the
+     * Because the shapefile may come from a compressed input stream, the method first writes the
      * shapefile in a temporary file.
      * @param geometryFactory geometry factory to use to build geometries
      * @param is shx input stream
      * @return a GeometryCollection containing all the shapes.
      */
-    public synchronized GeometryCollection readFromIndex(GeometryFactory geometryFactory, InputStream is)
-            throws Exception {
+    public synchronized GeometryCollection readFromIndex(GeometryFactory geometryFactory, InputStream is) throws Exception {
 
         // Flush shapefile inputStream to a temporary file, because inputStream
         // may come from a zipped archive, and we want to access data in Random mode
         File tmpShp = File.createTempFile("tmpshp", ".shp");
+        LOGGER.info(String.format("%s.readFromIndex: Started read",CLSS));
         ArrayList<Geometry> list = new ArrayList<>();
-        try {
+        try (
         	BufferedInputStream bis= new BufferedInputStream(is, 4096);
         	BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(tmpShp), 4096);
         	RandomAccessFile raf = new RandomAccessFile(tmpShp, "r");
-        	EndianAwareInputStream shx = new EndianAwareInputStream(bis,EndianType.BIG);
+        	EndianAwareInputStream shx = new EndianAwareInputStream(is); ) {
         	int nb;
+        	LOGGER.info(String.format("%s:readFromIndex %d:",CLSS,1));
         	byte[] bytes = new byte[4096];
         	while (-1 != (nb = bis.read(bytes))) {
         		bos.write(bytes, 0, nb);
         	}
         	bos.flush();
+        	LOGGER.info(String.format("%s:readFromIndex %d:",CLSS,2));
         	// read shapefile header
         	bytes = new byte[100];
         	ByteBuffer bb = ByteBuffer.wrap(bytes);
         	raf.getChannel().read(bb);
-
-        	bis = new BufferedInputStream(new ByteArrayInputStream(bytes));
-        	EndianAwareInputStream shp = new EndianAwareInputStream(bis,EndianType.BIG);
+        	LOGGER.info(String.format("%s:readFromIndex %d:",CLSS,3));
+        	EndianAwareInputStream shp = new EndianAwareInputStream(new BufferedInputStream(new ByteArrayInputStream(bytes)),EndianType.BIG);
         	ShapefileHeader shpMainHeader = new ShapefileHeader(shp);
         	if (shpMainHeader.getVersion() != VERSION) {
         		LOGGER.warning(String.format("%s.readFromIndex: Unknown shp version (%s) : try to read anyway",CLSS,shpMainHeader.getVersion()));
         	}
-
+        	LOGGER.info(String.format("%s:readFromIndex %d:",CLSS,4));
         	ShapefileHeader shxMainHeader = new ShapefileHeader(shx);
         	if (shxMainHeader.getVersion() != VERSION) {
         		LOGGER.warning(String.format("%s.readFromIndex: Unknown shx version (%s) : try to read anyway", CLSS,shxMainHeader.getVersion()));
-        	}
-
+        	}	
+        	//shp.close();
+        	LOGGER.info(String.format("%s:readFromIndex %d:",CLSS,5));
         	Geometry body;
         	int type = shpMainHeader.getShapeType();
         	ShapeHandler handler = getShapeHandler(type);
         	if(handler==null) throw new ShapefileException("Unsupported shape type:" + type);
 
         	int recordNumber = 0;
+        	LOGGER.info(String.format("%s:readFromIndex %d:",CLSS,6));
         	while (true) {
-        		shx.setType(EndianType.BIG);
+        		LOGGER.info(String.format("%s:readFromIndex %d:",CLSS,recordNumber));
         		long offset = shx.readInt() & 0x00000000ffffffffL;
+        		LOGGER.info(String.format("%s:readFromIndex %d: offset = %d",CLSS,recordNumber,offset));
         		int length = shx.readInt();
+        		LOGGER.info(String.format("%s:readFromIndex %d: length = %d",CLSS,recordNumber,length));
         		recordNumber++;
         		try{
         			bytes = new byte[length*2];
+        			LOGGER.info(String.format("%s:readFromIndex %d: %d bytes",CLSS,recordNumber,bytes.length));
         			bb = ByteBuffer.wrap(bytes);
         			raf.getChannel().read(bb, offset*2 + 8);
-        			bis = new BufferedInputStream(new ByteArrayInputStream(bytes));
-        			shp = new EndianAwareInputStream(bis,EndianType.BIG);
+        			shp = new EndianAwareInputStream(new BufferedInputStream(new ByteArrayInputStream(bytes)),EndianType.BIG);
         			body = handler.read(shp, geometryFactory, length);
-        			LOGGER.fine("" + recordNumber + " : from " + offset + " for " + length + " (" + body.getNumPoints() + " pts)");
+        			shp.close();
+        			LOGGER.info(String.format("%s:readFromIndex %d: From %d for %d bytes (%d pts)",CLSS,recordNumber,offset,length,body.getNumPoints()));
         			list.add(body);
         			if (body.getUserData() != null) errorCount++;
         		} 
@@ -414,7 +444,9 @@ public class Shapefile  {
         	}
 
         }
-        catch (EOFException e) {}
+        catch (EOFException e) {
+        	LOGGER.info(String.format("%s.readFromIndex: EOF (%d records)",CLSS, list.size()));
+        }
         finally {
         	if (tmpShp.exists()) {
         		if (!tmpShp.delete()) {
@@ -422,7 +454,6 @@ public class Shapefile  {
         		}
         	}
         }
-
         return geometryFactory.createGeometryCollection(list.toArray(new Geometry[]{}));
     }
 }

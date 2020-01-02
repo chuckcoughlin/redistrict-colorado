@@ -1,4 +1,4 @@
-package redistrict.colorado.shapefile;
+package org.geotools.shapefile;
 
 import java.io.DataInput;
 import java.io.DataOutput;

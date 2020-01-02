@@ -7,7 +7,7 @@
  * $Id: MultiLineHandler.java 2110 2010-10-10 15:07:03Z michaudm $
  */
 
-package redistrict.colorado.shapefile;
+package org.geotools.shapefile;
 
 import java.io.DataInput;
 import java.io.DataOutput;

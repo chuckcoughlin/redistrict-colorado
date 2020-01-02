@@ -25,7 +25,7 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
-import redistrict.colorado.bind.EventRoutingHub;
+import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.bind.LeftSelectionEvent;
 import redistrict.colorado.core.LayerModel;
 import redistrict.colorado.db.Database;
@@ -156,7 +156,7 @@ public class LayerListCell extends ListCell<LayerModel> implements ChangeListene
      */
     public class EditEventHandler implements EventHandler<ActionEvent> {
     	@Override public void handle(ActionEvent e) {
-            LOGGER.info(String.format("%s.handle: got edit event", CLSS));
+            //LOGGER.info(String.format("%s.handle: processing edit event", CLSS));
             LayerModel model = getItem();
             Dialog<LayerModel> dialog = new LayerConfigurationDialog(model);
             Optional<LayerModel> result = dialog.showAndWait();
@@ -181,14 +181,14 @@ public class LayerListCell extends ListCell<LayerModel> implements ChangeListene
 			LOGGER.info(String.format("%s.changed: toggle button no new value", CLSS));
 		}
 		else {
-			EventRoutingHub.getInstance().setSelectedLayer(getItem());
+			EventBindingHub.getInstance().setSelectedLayer(getItem());
 			Object data = newValue.getUserData();
 			if( data==null ) data = "null";
 			if( data.toString().equalsIgnoreCase(MAP_DATA)) {
-				EventRoutingHub.getInstance().setLeftSideSelection(new LeftSelectionEvent(ViewMode.LAYER,DisplayOption.MAP));
+				EventBindingHub.getInstance().setLeftSideSelection(new LeftSelectionEvent(ViewMode.LAYER,DisplayOption.MAP));
 			}
 			else if(data.toString().equalsIgnoreCase(DETAIL_DATA)) {
-				EventRoutingHub.getInstance().setLeftSideSelection(new LeftSelectionEvent(ViewMode.LAYER,DisplayOption.DETAIL));
+				EventBindingHub.getInstance().setLeftSideSelection(new LeftSelectionEvent(ViewMode.LAYER,DisplayOption.DETAIL));
 			}
 			//LOGGER.info(String.format("%s.changed: toggle button = %s", CLSS,data.toString()));
 		}
