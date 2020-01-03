@@ -92,8 +92,6 @@ public class ShapefileReader {
         //ShapeIndexFile shxFile = getShx(shpFileName);
         Shapefile shapefile = getShapefile(shpFileName);
         
-        
-
         try(InputStream shx = getShx(shpFileName)) {
 
             GeometryFactory factory = new GeometryFactory();
@@ -280,25 +278,37 @@ public class ShapefileReader {
      * @throws IOException if an I/O error occurs during dbf file reading
      */
     private static DbfFile getDbfFile(String srcFileName, Charset charset) throws IOException {
-        DbfFile dbfFile = new DbfFile(charset);
-        InputStream in = null;
-        // default is a *.dbf src file
-        if (srcFileName.matches("(?i).*\\.dbf$")) {
-          File file = new File( srcFileName );
-          in = new FileInputStream(file);
-        }
-        // An archive can hold multiple files, get the one with a .dbf extension
-        else if (CompressedFile.hasArchiveFileExtension(srcFileName)) {
-        	try {
-        		String compressedFname = CompressedFile.getFnameByExtension(srcFileName, ".dbf");
-        		dbfFile = new DbfFile(charset);
-        	}
-        	catch(Exception ex) {
-        		LOGGER.warning(String.format("%s.getDbFile: Failed to create from %s (%s)",CLSS,srcFileName,ex.getLocalizedMessage()));
-        	}
-        }
-        return dbfFile;
+    	DbfFile dbfFile = new DbfFile(charset);
+    	InputStream in = null;
+    	try {
+    		// default is a *.dbf src file
+    		if (srcFileName.matches("(?i).*\\.dbf$")) {
+    			File file = new File( srcFileName );
+    			in = new FileInputStream(file);
+    		}
+    		// An archive can hold multiple files, get the one with a .dbf extension
+    		else if (CompressedFile.hasArchiveFileExtension(srcFileName)) {
+    			try {
+    				String compressedFname = CompressedFile.getFnameByExtension(srcFileName, ".dbf");
+    				in = CompressedFile.openFile(srcFileName, compressedFname);
+    			}
+    			catch(Exception ex) {
+    				LOGGER.warning(String.format("%s.getDbFile: Failed to create from %s (%s)",CLSS,srcFileName,ex.getLocalizedMessage()));
+    			}
+    		}
+    	}
+    	finally {
+    		if( in!=null) {
+    			dbfFile.load(in);
+    			try {
+    				in.close();
+    			}
+    			catch(IOException ignore) {}
+    		}
+    	}
     }
+    return dbfFile;
+}
     private static Shapefile getShapefile(String shpfileName) throws Exception {
     	String fname = CompressedFile.getFnameByExtension(shpfileName,".shp");
     	InputStream in = CompressedFile.openFile(shpfileName,fname);

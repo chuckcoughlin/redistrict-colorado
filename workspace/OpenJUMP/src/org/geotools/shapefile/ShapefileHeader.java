@@ -19,7 +19,7 @@ import org.openjump.io.EndianType;
 
 
 /**
- * Wrapper for a shapefile header. The Input/Output streams should be BIG Endian up
+ * Class holds a shapefile header. The Input/Output streams should be BIG Endian up
  * through the length, then LITTLE.
  *
  * @author  jamesm

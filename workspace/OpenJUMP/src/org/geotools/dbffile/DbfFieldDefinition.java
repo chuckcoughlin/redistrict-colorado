@@ -2,6 +2,8 @@ package org.geotools.dbffile;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.openjump.io.EndianAwareInputStream;
 
@@ -11,7 +13,8 @@ import org.openjump.io.EndianAwareInputStream;
  */
 public class DbfFieldDefinition implements DbfConstants{
 
-    static final boolean DEBUG=false;
+	private static final String CLSS = "DbfFieldDefinition";
+	private static final Logger LOGGER = Logger.getLogger(CLSS); 
 
     public StringBuffer fieldname = new StringBuffer(DBF_NAMELEN);
     public char fieldtype;
@@ -19,7 +22,9 @@ public class DbfFieldDefinition implements DbfConstants{
     public int  fieldlen;
     public int  fieldnumdec;
 
-    public DbfFieldDefinition(){ /* do nothing*/ }
+    public DbfFieldDefinition(){
+    	LOGGER.setLevel(Level.FINE);   // Controls debugging
+    }
 
     public DbfFieldDefinition(String fieldname, char fieldtype, int fieldlen, int fieldnumdec){
 		this.fieldname = new StringBuffer(fieldname);
@@ -30,41 +35,23 @@ public class DbfFieldDefinition implements DbfConstants{
 	}
 
 	public String toString(){
-		return new String(""+fieldname+" "+fieldtype+" "+fieldlen+
-			"."+fieldnumdec);
+		return String.format("%s(%d), type %d, %d bytes",fieldname,fieldnumdec,fieldtype,fieldlen);
 	}
 
-  // [Matthias Scholz 04.Sept.2010] Charset changes
   /**
-   * Sets up the Dbf field definition. For compatibilty reasons, this method is
-   * is now a wrapper for the changed/new one with Charset functions.
-   *
-   * @see #setup(int pos, EndianDataInputStream dFile, Charset charset)
-   * 
-   * @param pos
-   * @param dFile
-   * @throws IOException
-   */
-    public void setup(int pos, EndianAwareInputStream dFile) throws IOException {
-	    setup(pos, dFile, Charset.defaultCharset());
-    }
-
-  /**
-   * Sets up the Dbf field definition with a specified Charset for the fieldnames.
+   * Reads the Dbf field definition with a specified Charset.
    *
    * @param pos
-   * @param dFile
+   * @param instream
    * @param charset
    * @throws IOException
    */
-    public void setup(int pos, EndianAwareInputStream dFile, Charset charset) throws IOException {
-
-        //two byte character modification thanks to Hisaji ONO
+    public void load(int pos, EndianAwareInputStream instream, Charset charset) throws IOException {
         byte[] strbuf = new byte[DBF_NAMELEN]; // <---- byte array buffer for storing string's byte data
 	    int j = -1;
 	    int term = -1;
         for(int i = 0 ; i < DBF_NAMELEN ; i++){
-            byte b = dFile.readByte();
+            byte b = instream.readByte();
             if(b == 0){
                 if(term == -1 ) {
                     term = j;
@@ -79,10 +66,10 @@ public class DbfFieldDefinition implements DbfConstants{
 
         fieldname.append(name.trim()); // <- append byte array to String Buffer
 
-        if(DEBUG) System.out.println("Fieldname " + fieldname);
-        fieldtype=(char)dFile.readUnsignedByte();
+        LOGGER.fine("Fieldname " + fieldname);
+        fieldtype=(char)instream.readUnsignedByte();
         fieldstart=pos;
-        dFile.skipBytes(4);
+        instream.skipBytes(4);
         switch(fieldtype){
             case 'C':
             case 'c':
@@ -90,24 +77,23 @@ public class DbfFieldDefinition implements DbfConstants{
             case 'L':
             case 'M':
             case 'G':
-                fieldlen = dFile.readUnsignedByte();
-                fieldnumdec = dFile.readUnsignedByte();
+                fieldlen = instream.readUnsignedByte();
+                fieldnumdec = instream.readUnsignedByte();
                 fieldnumdec = 0;
                 break;
 		    case 'N':
 		    case 'n':
             case 'F':
             case 'f':
-                fieldlen = dFile.readUnsignedByte();
-                fieldnumdec = dFile.readUnsignedByte();
+                fieldlen = instream.readUnsignedByte();
+                fieldnumdec = instream.readUnsignedByte();
                 break;
             default:
-                System.out.println("Help - wrong field type: "+fieldtype);
+                LOGGER.warning(String.format("%s.load: Help - wrong field type (%d)",CLSS,fieldtype));
         }
-        if(DEBUG) System.out.println("Fieldtype "+fieldtype+" width "+fieldlen+
-            "."+fieldnumdec);
+        LOGGER.fine("Fieldtype "+fieldtype+" width "+fieldlen+"."+fieldnumdec);
 
-        dFile.skipBytes(14);
+        instream.skipBytes(14);
 
     }
 }

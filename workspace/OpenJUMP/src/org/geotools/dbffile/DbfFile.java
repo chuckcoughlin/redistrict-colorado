@@ -32,18 +32,9 @@ public class DbfFile  {
 	private static final Logger LOGGER = Logger.getLogger(CLSS); 
     private SimpleDateFormat simpleDataParser = new SimpleDateFormat("yyyyMMdd");
 	private final Charset charset;
-    private int dbf_id;
-    private int last_update_d;
-    private int last_update_m;
-    private int last_update_y;
-    private int last_rec;
-    private int rec_size;
-    private long data_offset;
-    private long filesize;
-    private int numfields;
+    private final DbfHeader header;
     private Map<String,String> uniqueStrings;
-
-    public DbfFieldDefinition[] fielddef;
+    private DbfFieldDefinition[] fielddef;
 
     /**
      * Constructor. 
@@ -52,6 +43,7 @@ public class DbfFile  {
     public DbfFile(Charset charset) {
     	this.charset = charset;
     	this.simpleDataParser.setLenient(true);
+    	this.header = new DbfHeader();
     }
     
     /**
@@ -61,16 +53,16 @@ public class DbfFile  {
      */
     public void load(InputStream in) throws Exception {
     	try (EndianAwareInputStream instream = new EndianAwareInputStream(in)) {
-    		new DbfFileHeader(instream);
+    		header.load(instream);
     		// A map to store a unique reference for identical field value
     		uniqueStrings = new HashMap<>();
     		int widthsofar;
-    		fielddef = new DbfFieldDefinition[numfields];
+    		fielddef = new DbfFieldDefinition[header.getFieldCount()];
     		widthsofar = 1;
 
-    		for (int index = 0; index < numfields; index++) {
+    		for (int index = 0; index < header.getFieldCount(); index++) {
     			fielddef[index] = new DbfFieldDefinition();
-    			fielddef[index].setup(widthsofar, instream, charset);
+    			fielddef[index].load(widthsofar, instream, charset);
     			widthsofar += fielddef[index].fieldlen;
     		}
 
@@ -82,36 +74,13 @@ public class DbfFile  {
 
 	
     /**
-     * Returns the date of the last update of the file as a string.
+     * Returns the header.
      */
-    public String getLastUpdate() {
-        return last_update_d + "/" + last_update_m + "/" + last_update_y;
+    public DbfHeader getHeader() {
+        return this.header;
     }
 
-    /**
-     * Returns the number of records in the database file.
-     */
-    public int getLastRec() {
-        return last_rec;
-    }
-
-    /**
-     * Returns the size of the records in the database file.
-     */
-    public int getRecSize() {
-        return rec_size;
-    }
-
-    /**
-     * Returns the number of fields in the records in the database file.
-     */
-    public int getNumFields() {
-        return numfields;
-    }
-
-    public String getFieldName(int col) {
-        return (fielddef[col].fieldname).toString();
-    }
+ 
 
     public String getFieldType(int col) {
         char type = fielddef[col].fieldtype;
@@ -155,14 +124,6 @@ public class DbfFile  {
 
         return realtype;
     }
-
-    /**
-     * Returns the size  of the database file.
-     */
-    public long getFileSize() {
-        return filesize;
-    }
-
 
 
     /**
@@ -273,52 +234,9 @@ public class DbfFile  {
         }
     }
 
-    /**
-     * Internal Class to hold information from the header of the file
-     */
-    private class DbfFileHeader {
-        /**
-         * Reads the header of a dbf file.
-         * @param file file Stream attached to the input file
-         * @exception IOException read error.
-         */
-        public DbfFileHeader(EndianAwareInputStream instream)
-            throws IOException {
-            getDbfFileHeader(instream);
-        }
-
-        private void getDbfFileHeader(EndianAwareInputStream eastream) throws IOException {
-        	eastream.setType(EndianType.LITTLE);
-            dbf_id = eastream.readUnsignedByte();
-            LOGGER.fine("Dbf header id: " + dbf_id);
-
-            last_update_y = eastream.readUnsignedByte() + DbfConstants.DBF_CENTURY;
-            last_update_m = eastream.readUnsignedByte();
-            last_update_d = eastream.readUnsignedByte();
-            LOGGER.fine(String.format("Dbf last update: %d/%d/%d", last_update_d, last_update_m, last_update_y));
-
-            last_rec = eastream.readInt();
-            LOGGER.fine("Dbf las record: " + last_rec);
-
-            data_offset = (char)eastream.readShort();
-            LOGGER.fine("Dbf data offset: " + data_offset);
-
-            rec_size = (char)eastream.readShort();
-            LOGGER.fine("Dbf rec size: " + rec_size);
-
-            filesize = (rec_size * last_rec) + data_offset + 1;
-            LOGGER.fine("Dbf file size :" + filesize);
-
-            numfields = (int)((data_offset - DbfConstants.DBF_BUFFSIZE - 1) / DbfConstants.DBF_BUFFSIZE);
-            LOGGER.fine("Dbf number of fields :" + numfields);
-
-            eastream.skipBytes(20);
-        }
-    }
 
     private DateFormat lastFormat = simpleDataParser;
-
-    protected Date parseDate(String s) throws ParseException {
+    private Date parseDate(String s) throws ParseException {
 
         Date date = null;
 
