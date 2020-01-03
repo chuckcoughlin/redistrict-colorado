@@ -81,7 +81,10 @@ public class DbfFile  {
     }
 
  
-
+    public String getFieldName(int col) {
+    	return fielddef[col].fieldname.toString();
+    }
+    
     public String getFieldType(int col) {
         char type = fielddef[col].fieldtype;
         String realtype;
@@ -136,7 +139,7 @@ public class DbfFile  {
         //rFile.seek(data_offset + (rec_size * row));
 
         //Multi byte character modification thanks to Hisaji ONO
-        byte[] strbuf = new byte[rec_size]; // <---- byte array buffer fo storing string's byte data
+        byte[] strbuf = new byte[header.getRecordSize()]; // <---- byte array buffer fo storing string's byte data
         //dFile.readFully(strbuf);
         return strbuf;		 //[sstein 9.Sept.08]
     }

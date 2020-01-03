@@ -123,8 +123,7 @@ public class ShapefileReader {
                 // There is a DBF file so we have to set the Charset to use and
                 // to associate the attributes in the DBF file with the features.
 
-                int numfields = dbfFile.getNumFields();
-
+                int numfields = dbfFile.getHeader().getFieldCount();
                 for (int j = 0; j < numfields; j++) {
                     AttributeType type = AttributeType.toAttributeType(dbfFile.getFieldType(j));
                     fs.addAttribute( dbfFile.getFieldName(j), type );
@@ -132,7 +131,7 @@ public class ShapefileReader {
 
                 featureCollection = new FeatureDataset(fs);
 
-                for (int x = 0; x < Math.min(dbfFile.getLastRec(), collection.getNumGeometries()); x++) {
+                for (int x = 0; x < Math.min(dbfFile.getHeader().getLastRecord(), collection.getNumGeometries()); x++) {
 
                     // [sstein 9.Sept.08] Get bytes rather than String to be able to read multibytes strings
                     byte[] s = dbfFile.GetDbfRec(x);
@@ -296,23 +295,26 @@ public class ShapefileReader {
     				LOGGER.warning(String.format("%s.getDbFile: Failed to create from %s (%s)",CLSS,srcFileName,ex.getLocalizedMessage()));
     			}
     		}
+    		dbfFile.load(in);
+    	}
+    	catch(Exception ex) {
+    		LOGGER.severe(String.format("%s: Failed to load DbfFile  (%s)",CLSS,srcFileName,ex.getLocalizedMessage()));
     	}
     	finally {
     		if( in!=null) {
-    			dbfFile.load(in);
+    			
     			try {
     				in.close();
     			}
     			catch(IOException ignore) {}
     		}
-    	}
     }
     return dbfFile;
 }
-    private static Shapefile getShapefile(String shpfileName) throws Exception {
-    	String fname = CompressedFile.getFnameByExtension(shpfileName,".shp");
-    	InputStream in = CompressedFile.openFile(shpfileName,fname);
-    	return new Shapefile(in);
-    }
+private static Shapefile getShapefile(String shpfileName) throws Exception {
+	String fname = CompressedFile.getFnameByExtension(shpfileName,".shp");
+	InputStream in = CompressedFile.openFile(shpfileName,fname);
+	return new Shapefile(in);
+}
 
 }
