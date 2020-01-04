@@ -1,10 +1,6 @@
 package org.geotools.dbffile;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.RandomAccessFile;
 import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -14,8 +10,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import org.openjump.geometry.feature.AttributeType;
+import org.openjump.geometry.feature.BasicFeature;
+import org.openjump.geometry.feature.Feature;
+import org.openjump.geometry.feature.FeatureCollection;
+import org.openjump.geometry.feature.FeatureDataset;
+import org.openjump.geometry.feature.FeatureSchema;
 import org.openjump.io.EndianAwareInputStream;
-import org.openjump.io.EndianType;
 
 
 /**
@@ -35,6 +36,7 @@ public class DbfFile  {
     private final DbfHeader header;
     private Map<String,String> uniqueStrings;
     private DbfFieldDefinition[] fielddef;
+    private FeatureDataset features = null;
 
     /**
      * Constructor. 
@@ -47,31 +49,64 @@ public class DbfFile  {
     }
     
     /**
-     * Initializer: Read the open stream and construct the object. 
-     * @param file The file to be opened, includes path and .dbf
+     * Initializer: Read the open stream and populate the Dbfile. This
+     * loads the header and field definitions, but not the records.
+     * @param in InputStream ready for reading
      * @exception IOException If the file can't be opened.
      */
-    public void load(InputStream in) throws Exception {
-    	try (EndianAwareInputStream instream = new EndianAwareInputStream(in)) {
-    		header.load(instream);
-    		// A map to store a unique reference for identical field value
-    		uniqueStrings = new HashMap<>();
-    		int widthsofar;
-    		fielddef = new DbfFieldDefinition[header.getFieldCount()];
-    		widthsofar = 1;
+    public void load(EndianAwareInputStream instream) throws Exception {
+    	header.load(instream);
+    	// A map to store a unique reference for identical field value
+    	uniqueStrings = new HashMap<>();
+    	int widthsofar;
+    	fielddef = new DbfFieldDefinition[header.getFieldCount()];
+    	widthsofar = 1;
 
-    		for (int index = 0; index < header.getFieldCount(); index++) {
-    			fielddef[index] = new DbfFieldDefinition();
-    			fielddef[index].load(widthsofar, instream, charset);
-    			widthsofar += fielddef[index].fieldlen;
-    		}
-
-    		instream.skipBytes(1); // end of field defs marker
+    	for (int index = 0; index < header.getFieldCount(); index++) {
+    		fielddef[index] = new DbfFieldDefinition();
+    		fielddef[index].load(widthsofar, instream, charset);
+    		widthsofar += fielddef[index].fieldlen;
     	}
-    	catch(Exception ex) { LOGGER.severe(ex.getLocalizedMessage());}
+
+    	instream.skipBytes(1); // end of field defs marker
     	LOGGER.fine("Dbf file initialized");
     }
-
+    
+    /**
+     * Load the data records. Read until EOF. Each record is a Feature with 
+     * attributes per the definition. The features do not yet have a geometry.
+     * @param in InputStream.
+     * @return the number of records read.
+     */
+    public int loadFeatures(EndianAwareInputStream in) {
+    	FeatureSchema fs = new FeatureSchema();
+    	this.features = new FeatureDataset(fs);
+        
+        fs.addAttribute("GEOMETRY", AttributeType.GEOMETRY);
+        int numfields = header.getFieldCount();
+        for (int j = 0; j < numfields; j++) {
+            AttributeType type = AttributeType.toAttributeType(getFieldType(j));
+            fs.addAttribute( getFieldName(j), type );
+        }
+        
+    	int count = 0;
+    	try {
+    		while(count<header.getLastRecord()) {
+    			Feature feature = new BasicFeature(fs);
+    			byte[] bytes = getNextRecord(in);
+    			for (int y = 0; y < numfields; y++) {
+                    feature.setAttribute(y + 1, ParseRecordColumn(bytes, y));
+                }
+    			features.add(feature);
+    			count++;
+    		}
+    		LOGGER.info(String.format("%s: Successfully loaded %d features (%d attributes)", CLSS,count,numfields));
+    	}
+    	catch(Exception ex) {
+    		LOGGER.warning(String.format("%s: Error parsing record %d (%s)", CLSS,count,ex.getLocalizedMessage()));
+    	}
+    	return count;
+    }
 	
     /**
      * Returns the header.
@@ -80,7 +115,8 @@ public class DbfFile  {
         return this.header;
     }
 
- 
+    public FeatureDataset getFeatureDataset() { return this.features; }
+    
     public String getFieldName(int col) {
     	return fielddef[col].fieldname.toString();
     }
@@ -130,20 +166,15 @@ public class DbfFile  {
 
 
     /**
-     * fetches the <i>row</i>th row of the file
+     * Parses the next record from the open stream. 
      * @param row - the row to fetch
-     * @exception java.io.IOException on read error.
+     * @exception IOException on read error.
      */
-    public byte[] GetDbfRec(long row) throws java.io.IOException {  //[sstein 9.Sept.08]
-    	
-        //rFile.seek(data_offset + (rec_size * row));
-
-        //Multi byte character modification thanks to Hisaji ONO
+    public byte[] getNextRecord(EndianAwareInputStream in) throws IOException { 
         byte[] strbuf = new byte[header.getRecordSize()]; // <---- byte array buffer fo storing string's byte data
-        //dFile.readFully(strbuf);
-        return strbuf;		 //[sstein 9.Sept.08]
+        in.readFully(strbuf);
+        return strbuf;
     }
-
 
     /**
      * Get a field value from the dbf record data (byte[]) and the field index
@@ -179,7 +210,6 @@ public class DbfFile  {
                 }
 
             case 'F': //same as numeric, more or less
-
             case 'N': //numeric
 
                 // fields of type 'F' are always represented as Doubles
@@ -263,6 +293,4 @@ public class DbfFile  {
         }
         return date;
     }
-
-
 }

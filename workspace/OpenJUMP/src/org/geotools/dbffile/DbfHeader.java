@@ -20,7 +20,7 @@ import org.openjump.io.EndianType;
 public class DbfHeader  {
 	private static final String CLSS = "DbfHeader";
 	private static final Logger LOGGER = Logger.getLogger(CLSS); 
-
+	private static final boolean DEBUG = false;
 	private int id = 0;
 	private int dataOffset = 0;
 	private int fieldCount = 0;
@@ -30,10 +30,6 @@ public class DbfHeader  {
 	private int updateDay = 0;
 	private int updateMonth = 0;
 	private int updateYear = 0;
-	
-	public DbfHeader() {
-		LOGGER.setLevel(Level.FINE);   // Set debugging or not
-	}
 
 	/**
 	 * Reads the header of a dbf file.
@@ -43,27 +39,27 @@ public class DbfHeader  {
 	public void load(EndianAwareInputStream eastream) throws IOException {
 		eastream.setType(EndianType.LITTLE);
 		id = eastream.readUnsignedByte();
-		LOGGER.fine("DbfHeader id: " + id);
+		if(DEBUG) LOGGER.info("DbfHeader id: " + id);
 
 		updateYear = eastream.readUnsignedByte() + DbfConstants.DBF_CENTURY;
 		updateMonth = eastream.readUnsignedByte();
 		updateDay = eastream.readUnsignedByte();
-		LOGGER.fine(String.format("DbfHeader last update: %d/%d/%d", updateDay, updateMonth, updateYear));
+		if(DEBUG) LOGGER.info(String.format("DbfHeader last update: %d/%d/%d", updateDay, updateMonth, updateYear));
 
 		lastRecord = eastream.readInt();
-		LOGGER.fine("DbfHeader last record: " + lastRecord);
+		if(DEBUG) LOGGER.info("DbfHeader last record: " + lastRecord);
 
 		dataOffset = (char)eastream.readShort();
-		LOGGER.fine("DbfHeader data offset: " + dataOffset);
+		if(DEBUG) LOGGER.info("DbfHeader data offset: " + dataOffset);
 
 		recordSize = (char)eastream.readShort();
-		LOGGER.fine("DbfHeader record size: " + recordSize);
+		if(DEBUG) LOGGER.info("DbfHeader record size: " + recordSize);
 
 		fileSize = (recordSize * lastRecord) + dataOffset + 1;
-		LOGGER.fine("DbfHeader file size :" + fileSize);
+		if(DEBUG) LOGGER.info("DbfHeader file size :" + fileSize);
 
 		fieldCount = (int)((dataOffset - DbfConstants.DBF_BUFFSIZE - 1) / DbfConstants.DBF_BUFFSIZE);
-		LOGGER.fine("DbfHeader number of fields :" + fieldCount);
+		if(DEBUG) LOGGER.info("DbfHeader number of fields :" + fieldCount);
 
 		eastream.skipBytes(20);
 	}

@@ -2,7 +2,6 @@ package org.geotools.dbffile;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.openjump.io.EndianAwareInputStream;
@@ -15,6 +14,7 @@ public class DbfFieldDefinition implements DbfConstants{
 
 	private static final String CLSS = "DbfFieldDefinition";
 	private static final Logger LOGGER = Logger.getLogger(CLSS); 
+	private static final boolean DEBUG = false;
 
     public StringBuffer fieldname = new StringBuffer(DBF_NAMELEN);
     public char fieldtype;
@@ -22,10 +22,9 @@ public class DbfFieldDefinition implements DbfConstants{
     public int  fieldlen;
     public int  fieldnumdec;
 
-    public DbfFieldDefinition(){
-    	LOGGER.setLevel(Level.FINE);   // Controls debugging
+    public DbfFieldDefinition() {
     }
-
+    
     public DbfFieldDefinition(String fieldname, char fieldtype, int fieldlen, int fieldnumdec){
 		this.fieldname = new StringBuffer(fieldname);
 		this.fieldname.setLength(DBF_NAMELEN);
@@ -65,8 +64,6 @@ public class DbfFieldDefinition implements DbfConstants{
         String name = new String(strbuf, 0, term + 1, charset.name());
 
         fieldname.append(name.trim()); // <- append byte array to String Buffer
-
-        LOGGER.fine("Fieldname " + fieldname);
         fieldtype=(char)instream.readUnsignedByte();
         fieldstart=pos;
         instream.skipBytes(4);
@@ -91,7 +88,7 @@ public class DbfFieldDefinition implements DbfConstants{
             default:
                 LOGGER.warning(String.format("%s.load: Help - wrong field type (%d)",CLSS,fieldtype));
         }
-        LOGGER.fine("Fieldtype "+fieldtype+" width "+fieldlen+"."+fieldnumdec);
+        if(DEBUG) LOGGER.info(String.format("%s: %s type %s, fmt %d.%d",CLSS,name,fieldtype,fieldlen,fieldnumdec));
 
         instream.skipBytes(14);
 

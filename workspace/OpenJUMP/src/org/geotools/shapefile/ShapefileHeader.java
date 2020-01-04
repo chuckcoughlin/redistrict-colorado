@@ -39,14 +39,18 @@ public class ShapefileHeader{
     private double zmin = 0.0;
     private double zmax = 0.0;
     
-    public ShapefileHeader(EndianAwareInputStream inputStream) throws IOException {
+    public ShapefileHeader() {
+    	
+    }
+    
+    public void load(EndianAwareInputStream inputStream) throws IOException {
     	inputStream.setType(EndianType.BIG);
         fileCode = inputStream.readInt();
         if ( fileCode != Shapefile.SHAPEFILE_ID )
             LOGGER.warning(String.format("%s: WARNING - filecode (%d) does not match code for a shapefile (%d)",CLSS,fileCode,Shapefile.SHAPEFILE_ID));
         
         for(int i=0 ; i<5 ; i++){
-            int tmp = inputStream.readInt();
+            inputStream.readInt();
         }
         fileLength = inputStream.readInt();
         
