@@ -175,4 +175,14 @@ public class EndianAwareInputStream implements DataInput, AutoCloseable {
 	public String readUTF() throws IOException {
 		return in.readUTF();
 	}
+	
+	/**
+	 * Use for debugging.
+	 * @return the next n bytes in an array
+	 */
+	public byte[] readBytes(int count) throws IOException {
+		byte[] bytes = new byte[count];
+		in.readFully(bytes,0,count);
+		return bytes;
+	}
 }

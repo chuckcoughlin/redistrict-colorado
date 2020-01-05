@@ -198,7 +198,7 @@ public class ShapefileReader {
     		fname = CompressedFile.getFnameByExtension(shpfileName,".shp");
     	}
     	catch(Exception ex) {
-    		LOGGER.severe(String.format("%s: Failed to open shape file %s  (%s)",CLSS,shpfileName,ex.getLocalizedMessage()));
+    		LOGGER.severe(String.format("%s.getShapefile: Failed to open shape file %s  (%s)",CLSS,shpfileName,ex.getLocalizedMessage()));
     		return null;
     	}
     	try (InputStream in = CompressedFile.openFile(shpfileName,fname);
@@ -213,12 +213,12 @@ public class ShapefileReader {
     			int recordCount = dbfFile.getHeader().getLastRecord();
     			ShapeIndexFile shx = getShx(shpfileName,recordCount);
     			shp.load(eastream,shx);
-           		
     		}
     		shape = shp;
        	}
        	catch(Exception ex) {
-       		LOGGER.severe(String.format("%s: Failed to load shape file %s (%s)",CLSS,shpfileName,ex.getLocalizedMessage()));
+       		LOGGER.severe(String.format("%s.getShapefile: Failed to load shape file %s (%s)",CLSS,shpfileName,ex.getLocalizedMessage()));
+       		ex.printStackTrace();
        	}
     	return shape;
     }

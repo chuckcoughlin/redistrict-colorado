@@ -42,7 +42,7 @@ public class MultiLineHandler implements ShapeHandler {
                          GeometryFactory geometryFactory,
                          int contentLength) throws IOException, ShapefileException {
         
-        double junk;
+
 		int actualReadWords = 0; //actual number of 16 bits words read
 		Geometry geom = null;
         
@@ -59,10 +59,10 @@ public class MultiLineHandler implements ShapeHandler {
         
         else {
             //read bounding box (not needed)
-            junk = in.readDouble();
-            junk = in.readDouble();
-            junk = in.readDouble();
-            junk = in.readDouble();
+            in.readDouble();
+            in.readDouble();
+            in.readDouble();
+            in.readDouble();
 		    actualReadWords += 4*4;
             
             int numParts = in.readInt();
@@ -85,8 +85,8 @@ public class MultiLineHandler implements ShapeHandler {
             }
             
             if (myShapeType == 13) {
-                junk =in.readDouble();  //z min, max
-                junk =in.readDouble();
+                in.readDouble();  //z min, max
+                in.readDouble();
                 actualReadWords += 8;
                 for (int t = 0 ; t<numPoints ; t++) {
                     coords[t].z =   in.readDouble(); //z value
@@ -103,11 +103,11 @@ public class MultiLineHandler implements ShapeHandler {
 		    		fullLength =  22 + 2*numParts + (numPoints * 8) + 4+4+4*numPoints;
                 }
                 if (contentLength >= fullLength) { //are ms actually there?
-                    junk =in.readDouble();  //m min, max
-                    junk =in.readDouble();
+                    in.readDouble();  //m min, max
+                    in.readDouble();
 		    	    actualReadWords += 8;
                     for (int t = 0 ; t<numPoints ; t++) {
-                         junk =in.readDouble(); //m value
+                         in.readDouble(); //m value
 		    			 actualReadWords += 4;
                     }
                 }

@@ -1,15 +1,7 @@
 package org.geotools.shapefile;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
 import java.io.EOFException;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
@@ -89,38 +81,42 @@ public class Shapefile  {
     	ArrayList<Geometry> list = new ArrayList<>();
     	GeometryFactory factory = new GeometryFactory();
     	Geometry body;
-        int type = header.getShapeType();
-        ShapeHandler handler = getShapeHandler(type);
-        if(handler==null) throw new ShapefileException("Unsupported shape type: " + type);
-        
-        errorCount = 0;
-        int count = 1;
+    	int type = header.getShapeType();
+    	ShapeHandler handler = getShapeHandler(type);
+    	if(handler==null) throw new ShapefileException("Unsupported shape type: " + type);
 
-        while(true){
-            int recordNumber=instream.readInt(); 
-            if (recordNumber != count) {
-            	LOGGER.warning(String.format("%s.load: wrong record number (%d vs %d)",CLSS,recordNumber,count));
-                break;
-            }
-            int contentLength=instream.readInt();
-            if (contentLength <= 0) {
-            	LOGGER.warning(String.format("%s.load: found a negative content length (%d)",CLSS,contentLength));
-                break;
-            }
-            try{
-                body = handler.read(instream,factory,contentLength);
-                LOGGER.info(String.format("%s.load(%d) geometry: (%d bytes, %d pts)",CLSS,recordNumber,contentLength, body.getNumPoints()));
-                list.add(body);
-                count++;
-                if (body.getUserData() != null) errorCount++;
-            } 
-            catch(Exception e) {
-            	LOGGER.warning(String.format("%s.load: Error processing record %d (%s)",CLSS,recordNumber,e.getLocalizedMessage()));
-            	errorCount++;
-            }
-        }
-        geometryCollection = factory.createGeometryCollection((Geometry[])list.toArray(new Geometry[]{}));
-        LOGGER.info(String.format("%s.load: Completed read with %d geometries.",CLSS,geometryCollection.getNumGeometries()));
+    	errorCount = 0;
+    	int count = 1;
+    	int recordNumber = 0;
+
+    	while(true){
+    		try {
+    			instream.setType(EndianType.BIG);
+    			recordNumber=instream.readInt(); 
+    			if (recordNumber != count) {
+    				LOGGER.info(String.format("%s.load: wrong record number (%d vs %d)",CLSS,recordNumber,count));
+    				break;
+    			}
+    			int contentLength=instream.readInt();
+    			if (contentLength <= 0) {
+    				LOGGER.warning(String.format("%s.load: found a negative content length (%d)",CLSS,contentLength));
+    				break;
+    			}
+    			instream.setType(EndianType.LITTLE);
+
+    			body = handler.read(instream,factory,contentLength);
+    			LOGGER.info(String.format("%s.load(%d) geometry: (%d bytes, %d pts)",CLSS,recordNumber,contentLength, body.getNumPoints()));
+    			list.add(body);
+    			count++;
+    			if (body.getUserData() != null) errorCount++;
+    		} 
+    		catch(Exception e) {
+    			LOGGER.warning(String.format("%s.load: Error processing record %d (%s)",CLSS,recordNumber,e.getLocalizedMessage()));
+    			errorCount++;
+    		}
+    	}
+    	geometryCollection = factory.createGeometryCollection((Geometry[])list.toArray(new Geometry[]{}));
+    	LOGGER.info(String.format("%s.load: Completed read with %d geometries, %d errors.",CLSS,geometryCollection.getNumGeometries(),errorCount));
     }
 
     /**
@@ -133,41 +129,59 @@ public class Shapefile  {
     public void load(EndianAwareInputStream instream,ShapeIndexFile shx) throws Exception {
     	header.load(instream);
     	LOGGER.info(String.format("%s.load with index: Completed read of header ...",CLSS));
-       	ArrayList<Geometry> list = new ArrayList<>();
-    	GeometryFactory factory = new GeometryFactory();
-    	Geometry body;
-        int type = header.getShapeType();
-        ShapeHandler handler = getShapeHandler(type);
-        if(handler==null) throw new ShapefileException("Unsupported shape type: " + type);
-        
-        errorCount = 0;
-        int count = 1;
+    	//byte[] bytes = instream.readBytes(64);
+    	//LOGGER.info(HexDump.dump(bytes, 0, 64));
 
-        while(true){
-            int recordNumber=instream.readInt(); 
-            if (recordNumber != count) {
-            	LOGGER.warning(String.format("%s.load: wrong record number (%d vs %d)",CLSS,recordNumber,count));
-                break;
-            }
-            int contentLength=instream.readInt();
-            if (contentLength <= 0) {
-            	LOGGER.warning(String.format("%s.load: found a negative content length (%d)",CLSS,contentLength));
-                break;
-            }
-            try{
-                body = handler.read(instream,factory,contentLength);
-                LOGGER.info(String.format("%s.load(%d) geometry: (%d bytes, %d pts)",CLSS,recordNumber,contentLength, body.getNumPoints()));
-                list.add(body);
-                count++;
-                if (body.getUserData() != null) errorCount++;
-            } 
-            catch(Exception e) {
-            	LOGGER.warning(String.format("%s.load: Error processing record %d (%s)",CLSS,recordNumber,e.getLocalizedMessage()));
-            	errorCount++;
-            }
-        }
-        geometryCollection = factory.createGeometryCollection((Geometry[])list.toArray(new Geometry[]{}));
-        LOGGER.info(String.format("%s.load: Completed read with %d geometries.",CLSS,geometryCollection.getNumGeometries()));
+    	ArrayList<Geometry> list = new ArrayList<>();
+    	GeometryFactory factory = new GeometryFactory();
+    	Geometry body = null;
+    	int type = header.getShapeType();
+    	ShapeHandler handler = getShapeHandler(type);
+    	if(handler==null) throw new ShapefileException("Unsupported shape type: " + type);
+
+    	errorCount = 0;
+    	int count = 1;
+    	int recordNumber = 0;
+
+    	while(true){
+    		try{
+    			instream.setType(EndianType.BIG);
+    			recordNumber=instream.readInt(); 
+    			//LOGGER.info(String.format("%s.load with index: record number = %d",CLSS,recordNumber));
+    			if (recordNumber != count) {
+    				LOGGER.warning(String.format("%s.load with index: wrong record number (%d vs %d)",CLSS,recordNumber,count));
+    				break;
+    			}
+    			int contentLength=instream.readInt();
+    			//LOGGER.info(String.format("%s.load with index: content length = %d",CLSS,contentLength));
+    			if (contentLength <= 0) {
+    				LOGGER.warning(String.format("%s.load with index: found a negative content length (%d)",CLSS,contentLength));
+    				break;
+    			}
+
+    			instream.setType(EndianType.LITTLE);
+    			body = handler.read(instream,factory,contentLength);
+    			//LOGGER.info(String.format("%s.load with index(%d) geometry: (%d bytes, %d pts)",CLSS,recordNumber,contentLength, body.getNumPoints()));
+    			list.add(body);
+    			count++;
+    			if (body.getUserData() != null) errorCount++;
+
+    		} 
+    		catch(EOFException eofe) {
+    			LOGGER.info(String.format("%s.load with index: EOF after record %d (%s)",CLSS,recordNumber,eofe.getLocalizedMessage()));
+    			break;
+    		}
+    		catch(IOException ioe) {
+    			LOGGER.warning(String.format("%s.load with index: Error reading record %d (%s)",CLSS,recordNumber,ioe.getLocalizedMessage()));
+    			errorCount++;
+    		}
+    		catch(ShapefileException se) {
+    			LOGGER.warning(String.format("%s.load with index: Error processing record %d (%s)",CLSS,recordNumber,se.getLocalizedMessage()));
+    			errorCount++;
+    		}
+    	}
+    	geometryCollection = factory.createGeometryCollection((Geometry[])list.toArray(new Geometry[]{}));
+    	LOGGER.info(String.format("%s.load with index: Completed read with %d geometries, %d errors.",CLSS,geometryCollection.getNumGeometries(),errorCount));
     }
     /**
      * Get the number of errors found after a read.
