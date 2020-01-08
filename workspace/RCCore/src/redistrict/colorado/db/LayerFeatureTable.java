@@ -15,74 +15,66 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.openjump.feature.AttributeType;
+
 import redistrict.colorado.core.LayerModel;
 import redistrict.colorado.core.LayerRole;
 
 /**
- * A Layer is an overlay within a Plan. This class contains convenience methods to query,
- * create and update them. It encapsulates the Layer SQLite table. The Database class 
- * sets the connection once it is created.
+ * The LayerFeature table keeps track of the features associated with a given layer.
+ * The Database class sets the connection once it is created.
  */
-public class LayerTable {
-	private static final String CLSS = "LayerTable";
+public class LayerFeatureTable {
+	private static final String CLSS = "LayerFeatureTable";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
-	private final static String DEFAULT_NAME = "New layer";
-	private final static String DEFAULT_DESCRIPTION = "";
 	private Connection cxn = null;
 	/** 
 	 * Constructor: 
 	 */
-	public LayerTable() {}
+	public LayerFeatureTable() {}
 	public void setConnection(Connection connection) { this.cxn = connection; }
 	
 	
 	/**
-	 * Create a new row. If there is already a row called "New layer", a null will be returned.
+	 * Map a new feature to a layer. The id must be the id of an existing layer.
 	 */
-	public LayerModel createLayer() {
-		LayerModel model = null;
-		if( cxn==null ) return model;
+	public void createLayerFeature(int id,String name,AttributeType type) {
+		if( cxn==null ) return;
 		
-		String SQL = String.format("INSERT INTO Layer(name,description,shapefilePath,role) values ('%s','%s','','%s')",
-				DEFAULT_NAME,DEFAULT_DESCRIPTION,LayerRole.BOUNDARIES.name());
+		String SQL = String.format("INSERT INTO LayerFeature(featureAlias,featureName,type) values (%d,'%s','%s','','%s')",
+															id,name,name,type.name());
 		Statement statement = null;
 		try {
-			LOGGER.info(String.format("%s.createLayer: \n%s",CLSS,SQL));
+			LOGGER.info(String.format("%s.createLayerFeature: \n%s",CLSS,SQL));
 			statement = cxn.createStatement();
 			statement.executeUpdate(SQL);
-			ResultSet rs = statement.getGeneratedKeys();
-		    if (rs.next()) {
-		        model = new LayerModel(rs.getInt(1),DEFAULT_NAME);
-		    } 
 		}
 		catch(SQLException e) {
-			LOGGER.severe(String.format("%s.createLayer: error (%s)",CLSS,e.getMessage()));
+			LOGGER.severe(String.format("%s.createLayerFeature: error (%s)",CLSS,e.getMessage()));
 		}
 		finally {
 			if( statement!=null) {
 				try { statement.close(); } catch(SQLException ignore) {}
 			}
 		}
-		return model;
 	}
 	/**
-	 * Delete a layer given its id. 
-	 * NOTE: entries in LayerFeature should be automatically
-	 * removed via cascading delete.
+	 * Delete a row given its layer id.
 	 */
-	public boolean deleteLayer(long key) {
+	public boolean deleteLayerFeature(long key,String name) {
 		PreparedStatement statement = null;
-		String SQL = "DELETE FROM Layer WHERE id = ?";
+		String SQL = "DELETE FROM LayerFeature WHERE layerId = ? and featureAlias = ?";
 		boolean success = false;
 		try {
-			LOGGER.info(String.format("%s.deleteLayer: \n%s",CLSS,SQL));
+			LOGGER.info(String.format("%s.deleteLayerFeature: \n%s",CLSS,SQL));
 			statement = cxn.prepareStatement(SQL);
 			statement.setLong(1, key);
+			statement.setString(2, name);
 			statement.executeUpdate();
 			if( statement.getUpdateCount()>0) success = true;
 		}
 		catch(SQLException e) {
-			LOGGER.severe(String.format("%s.deleteLayer: error (%s)",CLSS,e.getMessage()));
+			LOGGER.severe(String.format("%s.deleteLayerName: error (%s)",CLSS,e.getMessage()));
 		}
 		finally {
 			if( statement!=null) {
@@ -92,9 +84,9 @@ public class LayerTable {
 		return success;
 	}
 	/**
-	 * @return a list of all defined Layers. It may be empty.
+	 * @return a list of all features defined for the given Layer. There may be none.
 	 */
-	public List<LayerModel> getLayers() {
+	public List<LayerModel> getLayerFeatures() {
 		List<LayerModel> list = new ArrayList<>();
 		LayerModel model = null;
 		PreparedStatement statement = null;
@@ -146,7 +138,7 @@ public class LayerTable {
 	 * @param oldName
 	 * @param newName
 	 */
-	public boolean updateLayer(LayerModel model) {
+	public boolean updateLayerFeature(LayerModel model) {
 		PreparedStatement statement = null;
 		String SQL = "UPDATE Layer SET name=?,description=?,shapefilePath=?,role=? WHERE id = ?";
 		boolean success = false;

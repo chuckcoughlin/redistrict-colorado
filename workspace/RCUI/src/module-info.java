@@ -10,7 +10,7 @@ module rc.ui {
 	requires transitive javafx.graphics;
 	requires transitive javafx.controls;
 	requires transitive rc.core;
-	requires open.jump;
+	requires org.geotools;
 	requires org.locationtech.jts;
 	
 	exports redistrict.colorado.ui;

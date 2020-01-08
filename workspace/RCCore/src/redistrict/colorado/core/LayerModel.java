@@ -6,7 +6,7 @@
  */
 package redistrict.colorado.core;
 
-import org.openjump.geometry.feature.FeatureCollection;
+import org.openjump.feature.FeatureCollection;
 
 /**
  * A Layer is on overlay on the map. It must be one of two types:

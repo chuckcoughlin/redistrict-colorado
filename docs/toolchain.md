@@ -39,6 +39,9 @@ Java 13.
 *  https://commons.apache.org/proper/commons-lang commons-lang3-3.9.jar Apache commons helper utilities
 * https://github.com/locationtech/jts/releases jts-core-16.1.jar VividSolutions JTS Topology Suite
 * https://repo1.maven.org/maven2/com/googlecode/json-simple/json-simple/1.1.1/ json-simple-1.1.1.jar JSON parser
+* https://sourceforge.net/projects/geotools/files/GeoTools%2021%20Releases/21.2 GeoTools. 11000 source files, we use only a small fraction.
+
+* http://www.openjump.org/jpp.html OpenJUMP 1.14. This GIS package is extremely comprehensive consisting of over 1600 source files. We have simplified it drastically, using perhaps 50.
 
 *** Modularization ***<br/>
 The open source jar files listed above have all been manually updated for Java11 module compatibility and then stored in our `git`  repository.

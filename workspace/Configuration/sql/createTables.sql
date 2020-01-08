@@ -16,7 +16,18 @@ CREATE TABLE Layer (
 	role text NULL,
 	UNIQUE (name)
 );
-
+-- The LayerFeature table holds the latest known Features for a layer.
+-- An attempt is made to retain existing entries when a layer is refreshed.
+DROP TABLE IF EXISTS LayerFeature;
+CREATE TABLE LayerFeature (
+	layerId	INTEGER  NOT NULL,
+	featureAlias text NOT NULL,
+	featureName text NOT NULL,
+	type text NOT null,
+	isHidden integer DEFAULT 0,
+	PRIMARY KEY(layerId,featureAlias),
+	FOREIGN KEY (layerId) references Layer(id) ON DELETE CASCADE
+);
 -- The Plan table holds configuration information for the may overlay
 -- layers. The data files must be read to actually populate the diagram.
 -- Each row in the table represents an actioun at an instant of time.
@@ -30,4 +41,5 @@ CREATE TABLE Plan (
 	role text NULL,
 	UNIQUE (name)
 );
+
 

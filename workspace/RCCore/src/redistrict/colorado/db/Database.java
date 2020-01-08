@@ -9,12 +9,16 @@ package redistrict.colorado.db;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Map;
+import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.sqlite.JDBC;
+
+import redistrict.colorado.core.LayerModel;
+import redistrict.colorado.core.LayerRole;
 
 /**
  * This class is a wrapper for the entire robot database. It is implemented
@@ -32,12 +36,14 @@ public class Database {
 	private Connection connection = null;
 	private static Database instance = null;
 	private final LayerTable layerTable;
+	private final LayerFeatureTable layerFeatureTable;
  
 	/**
 	 * Constructor is private per Singleton pattern.
 	 */
 	private Database() {
 		this.layerTable = new LayerTable();
+		this.layerFeatureTable = new LayerFeatureTable();
 	}
 	/**
 	 * Static method to create and/or fetch the single instance.
@@ -64,14 +70,24 @@ public class Database {
 		String connectPath = "jdbc:sqlite:"+path.toString();
 		LOGGER.info(String.format("%s.startup: database path = %s",CLSS,path.toString()));
 
+		Statement statement = null;
 		try {
 			connection = DriverManager.getConnection(connectPath);
+			String SQL = "PRAGMA foreign_keys = ON";
+			statement = connection.createStatement();
+			statement.executeQuery(SQL);
 			layerTable.setConnection(connection);
+			layerFeatureTable.setConnection(connection);
 		}
 		catch(SQLException e) {
 			// if the error message is "out of memory", 
 			// it probably means no database file is found
 			LOGGER.log(Level.SEVERE,String.format("%s.startup: Database error (%s)",CLSS,e.getMessage()));
+		}
+		finally {
+			if( statement!=null) {
+				try { statement.close(); } catch(SQLException ignore) {}
+			}
 		}
 	}
 

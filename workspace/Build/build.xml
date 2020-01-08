@@ -9,6 +9,7 @@
 	<property name="fx.sdk.dir" value="${basedir}/../Archive/lib/javafx-sdk-13.0.1/lib" />
 	<property name="fx.jmod.dir" value="${basedir}/../Archive/jmod/javafx-jmods-13.0.1" />
 	<property name="temp.dir" value="${basedir}/temp" />
+	<property name="geotools-jar" value="geotools-22.1.jar" />
 	<property name="open-jump-jar" value="open-jump-1.14.jar" />
 	<property name="rc-core-jar" value="rc-core.jar" />
 	<property name="rc-ui-jar" value="rc-ui.jar" />

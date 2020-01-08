@@ -18,7 +18,7 @@ import redistrict.colorado.ui.ViewMode;
 import redistrict.colorado.ui.navigation.LayerNavigationPane;
 
 /**
- * Display a shapefile without any additional attribution.
+ * Plot a shapefile.
  */
 	public class MapCanvas extends BasicRightSideNode {
 		private final static String CLSS = "MapCanvas";
@@ -36,6 +36,7 @@ import redistrict.colorado.ui.navigation.LayerNavigationPane;
 			setTopAnchor(headerLabel,0.);
 			setLeftAnchor(headerLabel,UIConstants.LIST_PANEL_LEFT_MARGIN);
 			setRightAnchor(headerLabel,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+			
 			setBottomAnchor(navPane,0.);
 			setLeftAnchor(navPane,UIConstants.LIST_PANEL_LEFT_MARGIN);
 			setRightAnchor(navPane,UIConstants.LIST_PANEL_RIGHT_MARGIN);

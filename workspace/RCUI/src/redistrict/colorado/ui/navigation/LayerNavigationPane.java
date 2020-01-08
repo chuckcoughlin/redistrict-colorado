@@ -34,6 +34,9 @@ public class LayerNavigationPane extends AbstractNavigationPane implements Chang
 
 	@Override
 	public void updateTextForModel() {
-		navigationLabel.setText(String.format("Layer: %s",hub.getSelectedLayer().getName()));	
+		LayerModel model = hub.getSelectedLayer();
+		if( model!=null ) {
+			navigationLabel.setText(String.format("Layer: %s",hub.getSelectedLayer().getName()));
+		}
 	}
 }
