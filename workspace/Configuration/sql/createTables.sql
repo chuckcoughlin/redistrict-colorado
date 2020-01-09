@@ -21,11 +21,13 @@ CREATE TABLE Layer (
 DROP TABLE IF EXISTS LayerFeature;
 CREATE TABLE LayerFeature (
 	layerId	INTEGER  NOT NULL,
-	featureAlias text NOT NULL,
-	featureName text NOT NULL,
+	name text NOT NULL,
+	alias text NOT NULL,
 	type text NOT null,
-	isHidden integer DEFAULT 0,
-	PRIMARY KEY(layerId,featureAlias),
+	visible integer DEFAULT 1,
+	background integer DEFAULT 0,
+	rank integer DEFAULT 1,
+	PRIMARY KEY(layerId,name),
 	FOREIGN KEY (layerId) references Layer(id) ON DELETE CASCADE
 );
 -- The Plan table holds configuration information for the may overlay

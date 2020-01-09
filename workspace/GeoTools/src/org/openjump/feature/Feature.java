@@ -41,7 +41,7 @@ import org.locationtech.jts.geom.Geometry;
  * In the current Workbench model, each feature has one spatial attribute (Geometry)
  * and zero or more non-spatial attributes.
  */
-public interface Feature extends Cloneable, Comparable {
+public interface Feature extends Cloneable, Comparable<Feature> {
 
 	/**
 	 * A low-level accessor that is not normally used.

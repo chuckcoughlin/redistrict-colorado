@@ -9,16 +9,12 @@ package redistrict.colorado.db;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.sqlite.JDBC;
-
-import redistrict.colorado.core.LayerModel;
-import redistrict.colorado.core.LayerRole;
 
 /**
  * This class is a wrapper for the entire robot database. It is implemented
@@ -44,6 +40,7 @@ public class Database {
 	private Database() {
 		this.layerTable = new LayerTable();
 		this.layerFeatureTable = new LayerFeatureTable();
+		
 	}
 	/**
 	 * Static method to create and/or fetch the single instance.
@@ -56,8 +53,9 @@ public class Database {
 		}
 		return instance;
 	}
-	
+	public boolean isConnected() { return connection!=null; }
 	public LayerTable getLayerTable() { return this.layerTable; }
+	public LayerFeatureTable getLayerFeatureTable() { return this.layerFeatureTable; }
 	
 	/**
 	 * Create a database connection. Use this for all subsequent queries.
@@ -73,11 +71,12 @@ public class Database {
 		Statement statement = null;
 		try {
 			connection = DriverManager.getConnection(connectPath);
-			String SQL = "PRAGMA foreign_keys = ON";
-			statement = connection.createStatement();
-			statement.executeQuery(SQL);
 			layerTable.setConnection(connection);
 			layerFeatureTable.setConnection(connection);
+			
+			String SQL = "PRAGMA foreign_keys = ON";
+			statement = connection.createStatement();
+			statement.executeUpdate(SQL);
 		}
 		catch(SQLException e) {
 			// if the error message is "out of memory", 

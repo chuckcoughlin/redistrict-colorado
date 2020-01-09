@@ -6,6 +6,8 @@
  */
 package redistrict.colorado.layer;
 import java.io.File;
+import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 import org.openjump.io.ShapefileReader;
@@ -31,6 +33,8 @@ import javafx.util.Callback;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.LayerModel;
 import redistrict.colorado.core.LayerRole;
+import redistrict.colorado.db.Database;
+import redistrict.colorado.db.FeatureConfiguration;
 import redistrict.colorado.ui.GuiUtil;
 import redistrict.colorado.ui.UIConstants;
 
@@ -48,6 +52,7 @@ public class LayerConfigurationDialog extends Dialog<LayerModel> implements Even
 	private final Label nameLabel = new Label("Name: ");
 	private final Label descriptionLabel = new Label("Description: ");
 	private final Button fileButton = new Button("Shapefile: ");
+	private final Button fieldButton = new Button("Configure: ");
 	private final Label roleLabel = new Label("Role: ");
 	private final TextField nameField;
 	private final TextField descriptionField;
@@ -71,12 +76,29 @@ public class LayerConfigurationDialog extends Dialog<LayerModel> implements Even
         if( model.getShapefilePath()==null) {
         	indicator = new Label("",guiu.loadImage("images/ball_gray.png"));
         }
-        else if ( model.getFeatures()==null){
-        	indicator = new Label("",guiu.loadImage("images/ball_red.png"));
-        }
         else {
-        	indicator = new Label("",guiu.loadImage("images/ball_green.png"));
+        	if( model.getFeatures()==null){
+        		try {
+					model.setFeatures(ShapefileReader.read(model.getShapefilePath()));
+					LOGGER.info(String.format("%s.onInit: Shapefile has %d records, %d attributes", CLSS,model.getFeatures().getFeatures().size(),model.getFeatures().getFeatureSchema().getAttributeCount()));
+				}
+				catch( Exception ex) {
+					model.setFeatures(null);
+					String msg = String.format("%s.onInit: Failed to parse shapefile %s (%s)",CLSS,model.getShapefilePath(),ex.getLocalizedMessage());
+					LOGGER.warning(msg);
+					EventBindingHub.getInstance().setMessage(msg);
+				}
+        		Database.getInstance().getLayerFeatureTable().synchronizeLayerFeatures(model.getId(), model.getFeatures().getFeatureSchema().getAttributeNames());
+        	}
+        	if( model.getFeatures()==null){
+        		indicator = new Label("",guiu.loadImage("images/ball_red.png"));
+        	}
+        	else {
+        		indicator = new Label("",guiu.loadImage("images/ball_green.png"));
+        	}
         }
+        fieldButton.setDisable(model.getFeatures()==null);
+        fieldButton.setOnAction(this);
         
         grid = new GridPane();
         grid.setHgap(10);
@@ -99,6 +121,7 @@ public class LayerConfigurationDialog extends Dialog<LayerModel> implements Even
 		grid.add(roleLabel, 0, 3);
 		grid.add(roleChooser, 1, 3);
 		grid.add(indicator, 2, 3);
+		grid.add(fieldButton, 0, 4);
 		
 		DialogPane dialog = this.getDialogPane();
 		dialog.setContent(grid);
@@ -112,16 +135,21 @@ public class LayerConfigurationDialog extends Dialog<LayerModel> implements Even
 				if (b == buttonOK) {
 					model.setName(nameField.getText());
 					model.setDescription(descriptionField.getText());
-					model.setShapefilePath(pathField.getText());
 					model.setRole(LayerRole.valueOf(roleChooser.getValue()));
-					try {
-						model.setFeatures(ShapefileReader.read(model.getShapefilePath()));
-					}
-					catch( Exception ex) {
-						model.setFeatures(null);
-						String msg = String.format("%s: Failed to parse shapefile %s (%s)",CLSS,model.getShapefilePath(),ex.getLocalizedMessage());
-						LOGGER.warning(msg);
-						EventBindingHub.getInstance().setMessage(msg);
+					// If path changes, re-analyze file
+					if( !model.getShapefilePath().equalsIgnoreCase(pathField.getText())) {
+						model.setShapefilePath(pathField.getText());
+						try {
+							model.setFeatures(ShapefileReader.read(pathField.getText()));
+							LOGGER.info(String.format("%s.onSave: Shapefile has %d records, %d attributes", CLSS,model.getFeatures().getFeatures().size(),model.getFeatures().getFeatureSchema().getAttributeCount()));
+						}
+						catch( Exception ex) {
+							model.setFeatures(null);
+							String msg = String.format("%s.onSave: Failed to parse shapefile %s (%s)",CLSS,model.getShapefilePath(),ex.getLocalizedMessage());
+							LOGGER.warning(msg);
+							EventBindingHub.getInstance().setMessage(msg);
+						}
+						Database.getInstance().getLayerFeatureTable().synchronizeLayerFeatures(model.getId(), model.getFeatures().getFeatureSchema().getAttributeNames());
 					}
 					return model;
 				}
@@ -130,17 +158,30 @@ public class LayerConfigurationDialog extends Dialog<LayerModel> implements Even
 		});
 	}
 	/**
-	 * Analyze the shape file
+	 * Respond to button presses
 	 */
 	@Override
-	public void handle(ActionEvent arg0) {
-		FileChooser fc = new FileChooser();
-		Window window = new Popup();
-		File file = fc.showOpenDialog(window); 
-		LOGGER.info(String.format("File is %s",(file==null?"null":file.getAbsolutePath()))); 
-        if (file != null) {      
-        	pathField.setText(file.getAbsolutePath()); 
-        } 
-		
+	public void handle(ActionEvent event) {
+		// Find the file
+		if( event.getSource().equals(fileButton)) {
+			FileChooser fc = new FileChooser();
+			Window window = new Popup();
+			File file = fc.showOpenDialog(window); 
+			LOGGER.info(String.format("File is %s",(file==null?"null":file.getAbsolutePath()))); 
+			if (file != null) {      
+				pathField.setText(file.getAbsolutePath()); 
+			} 
+		}
+		// Configure field headers in the detail table
+		else if( event.getSource().equals(fieldButton)) {
+			List<FeatureConfiguration> configs = Database.getInstance().getLayerFeatureTable().getLayerFeatures(model.getId());
+			Dialog<List<FeatureConfiguration>> dialog = new FeatureFieldConfigurationDialog(configs);
+            Optional<List<FeatureConfiguration>> result = dialog.showAndWait();
+            if (result.isPresent()) {
+            	boolean success = Database.getInstance().getLayerFeatureTable().updateLayerFeatures(configs);
+            	LOGGER.info(String.format("%s.handle: returned from dialog %s", CLSS,(success?"successfully":"with error")));
+            }
+		}
+
 	}
 }

@@ -35,7 +35,6 @@ public class LayerTable {
 	public LayerTable() {}
 	public void setConnection(Connection connection) { this.cxn = connection; }
 	
-	
 	/**
 	 * Create a new row. If there is already a row called "New layer", a null will be returned.
 	 */

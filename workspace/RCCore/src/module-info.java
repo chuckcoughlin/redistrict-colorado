@@ -7,7 +7,7 @@ module rc.core {
 	requires java.prefs;
 	requires java.sql;
 	requires transitive sqlite.jdbc;
-	requires org.geotools;
+	requires transitive org.geotools;
 	requires org.locationtech.jts;
 	
 	exports redistrict.colorado.core;

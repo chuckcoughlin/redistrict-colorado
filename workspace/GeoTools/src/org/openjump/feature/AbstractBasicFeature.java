@@ -241,8 +241,9 @@ public abstract class AbstractBasicFeature implements Feature, Serializable {
         return clone;        
     }
 
-    public int compareTo(Object o) {
-        return compare(this, (Feature)o);
+    @Override
+    public int compareTo(Feature feat) {
+        return compare(this, (Feature)feat);
     }
 
     /**

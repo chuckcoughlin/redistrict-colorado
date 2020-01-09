@@ -78,16 +78,19 @@ public class ShapefileReader {
     	if(!isShapefile(shpFileName)) {
     		throw new IllegalArgumentException(String.format("%s.read: File %s is not a shapefile", CLSS,shpFileName));
     	}
-		FeatureSchema fs = new FeatureSchema();
-    	FeatureCollection featureCollection =  new FeatureDataset(fs);
+
     	// Read the .cpg file, if it exists. It is the character set for DbFile. Else use default.
     	String charsetName = getCharset(shpFileName);   
     	DbaseFile dbfFile = getDbfFile(shpFileName,Charset.forName(charsetName));
     	Shapefile shapefile = getShapefile(shpFileName,dbfFile);
+		FeatureSchema fs;
+    	FeatureCollection featureCollection = null;
     	if( shapefile!=null ) {
     		GeometryCollection collection = shapefile.getGeometryCollection();
     		// handle shapefiles without .dbf files. Ignore the index file.
     		if ( dbfFile == null ) {
+    			fs = new FeatureSchema();
+    	    	featureCollection =  new FeatureDataset(fs);
     			// Minimal schema for FeatureCollection (if no dbf is provided)  
     			fs.addAttribute("GEOMETRY", AttributeType.GEOMETRY);
     			int numGeometries = collection.getNumGeometries();
@@ -100,6 +103,8 @@ public class ShapefileReader {
     		}
     		// dbfFile exists. Use its features.
     		else {
+    			fs = dbfFile.getFeatureSchema();
+    			featureCollection =  new FeatureDataset(fs);
     			int recordCount = dbfFile.getHeader().getLastRecord();
     			if (collection.getNumGeometries() != recordCount) {
     				LOGGER.severe(String.format("%s: Error in %s, shp record count (%d) does not match dbf record count (%d)", CLSS,shpFileName, 

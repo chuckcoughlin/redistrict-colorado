@@ -37,6 +37,7 @@ public class DbaseFile  {
     private Map<String,String> uniqueStrings;
     private DbaseFieldDefinition[] fielddef;
     private FeatureDataset features = null;
+    private FeatureSchema schema = null;
 
     /**
      * Constructor. 
@@ -46,8 +47,10 @@ public class DbaseFile  {
     	this.charset = charset;
     	this.simpleDataParser.setLenient(true);
     	this.header = new DbaseHeader();
+    	this.schema = new FeatureSchema();
     }
     
+    public FeatureSchema getFeatureSchema() { return this.schema; }
     /**
      * Initializer: Read the open stream and populate the Dbfile. This
      * loads the header and field definitions, but not the records.
@@ -79,20 +82,20 @@ public class DbaseFile  {
      * @return the number of records read.
      */
     public int loadFeatures(EndianAwareInputStream in) {
-    	FeatureSchema fs = new FeatureSchema();
-    	this.features = new FeatureDataset(fs);
+    	this.schema = new FeatureSchema();
+    	this.features = new FeatureDataset(schema);
         
-        fs.addAttribute("GEOMETRY", AttributeType.GEOMETRY);
+        schema.addAttribute("GEOMETRY", AttributeType.GEOMETRY);
         int numfields = header.getFieldCount();
         for (int j = 0; j < numfields; j++) {
             AttributeType type = AttributeType.valueOf((getFieldType(j).toUpperCase()));
-            fs.addAttribute( getFieldName(j), type );
+            schema.addAttribute( getFieldName(j), type );
         }
         
     	int count = 0;
     	try {
     		while(count<header.getLastRecord()) {
-    			Feature feature = new BasicFeature(fs);
+    			Feature feature = new BasicFeature(schema);
     			byte[] bytes = getNextRecord(in);
     			for (int y = 0; y < numfields; y++) {
                     feature.setAttribute(y + 1, ParseRecordColumn(bytes, y));

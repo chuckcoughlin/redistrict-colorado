@@ -14,7 +14,7 @@ public class DbaseFieldDefinition implements DbaseConstants{
 
 	private static final String CLSS = "DbfFieldDefinition";
 	private static final Logger LOGGER = Logger.getLogger(CLSS); 
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 
     public StringBuffer fieldname = new StringBuffer(DBF_NAMELEN);
     public char fieldtype;
