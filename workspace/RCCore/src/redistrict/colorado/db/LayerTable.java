@@ -66,7 +66,7 @@ public class LayerTable {
 	}
 	/**
 	 * Delete a layer given its id. 
-	 * NOTE: entries in LayerFeature should be automatically
+	 * NOTE: entries in FeatureAttribute should be automatically
 	 * removed via cascading delete.
 	 */
 	public boolean deleteLayer(long key) {

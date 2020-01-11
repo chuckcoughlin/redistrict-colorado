@@ -32,14 +32,14 @@ public class Database {
 	private Connection connection = null;
 	private static Database instance = null;
 	private final LayerTable layerTable;
-	private final LayerFeatureTable layerFeatureTable;
+	private final FeatureAttributeTable featureAttributeTable;
  
 	/**
 	 * Constructor is private per Singleton pattern.
 	 */
 	private Database() {
 		this.layerTable = new LayerTable();
-		this.layerFeatureTable = new LayerFeatureTable();
+		this.featureAttributeTable = new FeatureAttributeTable();
 		
 	}
 	/**
@@ -55,7 +55,7 @@ public class Database {
 	}
 	public boolean isConnected() { return connection!=null; }
 	public LayerTable getLayerTable() { return this.layerTable; }
-	public LayerFeatureTable getLayerFeatureTable() { return this.layerFeatureTable; }
+	public FeatureAttributeTable getFeatureAttributeTable() { return this.featureAttributeTable; }
 	
 	/**
 	 * Create a database connection. Use this for all subsequent queries.
@@ -72,7 +72,7 @@ public class Database {
 		try {
 			connection = DriverManager.getConnection(connectPath);
 			layerTable.setConnection(connection);
-			layerFeatureTable.setConnection(connection);
+			featureAttributeTable.setConnection(connection);
 			
 			String SQL = "PRAGMA foreign_keys = ON";
 			statement = connection.createStatement();

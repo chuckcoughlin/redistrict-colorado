@@ -2,7 +2,14 @@
 -- These tables are used by the application to hold layer definitions
 -- and other configuration information.
 --
-
+-- The AttributeAlias table provides common names for some
+-- Feature attributes. The aliases listed here are only applied
+-- as the attributes are created.
+DROP TABLE IF EXISTS AttributeAlias;
+CREATE TABLE AttributeAlias (
+	name text NOT NULL PRIMARY KEY,
+	alias text NOT NULL
+);
 -- The Layer table holds configuration information for the may overlay
 -- layers. The data files must be read to actually populate the diagram.
 -- Each row in the table represents an actioun at an instant of time.
@@ -19,7 +26,8 @@ CREATE TABLE Layer (
 -- The LayerFeature table holds the latest known Features for a layer.
 -- An attempt is made to retain existing entries when a layer is refreshed.
 DROP TABLE IF EXISTS LayerFeature;
-CREATE TABLE LayerFeature (
+DROP TABLE IF EXISTS FeatureAttribute;
+CREATE TABLE FeatureAttribute (
 	layerId	INTEGER  NOT NULL,
 	name text NOT NULL,
 	alias text NOT NULL,

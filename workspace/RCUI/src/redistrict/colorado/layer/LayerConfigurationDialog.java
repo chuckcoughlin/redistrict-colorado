@@ -73,7 +73,7 @@ public class LayerConfigurationDialog extends Dialog<LayerModel> implements Even
         roleChooser = new ComboBox<>();
         roleChooser.getItems().addAll(LayerRole.names());
         roleChooser.getSelectionModel().select(model.getRole().name());
-        if( model.getShapefilePath()==null) {
+        if( model.getShapefilePath()==null || model.getShapefilePath().isBlank() ) {
         	indicator = new Label("",guiu.loadImage("images/ball_gray.png"));
         }
         else {
@@ -81,6 +81,7 @@ public class LayerConfigurationDialog extends Dialog<LayerModel> implements Even
         		try {
 					model.setFeatures(ShapefileReader.read(model.getShapefilePath()));
 					LOGGER.info(String.format("%s.onInit: Shapefile has %d records, %d attributes", CLSS,model.getFeatures().getFeatures().size(),model.getFeatures().getFeatureSchema().getAttributeCount()));
+					Database.getInstance().getFeatureAttributeTable().synchronizeFeatureAttributes(model.getId(), model.getFeatures().getFeatureSchema().getAttributeNames());
 				}
 				catch( Exception ex) {
 					model.setFeatures(null);
@@ -88,7 +89,6 @@ public class LayerConfigurationDialog extends Dialog<LayerModel> implements Even
 					LOGGER.warning(msg);
 					EventBindingHub.getInstance().setMessage(msg);
 				}
-        		Database.getInstance().getLayerFeatureTable().synchronizeLayerFeatures(model.getId(), model.getFeatures().getFeatureSchema().getAttributeNames());
         	}
         	if( model.getFeatures()==null){
         		indicator = new Label("",guiu.loadImage("images/ball_red.png"));
@@ -149,7 +149,7 @@ public class LayerConfigurationDialog extends Dialog<LayerModel> implements Even
 							LOGGER.warning(msg);
 							EventBindingHub.getInstance().setMessage(msg);
 						}
-						Database.getInstance().getLayerFeatureTable().synchronizeLayerFeatures(model.getId(), model.getFeatures().getFeatureSchema().getAttributeNames());
+						Database.getInstance().getFeatureAttributeTable().synchronizeFeatureAttributes(model.getId(), model.getFeatures().getFeatureSchema().getAttributeNames());
 					}
 					return model;
 				}
@@ -174,11 +174,11 @@ public class LayerConfigurationDialog extends Dialog<LayerModel> implements Even
 		}
 		// Configure field headers in the detail table
 		else if( event.getSource().equals(fieldButton)) {
-			List<FeatureConfiguration> configs = Database.getInstance().getLayerFeatureTable().getLayerFeatures(model.getId());
-			Dialog<List<FeatureConfiguration>> dialog = new FeatureFieldConfigurationDialog(configs);
+			List<FeatureConfiguration> configs = Database.getInstance().getFeatureAttributeTable().getFeatureAttributes(model.getId());
+			Dialog<List<FeatureConfiguration>> dialog = new FeatureAttributeConfigurationDialog(configs);
             Optional<List<FeatureConfiguration>> result = dialog.showAndWait();
             if (result.isPresent()) {
-            	boolean success = Database.getInstance().getLayerFeatureTable().updateLayerFeatures(configs);
+            	boolean success = Database.getInstance().getFeatureAttributeTable().updateFeatureAttributes(configs);
             	LOGGER.info(String.format("%s.handle: returned from dialog %s", CLSS,(success?"successfully":"with error")));
             }
 		}

@@ -17,8 +17,8 @@ import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.util.Callback;
 import redistrict.colorado.db.FeatureConfiguration;
 
-public class FeatureConfigurationDataFactory implements Callback<TableColumn.CellDataFeatures<FeatureConfiguration,String>,ObservableValue<String>> {
-	private final static String CLSS = "FeatureConfigurationDataFactory";
+public class FeatureConfigurationCellValueFactory implements Callback<TableColumn.CellDataFeatures<FeatureConfiguration,String>,ObservableValue<String>> {
+	private final static String CLSS = "FeatureConfigurationCellValueFactory";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	
 	/** 
@@ -40,6 +40,7 @@ public class FeatureConfigurationDataFactory implements Callback<TableColumn.Cel
 			property.setValue(fc.getAttributeType().name());
 		}
 		else if( name.equalsIgnoreCase("Visible")) {
+			LOGGER.info(String.format("%s.getValue: %s = %s",CLSS,name,fc.isVisible()?"true":"false"));
 			property.setValue((fc.isVisible()?"true":"false"));
 		}
 		else if( name.equalsIgnoreCase("Background")) {

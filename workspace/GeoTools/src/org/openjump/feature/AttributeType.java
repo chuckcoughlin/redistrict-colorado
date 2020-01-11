@@ -19,12 +19,14 @@ import java.util.List;
 import org.locationtech.jts.geom.Geometry;
 
 /**
- * Types of attributes
+ * Types of attributes. These include types specific to configuration of a feature.
  *
  * @since 1.0
  */
 public enum AttributeType  {
+	ATTRIBUTE_TYPE,
 	BOOLEAN,
+	COLOR,
 	DATE,
 	DOUBLE,
 	GEOMETRY,

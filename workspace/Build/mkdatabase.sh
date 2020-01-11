@@ -19,17 +19,15 @@ cd ${DBDIR}
 rm -f $DB
 sqlite3 $DB < ${SQL}/createTables.sql
 
-# Change to CSV mode and load pose and action tables
-#cd ${CSV}
-#cat Pose.csv | tail -n+3|sed -e 's/	/,/g' >/tmp/pose
-#cat PoseMap.csv | tail -n+2|sed -e 's/	/,/g' >/tmp/posemap
+# Change to CSV mode and load the attribute alias lookup table
+cd ${CSV}
+cat AttributeAlias.csv | tail -n+2|sed -e 's/	/,/g' >/tmp/attributealias
 
-#cd ${ETC}
-#sqlite3 $DB << EOF
-#.mode csv
-#.import /tmp/pose Pose
-#.import /tmp/posemap PoseMap
-#EOF
+cd ${DBDIR}
+sqlite3 $DB << EOF
+.mode csv
+.import /tmp/attributealias AttributeAlias
+EOF
 mkdir -p ${APP}/db
 cp ${DB} ${APP}/db/${DB}
 echo "${DB} creation compete."

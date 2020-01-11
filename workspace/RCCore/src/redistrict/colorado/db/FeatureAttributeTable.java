@@ -20,55 +20,55 @@ import java.util.Random;
 import java.util.logging.Logger;
 
 import org.openjump.feature.AttributeType;
-import org.openjump.feature.Feature;
-import org.openjump.feature.FeatureCollection;
-import org.openjump.feature.FeatureConstants;
 
 /**
- * The LayerFeature table keeps track of the features associated with a given layer.
+ * The FeatureAttribute table keeps track of the features associated with a given layer.
  * The Database class sets the connection once it is created.
  */
-public class LayerFeatureTable {
-	private static final String CLSS = "LayerFeatureTable";
+public class FeatureAttributeTable {
+	private static final String CLSS = "FeatureAttributeTable";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private Connection cxn = null;
 	public static final Map<String,String> fieldAliases = new HashMap<>();
-	// Create a map of Common names for the various common field designamtions
-	static {
-		fieldAliases.put("COUNTYFP", "COUNTY");  // 3 character county FIPS code
-		fieldAliases.put("NAME", "GEO NAME");    // Geographic name
-		fieldAliases.put("NAMELSAD", "NAME");    // Legal statistical area description
-		fieldAliases.put("STATEFP", "STATE");    // 2 character state code
-	}
+
 	/** 
 	 * Constructor: 
 	 */
-	public LayerFeatureTable() {}
+	public FeatureAttributeTable() {}
 	public void setConnection(Connection connection) { this.cxn = connection; }
 	
 	/**
 	 * Map a new feature to a layer. The id must be the id of an existing layer. The database
 	 * stores settings for display.
 	 */
-	public void createLayerFeature(long id,String name,AttributeType type) {
+	public void createFeatureAttribute(long id,String name,AttributeType type) {
 		if( cxn==null ) return;
 		// Java 'Color' class takes 3 floats, from 0 to 1.
 		Random rand = new Random();
 		float r = rand.nextFloat();
 		float g = rand.nextFloat();
 		float b = rand.nextFloat();
-		String alias = fieldAliases.get(name);
-		if( alias==null ) alias = name;
-		String SQL = String.format("INSERT INTO LayerFeature(layerId,name,alias,type,background) values (%d,'%s','%s','%s',%d)",
-															id,name,alias,type.name(),new Color(r,g,b).getRGB());
+		String SQL = String.format("INSERT INTO FeatureAttribute(layerId,name,alias,type,background) values (%d,'%s','%s','%s',%d)",
+															id,name,name,type.name(),new Color(r,g,b).getRGB());
+		String UPDSQL = String.format("UPDATE FeatureAttribute SET alias = (SELECT alias FROM AttributeAlias WHERE name='%s') WHERE layerId=%d AND name='%s'",
+										name,id,name);
+		
 		Statement statement = null;
 		try {
-			//LOGGER.info(String.format("%s.createLayerFeature: \n%s",CLSS,SQL));
+			//LOGGER.info(String.format("%s.createFeatureAttribute: \n%s",CLSS,SQL));
 			statement = cxn.createStatement();
 			statement.executeUpdate(SQL);
+			// This statement attempts to set aliases for common names. It will fail harmlessly if there is no corresponding alias.
+			try {
+				statement.executeUpdate(UPDSQL);
+				LOGGER.info(String.format("%s.createFeatureAttribute: %s updated to alias",CLSS,name));
+			}
+			catch(SQLException ignore) {
+				//LOGGER.info(String.format("%s.createFeatureAttribute: %s has no standard alias",CLSS,name));
+			}
 		}
 		catch(SQLException e) {
-			LOGGER.severe(String.format("%s.createLayerFeature: error (%s)",CLSS,e.getMessage()));
+			LOGGER.severe(String.format("%s.createFeatureAttribute: error (%s)",CLSS,e.getMessage()));
 		}
 		finally {
 			if( statement!=null) {
@@ -79,12 +79,12 @@ public class LayerFeatureTable {
 	/**
 	 * Delete a row given its layer id.
 	 */
-	public boolean deleteLayerFeature(long key,String name) {
+	public boolean deleteFeatureAttribute(long key,String name) {
 		PreparedStatement statement = null;
-		String SQL = "DELETE FROM LayerFeature WHERE layerId = ? and name = ?";
+		String SQL = "DELETE FROM FeatureAttribute WHERE layerId = ? and name = ?";
 		boolean success = false;
 		try {
-			LOGGER.info(String.format("%s.deleteLayerFeature: \n%s",CLSS,SQL));
+			LOGGER.info(String.format("%s.deleteFeatureAttribute: \n%s",CLSS,SQL));
 			statement = cxn.prepareStatement(SQL);
 			statement.setLong(1, key);
 			statement.setString(2, name);
@@ -105,12 +105,12 @@ public class LayerFeatureTable {
 	 * The returned configuration list corresponds to Features associated with the layer.
 	 * @return a list of all configurations defined for the given Layer. There may be none.
 	 */
-	public List<FeatureConfiguration> getLayerFeatures(long key) {
+	public List<FeatureConfiguration> getFeatureAttributes(long key) {
 		List<FeatureConfiguration> list = new ArrayList<>();
 		FeatureConfiguration configuration = null;
 		PreparedStatement statement = null;
 		ResultSet rs = null;
-		String SQL = "SELECT name,alias,type,visible,background,rank from LayerFeature WHERE layerId=? ORDER BY rank"; 
+		String SQL = "SELECT name,alias,type,visible,background,rank from FeatureAttribute WHERE layerId=? ORDER BY rank"; 
 		try {
 			statement = cxn.prepareStatement(SQL);
 			statement.setLong(1, key);
@@ -118,6 +118,7 @@ public class LayerFeatureTable {
 			rs = statement.executeQuery();
 			while(rs.next()) {
 				configuration = new FeatureConfiguration(key,rs.getString("name"));
+				configuration.setAlias(rs.getString("alias"));
 				configuration.setVisible((rs.getInt("visible")==1?true:false));
 				configuration.setBackground(new Color(rs.getInt("background")));
 				configuration.setRank(rs.getInt("rank"));
@@ -128,14 +129,14 @@ public class LayerFeatureTable {
 				catch(IllegalArgumentException ignore) {}
 				configuration.setAttributeType(type);
 				list.add(configuration);
-				//LOGGER.info(String.format("%s.getLayerFeatures for %d: %s (%s)",CLSS,key,configuration.getName(),configuration.getAlias()));
+				//LOGGER.info(String.format("%s.getFeatureAttributes for %d: %s (%s)",CLSS,key,configuration.getName(),configuration.getAlias()));
 			}
 			rs.close();
 		}
 		catch(SQLException e) {
 			// if the error message is "out of memory", 
 			// it probably means no database file is found
-			LOGGER.severe(String.format("%s.getLayerFeatures: Error (%s)",CLSS,e.getMessage()));
+			LOGGER.severe(String.format("%s.getFeatureAttributes: Error (%s)",CLSS,e.getMessage()));
 		}
 		finally {
 			if( rs!=null) {
@@ -156,26 +157,26 @@ public class LayerFeatureTable {
 	 * @param attributes a list of attribute names recently read from the Shapefile
 	 * 		  for that layer
 	 */
-	public void synchronizeLayerFeatures(long layerId,List<String> attributes) {
-		LOGGER.info(String.format("%s.synchronizeLayerFeatures: layer %d, %d attributes",CLSS,layerId,attributes.size()));
+	public void synchronizeFeatureAttributes(long layerId,List<String> attributes) {
+		LOGGER.info(String.format("%s.synchronizeFeatureAttributes: layer %d, %d attributes",CLSS,layerId,attributes.size()));
 		// Make a dictionary of features per database
 		Map<String,FeatureConfiguration> configMap = new HashMap<>();
-		List<FeatureConfiguration> configList = getLayerFeatures(layerId);
+		List<FeatureConfiguration> configList = getFeatureAttributes(layerId);
 		for(FeatureConfiguration config: configList) {
 			configMap.put(config.getName(), config);
 		}
 		// Delete any features not in the collection
 		for(String key:configMap.keySet()) {
 			if(!attributes.contains(key)) {
-				LOGGER.info(String.format("%s.synchronizeLayerFeatures: delete layer %d, %s",CLSS,layerId,key));
-				deleteLayerFeature(layerId,key);
+				LOGGER.info(String.format("%s.synchronizeFeatureAttributes: delete layer %d, %s",CLSS,layerId,key));
+				deleteFeatureAttribute(layerId,key);
 			}
 		}
 		// Create database entries for new features
 		for(String name:attributes) {
 			if(!configMap.containsKey(name)) {
-				LOGGER.info(String.format("%s.synchronizeLayerFeatures: create layer %d, %s",CLSS,layerId,name));
-				createLayerFeature(layerId,name,AttributeType.DOUBLE);
+				LOGGER.info(String.format("%s.synchronizeFeatureAttributes: create layer %d, %s",CLSS,layerId,name));
+				createFeatureAttribute(layerId,name,AttributeType.DOUBLE);
 			}
 		}
 	}
@@ -184,12 +185,12 @@ public class LayerFeatureTable {
 	 * @cxn an open database connection
 	 * @param config configuration object
 	 */
-	public boolean updateLayerFeature(FeatureConfiguration config) {
+	public boolean updateFeatureAttribute(FeatureConfiguration config) {
 		PreparedStatement statement = null;
-		String SQL = "UPDATE LayerFeature SET alias=?,type=?,visible=?,background=?,rank=? WHERE layerId = ? AND name=?";
+		String SQL = "UPDATE FeatureAttribute SET alias=?,type=?,visible=?,background=?,rank=? WHERE layerId = ? AND name=?";
 		boolean success = false;
 		try {
-			LOGGER.info(String.format("%s.updateLayerFeature: \n%s",CLSS,SQL));
+			//LOGGER.info(String.format("%s.updateFeatureAttribute: \n%s",CLSS,SQL));
 			statement = cxn.prepareStatement(SQL);
 			statement.setString(1,config.getAlias());
 			statement.setString(2,config.getAttributeType().name());
@@ -202,7 +203,7 @@ public class LayerFeatureTable {
 			if( statement.getUpdateCount()>0) success = true;
 		}
 		catch(SQLException e) {
-			LOGGER.severe(String.format("%s.updateLayerFeature: updateLayerName error (%s)",CLSS,e.getMessage()));
+			LOGGER.severe(String.format("%s.updateFeatureAttribute: updateLayerName error (%s)",CLSS,e.getMessage()));
 		}
 		finally {
 			if( statement!=null) {
@@ -216,10 +217,10 @@ public class LayerFeatureTable {
 	 * @cxn an open database connection
 	 * @param config configuration object
 	 */
-	public boolean updateLayerFeatures(List<FeatureConfiguration> configs) {
+	public boolean updateFeatureAttributes(List<FeatureConfiguration> configs) {
 		boolean success = true;
 		for(FeatureConfiguration config:configs) {
-			success = success && updateLayerFeature(config);	
+			success = success && updateFeatureAttribute(config);	
 		}
 		return success;
 	}
