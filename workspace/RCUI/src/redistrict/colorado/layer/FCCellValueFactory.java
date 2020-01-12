@@ -17,7 +17,7 @@ import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.util.Callback;
 import redistrict.colorado.db.FeatureConfiguration;
 
-public class FeatureConfigurationCellValueFactory implements Callback<TableColumn.CellDataFeatures<FeatureConfiguration,String>,ObservableValue<String>> {
+public class FCCellValueFactory implements Callback<TableColumn.CellDataFeatures<FeatureConfiguration,String>,ObservableValue<String>> {
 	private final static String CLSS = "FeatureConfigurationCellValueFactory";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	

@@ -26,7 +26,7 @@ import redistrict.colorado.db.Database;
 import redistrict.colorado.db.FeatureConfiguration;
 import redistrict.colorado.ui.UIConstants;
 
-public class FeatureAttributeConfigurationDialog extends Dialog<List<FeatureConfiguration>> implements EventHandler<TableColumn.CellEditEvent<FeatureConfiguration,String>> {
+public class FAConfigurationDialog extends Dialog<List<FeatureConfiguration>> implements EventHandler<TableColumn.CellEditEvent<FeatureConfiguration,String>> {
 	private final static String CLSS = "FeatureAttributeConfigurationDialog";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private final ObservableList<FeatureConfiguration> items;
@@ -35,7 +35,7 @@ public class FeatureAttributeConfigurationDialog extends Dialog<List<FeatureConf
 	private ButtonType buttonOK = new ButtonType("Save", ButtonData.OK_DONE);
 
 
-	public FeatureAttributeConfigurationDialog(List<FeatureConfiguration> configurations) {
+	public FAConfigurationDialog(List<FeatureConfiguration> configurations) {
 		items = FXCollections.observableArrayList();
 		//LOGGER.info(String.format("%s: Adding %d feature fields",CLSS,configurations.size()));
 		for(FeatureConfiguration fc:configurations) {
@@ -50,8 +50,8 @@ public class FeatureAttributeConfigurationDialog extends Dialog<List<FeatureConf
         table.setPrefSize(UIConstants.FEATURE_TABLE_WIDTH, UIConstants.FEATURE_TABLE_HEIGHT);
         table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
         TableColumn<FeatureConfiguration,String> column;
-        FeatureConfigurationCellValueFactory valueFactory = new FeatureConfigurationCellValueFactory();
-        FeatureConfigurationCellFactory cellFactory = new FeatureConfigurationCellFactory();
+        FCCellValueFactory valueFactory = new FCCellValueFactory();
+        FCStringCellFactory cellFactory = new FCStringCellFactory();
 
         column = new TableColumn<>("Name");
         column.setEditable(false);

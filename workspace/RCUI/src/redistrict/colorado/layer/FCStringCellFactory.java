@@ -12,19 +12,20 @@ import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 import redistrict.colorado.db.FeatureConfiguration;
 import redistrict.colorado.ui.ColorTableCell;
 
 /**
  * Render a boolean cell in the FeatureConfiguration table
  */
-public class FeatureConfigurationCellFactory implements Callback<TableColumn<FeatureConfiguration, String>, TableCell<FeatureConfiguration, String>>,
+public class FCStringCellFactory implements Callback<TableColumn<FeatureConfiguration, String>, TableCell<FeatureConfiguration, String>>,
 														EventHandler<TableColumn.CellEditEvent<FeatureConfiguration, String>> { 
 	private final static String CLSS = "FeatureConfigurationCellFactory";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 
 	
-	public FeatureConfigurationCellFactory() {
+	public FCStringCellFactory() {
 	}
 	
 	@Override
@@ -37,7 +38,7 @@ public class FeatureConfigurationCellFactory implements Callback<TableColumn<Fea
 		}
 		else if(p.getText().equalsIgnoreCase("Type")) {
 			ComboBoxTableCell<FeatureConfiguration, String> comboCell = new ComboBoxTableCell<FeatureConfiguration, String>();
-			comboCell.setConverter(new FeatureAttributeStringConverter(AttributeType.ATTRIBUTE_TYPE));
+			comboCell.setConverter(new FAStringConverter(AttributeType.ATTRIBUTE_TYPE));
 			cell = comboCell;
 		}
 		else if(p.getText().equalsIgnoreCase("Color")) {
@@ -45,7 +46,7 @@ public class FeatureConfigurationCellFactory implements Callback<TableColumn<Fea
 		}
 		else {
 			TextFieldTableCell<FeatureConfiguration, String> textCell = new TextFieldTableCell<FeatureConfiguration, String>();
-			textCell.setConverter(new FeatureAttributeStringConverter(AttributeType.STRING));
+			textCell.setConverter(new FAStringConverter(AttributeType.STRING));
 			cell = textCell;
 		}
 		return cell;
@@ -55,6 +56,24 @@ public class FeatureConfigurationCellFactory implements Callback<TableColumn<Fea
 	@Override
 	public void handle(CellEditEvent<FeatureConfiguration, String> text) {
 		LOGGER.info(String.format("%s.handle: %s",CLSS,text));
+
+	}
+	public class FAStringConverter extends StringConverter<String> {
+		private final AttributeType type;
+		 
+		public FAStringConverter(AttributeType t) {
+			this.type = t;
+		}
+
+		@Override
+		public String fromString(String string) {
+			return string;
+		}
+
+		@Override
+		public String toString(String string) {
+			return string;
+		}
 
 	}
 }

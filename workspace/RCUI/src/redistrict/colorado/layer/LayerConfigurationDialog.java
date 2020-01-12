@@ -175,7 +175,7 @@ public class LayerConfigurationDialog extends Dialog<LayerModel> implements Even
 		// Configure field headers in the detail table
 		else if( event.getSource().equals(fieldButton)) {
 			List<FeatureConfiguration> configs = Database.getInstance().getFeatureAttributeTable().getFeatureAttributes(model.getId());
-			Dialog<List<FeatureConfiguration>> dialog = new FeatureAttributeConfigurationDialog(configs);
+			Dialog<List<FeatureConfiguration>> dialog = new FAConfigurationDialog(configs);
             Optional<List<FeatureConfiguration>> result = dialog.showAndWait();
             if (result.isPresent()) {
             	boolean success = Database.getInstance().getFeatureAttributeTable().updateFeatureAttributes(configs);
