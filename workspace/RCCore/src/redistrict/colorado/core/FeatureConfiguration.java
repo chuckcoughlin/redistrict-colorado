@@ -31,10 +31,10 @@
  * www.vividsolutions.com
  */
 
-package redistrict.colorado.db;
+package redistrict.colorado.core;
 
-import java.awt.Color;
 import org.openjump.feature.AttributeType;
+import javafx.scene.paint.Color;
 
 /**
  *  Hold attributes for display corresponding to a layer Feature. 

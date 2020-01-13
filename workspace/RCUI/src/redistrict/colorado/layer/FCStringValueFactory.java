@@ -15,10 +15,10 @@ import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.util.Callback;
-import redistrict.colorado.db.FeatureConfiguration;
+import redistrict.colorado.core.FeatureConfiguration;
 
-public class FCCellValueFactory implements Callback<TableColumn.CellDataFeatures<FeatureConfiguration,String>,ObservableValue<String>> {
-	private final static String CLSS = "FeatureConfigurationCellValueFactory";
+public class FCStringValueFactory implements Callback<TableColumn.CellDataFeatures<FeatureConfiguration,String>,ObservableValue<String>> {
+	private final static String CLSS = "FCStringValueFactory";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	
 	/** 
@@ -38,7 +38,7 @@ public class FCCellValueFactory implements Callback<TableColumn.CellDataFeatures
 		}
 		else if( name.equalsIgnoreCase("Type")) {
 			property.setValue(fc.getAttributeType().name());
-		}
+		}/*
 		else if( name.equalsIgnoreCase("Visible")) {
 			LOGGER.info(String.format("%s.getValue: %s = %s",CLSS,name,fc.isVisible()?"true":"false"));
 			property.setValue((fc.isVisible()?"true":"false"));
@@ -48,6 +48,7 @@ public class FCCellValueFactory implements Callback<TableColumn.CellDataFeatures
 			String clr = String.format("0x%02x%02x%02x",c.getRed(),c.getGreen(),c.getBlue());
 			property.setValue(clr);
 		}
+		*/
 		else if( name.equalsIgnoreCase("Rank")) {
 			property.setValue(String.valueOf(fc.getRank()));
 		}

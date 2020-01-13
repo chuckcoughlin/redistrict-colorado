@@ -1,13 +1,35 @@
 ## Datasets
-The list below describes publicly-available data-sets that are compatible with the tools in this repository.
+The list below describes some publicly-available data-sets that are compatible with the tools in this repository.
 
-* co_2016.zip - [Precinct-level Election Results](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/NH5S2I), Colorado, shapefiles
+* [American Fact Finder](https://factfinder.census.gov/faces/nav/jsf/pages/searchresults.xhtml?refresh=t) - Census Bureau search engine. The files below are results of custom searches.
+ * co_counties.zip - Colorado county boundaries
 
-* [Colorado Data Used for 2010 redistricting](https://www.colorado.gov/pacific/cga-redistrict/data-used). These include house and senate district maps.
 
-* [TIGER Shapefiles for 2010](https://catalog.data.gov/dataset/tiger-line-shapefile-2012-2010-state-colorado-2010-census-voting-district-state-based-vtd).
+* [Harvard dataverse](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/NH5S2I)
+ * co_2016.zip - Precinct-level presidential and senatorial election results for 2016. A typical feature field has a name like: *G16PREDCli*, which means:
+```
+    General election
+    2016
+    Presidential
+    Democrat
+    Clinton
+```
+* [TIGER Shapefiles](https://catalog.data.gov/dataset/tiger-line-shapefile-2012-2010-state-colorado-2010-census-voting-district-state-based-vtd). These are the official US Census Bureau data files.
+ * tl_2012_08_vtd10.zip - Voting district boundaries for the state of Colorado. Some of the features include:
+ ```
+    LSAD - Legal/Statistical Area Description
+    FUNCSTAT - Functional status
+    VTD - Voting district
+ ```
 
 Other resources:
-* [The Atlas of Redistricting](https://projects.fivethirtyeight.com/redistricting-maps/)
+* [Colorado Redistricting Data Used](https://www.colorado.gov/pacific/cga-redistrict/data-used). This page documents the resources used in the state of Colorado for the 2010 redistricting effort.
 
-* [Shapefiles from Ameerican FactFinder](https://www.census.gov/data/academy/data-gems/2018/shapefiles.html). This video shows how to download shapefiles from the US Census Bureau. The data available includes population, race, and political boundaries.
+
+* [DRA 2020](http://gardow.com/davebradlee/redistricting/default.html) - Dave's Redistricting, an interactive tool that lets you draw your own boundaries. Unfortunately the application does not export shapefiles.
+
+
+* [The Atlas of Redistricting](https://projects.fivethirtyeight.com/redistricting-maps/) - the 538 organization's gerrymandering project has designed several redistricting options using 2010 census data. Their [datasets](https://github.com/fivethirtyeight/redistricting-atlas-data) provide good test cases for the current application.
+
+
+* [Data.Census.gov](https://www.census.gov/data/academy/data-gems/2018/shapefiles.html). This video shows how to download shapefiles from the US Census Bureau's American Factfinder. The data available include political boundaries and demographical information.

@@ -6,7 +6,6 @@
  */
 package redistrict.colorado.db;
 
-import java.awt.Color;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -20,6 +19,9 @@ import java.util.Random;
 import java.util.logging.Logger;
 
 import org.openjump.feature.AttributeType;
+
+import javafx.scene.paint.Color;
+import redistrict.colorado.core.FeatureConfiguration;
 
 /**
  * The FeatureAttribute table keeps track of the features associated with a given layer.
@@ -45,11 +47,12 @@ public class FeatureAttributeTable {
 		if( cxn==null ) return;
 		// Java 'Color' class takes 3 floats, from 0 to 1.
 		Random rand = new Random();
-		float r = rand.nextFloat();
-		float g = rand.nextFloat();
-		float b = rand.nextFloat();
+		int r = rand.nextInt(255);
+		int g = rand.nextInt(255);
+		int b = rand.nextInt(255);
+		int rgb = 256*256*r+256*g+b;
 		String SQL = String.format("INSERT INTO FeatureAttribute(layerId,name,alias,type,background) values (%d,'%s','%s','%s',%d)",
-															id,name,name,type.name(),new Color(r,g,b).getRGB());
+															id,name,name,type.name(),rgb);
 		String UPDSQL = String.format("UPDATE FeatureAttribute SET alias = (SELECT alias FROM AttributeAlias WHERE name='%s') WHERE layerId=%d AND name='%s'",
 										name,id,name);
 		
@@ -120,7 +123,11 @@ public class FeatureAttributeTable {
 				configuration = new FeatureConfiguration(key,rs.getString("name"));
 				configuration.setAlias(rs.getString("alias"));
 				configuration.setVisible((rs.getInt("visible")==1?true:false));
-				configuration.setBackground(new Color(rs.getInt("background")));
+				int rgb = rs.getInt("background");
+				int r = (rgb & 0xFF0000) >> 16;
+	            int g = (rgb & 0xFF00) >> 8;
+	            int b = (rgb & 0xFF);
+				configuration.setBackground(Color.rgb(r,g,b));
 				configuration.setRank(rs.getInt("rank"));
 				AttributeType type = AttributeType.DOUBLE;   // Default
 				try {
@@ -195,7 +202,7 @@ public class FeatureAttributeTable {
 			statement.setString(1,config.getAlias());
 			statement.setString(2,config.getAttributeType().name());
 			statement.setInt(3,(config.isVisible()?1:0));
-			statement.setInt(4,config.getBackground().getRGB());
+			statement.setInt(4,(int)(256*256*config.getBackground().getRed()+256*config.getBackground().getGreen()+config.getBackground().getBlue()));
 			statement.setInt(5,config.getRank());
 			statement.setLong(6, config.getLayerId());
 			statement.setString(7,config.getName());

@@ -8,6 +8,8 @@ package redistrict.colorado.layer;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.openjump.feature.AttributeType;
+
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -21,13 +23,14 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
+import javafx.scene.paint.Color;
 import javafx.util.Callback;
+import redistrict.colorado.core.FeatureConfiguration;
 import redistrict.colorado.db.Database;
-import redistrict.colorado.db.FeatureConfiguration;
 import redistrict.colorado.ui.UIConstants;
 
 public class FAConfigurationDialog extends Dialog<List<FeatureConfiguration>> implements EventHandler<TableColumn.CellEditEvent<FeatureConfiguration,String>> {
-	private final static String CLSS = "FeatureAttributeConfigurationDialog";
+	private final static String CLSS = "FAConfigurationDialog";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private final ObservableList<FeatureConfiguration> items;
 	private final TableView<FeatureConfiguration> table;
@@ -50,7 +53,7 @@ public class FAConfigurationDialog extends Dialog<List<FeatureConfiguration>> im
         table.setPrefSize(UIConstants.FEATURE_TABLE_WIDTH, UIConstants.FEATURE_TABLE_HEIGHT);
         table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
         TableColumn<FeatureConfiguration,String> column;
-        FCCellValueFactory valueFactory = new FCCellValueFactory();
+        FCStringValueFactory valueFactory = new FCStringValueFactory();
         FCStringCellFactory cellFactory = new FCStringCellFactory();
 
         column = new TableColumn<>("Name");
@@ -72,19 +75,19 @@ public class FAConfigurationDialog extends Dialog<List<FeatureConfiguration>> im
         column.setOnEditCommit(this);
         table.getColumns().add(column);
         
-        column = new TableColumn<>("Visible");
-        column.setEditable(true);
-        column.setCellFactory(cellFactory);
-        column.setCellValueFactory(valueFactory);
-        column.setOnEditCommit(this);
-        table.getColumns().add(column);
+        TableColumn<FeatureConfiguration,Boolean> bcol;
+        bcol = new TableColumn<>("Visible");
+        bcol.setEditable(true);
+        bcol.setCellFactory(new FCBooleanCellFactory());
+        bcol.setCellValueFactory(new FCBooleanValueFactory());
+        table.getColumns().add(bcol);
         
-        column = new TableColumn<>("Background");
-        column.setEditable(true);
-        column.setCellFactory(cellFactory);
-        column.setCellValueFactory(valueFactory);
-        column.setOnEditCommit(this);
-        table.getColumns().add(column);
+        TableColumn<FeatureConfiguration,Color> ccol;
+        ccol = new TableColumn<>("Background");
+        ccol.setEditable(true);
+        ccol.setCellFactory(new FCColorCellFactory());
+        ccol.setCellValueFactory(new FCColorValueFactory());
+        table.getColumns().add(ccol);
         
         column = new TableColumn<>("Rank");
         column.setEditable(true);
@@ -138,10 +141,15 @@ public class FAConfigurationDialog extends Dialog<List<FeatureConfiguration>> im
 			item.setAlias(newValue);
 		}
 		else if( column.equalsIgnoreCase("Type") ) {
-			
+			try {
+				item.setAttributeType(AttributeType.valueOf(newValue));
+			}
+			catch(IllegalArgumentException iae) {
+				LOGGER.warning(String.format("%s.handle %s: Bad value for AttributeType - %s (%s)",CLSS,newValue,iae.getLocalizedMessage()));
+			}
 		}
 		else if( column.equalsIgnoreCase("Visible") ) {
-			item.setVisible((newValue.equalsIgnoreCase("true")?true:false));
+			//item.setVisible((newValue.equalsIgnoreCase("true")?true:false));
 		}
 		else if( column.equalsIgnoreCase("Color") ) {
 			

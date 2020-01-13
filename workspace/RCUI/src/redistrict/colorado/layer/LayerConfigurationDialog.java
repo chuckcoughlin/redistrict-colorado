@@ -31,10 +31,10 @@ import javafx.stage.Popup;
 import javafx.stage.Window;
 import javafx.util.Callback;
 import redistrict.colorado.bind.EventBindingHub;
+import redistrict.colorado.core.FeatureConfiguration;
 import redistrict.colorado.core.LayerModel;
 import redistrict.colorado.core.LayerRole;
 import redistrict.colorado.db.Database;
-import redistrict.colorado.db.FeatureConfiguration;
 import redistrict.colorado.ui.GuiUtil;
 import redistrict.colorado.ui.UIConstants;
 
@@ -73,7 +73,7 @@ public class LayerConfigurationDialog extends Dialog<LayerModel> implements Even
         roleChooser = new ComboBox<>();
         roleChooser.getItems().addAll(LayerRole.names());
         roleChooser.getSelectionModel().select(model.getRole().name());
-        if( model.getShapefilePath()==null || model.getShapefilePath().isBlank() ) {
+        if( model.getShapefilePath()==null || model.getShapefilePath().isEmpty() ) {
         	indicator = new Label("",guiu.loadImage("images/ball_gray.png"));
         }
         else {
@@ -87,6 +87,7 @@ public class LayerConfigurationDialog extends Dialog<LayerModel> implements Even
 					model.setFeatures(null);
 					String msg = String.format("%s.onInit: Failed to parse shapefile %s (%s)",CLSS,model.getShapefilePath(),ex.getLocalizedMessage());
 					LOGGER.warning(msg);
+					ex.printStackTrace();
 					EventBindingHub.getInstance().setMessage(msg);
 				}
         	}

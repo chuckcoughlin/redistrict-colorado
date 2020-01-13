@@ -8,10 +8,10 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.paint.Color;
 
-public class ColorTableCell<T> extends TableCell<T, String> {    
+public class ColorTableCell<T> extends TableCell<T, Color> {    
 	private final ColorPicker colorPicker;
 
-	public ColorTableCell(TableColumn<T, String> column) {
+	public ColorTableCell(TableColumn<T, Color> column) {
 		this.colorPicker = new ColorPicker();
 		this.colorPicker.editableProperty().bind(column.editableProperty());
 		this.colorPicker.disableProperty().bind(column.editableProperty().not());
@@ -22,13 +22,13 @@ public class ColorTableCell<T> extends TableCell<T, String> {
 		});
 		this.colorPicker.valueProperty().addListener((observable, oldValue, newValue) -> {
 			if(isEditing()) {
-				commitEdit(newValue.toString());
+				commitEdit(newValue);
 			}
 		});		
 		setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 	}
 
-	@Override
+/*
 	protected void updateItem(String item, boolean empty) {
 		try {
 			int val = Integer.parseInt(item, 16);
@@ -39,8 +39,10 @@ public class ColorTableCell<T> extends TableCell<T, String> {
 		catch(NumberFormatException nfe) {}
 		
 	}
+	*/
+	@Override
 	protected void updateItem(Color item, boolean empty) {
-		//super.updateItem(item, empty);	
+		super.updateItem(item, empty);	
 
 		setText(null);	
 		if(empty) {	    
