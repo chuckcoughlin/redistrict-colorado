@@ -28,9 +28,9 @@ public class FCColorValueFactory implements Callback<TableColumn.CellDataFeature
 	public ObservableValue<Color> call(CellDataFeatures<FeatureConfiguration, Color> cdf) {
 		FeatureConfiguration fc = cdf.getValue();
 		String name = cdf.getTableColumn().getText();
-		LOGGER.info(String.format("%s.getValue: %s",CLSS,name));
 		ObjectProperty<Color> property = new SimpleObjectProperty<Color>();
 		if( name.equalsIgnoreCase("Background")) {
+			//LOGGER.info(String.format("%s.getValue: %s",CLSS,name));
 			Color c = fc.getBackground();
 			//String clr = String.format("0x%02x%02x%02x",c.getRed(),c.getGreen(),c.getBlue());
 			property.setValue(c);

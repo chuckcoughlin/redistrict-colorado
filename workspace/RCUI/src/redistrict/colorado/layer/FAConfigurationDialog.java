@@ -115,6 +115,9 @@ public class FAConfigurationDialog extends Dialog<List<FeatureConfiguration>> im
 				if (b == buttonOK) {
 					// The configuration list is updated as cells are edited.
 					// Use these to update the database before returning.
+					for(FeatureConfiguration config:configurations) {
+						LOGGER.info(String.format("%s.OK: %s = %s,%s",CLSS,config.getName(),(config.isVisible()?"true":"false"),config.getBackground().toString()));
+					}
 					Database.getInstance().getFeatureAttributeTable().updateFeatureAttributes(configurations);
 					return configurations;
 				}

@@ -140,7 +140,7 @@ public class ShapefileReader {
         	byte[] bytes = in.readAllBytes();
         	String code = new String(bytes);
         	charsetName = CodePage.getCharSet(code);
-        	LOGGER.info(String.format("%s: Using charset %s (raw=%s)", CLSS,charsetName,code));
+        	LOGGER.info(String.format("%s: Using charset %s", CLSS,charsetName));
         }
         catch (Exception e) {
             LOGGER.severe(e.getLocalizedMessage());

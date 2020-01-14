@@ -25,10 +25,10 @@ public class FCColorCellFactory implements Callback<TableColumn<FeatureConfigura
 	
 	@Override
 	public TableCell<FeatureConfiguration, Color> call(TableColumn<FeatureConfiguration, Color> p) {
-		LOGGER.info(String.format("%s:TableCell.call: %s",CLSS,p.getText()));
 		TableCell<FeatureConfiguration, Color> cell = null;
 		if(p.getText().equalsIgnoreCase("Background")) {
-			TableCell<FeatureConfiguration, Color> colorCell = new ColorTableCell(p);
+			//LOGGER.info(String.format("%s:TableCell.call: %s",CLSS,p.getText()));
+			TableCell<FeatureConfiguration, Color> colorCell = new ColorTableCell<FeatureConfiguration>(p);
 			cell = colorCell;
 		}
 		return cell;

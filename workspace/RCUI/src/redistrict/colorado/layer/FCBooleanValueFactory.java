@@ -27,10 +27,9 @@ public class FCBooleanValueFactory implements Callback<TableColumn.CellDataFeatu
 	public ObservableValue<Boolean> call(CellDataFeatures<FeatureConfiguration, Boolean> cdf) {
 		FeatureConfiguration fc = cdf.getValue();
 		String name = cdf.getTableColumn().getText();
-		//LOGGER.info(String.format("%s.getValue: %s",CLSS,name));
 		Property<Boolean> property = new SimpleBooleanProperty();
 		if( name.equalsIgnoreCase("Visible")) {
-			LOGGER.info(String.format("%s.getValue: %s = %s",CLSS,name,fc.isVisible()?"true":"false"));
+			//LOGGER.info(String.format("%s.getValue: %s = %s",CLSS,name,fc.isVisible()?"true":"false"));
 			property.setValue(fc.isVisible());
 		}
 		return property;

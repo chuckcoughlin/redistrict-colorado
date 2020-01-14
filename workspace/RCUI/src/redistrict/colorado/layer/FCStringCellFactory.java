@@ -29,7 +29,7 @@ public class FCStringCellFactory implements Callback<TableColumn<FeatureConfigur
 	
 	@Override
 	public TableCell<FeatureConfiguration, String> call(TableColumn<FeatureConfiguration, String> p) {
-		LOGGER.info(String.format("%s:TableCell.call: %s",CLSS,p.getText()));
+		//LOGGER.info(String.format("%s:TableCell.call: %s",CLSS,p.getText()));
 		TableCell<FeatureConfiguration, String> cell = null;
 		if(p.getText().equalsIgnoreCase("Type")) {
 			ComboBoxTableCell<FeatureConfiguration, String> comboCell = new ComboBoxTableCell<FeatureConfiguration, String>();
