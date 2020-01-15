@@ -1,6 +1,8 @@
 package redistrict.colorado.ui;
 
 
+import java.util.logging.Logger;
+
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.TableCell;
@@ -8,7 +10,9 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.paint.Color;
 
-public class ColorTableCell<T> extends TableCell<T, Color> {    
+public class ColorTableCell<T> extends TableCell<T, Color> {
+	private final static String CLSS = "ColorTableCell";
+	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private final ColorPicker colorPicker;
 
 	public ColorTableCell(TableColumn<T, Color> column) {
@@ -39,7 +43,7 @@ public class ColorTableCell<T> extends TableCell<T, Color> {
 		catch(NumberFormatException nfe) {}
 		
 	}
-	*/
+*/
 	@Override
 	protected void updateItem(Color item, boolean empty) {
 		super.updateItem(item, empty);	

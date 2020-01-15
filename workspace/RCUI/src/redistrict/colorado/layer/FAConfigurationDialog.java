@@ -10,9 +10,8 @@ import java.util.logging.Logger;
 
 import org.openjump.feature.AttributeType;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.scene.control.ButtonBar.ButtonData;
@@ -23,13 +22,15 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
+import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import redistrict.colorado.core.FeatureConfiguration;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.ui.UIConstants;
 
-public class FAConfigurationDialog extends Dialog<List<FeatureConfiguration>> implements EventHandler<TableColumn.CellEditEvent<FeatureConfiguration,String>> {
+public class FAConfigurationDialog extends Dialog<List<FeatureConfiguration>> implements EventHandler<TableColumn.CellEditEvent<FeatureConfiguration,String>>,
+											ListChangeListener<FeatureConfiguration> {
 	private final static String CLSS = "FAConfigurationDialog";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private final ObservableList<FeatureConfiguration> items;
@@ -44,6 +45,7 @@ public class FAConfigurationDialog extends Dialog<List<FeatureConfiguration>> im
 		for(FeatureConfiguration fc:configurations) {
 			items.add(fc);
 		}
+		items.addListener(this);
         setTitle("FeatureAttributes Editor");
         setHeaderText(String.format("Configure Feature Fields"));
         setResizable(true);
@@ -78,8 +80,9 @@ public class FAConfigurationDialog extends Dialog<List<FeatureConfiguration>> im
         TableColumn<FeatureConfiguration,Boolean> bcol;
         bcol = new TableColumn<>("Visible");
         bcol.setEditable(true);
-        bcol.setCellFactory(new FCBooleanCellFactory());
         bcol.setCellValueFactory(new FCBooleanValueFactory());
+        bcol.setCellFactory(new FCBooleanCellFactory());
+        //bcol.setCellFactory(CheckBoxTableCell.forTableColumn(bcol));
         table.getColumns().add(bcol);
         
         TableColumn<FeatureConfiguration,Color> ccol;
@@ -87,6 +90,7 @@ public class FAConfigurationDialog extends Dialog<List<FeatureConfiguration>> im
         ccol.setEditable(true);
         ccol.setCellFactory(new FCColorCellFactory());
         ccol.setCellValueFactory(new FCColorValueFactory());
+        ccol.setOnEditCommit(new ColorCommitHandler());
         table.getColumns().add(ccol);
         
         column = new TableColumn<>("Rank");
@@ -167,11 +171,19 @@ public class FAConfigurationDialog extends Dialog<List<FeatureConfiguration>> im
 		
 	}
 	
-	public class CheckboxChangeListener implements ChangeListener<Boolean> {
+
+	@Override
+	public void onChanged(Change<? extends FeatureConfiguration> arg0) {
+		LOGGER.info(String.format("%s.onChanged: %s",CLSS,arg0.toString()));
+		
+	}
+	
+	public class ColorCommitHandler implements EventHandler<TableColumn.CellEditEvent<FeatureConfiguration,Color>> {
 
 		@Override
-		public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-			LOGGER.info(String.format("%s.changed: %s  %s %s",CLSS,arg0.toString(),arg1.toString(),arg2.toString()));
+		public void handle(CellEditEvent<FeatureConfiguration, Color> arg0) {
+			LOGGER.info(String.format("%s.handle: color %s",CLSS,arg0.toString()));
+			
 		}
 		
 	}

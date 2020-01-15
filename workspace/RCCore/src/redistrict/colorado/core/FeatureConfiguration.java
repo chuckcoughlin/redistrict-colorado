@@ -34,6 +34,11 @@
 package redistrict.colorado.core;
 
 import org.openjump.feature.AttributeType;
+
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.paint.Color;
 
 /**
@@ -45,7 +50,7 @@ public class FeatureConfiguration  {
     private final String name;  // Feature name
     private String alias;
     private AttributeType type;
-    private boolean visible;
+    private final BooleanProperty visible;
     private Color background;
     private int rank;
 
@@ -57,7 +62,7 @@ public class FeatureConfiguration  {
         this.name = nm;
         this.alias = name;
         this.type = AttributeType.DOUBLE;
-        this.visible = true;
+        this.visible = new SimpleBooleanProperty(false);;
         this.background = Color.BLACK;
         this.rank = 1;
     }
@@ -67,12 +72,15 @@ public class FeatureConfiguration  {
     public Color getBackground() { return this.background; }
     public long getLayerId() { return this.layerId; }
     public String getName()  { return this.name; }
-    public boolean isVisible() { return this.visible; }
+    public boolean isVisible() { return this.visible.get(); }
     public int getRank() { return this.rank; }
     
     public void setAlias(String a) { this.alias = a; }
     public void setAttributeType(AttributeType a) { this.type = a; }
-    public void setBackground(Color color) { this.background = color; }
-    public void setVisible(boolean flag) { this.visible = flag; }
+    public void setBackground(Color color) { this.background= color; }
+    public void setVisible(boolean flag) { this.visible.set(flag); }
     public void setRank(int r) { this.rank = r; }
+    
+    public BooleanProperty visibleProperty() { return visible; }
+    //public ObjectProperty<Color> backgroundProperty() { return background; }
  }

@@ -80,7 +80,7 @@ public class ShapefileReader {
     	}
 
     	// Read the .cpg file, if it exists. It is the character set for DbFile. Else use default.
-    	String charsetName = getCharset(shpFileName);   
+    	String charsetName = readCharset(shpFileName);   
     	DbaseFile dbfFile = getDbfFile(shpFileName,Charset.forName(charsetName));
     	Shapefile shapefile = getShapefile(shpFileName,dbfFile);
 		FeatureSchema fs;
@@ -132,18 +132,21 @@ public class ShapefileReader {
     }
     
     /** ============================= Helper Methods ================================ **/
-    private static String getCharset(String shpfileName) throws Exception {
+    private static String readCharset(String shpfileName) throws Exception {
         String charsetName = Charset.defaultCharset().name(); // Just return the platform default
         String fname = CompressedFile.getFnameByExtension(shpfileName,".cpg");
         
         try (InputStream in = CompressedFile.openFile(shpfileName,fname)) {
         	byte[] bytes = in.readAllBytes();
-        	String code = new String(bytes);
-        	charsetName = CodePage.getCharSet(code);
+        	if( bytes.length<16 ) {   // If too long, we've just read junk
+        		String code = new String(bytes);
+        		charsetName = CodePage.getCharSet(code);
+        	}
         	LOGGER.info(String.format("%s: Using charset %s", CLSS,charsetName));
         }
         catch (Exception e) {
-            LOGGER.severe(e.getLocalizedMessage());
+        	LOGGER.info(String.format("%s: %s does not have a .cpg component, using default code page", CLSS,shpfileName));
+            //LOGGER.severe(e.getLocalizedMessage());
         }
         
         return charsetName;
