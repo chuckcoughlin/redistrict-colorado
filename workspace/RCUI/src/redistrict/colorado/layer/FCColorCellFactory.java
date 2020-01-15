@@ -12,7 +12,7 @@ import redistrict.colorado.core.FeatureConfiguration;
 import redistrict.colorado.ui.ColorTableCell;
 
 /**
- * Render a boolean cell in the FeatureConfiguration table
+ * Render a color cell in the FeatureConfiguration table
  */
 public class FCColorCellFactory implements Callback<TableColumn<FeatureConfiguration, Color>, TableCell<FeatureConfiguration, Color>>,
 														EventHandler<TableColumn.CellEditEvent<FeatureConfiguration, Color>> { 

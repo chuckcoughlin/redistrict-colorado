@@ -32,18 +32,6 @@ public class ColorTableCell<T> extends TableCell<T, Color> {
 		setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 	}
 
-/*
-	protected void updateItem(String item, boolean empty) {
-		try {
-			int val = Integer.parseInt(item, 16);
-			int r = val & 255; int g = (val >> 8) & 255; int b = (val >> 16) & 255; int alpha = (val >> 24) & 255;
-			Color clr = Color.rgb(r,g,b,alpha);
-			updateItem(clr,empty);
-		}
-		catch(NumberFormatException nfe) {}
-		
-	}
-*/
 	@Override
 	protected void updateItem(Color item, boolean empty) {
 		super.updateItem(item, empty);	

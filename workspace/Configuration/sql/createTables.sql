@@ -47,7 +47,7 @@ CREATE TABLE Plan (
 	id		INTEGER  PRIMARY KEY,
 	name	text NOT NULL,
 	description text NULL,
-	shapeFilePath text NULL
+	shapeFilePath text NULL,
 	UNIQUE (name)
 );
 -- The PlanLayer table maps layers to a plan. The layers have roles

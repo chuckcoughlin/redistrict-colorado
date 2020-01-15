@@ -82,7 +82,7 @@ public class FAConfigurationDialog extends Dialog<List<FeatureConfiguration>> im
         bcol.setEditable(true);
         bcol.setCellValueFactory(new FCBooleanValueFactory());
         bcol.setCellFactory(new FCBooleanCellFactory());
-        //bcol.setCellFactory(CheckBoxTableCell.forTableColumn(bcol));
+        bcol.setOnEditCommit(new BooleanCommitHandler());
         table.getColumns().add(bcol);
         
         TableColumn<FeatureConfiguration,Color> ccol;
@@ -179,12 +179,15 @@ public class FAConfigurationDialog extends Dialog<List<FeatureConfiguration>> im
 	}
 	
 	public class ColorCommitHandler implements EventHandler<TableColumn.CellEditEvent<FeatureConfiguration,Color>> {
-
 		@Override
 		public void handle(CellEditEvent<FeatureConfiguration, Color> arg0) {
-			LOGGER.info(String.format("%s.handle: color %s",CLSS,arg0.toString()));
-			
+			LOGGER.info(String.format("%s.handle: color %s",CLSS,arg0.toString()));	
 		}
-		
+	}
+	public class BooleanCommitHandler implements EventHandler<TableColumn.CellEditEvent<FeatureConfiguration,Boolean>> {
+		@Override
+		public void handle(CellEditEvent<FeatureConfiguration, Boolean> arg0) {
+			LOGGER.info(String.format("%s.handle: boolean %s",CLSS,arg0.toString()));	
+		}
 	}
 }
