@@ -57,6 +57,26 @@
 	-fx-pref-height: 40;
 	-fx-max-height:40;
 }
+.splash-label {
+	-fx-background-color: transparent;
+	-fx-border-color: transparent;
+	-fx-text-fill: white;
+	-fx-font-size: 16pt;
+	-fx-font-weight: bold;
+	-fx-alignment: center;
+	-fx-text-alignment: center;
+	-fx-text-overrun: ellipsis;
+	-fx-pref-height: 48;
+	-fx-max-height:48;
+}
+.splash-screen {
+	-fx-min-height: 200;
+	-fx-pref-height: 800;
+	-fx-max-height:2000;
+	-fx-min-width: 400;
+	-fx-pref-width: 800;
+	-fx-max-width:4000;
+}
 /* ======== By Component ID ======= */
 #ButtonAdd {
 	-fx-background-color:-ma-light-background;

@@ -38,7 +38,7 @@ public class MainMenuBar extends MenuBar  {
 	}
 	
 	public Menu systemMenu() {
-		Menu menu =  new Menu("MapAnalyzer");
+		Menu menu =  new Menu("Analyzer");
 		MenuItem about = new MenuItem("About");
 		about.setOnAction(e -> About.display() );
 		MenuItem quit  = new MenuItem("Quit");
