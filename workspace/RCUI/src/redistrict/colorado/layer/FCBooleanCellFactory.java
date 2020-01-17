@@ -1,47 +1,50 @@
 package redistrict.colorado.layer;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
-import javafx.event.EventHandler;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableColumn.CellEditEvent;
-import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import redistrict.colorado.core.FeatureConfiguration;
 import redistrict.colorado.ui.BooleanTableCell;
+import redistrict.colorado.ui.TableCellCallback;
 
 /**
  * Render a boolean cell in the FeatureConfiguration table
  */
 public class FCBooleanCellFactory implements Callback<TableColumn<FeatureConfiguration, Boolean>, TableCell<FeatureConfiguration, Boolean>>,
-											EventHandler<TableColumn.CellEditEvent<FeatureConfiguration, Boolean>> { 
+											 TableCellCallback<Boolean> { 
 	private final static String CLSS = "FCBooleanCellFactory";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
+	private final TableCellCallback<Boolean> callback;
 
 	
-	public FCBooleanCellFactory() {
+	public FCBooleanCellFactory(TableCellCallback<Boolean> c) {
+		this.callback = c;
 		LOGGER.info(String.format("%s:Constructor:",CLSS));
 	}
 	
 	@Override
 	public TableCell<FeatureConfiguration, Boolean> call(TableColumn<FeatureConfiguration, Boolean> p) {
 		TableCell<FeatureConfiguration, Boolean> cell = null;
-		LOGGER.info(String.format("%s:TableCell.call: p= %s",CLSS,p.getText()));
+		
 		if(p.getText().equalsIgnoreCase("Visible")) {
-			LOGGER.info(String.format("%s:TableCell.call:",CLSS));
-			TableCell<FeatureConfiguration, Boolean> bCell = new BooleanTableCell<FeatureConfiguration>(p);
+			//LOGGER.info(String.format("%s:TableCell.call: col = %s",CLSS,p.getText()));
+			TableCell<FeatureConfiguration, Boolean> bCell = new BooleanTableCell<FeatureConfiguration>(p.getText(),this);
 			cell = bCell;
 		}
 		return cell;
 	}
 	
-	// ======================================== Event Handler ========================================
 
-
+	// ================================= TableCellCallback ===================================
+	/**
+	 * Propagate the change up a level.
+	 */
 	@Override
-	public void handle(CellEditEvent<FeatureConfiguration, Boolean> val) {
-		LOGGER.info(String.format("%s.handle: %s",CLSS,val.toString()));
-		
+	public void update(String columnName, int row, Boolean newValue) {
+		callback.update(columnName, row, newValue);
 	}
 }

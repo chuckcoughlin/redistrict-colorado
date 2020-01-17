@@ -22,11 +22,11 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
-import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import redistrict.colorado.core.FeatureConfiguration;
 import redistrict.colorado.db.Database;
+import redistrict.colorado.ui.TableCellCallback;
 import redistrict.colorado.ui.UIConstants;
 
 public class FAConfigurationDialog extends Dialog<List<FeatureConfiguration>> implements EventHandler<TableColumn.CellEditEvent<FeatureConfiguration,String>>,
@@ -81,8 +81,7 @@ public class FAConfigurationDialog extends Dialog<List<FeatureConfiguration>> im
         bcol = new TableColumn<>("Visible");
         bcol.setEditable(true);
         bcol.setCellValueFactory(new FCBooleanValueFactory());
-        bcol.setCellFactory(new FCBooleanCellFactory());
-        bcol.setOnEditCommit(new BooleanCommitHandler());
+        bcol.setCellFactory(new FCBooleanCellFactory(new BooleanCommitHandler()));
         table.getColumns().add(bcol);
         
         TableColumn<FeatureConfiguration,Color> ccol;
@@ -180,14 +179,22 @@ public class FAConfigurationDialog extends Dialog<List<FeatureConfiguration>> im
 	
 	public class ColorCommitHandler implements EventHandler<TableColumn.CellEditEvent<FeatureConfiguration,Color>> {
 		@Override
-		public void handle(CellEditEvent<FeatureConfiguration, Color> arg0) {
-			LOGGER.info(String.format("%s.handle: color %s",CLSS,arg0.toString()));	
+		public void handle(CellEditEvent<FeatureConfiguration, Color> event) {
+			FeatureConfiguration fc = event.getRowValue();
+			if( event.getTableColumn().getText().equalsIgnoreCase("background")) {
+				LOGGER.info(String.format("%s.handle: color %s",CLSS,event.getNewValue().toString()));
+				fc.setBackground(event.getNewValue());
+			}
 		}
 	}
-	public class BooleanCommitHandler implements EventHandler<TableColumn.CellEditEvent<FeatureConfiguration,Boolean>> {
+	public class BooleanCommitHandler implements TableCellCallback<Boolean> {
 		@Override
-		public void handle(CellEditEvent<FeatureConfiguration, Boolean> arg0) {
-			LOGGER.info(String.format("%s.handle: boolean %s",CLSS,arg0.toString()));	
+		public void update(String column,int row,Boolean value) {
+			LOGGER.info(String.format("%s.handle: boolean %s %d = %s",CLSS,column,row,value.toString()));
+			FeatureConfiguration fc = items.get(row);
+			if( column.equalsIgnoreCase("visible")) {
+				fc.setVisible(value.booleanValue());
+			}
 		}
 	}
 }
