@@ -31,16 +31,17 @@ public class Database {
 	
 	private Connection connection = null;
 	private static Database instance = null;
-	private final LayerTable layerTable;
+	private final AttributeAliasTable attributeAliasTable;
 	private final FeatureAttributeTable featureAttributeTable;
- 
+	private final LayerTable layerTable;
+
 	/**
 	 * Constructor is private per Singleton pattern.
 	 */
 	private Database() {
-		this.layerTable = new LayerTable();
+		this.attributeAliasTable = new AttributeAliasTable();
 		this.featureAttributeTable = new FeatureAttributeTable();
-		
+		this.layerTable = new LayerTable();
 	}
 	/**
 	 * Static method to create and/or fetch the single instance.
@@ -54,8 +55,9 @@ public class Database {
 		return instance;
 	}
 	public boolean isConnected() { return connection!=null; }
-	public LayerTable getLayerTable() { return this.layerTable; }
+	public AttributeAliasTable getAttributeAliasTable() { return this.attributeAliasTable; }
 	public FeatureAttributeTable getFeatureAttributeTable() { return this.featureAttributeTable; }
+	public LayerTable getLayerTable() { return this.layerTable; }
 	
 	/**
 	 * Create a database connection. Use this for all subsequent queries.
@@ -71,8 +73,9 @@ public class Database {
 		Statement statement = null;
 		try {
 			connection = DriverManager.getConnection(connectPath);
-			layerTable.setConnection(connection);
+			attributeAliasTable.setConnection(connection);
 			featureAttributeTable.setConnection(connection);
+			layerTable.setConnection(connection);
 			
 			String SQL = "PRAGMA foreign_keys = ON";
 			statement = connection.createStatement();
@@ -109,5 +112,4 @@ public class Database {
 			}
 		}
 	}
-
 }

@@ -40,6 +40,7 @@ public class FeatureDataFactory implements Callback<TableColumn.CellDataFeatures
 		StringProperty property = new SimpleStringProperty();
 		String alias = cdf.getTableColumn().getText();
 		String name = aliasMap.get(alias);
+		LOGGER.info(String.format("%s.call name = %s, alias= %s",CLSS,name,alias));
 		if( name==null) name = alias;
 		property.setValue(feature.getAttribute(name).toString());
 

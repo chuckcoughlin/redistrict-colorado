@@ -15,7 +15,7 @@ public class ColorTableCell<T> extends TableCell<T, Color> {
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private final ColorPicker colorPicker;
 
-	public ColorTableCell(TableColumn<T, Color> column) {
+	public ColorTableCell(TableColumn<T,Color> column) {
 		this.colorPicker = new ColorPicker();
 		this.colorPicker.editableProperty().bind(column.editableProperty());
 		this.colorPicker.disableProperty().bind(column.editableProperty().not());

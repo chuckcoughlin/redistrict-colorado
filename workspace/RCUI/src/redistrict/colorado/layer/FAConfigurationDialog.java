@@ -154,11 +154,9 @@ public class FAConfigurationDialog extends Dialog<List<FeatureConfiguration>> im
 				LOGGER.warning(String.format("%s.handle %s: Bad value for AttributeType - %s (%s)",CLSS,newValue,iae.getLocalizedMessage()));
 			}
 		}
-		else if( column.equalsIgnoreCase("Visible") ) {
-			//item.setVisible((newValue.equalsIgnoreCase("true")?true:false));
+		else if( column.equalsIgnoreCase("Visible") ) {  // Handled by listener
 		}
-		else if( column.equalsIgnoreCase("Color") ) {
-			
+		else if( column.equalsIgnoreCase("Color") ) {	 // Handled by listener
 		}
 		else if( column.equalsIgnoreCase("Rank") ) {
 			try {
@@ -190,7 +188,7 @@ public class FAConfigurationDialog extends Dialog<List<FeatureConfiguration>> im
 	public class BooleanCommitHandler implements TableCellCallback<Boolean> {
 		@Override
 		public void update(String column,int row,Boolean value) {
-			LOGGER.info(String.format("%s.handle: boolean %s %d = %s",CLSS,column,row,value.toString()));
+			//LOGGER.info(String.format("%s.handle: boolean %s %d = %s",CLSS,column,row,value.toString()));
 			FeatureConfiguration fc = items.get(row);
 			if( column.equalsIgnoreCase("visible")) {
 				fc.setVisible(value.booleanValue());

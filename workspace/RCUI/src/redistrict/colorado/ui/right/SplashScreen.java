@@ -6,6 +6,8 @@
  */
 package redistrict.colorado.ui.right;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.UIConstants;
 import redistrict.colorado.ui.ViewMode;
@@ -16,16 +18,25 @@ import redistrict.colorado.ui.ViewMode;
  */
 public class SplashScreen extends BasicRightSideNode {
 	private final static String CLSS = "SplashScreen";
-
-	private Label headerLabel = new Label("Splash Screen");
+	private final static String BACKDROP = "file:images/ColoradoCapitol.png";
+	private Label headerLabel = new Label("Splash Screem");
 	
 	public SplashScreen() {
 		super(ViewMode.UNSELECTED,DisplayOption.NONE);
 		headerLabel.getStyleClass().add("list-header-label");
+		
 		getChildren().add(headerLabel);
 		setTopAnchor(headerLabel,0.);
 		setLeftAnchor(headerLabel,UIConstants.LIST_PANEL_LEFT_MARGIN);
 		setRightAnchor(headerLabel,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+		
+		Image image = new Image(BACKDROP);
+		ImageView imageView = new ImageView(image);
+		getChildren().add(imageView);
+		setTopAnchor(imageView,80.);
+		setLeftAnchor(imageView,UIConstants.LIST_PANEL_LEFT_MARGIN);
+		setRightAnchor(imageView,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+		setBottomAnchor(imageView,0.);
 	}
 
 	@Override

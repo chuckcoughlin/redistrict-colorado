@@ -127,6 +127,7 @@ public class FeatureAttributeTable {
 				int r = (rgb & 0xFF0000) >> 16;
 	            int g = (rgb & 0xFF00) >> 8;
 	            int b = (rgb & 0xFF);
+	            LOGGER.info(String.format("%s.getFeatureAttributes background = %d (%02x%02x%02x)",CLSS,rgb,r,g,b));
 				configuration.setBackground(Color.rgb(r,g,b));
 				configuration.setRank(rs.getInt("rank"));
 				AttributeType type = AttributeType.DOUBLE;   // Default
@@ -136,7 +137,7 @@ public class FeatureAttributeTable {
 				catch(IllegalArgumentException ignore) {}
 				configuration.setAttributeType(type);
 				list.add(configuration);
-				//LOGGER.info(String.format("%s.getFeatureAttributes for %d: %s (%s)",CLSS,key,configuration.getName(),configuration.getAlias()));
+				
 			}
 			rs.close();
 		}
@@ -197,12 +198,16 @@ public class FeatureAttributeTable {
 		String SQL = "UPDATE FeatureAttribute SET alias=?,type=?,visible=?,background=?,rank=? WHERE layerId = ? AND name=?";
 		boolean success = false;
 		try {
-			//LOGGER.info(String.format("%s.updateFeatureAttribute: \n%s",CLSS,SQL));
 			statement = cxn.prepareStatement(SQL);
 			statement.setString(1,config.getAlias());
 			statement.setString(2,config.getAttributeType().name());
 			statement.setInt(3,(config.isVisible()?1:0));
-			statement.setInt(4,(int)(256*256*config.getBackground().getRed()+256*config.getBackground().getGreen()+config.getBackground().getBlue()));
+			int r = (int)(config.getBackground().getRed()*255);
+			int g = (int)(config.getBackground().getGreen()*255);
+			int b = (int)(config.getBackground().getBlue()*255);
+			int rgb = b + 256*g + 256*256*r;
+			statement.setInt(4,rgb);
+			LOGGER.info(String.format("%s.updateFeatureAttribute: background = %d (%02x%02x%02x)",CLSS,rgb,r,g,b));
 			statement.setInt(5,config.getRank());
 			statement.setLong(6, config.getLayerId());
 			statement.setString(7,config.getName());

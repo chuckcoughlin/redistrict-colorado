@@ -36,9 +36,7 @@ package redistrict.colorado.core;
 import org.openjump.feature.AttributeType;
 
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.paint.Color;
 
 /**
@@ -81,6 +79,6 @@ public class FeatureConfiguration  {
     public void setVisible(boolean flag) { this.visible.set(flag); }
     public void setRank(int r) { this.rank = r; }
     
-    public BooleanProperty visibleProperty() { return visible; }
-    //public ObjectProperty<Color> backgroundProperty() { return background; }
+    //public BooleanProperty visibleProperty() { return visible; }
+
  }

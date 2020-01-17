@@ -1,7 +1,5 @@
 package redistrict.colorado.layer;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Logger;
 
 import javafx.scene.control.TableCell;
@@ -23,7 +21,6 @@ public class FCBooleanCellFactory implements Callback<TableColumn<FeatureConfigu
 	
 	public FCBooleanCellFactory(TableCellCallback<Boolean> c) {
 		this.callback = c;
-		LOGGER.info(String.format("%s:Constructor:",CLSS));
 	}
 	
 	@Override

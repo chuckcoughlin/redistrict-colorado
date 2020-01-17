@@ -34,7 +34,7 @@ public class BooleanTableCell<T> extends TableCell<T, Boolean> {
 			setGraphic(null);
 		} 
 		else if(getTableRow()!=null){	    
-			LOGGER.info(String.format("%s.updateItem: %s %d", CLSS,item,getTableRow().getIndex()));
+			//LOGGER.info(String.format("%s.updateItem: %s %d", CLSS,item,getTableRow().getIndex()));
 			this.checkBox.setSelected(item.booleanValue());
 			this.setGraphic(this.checkBox);
 			this.commitEdit(item);
