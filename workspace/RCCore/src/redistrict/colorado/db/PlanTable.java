@@ -15,47 +15,45 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import redistrict.colorado.core.LayerModel;
-import redistrict.colorado.core.LayerRole;
+import redistrict.colorado.core.PlanModel;
 
 /**
- * A Layer is an overlay within a Plan. This class contains convenience methods to query,
- * create and update them. It encapsulates the Layer SQLite table. The Database class 
- * sets the connection once it is created.
+ * A Plan is a named collection of layers. The different layers are given different
+ * roles within the plan.
  */
-public class LayerTable {
-	private static final String CLSS = "LayerTable";
+public class PlanTable {
+	private static final String CLSS = "PlanTable";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
-	private final static String DEFAULT_NAME = "New layer";
+	private final static String DEFAULT_NAME = "New plan";
 	private final static String DEFAULT_DESCRIPTION = "";
 	private Connection cxn = null;
 	/** 
 	 * Constructor: 
 	 */
-	public LayerTable() {}
+	public PlanTable() {}
 	public void setConnection(Connection connection) { this.cxn = connection; }
 	
 	/**
-	 * Create a new row. If there is already a row called "New layer", a null will be returned.
+	 * Create a new row. If there is already a row called "New plan", a null will be returned.
 	 */
-	public LayerModel createLayer() {
-		LayerModel model = null;
+	public PlanModel createPlan() {
+		PlanModel model = null;
 		if( cxn==null ) return model;
 		
-		String SQL = String.format("INSERT INTO Layer(name,description,shapefilePath,role) values ('%s','%s','','%s')",
-				DEFAULT_NAME,DEFAULT_DESCRIPTION,LayerRole.BOUNDARIES.name());
+		String SQL = String.format("INSERT INTO Plan(name,description) values ('%s','%s')",
+									DEFAULT_NAME,DEFAULT_DESCRIPTION);
 		Statement statement = null;
 		try {
-			LOGGER.info(String.format("%s.createLayer: \n%s",CLSS,SQL));
+			LOGGER.info(String.format("%s.createPlan: \n%s",CLSS,SQL));
 			statement = cxn.createStatement();
 			statement.executeUpdate(SQL);
 			ResultSet rs = statement.getGeneratedKeys();
 		    if (rs.next()) {
-		        model = new LayerModel(rs.getInt(1),DEFAULT_NAME);
+		        model = new PlanModel(rs.getInt(1),DEFAULT_NAME);
 		    } 
 		}
 		catch(SQLException e) {
-			LOGGER.severe(String.format("%s.createLayer: error (%s)",CLSS,e.getMessage()));
+			LOGGER.severe(String.format("%s.createPlan: error (%s)",CLSS,e.getMessage()));
 		}
 		finally {
 			if( statement!=null) {
@@ -65,23 +63,23 @@ public class LayerTable {
 		return model;
 	}
 	/**
-	 * Delete a layer given its id. 
-	 * NOTE: entries in FeatureAttribute should be automatically
+	 * Delete a plan given its id. 
+	 * NOTE: entries in PlanLayer should be automatically
 	 * removed via cascading delete.
 	 */
-	public boolean deleteLayer(long key) {
+	public boolean deletePlan(long key) {
 		PreparedStatement statement = null;
-		String SQL = "DELETE FROM Layer WHERE id = ?";
+		String SQL = "DELETE FROM Plan WHERE id = ?";
 		boolean success = false;
 		try {
-			LOGGER.info(String.format("%s.deleteLayer: \n%s",CLSS,SQL));
+			LOGGER.info(String.format("%s.deletePlan: \n%s",CLSS,SQL));
 			statement = cxn.prepareStatement(SQL);
 			statement.setLong(1, key);
 			statement.executeUpdate();
 			if( statement.getUpdateCount()>0) success = true;
 		}
 		catch(SQLException e) {
-			LOGGER.severe(String.format("%s.deleteLayer: error (%s)",CLSS,e.getMessage()));
+			LOGGER.severe(String.format("%s.deletePlan: error (%s)",CLSS,e.getMessage()));
 		}
 		finally {
 			if( statement!=null) {
@@ -91,40 +89,34 @@ public class LayerTable {
 		return success;
 	}
 	/**
-	 * @return a list of all defined Layers. It may be empty.
+	 * @return a list of all defined Plans. It may be empty.
 	 */
-	public List<LayerModel> getLayers() {
-		List<LayerModel> list = new ArrayList<>();
-		LayerModel model = null;
+	public List<PlanModel> getPlans() {
+		List<PlanModel> list = new ArrayList<>();
+		PlanModel model = null;
 		PreparedStatement statement = null;
 		ResultSet rs = null;
-		String SQL = "SELECT id,name,description,shapefilePath,role from Layer ORDER BY name"; 
+		String SQL = "SELECT id,name,description,active from Plan ORDER BY name"; 
 		try {
 			statement = cxn.prepareStatement(SQL);
 			statement.setQueryTimeout(10);  // set timeout to 10 sec.
 			rs = statement.executeQuery();
 			while(rs.next()) {
-				model = new LayerModel(
+				model = new PlanModel(
 							rs.getLong("id"),
 							rs.getString("name")
 						);
 				model.setDescription(rs.getString("description"));
-				model.setShapefilePath(rs.getString("shapefilePath"));
-				LayerRole role = LayerRole.BOUNDARIES;   // Default
-				try {
-					role = LayerRole.valueOf(rs.getString("role"));
-				}
-				catch(IllegalArgumentException ignore) {}
-				model.setRole(role);
+				model.setActive((rs.getInt("active")==1));
 				list.add(model);
-				LOGGER.info(String.format("%s.getLayers %d: %s is %s",CLSS,model.getId(),model.getName(),model.getRole().name()));
+				LOGGER.info(String.format("%s.getPlans %d: %s",CLSS,model.getId(),model.getName()));
 			}
 			rs.close();
 		}
 		catch(SQLException e) {
 			// if the error message is "out of memory", 
 			// it probably means no database file is found
-			LOGGER.severe(String.format("%s.getLayers: Error (%s)",CLSS,e.getMessage()));
+			LOGGER.severe(String.format("%s.getPlans: Error (%s)",CLSS,e.getMessage()));
 		}
 		finally {
 			if( rs!=null) {
@@ -139,29 +131,27 @@ public class LayerTable {
 	
 
 	/**
-	 * Associate a layer giving it a new name
-	 * it will be updated.
+	 * Associate a plan giving it a new name,
+	 * description or active flag.
 	 * @cxn an open database connection
-	 * @param oldName
-	 * @param newName
+	 * @param model
 	 */
-	public boolean updateLayer(LayerModel model) {
+	public boolean updatePlan(PlanModel model) {
 		PreparedStatement statement = null;
-		String SQL = "UPDATE Layer SET name=?,description=?,shapefilePath=?,role=? WHERE id = ?";
+		String SQL = "UPDATE Plan SET name=?,description=?,active=? WHERE id = ?";
 		boolean success = false;
 		try {
-			LOGGER.info(String.format("%s.updateLayer: \n%s",CLSS,SQL));
+			LOGGER.info(String.format("%s.updatePlan: \n%s",CLSS,SQL));
 			statement = cxn.prepareStatement(SQL);
 			statement.setString(1,model.getName());
 			statement.setString(2,model.getDescription());
-			statement.setString(3,model.getShapefilePath());
-			statement.setString(4,model.getRole().name());
-			statement.setLong(5, model.getId());
+			statement.setInt(3,(model.isActive()?1:0));
+			statement.setLong(4, model.getId());
 			statement.executeUpdate();
 			if( statement.getUpdateCount()>0) success = true;
 		}
 		catch(SQLException e) {
-			LOGGER.severe(String.format("%s.updateLayer: error (%s)",CLSS,e.getMessage()));
+			LOGGER.severe(String.format("%s.updatePlan: error (%s)",CLSS,e.getMessage()));
 		}
 		finally {
 			if( statement!=null) {

@@ -98,8 +98,7 @@ import redistrict.colorado.ui.navigation.LayerNavigationPane;
 				}
 				
 				TableColumn<Feature,String> column;
-		        Map<String,String> aliasMap = new HashMap<>();
-		        
+		        Map<String,String> aliasMap = Database.getInstance().getFeatureAttributeTable().getNamesForFeatureAliases(model.getId());
 		        FeatureDataFactory factory = new FeatureDataFactory(aliasMap);
 		        List<FeatureConfiguration> configurations = Database.getInstance().getFeatureAttributeTable().getFeatureAttributes(model.getId());
 		        boolean showAll = showAllColumns.isSelected();

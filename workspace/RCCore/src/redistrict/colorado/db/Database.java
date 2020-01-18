@@ -34,6 +34,7 @@ public class Database {
 	private final AttributeAliasTable attributeAliasTable;
 	private final FeatureAttributeTable featureAttributeTable;
 	private final LayerTable layerTable;
+	private final PlanTable planTable;
 
 	/**
 	 * Constructor is private per Singleton pattern.
@@ -42,6 +43,7 @@ public class Database {
 		this.attributeAliasTable = new AttributeAliasTable();
 		this.featureAttributeTable = new FeatureAttributeTable();
 		this.layerTable = new LayerTable();
+		this.planTable = new PlanTable();
 	}
 	/**
 	 * Static method to create and/or fetch the single instance.
@@ -58,6 +60,7 @@ public class Database {
 	public AttributeAliasTable getAttributeAliasTable() { return this.attributeAliasTable; }
 	public FeatureAttributeTable getFeatureAttributeTable() { return this.featureAttributeTable; }
 	public LayerTable getLayerTable() { return this.layerTable; }
+	public PlanTable getPlanTable() { return this.planTable; }
 	
 	/**
 	 * Create a database connection. Use this for all subsequent queries.
@@ -76,6 +79,7 @@ public class Database {
 			attributeAliasTable.setConnection(connection);
 			featureAttributeTable.setConnection(connection);
 			layerTable.setConnection(connection);
+			planTable.setConnection(connection);
 			
 			String SQL = "PRAGMA foreign_keys = ON";
 			statement = connection.createStatement();

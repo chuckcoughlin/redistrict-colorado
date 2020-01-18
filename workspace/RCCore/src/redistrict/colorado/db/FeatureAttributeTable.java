@@ -105,6 +105,42 @@ public class FeatureAttributeTable {
 		return success;
 	}
 	/**
+	 * The returned map provides for the lookup of feature names given the alias. For a given
+	 * layer, the aliases should be unique.
+	 * @param key the Id for the relevant layer.
+	 * @return a map of feature names by alias.
+	 */
+	public Map<String,String> getNamesForFeatureAliases(long key) {
+		Map<String,String> map = new HashMap<>();
+		PreparedStatement statement = null;
+		ResultSet rs = null;
+		String SQL = "SELECT name,alias from FeatureAttribute WHERE layerId=?"; 
+		try {
+			statement = cxn.prepareStatement(SQL);
+			statement.setLong(1, key);
+			statement.setQueryTimeout(10);  // set timeout to 10 sec.
+			rs = statement.executeQuery();
+			while(rs.next()) {
+				map.put(rs.getString("alias"),rs.getString("name"));
+			}
+			rs.close();
+		}
+		catch(SQLException e) {
+			// if the error message is "out of memory", 
+			// it probably means no database file is found
+			LOGGER.severe(String.format("%s.getFeatureAttributes: Error (%s)",CLSS,e.getMessage()));
+		}
+		finally {
+			if( rs!=null) {
+				try { rs.close(); } catch(SQLException ignore) {}
+			}
+			if( statement!=null) {
+				try { statement.close(); } catch(SQLException ignore) {}
+			}
+		}
+		return map;
+	}
+	/**
 	 * The returned configuration list corresponds to Features associated with the layer.
 	 * @return a list of all configurations defined for the given Layer. There may be none.
 	 */

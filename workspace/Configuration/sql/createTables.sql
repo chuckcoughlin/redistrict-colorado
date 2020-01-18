@@ -38,16 +38,14 @@ CREATE TABLE FeatureAttribute (
 	PRIMARY KEY(layerId,name),
 	FOREIGN KEY (layerId) references Layer(id) ON DELETE CASCADE
 );
--- The Plan table holds configuration information for the may overlay
--- layers. The data files must be read to actually populate the diagram.
--- Each row in the table represents an actioun at an instant of time.
--- The time increment between rows is unspecified, by default 1 second.
+-- The Plan table holds basic information for plans which are collections
+-- of layers each with a different role. We compute metrics on plans.
 DROP TABLE IF EXISTS Plan;
 CREATE TABLE Plan (
 	id		INTEGER  PRIMARY KEY,
 	name	text NOT NULL,
 	description text NULL,
-	shapeFilePath text NULL,
+	active integer DEFAULT 1,
 	UNIQUE (name)
 );
 -- The PlanLayer table maps layers to a plan. The layers have roles

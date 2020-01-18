@@ -6,6 +6,9 @@
  */
 package redistrict.colorado.core;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * A Plan is a comprehensive re-districting strategy. It consists of a list of
  * Layers in various roles.
@@ -14,24 +17,25 @@ public class PlanModel {
 	private final long id;
 	private String name;
 	private String description;
-	private String shapefilePath;
-	private LayerRole role;
+	private boolean active;
+	private final List<PlanLayer> layers;
 	
 	public PlanModel(long id,String nam) {
 		this.id = id;
 		this.name = nam;
 		this.description = "";
-		this.shapefilePath = "";
-		this.role = LayerRole.BOUNDARIES;
+		this.active = true;
+		this.layers = new ArrayList<>();
 	}
 	
 	public long getId() { return this.id; }
 	public String getName() { return this.name; }
 	public String getDescription() { return this.description; }
-	public String getShapefilePath() { return this.shapefilePath; }
-	public LayerRole getRole() { return this.role; }
+	public boolean isActive() { return this.active; }
+	public List<PlanLayer> getLayers() { return layers; }
+	
+	public void setActive(boolean flag) { this.active = flag; }
 	public void setName(String nam) { this.name = nam; }
 	public void setDescription(String desc) { this.description = desc; }
-	public void setShapefilePath(String path) { this.shapefilePath = path; }
-	public void setRole(LayerRole r) { this.role = r; }
+
 }

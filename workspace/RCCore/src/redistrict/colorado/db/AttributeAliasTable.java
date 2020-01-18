@@ -15,12 +15,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import redistrict.colorado.core.LayerModel;
-import redistrict.colorado.core.LayerRole;
-
 /**
- * The AttributeAlias table is a two-way lookup of names for aliases and
- * aliases for names for feature attributes.
+ * The AttributeAlias table is used for setting default aliases for feature attribute names.
+ * The aliases can be changed at any time by the user.
  */
 public class AttributeAliasTable {
 	private static final String CLSS = "AttributeAliasTable";

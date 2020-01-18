@@ -33,7 +33,6 @@ public class LayerListController extends AnchorPane
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private Label headerLabel = new Label("Layers");
 	private ButtonPane buttons = new ButtonPane();
-	
 	private ListView<LayerModel> layerList;
 	private final BasicEventDispatcher<ActionEvent> auxEventDispatcher;
 	private final EventHandler<ActionEvent> auxEventHandler;
