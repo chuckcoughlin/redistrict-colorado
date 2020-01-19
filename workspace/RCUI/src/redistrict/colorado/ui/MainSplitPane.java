@@ -21,7 +21,7 @@ import redistrict.colorado.plan.PlanListController;
 import redistrict.colorado.region.RegionListController;
 import redistrict.colorado.ui.right.BasicRightSideNode;
 import redistrict.colorado.ui.right.LayerDetailPane;
-import redistrict.colorado.ui.right.MapCanvas;
+import redistrict.colorado.ui.right.MapPane;
 import redistrict.colorado.ui.right.RightSideController;
 import redistrict.colorado.ui.right.SplashScreen;
 
@@ -53,7 +53,7 @@ public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode>
 		
 		rightChildren = new BasicRightSideNode[N_CHILDREN_RIGHT];
 		rightChildren[0] = new SplashScreen();
-		rightChildren[1] = new MapCanvas();
+		rightChildren[1] = new MapPane();
 		rightChildren[2] = new LayerDetailPane();
 		
 		this.rightController = new RightSideController(rightChildren);

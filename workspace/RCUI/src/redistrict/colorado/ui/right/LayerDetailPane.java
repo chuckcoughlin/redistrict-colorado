@@ -5,7 +5,6 @@
  * modify it under the terms of the GNU General Public License.
  */
 package redistrict.colorado.ui.right;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;

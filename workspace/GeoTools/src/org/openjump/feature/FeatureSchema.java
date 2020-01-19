@@ -39,7 +39,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.locationtech.jts.util.Assert;
-import org.locationtech.jts.util.AssertionFailedException;
 import org.openjump.coordsys.CoordinateSystem;
 
 /**

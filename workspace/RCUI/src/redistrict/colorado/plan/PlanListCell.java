@@ -43,9 +43,10 @@ public class PlanListCell extends ListCell<PlanModel> implements ChangeListener<
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
 	private final static double COL1_WIDTH = 40.;
 	private final static double COL2_WIDTH = 100.;
-	private final static double COL3_WIDTH = 40.;
-	private final static double COL4_WIDTH = 45.;
+	private final static double COL3_WIDTH = 80.;
+	private final static double COL4_WIDTH = 40.;
 	private final static double COL5_WIDTH = 45.;
+	private final static double COL6_WIDTH = 45.;
 	private final static double ROW1_HEIGHT = 40.;
 	private static final GuiUtil guiu = new GuiUtil();
 	private final static String MAP_DATA = "map";
@@ -64,7 +65,7 @@ public class PlanListCell extends ListCell<PlanModel> implements ChangeListener<
 	public PlanListCell() {
 		cellHandler = new EditEventHandler();
 		setPrefWidth(UIConstants.LIST_PANEL_WIDTH);
-		tag = new Label("",guiu.loadImage("images/Plans.png"));
+		tag = new Label("",guiu.loadImage("images/plans.png"));
 		name = new Label();
 	    description = new Label();
 	    active = new CheckBox("Active:");
@@ -98,9 +99,10 @@ public class PlanListCell extends ListCell<PlanModel> implements ChangeListener<
         ColumnConstraints col2 = new ColumnConstraints(COL2_WIDTH,COL2_WIDTH,Double.MAX_VALUE); // name
         col2.setHgrow(Priority.ALWAYS);
         grid.getColumnConstraints().add(col2);
-        grid.getColumnConstraints().add(new ColumnConstraints(COL3_WIDTH)); 					// edit
-        grid.getColumnConstraints().add(new ColumnConstraints(COL4_WIDTH)); 					// map
-        grid.getColumnConstraints().add(new ColumnConstraints(COL5_WIDTH)); 					// detail
+        grid.getColumnConstraints().add(new ColumnConstraints(COL3_WIDTH)); 					// active
+        grid.getColumnConstraints().add(new ColumnConstraints(COL4_WIDTH)); 					// edit
+        grid.getColumnConstraints().add(new ColumnConstraints(COL5_WIDTH)); 					// map
+        grid.getColumnConstraints().add(new ColumnConstraints(COL6_WIDTH)); 					// detail
         grid.getRowConstraints().add(new RowConstraints(ROW1_HEIGHT)); // column 0 is 40 wide
     }
 	

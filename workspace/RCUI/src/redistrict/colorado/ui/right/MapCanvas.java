@@ -1,61 +1,170 @@
-/**  
- * Copyright (C) 2019 Charles Coughlin
- * 
- * This program is free software; you may redistribute it and/or
- * modify it under the terms of the GNU General Public License.
+/*
+ * See: https://gist.github.com/aofxzuza/
  */
 package redistrict.colorado.ui.right;
+
+import java.awt.Rectangle;
+import java.io.IOException;
 import java.util.logging.Logger;
 
-import org.openjump.io.ShapefileReader;
 
-import javafx.scene.control.Label;
-import redistrict.colorado.bind.EventBindingHub;
-import redistrict.colorado.core.LayerModel;
-import redistrict.colorado.ui.DisplayOption;
-import redistrict.colorado.ui.UIConstants;
-import redistrict.colorado.ui.ViewMode;
-import redistrict.colorado.ui.navigation.LayerNavigationPane;
+import org.geotools.data.simple.SimpleFeatureSource;
 
-/**
- * Plot a shapefile.
- */
-	public class MapCanvas extends BasicRightSideNode {
-		private final static String CLSS = "MapCanvas";
-		private static Logger LOGGER = Logger.getLogger(CLSS);
-		private LayerNavigationPane navPane = new LayerNavigationPane();
-		private Label headerLabel = new Label("Map Canvas");
-		private LayerModel model;
-		
-		public MapCanvas() {
-			super(ViewMode.LAYER,DisplayOption.MAP);
-			this.model = hub.getSelectedLayer();
-			headerLabel.getStyleClass().add("list-header-label");
-			getChildren().add(headerLabel);
-			getChildren().add(navPane);
-			setTopAnchor(headerLabel,0.);
-			setLeftAnchor(headerLabel,UIConstants.LIST_PANEL_LEFT_MARGIN);
-			setRightAnchor(headerLabel,UIConstants.LIST_PANEL_RIGHT_MARGIN);
-			
-			setBottomAnchor(navPane,0.);
-			setLeftAnchor(navPane,UIConstants.LIST_PANEL_LEFT_MARGIN);
-			setRightAnchor(navPane,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+import javafx.application.Platform;
+import javafx.concurrent.ScheduledService;
+import javafx.concurrent.Task;
+import javafx.css.Style;
+import javafx.event.EventHandler;
+import javafx.scene.Node;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
+import javafx.util.Duration;
+
+public class MapCanvas {
+	private final static String CLSS = "MapCanvas";
+	private static Logger LOGGER = Logger.getLogger(CLSS);
+	private Canvas canvas;
+	private MapContent map;
+	private GraphicsContext gc;
+
+	public MapCanvas(int width, int height) {
+		canvas = new Canvas(width, height);
+		gc = canvas.getGraphicsContext2D();
+		initMap();
+		drawMap(gc);
+		initEvent();
+		initPaintThread();
+	}
+
+	public Node getCanvas() {
+		return canvas;
+	}
+
+	private void initMap() {
+		try {
+			FileDataStore store = FileDataStoreFinder.getDataStore(shapefile);
+			SimpleFeatureSource featureSource = store.getFeatureSource();
+			map = new MapContent();
+			map.setTitle("Quickstart");
+			Style style = SLD.createSimpleStyle(featureSource.getSchema());
+			FeatureLayer layer = new FeatureLayer(featureSource, style);
+			map.addLayer(layer);
+			map.getViewport().setScreenArea(new Rectangle((int) canvas.getWidth(), (int) canvas.getHeight()));
+		} 
+		catch (IOException e) {
+			e.printStackTrace();
 		}
-		
-		@Override
-		public void updateModel() {
-			model = hub.getSelectedLayer();
-			navPane.updateTextForModel();
-			if( model.getFeatures()==null ) {
-				try {
-					model.setFeatures(ShapefileReader.read(model.getShapefilePath()));
-				}
-				catch( Exception ex) {
-					model.setFeatures(null);
-					String msg = String.format("%s: Failed to parse shapefile %s (%s)",CLSS,model.getShapefilePath(),ex.getLocalizedMessage());
-					LOGGER.warning(msg);
-					EventBindingHub.getInstance().setMessage(msg);
-				}
+	}
+
+	private boolean repaint = true;
+
+	private void drawMap(GraphicsContext gc) {
+		if (!repaint) {
+			return;
+		}
+		repaint = false;
+		StreamingRenderer draw = new StreamingRenderer();
+		draw.setMapContent(map);
+		FXGraphics2D graphics = new FXGraphics2D(gc);
+		graphics.setBackground(java.awt.Color.WHITE);
+		graphics.clearRect(0, 0, (int) canvas.getWidth(), (int) canvas.getHeight());
+		Rectangle rectangle = new Rectangle((int) canvas.getWidth(), (int) canvas.getHeight());
+		draw.paint(graphics, rectangle, map.getViewport().getBounds());
+	}
+
+	private double baseDrageX;
+	private double baseDrageY;
+
+	/*
+	 *initial for mouse event 
+	 */
+	private void initEvent() {
+		/*
+		 * setting the original coordinate
+		 */
+		canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
+
+			@Override
+			public void handle(MouseEvent e) {
+				baseDrageX = e.getSceneX();
+				baseDrageY = e.getSceneY();
+				e.consume();
 			}
-		}
+		});
+		/*
+		 * translate according to the mouse drag
+		 */
+		canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent e) {
+				double difX = e.getSceneX() - baseDrageX;
+				double difY = e.getSceneY() - baseDrageY;
+				baseDrageX = e.getSceneX();
+				baseDrageY = e.getSceneY();
+				DirectPosition2D newPos = new DirectPosition2D(difX, difY);
+				DirectPosition2D result = new DirectPosition2D();
+				map.getViewport().getScreenToWorld().transform(newPos, result);
+				ReferencedEnvelope env = new ReferencedEnvelope(map.getViewport().getBounds());
+				env.translate(env.getMinimum(0) - result.x, env.getMaximum(1) - result.y);
+				doSetDisplayArea(env);
+				e.consume();
+
+			}
+		});
+		/*
+		 * double clicks to restore to original map
+		 */
+		canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent t) {
+				if (t.getClickCount() > 1) {
+					doSetDisplayArea(map.getMaxBounds());
+				}
+				t.consume();
+			}
+		});
+		/*
+		 * scroll for zoom in and out
+		 */
+		canvas.addEventHandler(ScrollEvent.SCROLL, new EventHandler<ScrollEvent>() {
+
+			@Override
+			public void handle(ScrollEvent e) {
+				ReferencedEnvelope envelope = map.getViewport().getBounds();
+				double percent = e.getDeltaY() / canvas.getWidth();
+				double width = envelope.getWidth();
+				double height = envelope.getHeight();
+				double deltaW = width * percent;
+				double deltaH = height * percent;
+				envelope.expandBy(deltaW, deltaH);
+				doSetDisplayArea(envelope);
+				e.consume();
+			}
+		});
+	}
+
+	private static final double PAINT_HZ = 50.0;
+	private void initPaintThread() {
+		ScheduledService<Boolean> svc = new ScheduledService<Boolean>() {
+			protected Task<Boolean> createTask() {
+				return new Task<Boolean>() {
+					protected Boolean call() {
+						Platform.runLater(() -> {
+							drawMap(gc);
+						});
+						return true;
+					}
+				};
+			}
+		};
+		svc.setPeriod(Duration.millis(1000.0 / PAINT_HZ));
+		svc.start();
+	}
+
+	protected void doSetDisplayArea(ReferencedEnvelope envelope) {
+		map.getViewport().setBounds(envelope);
+		repaint = true;
+	}
 }
