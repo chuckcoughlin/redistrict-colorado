@@ -5,15 +5,11 @@
  * modify it under the terms of the GNU General Public License.
  */
 package redistrict.colorado.ui.right;
-import java.io.IOException;
 import java.util.logging.Logger;
 
 import org.openjump.io.ShapefileReader;
 
-import javafx.css.Style;
 import javafx.scene.control.Label;
-import javafx.scene.layout.Pane;
-import javafx.scene.shape.Rectangle;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.LayerModel;
 import redistrict.colorado.ui.DisplayOption;
@@ -37,13 +33,6 @@ import redistrict.colorado.ui.navigation.LayerNavigationPane;
 			headerLabel.getStyleClass().add("list-header-label");
 			getChildren().add(headerLabel);
 			
-			try {
-				MapCanvas canvas = new MapCanvas(UIConstants.SCENE_WIDTH, UIConstants.SCENE_HEIGHT);
-				Pane pane = new	Pane(canvas.getCanvas());
-			} 
-			catch (Exception e) {
-					e.printStackTrace();
-			}
 			
 			getChildren().add(navPane);
 			setTopAnchor(headerLabel,0.);
@@ -71,19 +60,5 @@ import redistrict.colorado.ui.navigation.LayerNavigationPane;
 				}
 			}
 		}
-		
-		private void initMap() {
-			try {
-				FileDataStore store = FileDataStoreFinder.getDataStore(this.getClass().getResource("countries.shp"));
-				SimpleFeatureSource featureSource = store.getFeatureSource();
-				map = new MapContent();
-				map.setTitle("Quickstart");
-				Style style = SLD.createSimpleStyle(featureSource.getSchema());
-				FeatureLayer layer = new FeatureLayer(featureSource, style);
-				map.addLayer(layer);
-				map.getViewport().setScreenArea(new Rectangle((int) canvas.getWidth(), (int) canvas.getHeight()));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
+	
 }
