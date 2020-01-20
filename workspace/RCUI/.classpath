@@ -16,7 +16,7 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry combineaccessrules="false" kind="src" path="/Archive">
+	<classpathentry combineaccessrules="false" kind="src" path="/GeoTools">
 		<attributes>
 			<attribute name="module" value="true"/>
 		</attributes>
@@ -26,7 +26,12 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry combineaccessrules="false" kind="src" path="/GeoTools">
+	<classpathentry combineaccessrules="false" kind="src" path="/Archive">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry combineaccessrules="false" kind="src" path="/FXGraphics">
 		<attributes>
 			<attribute name="module" value="true"/>
 		</attributes>

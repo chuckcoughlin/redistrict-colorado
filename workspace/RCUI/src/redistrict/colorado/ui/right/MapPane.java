@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 
 import org.openjump.io.ShapefileReader;
 
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.LayerModel;
@@ -18,7 +19,7 @@ import redistrict.colorado.ui.ViewMode;
 import redistrict.colorado.ui.navigation.LayerNavigationPane;
 
 /**
- * Plot a shapefile. Parent is an AnchorPane.
+ * Plot a map. Parent is an AnchorPane.
  */
 	public class MapPane extends BasicRightSideNode {
 		private final static String CLSS = "MapPane";
@@ -26,6 +27,7 @@ import redistrict.colorado.ui.navigation.LayerNavigationPane;
 		private LayerNavigationPane navPane = new LayerNavigationPane();
 		private Label headerLabel = new Label("Map Canvas");
 		private LayerModel model;
+		private LayerMap map;
 		
 		public MapPane() {
 			super(ViewMode.LAYER,DisplayOption.MAP);
@@ -33,7 +35,10 @@ import redistrict.colorado.ui.navigation.LayerNavigationPane;
 			headerLabel.getStyleClass().add("list-header-label");
 			getChildren().add(headerLabel);
 			
-			
+			map = new LayerMap(model,UIConstants.SCENE_WIDTH, UIConstants.SCENE_HEIGHT);
+			Node canvas = map.getCanvas();
+			getChildren().add(canvas);
+
 			getChildren().add(navPane);
 			setTopAnchor(headerLabel,0.);
 			setLeftAnchor(headerLabel,UIConstants.LIST_PANEL_LEFT_MARGIN);
@@ -47,6 +52,7 @@ import redistrict.colorado.ui.navigation.LayerNavigationPane;
 		@Override
 		public void updateModel() {
 			model = hub.getSelectedLayer();
+			map.setModel(model);
 			navPane.updateTextForModel();
 			if( model.getFeatures()==null ) {
 				try {
@@ -60,5 +66,4 @@ import redistrict.colorado.ui.navigation.LayerNavigationPane;
 				}
 			}
 		}
-	
 }
