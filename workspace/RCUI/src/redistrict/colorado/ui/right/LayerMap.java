@@ -52,10 +52,10 @@ import redistrict.colorado.db.Database;
 			try {
 				map = new MapContent();
 				map.setTitle(model.getName());
-				Style style = SLD.createSimpleStyle(model.getFeatures().getSchema());
+				Style style = SLD.createSimpleStyle(model.getFeatures().getFeatureSchema());
 				FeatureLayer layer = new FeatureLayer(model, style);
 				map.addLayer(layer);
-				map.getViewport().setScreenArea(new Rectangle((int) canvas.getWidth(), (int) canvas.getHeight()));
+				map.getViewport().setScreenArea(new java.awt.Rectangle((int) canvas.getWidth(), (int) canvas.getHeight()));
 			} 
 			catch (IOException ioe) {
 				ioe.printStackTrace();
