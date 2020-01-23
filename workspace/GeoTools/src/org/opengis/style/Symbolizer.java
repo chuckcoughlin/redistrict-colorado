@@ -9,13 +9,8 @@
  */
 package org.opengis.style;
 
-import static org.opengis.annotation.Specification.*;
-
-import javax.measure.Unit;
 import javax.measure.quantity.Length;
-import org.opengis.annotation.Extension;
-import org.opengis.annotation.UML;
-import org.opengis.annotation.XmlElement;
+import javax.measure.unit.Unit;
 
 /**
  * Abstract superclass of the symbolizers defined by the Symbology Encoding specification.
@@ -100,7 +95,7 @@ public interface Symbolizer {
      *
      * @return Description with usual informations used for user interfaces.
      */
-    Description getDescription();
+    String getDescription();
 
     /**
      * Calls the visit method of a StyleVisitor
@@ -108,6 +103,5 @@ public interface Symbolizer {
      * @param visitor the style visitor
      * @return value produced
      */
-    @Extension
     Object accept(StyleVisitor visitor, Object extraData);
 }

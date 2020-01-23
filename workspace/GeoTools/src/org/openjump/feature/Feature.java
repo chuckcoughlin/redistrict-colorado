@@ -31,7 +31,9 @@
  */
 package org.openjump.feature;
 
+import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
+
 
 /**
  * A representation of an object in the world, including its location, geometry,
@@ -42,26 +44,43 @@ import org.locationtech.jts.geom.Geometry;
  * and zero or more non-spatial attributes.
  */
 public interface Feature extends Cloneable, Comparable<Feature> {
-
+    /**
+     * The bounds of this Feature, if available.
+     *
+     * <p>This value is derived from any geometric attributes that the feature is composed of.
+     *
+     * <p>In the case that the feature has no geometric attributes this method should return an
+     * empty bounds, ie, <code>bounds.isEmpty() == true</code>. This method should never return
+     * <code>null</code>.
+     *
+     * <p>The coordinate reference system of the returned bounds is derived from the geometric
+     * attributes which were used to compute the bounds. In the event that the feature contains
+     * multiple geometric attributes which have different crs's, the one defined by {@link
+     * #getGeometryDescriptor()} should take precedence and the others should be reprojected
+     * accordingly.
+     *
+     * @return the feature bounds, possibly empty.
+     */
+    public Envelope getBounds();
 	/**
 	 * A low-level accessor that is not normally used.
 	 * 
 	 * @param attributes may have a different
      * length than the current attributes.
 	 */
-	void setAttributes(Object[] attributes);
+	public void setAttributes(Object[] attributes);
 
 	/**
 	 * A low-level accessor that is not normally used.
 	 */
-	void setSchema(FeatureSchema schema);
+	public void setSchema(FeatureSchema schema);
 
 	/**
 	 * Returns a number that uniquely identifies this feature. This number is not
 	 * persistent. (Implementors can obtain an ID from FeatureUtil#nextID).
 	 * @return n, where this feature is the nth Feature created by this application
 	 */
-	int getID();
+	public int getID();
 
 	/**
 	 * Sets the specified attribute.
@@ -69,7 +88,7 @@ public interface Feature extends Cloneable, Comparable<Feature> {
 	 * @param  attributeIndex  the array index at which to put the new attribute
 	 * @param  newAttribute    the new attribute
 	 */
-	void setAttribute(int attributeIndex, Object newAttribute);
+	public void setAttribute(int attributeIndex, Object newAttribute);
 
 	/**
 	 * Sets the specified attribute.
@@ -77,7 +96,7 @@ public interface Feature extends Cloneable, Comparable<Feature> {
 	 * @param  attributeName  the name of the attribute to set
 	 * @param  newAttribute   the new attribute
 	 */
-	void setAttribute(
+	public void setAttribute(
 		String attributeName,
 		Object newAttribute);
 
@@ -88,7 +107,7 @@ public interface Feature extends Cloneable, Comparable<Feature> {
 	 *
 	 * @param  geometry  the new spatial attribute
 	 */
-	void setGeometry(Geometry geometry);
+	public void setGeometry(Geometry geometry);
 
 	/**
 	 * Returns the specified attribute.
@@ -96,7 +115,7 @@ public interface Feature extends Cloneable, Comparable<Feature> {
 	 * @param  i the index of the attribute to get
 	 * @return the attribute
 	 */
-	Object getAttribute(int i);
+	public Object getAttribute(int i);
 
 	/**
 	 * Returns the specified attribute.
@@ -104,7 +123,7 @@ public interface Feature extends Cloneable, Comparable<Feature> {
 	 * @param  name  the name of the attribute to get
 	 * @return the attribute
 	 */
-	Object getAttribute(String name);
+	public Object getAttribute(String name);
 
 	/**
      * Returns the result of calling #toString on the attribute at the given (zero-based)
@@ -119,7 +138,7 @@ public interface Feature extends Cloneable, Comparable<Feature> {
 	 * @param  attributeIndex the index of the attribute to retrieve
 	 * @return                the integer attribute with the given name
 	 */
-	int getInteger(int attributeIndex);
+	public int getInteger(int attributeIndex);
 
 	/**
 	 * Returns a double attribute.
@@ -127,7 +146,7 @@ public interface Feature extends Cloneable, Comparable<Feature> {
 	 * @param  attributeIndex the index of the attribute to retrieve
 	 * @return                the double attribute with the given name
 	 */
-	double getDouble(int attributeIndex);
+	public double getDouble(int attributeIndex);
 
 	/**
      * Returns the result of calling #toString on the attribute with the given
@@ -141,14 +160,14 @@ public interface Feature extends Cloneable, Comparable<Feature> {
 	 *
 	 * @return    the feature's spatial attribute
 	 */
-	Geometry getGeometry();
+	public Geometry getGeometry();
 
 	/**
 	 * Returns the feature's metadata
 	 *
 	 * @return    the metadata describing the names and types of the attributes
 	 */
-	FeatureSchema getSchema();
+	public FeatureSchema getSchema();
 
 	/**
 	 * Clones this Feature. Geometry and Primary Key will also be cloned.
@@ -159,7 +178,7 @@ public interface Feature extends Cloneable, Comparable<Feature> {
 	 *
 	 * @return a new Feature with the same attributes as this Feature
 	 */
-	Feature clone();
+	public Feature clone();
 
 	/**
 	 * Clones this Feature.
@@ -167,7 +186,7 @@ public interface Feature extends Cloneable, Comparable<Feature> {
 	 * @param deep whether or not to clone the geometry
 	 * @return a new Feature with the same attributes as this Feature
 	 */
-	Feature clone(boolean deep);
+	public Feature clone(boolean deep);
 
 	/**
      * Clones this Feature.
@@ -176,11 +195,11 @@ public interface Feature extends Cloneable, Comparable<Feature> {
      * @param copyPK whether or not to copy external PK attribute if exists
      * @return a new Feature with the same attributes as this Feature
      */
-    Feature clone(boolean deep, boolean copyPK);
+	public Feature clone(boolean deep, boolean copyPK);
 
 	/**
 	 * A low-level accessor that is not normally used.
 	 */
-	Object[] getAttributes();
+	public Object[] getAttributes();
 
 }

@@ -34,6 +34,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.util.Assert;
 
@@ -45,14 +46,15 @@ import org.locationtech.jts.util.Assert;
 public abstract class AbstractBasicFeature implements Feature, Serializable {
 
     private static final long serialVersionUID = 4215477286292970800L;
-    private FeatureSchema schema;
-    private int id;
+    protected FeatureSchema schema;
+    protected int id;
 
     // [mmichaud 2012-10-13] userData idea is taken from the GeoAPI interfaces,
     // and is used for dynamic attributes calculation to avoid circular references.
     // Access methods are not yet exposed in Feature interface.
     private Map<Object,Object> userData;
 
+    abstract public Envelope getBounds();
     /**
      * A low-level accessor that is not normally used.
      */

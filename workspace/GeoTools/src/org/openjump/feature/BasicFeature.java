@@ -35,6 +35,9 @@ package org.openjump.feature;
 
 import java.io.Serializable;
 
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.Geometry;
+
 
 /**
  *  Default implementation of the Feature interface.
@@ -56,7 +59,20 @@ public class BasicFeature extends AbstractBasicFeature implements Serializable {
         attributes = new Object[featureSchema.getAttributeCount()];        
     }
 
-
+    /**
+     * The bounds of this Feature, if available..
+     *
+     * @return the feature bounds, possibly empty.
+     */
+    public Envelope getBounds() {
+    	Envelope bounds = null;
+    	Geometry geom = getGeometry();
+    	if( geom!=null) {
+    		Geometry env = geom.getEnvelope();
+    		bounds = env.getEnvelopeInternal(); // Envelope that contains the min and max  values.
+    	}
+    	return bounds;
+    }
     /**
      * A low-level accessor that is not normally used. It is called by
      * ViewSchemaPlugIn.

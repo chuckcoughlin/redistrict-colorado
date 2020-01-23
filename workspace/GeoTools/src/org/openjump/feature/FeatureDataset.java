@@ -42,6 +42,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.geotools.data.Query;
 import org.locationtech.jts.geom.Envelope;
 
 
@@ -93,6 +94,21 @@ public class FeatureDataset implements FeatureCollection, Serializable {
      */
     @Override
     public Envelope getEnvelope() {
+        if (envelope == null) {
+            envelope = new Envelope();
+
+            for (Feature feature : features) {
+                envelope.expandToInclude(feature.getGeometry().getEnvelopeInternal());
+            }
+        }
+
+        return envelope;
+    }
+    /**
+     * Ignore the query for the time being.
+     */
+    @Override
+    public Envelope getEnvelope(Query q) {
         if (envelope == null) {
             envelope = new Envelope();
 

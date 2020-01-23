@@ -16,8 +16,6 @@
  */
 package org.geotools.renderer.shape;
 
-import static org.geotools.data.shapefile.ShpFileType.*;
-
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
@@ -39,15 +37,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.management.Query;
-import javax.swing.text.Style;
-import javax.xml.crypto.dsig.TransformException;
-
 import org.geotools.data.DataStore;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FIDReader;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureStore;
+import org.geotools.data.Query;
 import org.geotools.data.Transaction;
 import org.geotools.data.TransactionStateDiff;
 import org.geotools.data.directory.DirectoryFeatureSource;
@@ -59,7 +54,6 @@ import org.geotools.data.shapefile.dbf.IndexedDbaseFileReader;
 import org.geotools.data.shapefile.indexed.IndexType;
 import org.geotools.data.shapefile.indexed.IndexedShapefileDataStore;
 import org.geotools.data.shapefile.shp.ShapeType;
-import org.geotools.data.shapefile.shp.ShapefileReader.Record;
 import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.feature.FeatureTypes;
 import org.geotools.feature.SchemaException;
@@ -68,16 +62,13 @@ import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.filter.FilterAttributeExtractor;
 import org.geotools.geometry.jts.Decimator;
 import org.geotools.geometry.jts.GeometryClipper;
-import org.geotools.geometry.jts.LiteCoordinateSequenceFactory;
 import org.geotools.geometry.jts.LiteShape2;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.index.quadtree.StoreException;
-import org.geotools.map.DefaultMapContext;
-import org.geotools.map.MapContext;
+import org.geotools.map.MapContent;
 import org.geotools.map.MapLayer;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.ReferencingFactoryFinder;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.operation.matrix.GeneralMatrix;
 import org.geotools.referencing.operation.matrix.XAffineTransform;
 import org.geotools.renderer.GTRenderer;
@@ -88,13 +79,14 @@ import org.geotools.renderer.lite.LabelCache;
 import org.geotools.renderer.lite.OpacityFinder;
 import org.geotools.renderer.lite.RendererUtilities;
 import org.geotools.renderer.lite.StreamingRenderer;
+import org.geotools.renderer.lite.StyledShapePainter;
 import org.geotools.renderer.style.SLDStyleFactory;
 import org.geotools.renderer.style.Style2D;
 import org.geotools.styling.FeatureTypeStyle;
 import org.geotools.styling.LineSymbolizer;
 import org.geotools.styling.PointSymbolizer;
 import org.geotools.styling.PolygonSymbolizer;
-import org.geotools.styling.Rule;
+import org.geotools.styling.Style;
 import org.geotools.styling.StyleAttributeExtractor;
 import org.geotools.styling.Symbolizer;
 import org.geotools.styling.TextSymbolizer;
@@ -123,9 +115,15 @@ import org.opengis.filter.Filter;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.TransformException;
 import org.openjump.io.ShapefileReader;
 
+import com.sun.prism.impl.Disposer.Record;
+
+import javafx.css.Rule;
 import jdk.internal.org.jline.utils.DiffHelper.Diff;
+
+
 
 /**
  * A LiteRenderer Implementations that is optimized for shapefiles.
@@ -141,8 +139,7 @@ public class ShapefileRenderer implements GTRenderer {
 
     /** Tolerance used to compare doubles for equality */
     private static final double TOLERANCE = 1e-6;
-    private static final GeometryFactory geomFactory = new GeometryFactory(
-            new LiteCoordinateSequenceFactory());
+    private static final GeometryFactory geomFactory = new GeometryFactory();
     private static final Coordinate[] COORDS;
     private static final MultiPolygon MULTI_POLYGON_GEOM;
     private static final Polygon POLYGON_GEOM;
@@ -177,19 +174,13 @@ public class ShapefileRenderer implements GTRenderer {
         COORDS[2] = new Coordinate(5.0, 5.0);
         COORDS[3] = new Coordinate(0.0, 5.0);
         COORDS[4] = new Coordinate(0.0, 0.0);
-        LINE_GEOM = geomFactory.createLinearRing(COORDS);
+        LINE_GEOM 		= geomFactory.createLinearRing(COORDS);
         MULTI_LINE_GEOM = geomFactory.createMultiLineString(new LineString[]{LINE_GEOM});
-        POLYGON_GEOM = geomFactory.createPolygon(LINE_GEOM, new LinearRing[0]);
-        MULTI_POLYGON_GEOM = geomFactory.createMultiPolygon(new Polygon[]{POLYGON_GEOM});
-        POINT_GEOM = geomFactory.createPoint(COORDS[2]);
-        MULTI_POINT_GEOM = geomFactory.createMultiPoint(COORDS);
+        POLYGON_GEOM	 = geomFactory.createPolygon(LINE_GEOM, new LinearRing[0]);
+        MULTI_POLYGON_GEOM 	= geomFactory.createMultiPolygon(new Polygon[]{POLYGON_GEOM});
+        POINT_GEOM 			= geomFactory.createPoint(COORDS[2]);
+        MULTI_POINT_GEOM 	= geomFactory.createMultiPoint(COORDS);
     }
-
-    /**
-     * This listener is added to the list of listeners automatically. It should be removed if the
-     * default logging is not needed.
-     */
-    public static final DefaultRenderListener DEFAULT_LISTENER = new DefaultRenderListener();
 
     private static final IndexInfo STREAMING_RENDERER_INFO = new IndexInfo(IndexType.NONE,null);
     static int NUM_SAMPLES = 200;
@@ -199,7 +190,6 @@ public class ShapefileRenderer implements GTRenderer {
     private SLDStyleFactory styleFactory = new SLDStyleFactory();
     private boolean renderingStopRequested;
     private boolean concatTransforms;
-    private MapContext context;
     LabelCache labelCache = new LabelCacheImpl();
     private List<RenderListener> renderListeners = new CopyOnWriteArrayList<RenderListener>();
     /** If we are caching styles; by default this is false */
@@ -207,7 +197,6 @@ public class ShapefileRenderer implements GTRenderer {
     private double scaleDenominator;
     private Object defaultGeom;
     IndexInfo[] layerIndexInfo;
-    StreamingRenderer delegate;
 
     /**
      * Maps between the AttributeType index of the new generated FeatureType and the real
@@ -258,10 +247,9 @@ public class ShapefileRenderer implements GTRenderer {
      *  "labelCache"                 - Declares the label cache that will be used by the renderer.                               
      */
     private Map rendererHints = null;
-
-    public ShapefileRenderer( MapContext context ) {
-        setContext(context);
-    }
+    
+    
+    
 
     public ShapefileRenderer() {
     }
@@ -1016,71 +1004,6 @@ public class ShapefileRenderer implements GTRenderer {
 
         return decimator;
     }
-//
-//    /**
-//     * Creates a JTS shape that is an approximation of the SImpleGeometry. This is ONLY use for
-//     * labelling and is only created if a text symbolizer is part of the current style.
-//     * 
-//     * @param geom the geometry to wrap
-//     * @return
-//     * @throws TransformException
-//     * @throws FactoryException
-//     * @throws RuntimeException DOCUMENT ME!
-//     */
-//    LiteShape2 getLiteShape2( SimpleGeometry geom ) throws TransformException, FactoryException {
-//        Geometry jtsGeom;
-//        if ((geom.type == ShapeType.POLYGON) || (geom.type == ShapeType.POLYGONM)
-//                || (geom.type == ShapeType.POLYGONZ)) {
-//            double[] points = getPointSample(geom, true);
-//            CoordinateSequence seq = new LiteCoordinateSequence(points);
-//            Polygon poly;
-//
-//            try {
-//                poly = geomFactory.createPolygon(geomFactory.createLinearRing(seq),
-//                        new LinearRing[]{});
-//            } catch (Exception e) {
-//                throw new RuntimeException(e);
-//            }
-//
-//            jtsGeom = geomFactory.createMultiPolygon(new Polygon[]{poly});
-//        } else if ((geom.type == ShapeType.ARC) || (geom.type == ShapeType.ARCM)
-//                || (geom.type == ShapeType.ARCZ)) {
-//            double[] points = getPointSample(geom, false);
-//            CoordinateSequence seq = new LiteCoordinateSequence(points);
-//            jtsGeom = geomFactory.createMultiLineString(new LineString[]{geomFactory
-//                    .createLineString(seq)});
-//        } else if ((geom.type == ShapeType.MULTIPOINT) || (geom.type == ShapeType.MULTIPOINTM)
-//                || (geom.type == ShapeType.MULTIPOINTZ)) {
-//            double[] points = getPointSample(geom, false);
-//            CoordinateSequence seq = new LiteCoordinateSequence(points);
-//            jtsGeom = geomFactory.createMultiPoint(seq);
-//        } else {
-//            jtsGeom = geomFactory.createPoint(new Coordinate(geom.coords[0][0], geom.coords[0][1]));
-//        }
-//
-//        LiteShape2 shape = new LiteShape2(jtsGeom, null, null, false);
-//
-//        return shape;
-//    }
-
-//    /**
-//     * takes a random sampling from the geometry. Only uses the larges part of the geometry.
-//     * 
-//     * @param geom
-//     * @param isPolygon DOCUMENT ME!
-//     * @return
-//     */
-//    private double[] getPointSample( SimpleGeometry geom, boolean isPolygon ) {
-//        int largestPart = 0;
-//
-//        for( int i = 0; i < geom.coords.length; i++ ) {
-//            if (geom.coords[i].length > geom.coords[largestPart].length) {
-//                largestPart = i;
-//            }
-//        }
-//
-//        return geom.coords[largestPart];
-//    }
 
     /**
      * DOCUMENT ME!
@@ -1180,14 +1103,6 @@ public class ShapefileRenderer implements GTRenderer {
      * <code>render</code> the rendering will be forcefully stopped before termination
      */
     public void stopRendering() {
-        try {
-            if(delegate != null)
-                delegate.stopRendering();
-        } catch(NullPointerException e) {
-            // Since stopRendering is called by another thread the null check may
-            // pass, and the method call can NPE nevertheless. It's ok, in that
-            // case rendering is done anyways
-        }
         renderingStopRequested = true;
         labelCache.stop();
     }
@@ -1210,9 +1125,6 @@ public class ShapefileRenderer implements GTRenderer {
         this.caching = caching;
     }
 
-    public MapContext getContext() {
-        return context;
-    }
 
     public boolean isConcatTransforms() {
         return concatTransforms;
@@ -1282,48 +1194,11 @@ public class ShapefileRenderer implements GTRenderer {
     		this.labelCache=cache;
     		this.painter=new StyledShapePainter(cache);
     	}
-    	if(hints != null && hints.containsKey(StreamingRenderer.LINE_WIDTH_OPTIMIZATION_KEY)) {
-            styleFactory.setLineOptimizationEnabled(Boolean.TRUE.equals(hints.get(StreamingRenderer.LINE_WIDTH_OPTIMIZATION_KEY)));
-        }
-    	if(hints != null && hints.containsKey(StreamingRenderer.VECTOR_RENDERING_KEY)) {
-            styleFactory.setVectorRenderingEnabled(Boolean.TRUE.equals(hints.get(StreamingRenderer.VECTOR_RENDERING_KEY)));
-        }
         rendererHints = hints;
     }
     
     public Map getRendererHints() {
         return rendererHints;
-    }
-
-    public void setContext( MapContext context ) {
-        if (context == null) {
-            context = new DefaultMapContext(DefaultGeographicCRS.WGS84);
-        }
-
-        this.context = context;
-
-        MapLayer[] layers = context.getLayers();
-        layerIndexInfo = new IndexInfo[layers.length];
-
-        int i=0;
-        for(MapLayer layer:layers ) {
-            final FeatureSource fs = layer.getFeatureSource();
-            DataStore ds = (DataStore) fs.getDataStore();
-            
-            if( ds instanceof ShapefileDataStore ){
-	            ShapefileDataStore sds = (ShapefileDataStore) ds;
-	            try {
-	                layerIndexInfo[i] = useIndex(sds);
-	            } catch (Exception e) {
-	                layerIndexInfo[i] = new IndexInfo(IndexType.NONE, ShapefileRendererUtil.getShpFiles(sds));
-	                if(LOGGER.isLoggable(Level.FINE))
-	                    LOGGER.fine("Exception while trying to use index" + e.getLocalizedMessage());
-	            }
-	        }else{
-	        	layerIndexInfo[i]=STREAMING_RENDERER_INFO;
-	        }
-            i++;
-        }
     }
 
     public void paint( Graphics2D graphics, Rectangle paintArea, AffineTransform worldToScreen ) {
@@ -1393,7 +1268,7 @@ public class ShapefileRenderer implements GTRenderer {
         MapLayer[] layers = context.getLayers();
 
         // get detstination CRS
-        CoordinateReferenceSystem destinationCrs = context.getCoordinateReferenceSystem();
+        CoordinateSystem destinationCrs = context.getCoordinateSystem();
         labelCache.start();
         labelCache.clear();
         if(labelCache instanceof LabelCacheImpl) {
@@ -1411,10 +1286,6 @@ public class ShapefileRenderer implements GTRenderer {
                 return;
             }
             
-            if( layerIndexInfo[i]==STREAMING_RENDERER_INFO ){
-            	renderWithStreamingRenderer(currLayer, graphics, paintArea, envelope, transform);
-                continue;
-            }
             labelCache.startLayer(""+i);
 
             ReferencedEnvelope bbox = envelope;
@@ -1539,7 +1410,7 @@ public class ShapefileRenderer implements GTRenderer {
         return result;
     }
     
-    private double computeScale(ReferencedEnvelope envelope, CoordinateReferenceSystem crs, Rectangle paintArea,
+    private double computeScale(ReferencedEnvelope envelope, CoordinateSystem crs, Rectangle paintArea,
             AffineTransform worldToScreen, Map hints) {
         if(getScaleComputationMethod().equals(SCALE_ACCURATE)) {
             try {
@@ -1550,60 +1421,23 @@ public class ShapefileRenderer implements GTRenderer {
             }
         } 
         if (XAffineTransform.getRotation(worldToScreen) != 0.0) {
-            return RendererUtilities.calculateOGCScaleAffine(envelope.getCoordinateReferenceSystem(),
+            return RendererUtilities.calculateOGCScaleAffine(envelope.getCoordinateSystem(),
                     worldToScreen, hints);
         } 
         return RendererUtilities.calculateOGCScale(envelope, paintArea.width, hints);
     }
     
-    private void renderWithStreamingRenderer(MapLayer layer, Graphics2D graphics, Rectangle paintArea, ReferencedEnvelope envelope, AffineTransform transform) {
-		MapContext context = null;
-		RenderListener listener = null;;
-		try {
-		    context = new DefaultMapContext(new MapLayer[]{layer}, envelope.getCoordinateReferenceSystem());
-    		delegate = new StreamingRenderer();
-    		delegate.setContext(context);
-    		delegate.setJava2DHints(getJava2DHints());
-    		Map rendererHints2 = new HashMap(getRendererHints() != null ? getRendererHints() : Collections.EMPTY_MAP);
-    		rendererHints2.put(LABEL_CACHE_KEY, new IntegratingLabelCache(labelCache));
-    		delegate.setRendererHints(rendererHints2);
-    		
-    		// cascade events, provided there is anyone listening
-    		listener = new RenderListener() {
-            
-                public void featureRenderer(SimpleFeature feature) {
-                    fireFeatureRenderedEvent(feature);
-                }
-            
-                public void errorOccurred(Exception e) {
-                    fireErrorEvent(e);
-                }
-            };
-            delegate.addRenderListener(listener);
-    		
-    		delegate.paint(graphics, paintArea, envelope, transform);
-		} finally {
-		    // cleanups to avoid circular references
-		    if(context != null)
-		        context.clearLayerList();
-		    if(listener != null && delegate != null)
-		        delegate.removeRenderListener(listener);
-		 
-		    
-		    delegate = null;
-		}
-	}
-
+    
 	/**
      * If the forceCRS hint is set then return the value.
      * @return the value of the forceCRS hint or null
      */
-    private CoordinateReferenceSystem getForceCRSHint() {
+    private CoordinateSystem getForceCRSHint() {
     	if ( rendererHints==null )
     		return null;
     	Object crs=this.rendererHints.get("forceCRS");
-    	if( crs instanceof CoordinateReferenceSystem )
-    		return (CoordinateReferenceSystem) crs;
+    	if( crs instanceof CoordinateSystem )
+    		return (CoordinateSystem) crs;
     	
     	return null;
 	}
@@ -1621,4 +1455,16 @@ public class ShapefileRenderer implements GTRenderer {
     public void paint(Graphics2D graphics, Rectangle paintArea, Envelope mapArea, AffineTransform worldToScreen) {
         paint(graphics, paintArea, new ReferencedEnvelope(mapArea, context.getCoordinateReferenceSystem()), worldToScreen);
     }
+
+	@Override
+	public void setMapContent(MapContent mapContent) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public MapContent getMapContent() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

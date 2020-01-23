@@ -31,11 +31,11 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.Spliterators;
 import java.util.function.Function;
+import java.util.logging.Logger;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-import org.geotools.util.factory.Hints;
 
 /**
  * Miscellaneous methods, including cnvenience methods for {@link Object#equals equals} and {@link
@@ -73,6 +73,9 @@ import org.geotools.util.factory.Hints;
  * @author Martin Desruisseaux (IRD)
  */
 public final class Utilities {
+	private final static String CLSS = "Utilities";
+	private static Logger LOGGER = Logger.getLogger(CLSS);
+	
     /**
      * An array of strings containing only white spaces. Strings' lengths are equal to their index
      * in the {@code spaces} array. For example, {@code spaces[4]}œcontains a string of length 4.
@@ -272,9 +275,7 @@ public final class Utilities {
      * @return The tolerance set in the hints, or its default value if not set
      */
     private static double getTolerance() {
-        Double tol = ((Double) Hints.getSystemDefault(Hints.COMPARISON_TOLERANCE));
-        if (tol == null) return Hints.COMPARISON_TOLERANCE.getDefault();
-        else return tol;
+        return Hints.COMPARISON_TOLERANCE;
     }
 
     /**
@@ -650,7 +651,7 @@ public final class Utilities {
     public static void ensureNonNull(final String name, final Object object)
             throws NullPointerException {
         if (object == null) {
-            throw new NullPointerException(Errors.format(ErrorKeys.NULL_ARGUMENT_$1, name));
+            throw new NullPointerException(String.format("%s.ensureNonNull: Null argument(%s)",CLSS, name));
         }
     }
 
@@ -665,7 +666,7 @@ public final class Utilities {
     public static void ensureArgumentNonNull(final String name, final Object object)
             throws IllegalArgumentException {
         if (object == null) {
-            throw new IllegalArgumentException(Errors.format(ErrorKeys.NULL_ARGUMENT_$1, name));
+            throw new IllegalArgumentException(String.format("%s.ensureArgumentNonNull: Null argument(%s)",CLSS, name));
         }
     }
 

@@ -18,8 +18,9 @@ package org.geotools.map;
 
 import java.util.EnumSet;
 import java.util.EventObject;
+
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.openjump.coordsys.CoordinateSystem;
 
 /**
  * Event object for MapContext area of interest and coordinate system changes.
@@ -172,22 +173,22 @@ public class MapBoundsEvent extends EventObject {
 
     /**
      * Get the previous coordinate reference system. This is a convenience method equivalent to
-     * {@linkplain #getOldAreaOfInterest()}.getCoordinateReferenceSystem()
+     * {@linkplain #getOldAreaOfInterest()}.getCoordinateSystem()
      *
-     * @return the previous CoordinateReferenceSystem object
+     * @return the previous CoordinateSystem object
      */
-    public CoordinateReferenceSystem getOldCoordinateReferenceSystem() {
-        return oldAreaOfInterest.getCoordinateReferenceSystem();
+    public CoordinateSystem getOldCoordinateSystem() {
+        return oldAreaOfInterest.getCoordinateSystem();
     }
 
     /**
      * Get the new coordinate reference system. This is a convenience method equivalent to
-     * {@linkplain #getNewAreaOfInterest()}.getCoordinateReferenceSystem()
+     * {@linkplain #getNewAreaOfInterest()}.getCoordinateSystem()
      *
-     * @return the new CoordinateReferenceSystem object
+     * @return the new CoordinateSystem object
      */
-    public CoordinateReferenceSystem getNewCoordinateReferenceSystem() {
-        return newAreaOfInterest.getCoordinateReferenceSystem();
+    public CoordinateSystem getNewCoordinateSystem() {
+        return newAreaOfInterest.getCoordinateSystem();
     }
 
     /** Get the old area of interest */

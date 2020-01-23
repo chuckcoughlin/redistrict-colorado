@@ -16,21 +16,14 @@
  */
 package org.geotools.map;
 
-import java.io.IOException;
-import org.geotools.data.DataUtilities;
-import org.geotools.data.FeatureEvent;
 import org.geotools.data.FeatureListener;
-import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
-import org.geotools.data.simple.SimpleFeatureSource;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.referencing.CRS;
 import org.geotools.styling.Style;
-import org.opengis.feature.Feature;
-import org.opengis.feature.type.FeatureType;
-import org.opengis.geometry.Envelope;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.locationtech.jts.geom.Envelope;
+import org.openjump.coordsys.CoordinateSystem;
+import org.openjump.feature.FeatureCollection;
+import org.openjump.feature.FeatureSchema;
 
 /**
  * Layer responsible for rendering vector information provided by a FeatureSource.
@@ -50,11 +43,9 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * @version 8.0
  */
 public class FeatureLayer extends StyleLayer {
+	private final FeatureCollection collection;
 
-    /** FeatureSource offering content for display */
-    protected FeatureSource<? extends FeatureType, ? extends Feature> featureSource;
-
-    /** Query use to limit content of featureSource */
+    /** Query use to limit content of feature collection */
     protected Query query;
 
     /** Listener to forward feature source events as layer events */
@@ -63,85 +54,26 @@ public class FeatureLayer extends StyleLayer {
     /**
      * Creates a new instance of FeatureLayer
      *
-     * @param featureSource the data source for this layer
+     * @param features the collection of features for this layer
      * @param style the style used to represent this layer
      */
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    public FeatureLayer(FeatureSource featureSource, Style style) {
+    public FeatureLayer(FeatureCollection features, Style style) {
         super(style);
-        this.featureSource = featureSource;
-    }
-
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    public FeatureLayer(FeatureSource featureSource, Style style, String title) {
-        super(style, title);
-        this.featureSource = featureSource;
-    }
-
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    public FeatureLayer(FeatureCollection collection, Style style) {
-        super(style);
-        this.featureSource = DataUtilities.source(collection);
+        this.collection = features;
         this.style = style;
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    public FeatureLayer(FeatureCollection collection, Style style, String title) {
+    public FeatureLayer(FeatureCollection features, Style style, String title) {
         super(style, title);
-        this.featureSource = DataUtilities.source(collection);
-    }
-
-    /** Used to connect/disconnect a FeatureListener if any map layer listeners are registered. */
-    protected synchronized void connectDataListener(boolean listen) {
-        if (sourceListener == null) {
-            sourceListener =
-                    new FeatureListener() {
-                        public void changed(FeatureEvent featureEvent) {
-                            fireMapLayerListenerLayerChanged(MapLayerEvent.DATA_CHANGED);
-                        }
-                    };
-        }
-        if (listen) {
-            featureSource.addFeatureListener(sourceListener);
-        } else {
-            featureSource.removeFeatureListener(sourceListener);
-        }
+        this.collection = features;
     }
 
     @Override
     public void dispose() {
         preDispose();
-        if (featureSource != null) {
-            if (sourceListener != null) {
-                featureSource.removeFeatureListener(sourceListener);
-            }
-            featureSource = null;
-        }
         style = null;
         query = null;
         super.dispose();
-    }
-
-    /**
-     * Get the feature source for this layer.
-     *
-     * @return feature source for the contents of this layer
-     */
-    @Override
-    public FeatureSource<?, ?> getFeatureSource() {
-        return featureSource;
-    }
-
-    /**
-     * Get the feature source for this layer.
-     *
-     * @return SimpleFeatureSource for this layer, or null if not available
-     */
-    public SimpleFeatureSource getSimpleFeatureSource() {
-        if (featureSource instanceof SimpleFeatureSource) {
-            return (SimpleFeatureSource) featureSource;
-        }
-        return null; // not available
     }
 
     /**
@@ -180,61 +112,28 @@ public class FeatureLayer extends StyleLayer {
 
     @Override
     public ReferencedEnvelope getBounds() {
-        try {
-            ReferencedEnvelope bounds;
-            if (query != null) {
-                bounds = featureSource.getBounds(query);
-            } else {
-                bounds = featureSource.getBounds();
-            }
-            if (bounds != null) {
-                FeatureType schema = featureSource.getSchema();
-                CoordinateReferenceSystem schemaCrs = schema.getCoordinateReferenceSystem();
-                CoordinateReferenceSystem boundsCrs = bounds.getCoordinateReferenceSystem();
+    	ReferencedEnvelope bounds = null;
+    	Envelope envelope;
+    	if (query != null) {
+    		envelope = collection.getEnvelope(query);
+    	} 
+    	else {
+    		envelope = collection.getEnvelope();
+    	}
+    	if (envelope != null) {
+    		FeatureSchema schema = collection.getFeatureSchema();
+    		CoordinateSystem coordsys = schema.getCoordinateSystem();
 
-                if (boundsCrs == null && schemaCrs != null) {
-                    LOGGER.warning(
-                            "Bounds crs not defined; assuming bounds from schema are correct for "
-                                    + featureSource);
-                    bounds =
-                            new ReferencedEnvelope(
-                                    bounds.getMinX(),
-                                    bounds.getMaxX(),
-                                    bounds.getMinY(),
-                                    bounds.getMaxY(),
-                                    schemaCrs);
-                }
-                if (boundsCrs != null
-                        && schemaCrs != null
-                        && !CRS.equalsIgnoreMetadata(boundsCrs, schemaCrs)) {
-                    LOGGER.warning(
-                            "Bounds crs and schema crs are not consistent; forcing the use of the schema crs so they are consistent");
-                    // bounds = bounds.transform(schemaCrs, true );
-                    bounds =
-                            new ReferencedEnvelope(
-                                    bounds.getMinX(),
-                                    bounds.getMaxX(),
-                                    bounds.getMinY(),
-                                    bounds.getMaxY(),
-                                    schemaCrs);
-                }
-                return bounds;
-            }
-        } catch (IOException e) {
-            // feature bounds unavailable
-        }
-
-        CoordinateReferenceSystem crs = featureSource.getSchema().getCoordinateReferenceSystem();
-        if (crs != null) {
-            // returns the envelope based on the CoordinateReferenceSystem
-            Envelope envelope = CRS.getEnvelope(crs);
-            if (envelope != null) {
-                return new ReferencedEnvelope(envelope); // nice!
-            } else {
-                return new ReferencedEnvelope(crs); // empty bounds
-            }
-        } else {
-            return null; // unknown
-        }
+    		if ( coordsys != null) {
+    			bounds = new ReferencedEnvelope(
+    					envelope.getMinX(),
+    					envelope.getMaxX(),
+    					envelope.getMinY(),
+    					envelope.getMaxY(),
+    					coordsys);
+    		}
+    		return bounds;
+    	}
+    	return null; // unknown
     }
 }

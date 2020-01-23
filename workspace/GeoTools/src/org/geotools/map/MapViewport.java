@@ -17,7 +17,7 @@
 package org.geotools.map;
 
 
-
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
@@ -30,9 +30,7 @@ import java.util.logging.Logger;
 
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.MapBoundsEvent.Type;
-import org.geotools.referencing.CRS;
-import org.geotools.util.logging.Logging;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.openjump.coordsys.CoordinateSystem;
 
 /**
  * Represents the area of a map to be displayed, expressed in world coordinates and (optionally)
@@ -63,9 +61,8 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
  * @since 2.7
  */
 public class MapViewport {
-
-    /** The logger for the map module. */
-    protected static final Logger LOGGER = Logging.getLogger(MapViewport.class);
+	private final static String CLSS = "MapViewport";
+	private static Logger LOGGER = Logger.getLogger(CLSS);
 
     /*
      * Flags whether this viewport can be changed
@@ -375,10 +372,10 @@ public class MapViewport {
      *
      * @return coordinate reference system used for rendering the map (may be {@code null}).
      */
-    public CoordinateReferenceSystem getCoordinateReferenceSystem() {
+    public CoordinateSystem getCoordinateSystem() {
         lock.readLock().lock();
         try {
-            return bounds.getCoordinateReferenceSystem();
+            return bounds.getCoordinateSystem();
         } finally {
             lock.readLock().unlock();
         }
@@ -390,35 +387,22 @@ public class MapViewport {
      *
      * @param crs the new coordinate reference system, or {@code null} for no reference system
      */
-    public void setCoordinateReferenceSystem(CoordinateReferenceSystem crs) {
-        lock.writeLock().lock();
-        try {
-            if (checkEditable("setCoordinateReferenceSystem")) {
-                if (crs == null) {
-                    bounds = new ReferencedEnvelope(bounds, null);
+    public void setCoordinateSystem(CoordinateSystem crs) {
+    	lock.writeLock().lock();
+    	try {
+    		if (checkEditable("setCoordinateSystem")) {
+    			if (crs == null) {
+    				bounds = new ReferencedEnvelope(bounds, null);
 
-                } else if (!CRS.equalsIgnoreMetadata(crs, bounds.getCoordinateReferenceSystem())) {
-                    if (bounds.isEmpty()) {
-                        bounds = new ReferencedEnvelope(crs);
-
-                    } else {
-                        try {
-                            ReferencedEnvelope old = bounds;
-                            bounds = bounds.transform(crs, true);
-                            setTransforms(true);
-
-                            fireMapBoundsListenerMapBoundsChanged(
-                                    MapBoundsEvent.Type.CRS, old, bounds);
-
-                        } catch (Exception e) {
-                            LOGGER.log(Level.FINE, "Difficulty transforming to {0}", crs);
-                        }
-                    }
-                }
-            }
-        } finally {
-            lock.writeLock().unlock();
-        }
+    			} 
+    			else if (bounds.isEmpty()) {
+    				bounds = new ReferencedEnvelope(crs);
+    			} 
+    		}
+    	} 
+    	finally {
+    		lock.writeLock().unlock();
+    	}
     }
 
     /** Notifies MapBoundsListeners about a change to the bounds or crs. */
@@ -594,7 +578,7 @@ public class MapViewport {
                 Math.max(p0.getX(), p1.getX()),
                 Math.min(p0.getY(), p1.getY()),
                 Math.max(p0.getY(), p1.getY()),
-                bounds.getCoordinateReferenceSystem());
+                bounds.getCoordinateSystem());
     }
 
     /**

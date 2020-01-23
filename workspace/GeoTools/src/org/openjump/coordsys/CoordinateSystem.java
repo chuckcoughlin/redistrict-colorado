@@ -72,7 +72,8 @@ public class CoordinateSystem implements Comparable<CoordinateSystem>, Serializa
         return name;
     }
 
-
+    public int getDimension() { return 2; }
+    
     public int getEPSGCode() {
         return epsgCode;
     }

@@ -30,6 +30,7 @@ import java.util.logging.Logger;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.openjump.coordsys.CoordinateSystem;
 
 /**
  * Stores the contents of a map for display, including a list of layers, a {@linkplain MapViewport}
@@ -56,19 +57,11 @@ public class MapContent {
 	private final static String CLSS = "MapContent";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 
-    static final String UNDISPOSED_MAPCONTENT_ERROR =
-            "Call MapContent dispose() to prevent memory leaks";
+    static final String UNDISPOSED_MAPCONTENT_ERROR = "Call MapContent dispose() to prevent memory leaks";
 
-    /** List of Layers to be rendered */
-    private final LayerList layerList;
-
-    /** MapLayerListListeners to be notified in the event of change */
-    private CopyOnWriteArrayList<MapLayerListListener> mapListeners;
-
-    /** Map used to hold application specific information */
-    private HashMap<String, Object> userData;
-
-    /** Map title */
+    private final LayerList layerList;           /** Layers to be rendered */
+    private CopyOnWriteArrayList<MapLayerListListener> mapListeners;    
+    private HashMap<String, Object> userData;  /** Custom application-specific information */
     private String title;
 
     /** PropertyListener list used for notifications */
@@ -82,28 +75,14 @@ public class MapContent {
      * tiles to be rendered.
      */
     protected MapViewport viewport;
-
-    /** Listener used to watch individual layers and report changes to MapLayerListListeners */
-    private MapLayerListener layerListener;
-
+    private MapLayerListener layerListener;   /** Watch individual layers and report changes */
     private final ReadWriteLock monitor;
 
-    /** Creates a new map content. */
+    /** 
+     * Creates a new map content. */
     public MapContent() {
         layerList = new LayerList();
         monitor = new ReentrantReadWriteLock();
-    }
-
-    /** Checks that dispose has been called; producing a warning if needed. */
-    @Override
-    @SuppressWarnings("deprecation") // finalize is deprecated in Java 9
-    protected void finalize() throws Throwable {
-        if (this.layerList != null) {
-            if (!this.layerList.isEmpty()) {
-                LOGGER.severe(UNDISPOSED_MAPCONTENT_ERROR);
-            }
-        }
-        super.finalize();
     }
 
     /**
@@ -489,8 +468,8 @@ public class MapContent {
 
     /**
      * Get the bounding box of all the layers in this Map. If all the layers cannot determine the
-     * bounding box in the speed required for each layer, then null is returned. The bounds will be
-     * expressed in the Map coordinate system.
+     * bounding box in the speed required for each layer, then null is returned. We assume that the
+     * coordinate system is the same for all layers.
      *
      * @return The bounding box of the features or null if unknown and too expensive for the method
      *     to calculate.
@@ -499,9 +478,9 @@ public class MapContent {
     public ReferencedEnvelope getMaxBounds() {
         monitor.readLock().lock();
         try {
-            CoordinateReferenceSystem mapCrs = null;
+            CoordinateSystem mapCrs = null;
             if (viewport != null) {
-                mapCrs = viewport.getCoordinateReferenceSystem();
+                mapCrs = viewport.getCoordinateSystem();
             }
             ReferencedEnvelope maxBounds = null;
 
@@ -514,31 +493,14 @@ public class MapContent {
                     if (layerBounds == null || layerBounds.isEmpty() || layerBounds.isNull()) {
                         continue;
                     }
-                    if (mapCrs == null) {
-                        // crs for the map is not defined; let us start with the first CRS we see
-                        // then!
-                        maxBounds = new ReferencedEnvelope(layerBounds);
-                        mapCrs = layerBounds.getCoordinateReferenceSystem();
-                        continue;
-                    }
-                    ReferencedEnvelope normalized;
-                    if (CRS.equalsIgnoreMetadata(
-                            mapCrs, layerBounds.getCoordinateReferenceSystem())) {
-                        normalized = layerBounds;
-                    } else {
-                        try {
-                            normalized = layerBounds.transform(mapCrs, true);
-                        } catch (Exception e) {
-                            LOGGER.log(Level.FINE, "Unable to transform: {0}", e);
-                            continue;
-                        }
-                    }
                     if (maxBounds == null) {
-                        maxBounds = normalized;
-                    } else {
-                        maxBounds.expandToInclude(normalized);
+                        maxBounds = new ReferencedEnvelope(layerBounds);
                     }
-                } catch (Throwable eek) {
+                    else {
+                    	maxBounds.expandToInclude(layerBounds);
+                    }
+                } 
+                catch (Throwable eek) {
                     LOGGER.log(Level.WARNING, "Unable to determine bounds of " + layer, eek);
                 }
             }
@@ -548,7 +510,8 @@ public class MapContent {
 
             return maxBounds;
 
-        } finally {
+        } 
+        finally {
             monitor.readLock().unlock();
         }
     }
@@ -656,11 +619,12 @@ public class MapContent {
      *
      * @return coordinate reference system used for rendering the map.
      */
-    public CoordinateReferenceSystem getCoordinateReferenceSystem() {
+    public CoordinateSystem getCoordinateSystem() {
         monitor.readLock().lock();
         try {
-            return getViewport().getCoordinateReferenceSystem();
-        } finally {
+            return getViewport().getCoordinateSystem();
+        } 
+        finally {
             monitor.readLock().unlock();
         }
     }
@@ -672,10 +636,10 @@ public class MapContent {
      * @throws FactoryException
      * @throws TransformException
      */
-    void setCoordinateReferenceSystem(CoordinateReferenceSystem crs) {
+    public void setCoordinateSystem(CoordinateSystem crs) {
         monitor.writeLock().lock();
         try {
-            getViewport().setCoordinateReferenceSystem(crs);
+            getViewport().setCoordinateSystem(crs);
         } finally {
             monitor.writeLock().unlock();
         }
@@ -835,14 +799,14 @@ public class MapContent {
      * already has a CRS set or if it has been set as non-editable.
      */
     private void checkViewportCRS() {
-        if (viewport != null && getCoordinateReferenceSystem() == null && viewport.isEditable()) {
+        if (viewport != null && getCoordinateSystem() == null && viewport.isEditable()) {
 
             for (Layer layer : layerList) {
                 ReferencedEnvelope bounds = layer.getBounds();
                 if (bounds != null) {
-                    CoordinateReferenceSystem crs = bounds.getCoordinateReferenceSystem();
+                    CoordinateSystem crs = bounds.getCoordinateSystem();
                     if (crs != null) {
-                        viewport.setCoordinateReferenceSystem(crs);
+                        viewport.setCoordinateSystem(crs);
                         return;
                     }
                 }

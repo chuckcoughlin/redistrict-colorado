@@ -5,21 +5,21 @@
  * modify it under the terms of the GNU General Public License.
  */
 package redistrict.colorado.ui.right;
-import java.io.IOException;
+import java.awt.Color;
+import java.awt.Rectangle;
 import java.util.logging.Logger;
 
 import org.geotools.map.FeatureLayer;
 import org.geotools.map.MapContent;
 import org.geotools.renderer.shape.ShapefileRenderer;
 import org.geotools.styling.SLD;
+import org.geotools.styling.Style;
 import org.jfree.fx.FXGraphics2D;
 import org.openjump.io.ShapefileReader;
 
-import javafx.css.Style;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.shape.Rectangle;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.LayerModel;
 import redistrict.colorado.db.Database;
@@ -49,17 +49,13 @@ import redistrict.colorado.db.Database;
 		}
 
 		private void initMap() {
-			try {
-				map = new MapContent();
-				map.setTitle(model.getName());
-				Style style = SLD.createSimpleStyle(model.getFeatures().getFeatureSchema());
-				FeatureLayer layer = new FeatureLayer(model, style);
-				map.addLayer(layer);
-				map.getViewport().setScreenArea(new java.awt.Rectangle((int) canvas.getWidth(), (int) canvas.getHeight()));
-			} 
-			catch (IOException ioe) {
-				ioe.printStackTrace();
-			}
+			map = new MapContent();
+			map.setTitle(model.getName());
+			// Outline, fill, alpha
+			Style style = SLD.createPolygonStyle(Color.BLUE,Color.LIGHT_GRAY,1.0f);
+			FeatureLayer layer = new FeatureLayer(model.getFeatures(), style);
+			map.addLayer(layer);
+			map.getViewport().setScreenArea(new Rectangle((int) canvas.getWidth(), (int) canvas.getHeight()));
 		}
 
 		private void drawMap(GraphicsContext gc) {
@@ -67,7 +63,7 @@ import redistrict.colorado.db.Database;
 			renderer.setMapContent(map);
 			FXGraphics2D graphics = new FXGraphics2D(gc);
 			graphics.setBackground(java.awt.Color.WHITE);
-			java.awt.Rectangle rectangle = new java.awt.Rectangle((int) canvas.getWidth(), (int) canvas.getHeight());
+			Rectangle rectangle = new Rectangle((int) canvas.getWidth(), (int) canvas.getHeight());
 			renderer.paint(graphics, rectangle, map.getViewport().getBounds());
 		}
 		

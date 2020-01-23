@@ -43,6 +43,10 @@ Java 13.
 
 * http://www.openjump.org/jpp.html OpenJUMP 1.14. This GIS package is extremely comprehensive consisting of over 1600 source files. We have simplified it drastically, using perhaps 50.
 
+* https://github.com/jfree/fxgraphics2d FXGraphics2D. This is an implementation of the Java Graphics2D API that targets the JavaFX Canvas.
+
+* https://github.com/unitsofmeasurement/jsr-275 JSR-275 units of measure.
+
 *** Modularization ***<br/>
 The open source jar files listed above have all been manually updated for Java11 module compatibility and then stored in our `git`  repository.
 

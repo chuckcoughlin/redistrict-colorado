@@ -11,7 +11,6 @@ import javafx.event.Event;
 /**
  * In order to consume an event, the class must make its dispatcher available. 
  */
-public interface EventReceiver<T extends Event> {
-	
+public interface EventReceiver<T extends Event> {	
 	public BasicEventDispatcher<T> getAuxillaryEventDispatcher();
 }

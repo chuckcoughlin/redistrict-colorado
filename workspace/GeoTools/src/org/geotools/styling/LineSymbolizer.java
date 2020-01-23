@@ -16,75 +16,155 @@
  */
 package org.geotools.styling;
 
+import java.awt.Stroke;
+
+import javax.measure.quantity.Length;
+import javax.measure.unit.Unit;
 import org.opengis.filter.expression.Expression;
+import org.opengis.style.StyleVisitor;
 
 /**
- * A symbolizer describes how a feature should appear on a map.
+ * Provides a representation of a LineSymbolizer in an SLD Document. A LineSymbolizer defines how a
+ * line geometry should be rendered.
  *
- * <p>The symbolizer describes not just the shape that should appear but also such graphical
- * properties as color and opacity.
- *
- * <p>A symbolizer is obtained by specifying one of a small number of different types of symbolizer
- * and then supplying parameters to override its default behaviour.
- *
- * <p>The details of this object are taken from the <a
- * href="https://portal.opengeospatial.org/files/?artifact_id=1188">OGC Styled-Layer Descriptor
- * Report (OGC 02-070) version 1.0.0.</a>:
- *
- * <pre><code>
- * &lt;xsd:element name="LineSymbolizer" substitutionGroup="sld:Symbolizer">
- *   &lt;xsd:annotation>
- *     &lt;xsd:documentation>
- *       A LineSymbolizer is used to render a "stroke" along a linear geometry.
- *     &lt;/xsd:documentation>
- *   &lt;/xsd:annotation>
- *   &lt;xsd:complexType>
- *     &lt;xsd:complexContent>
- *       &lt;xsd:extension base="sld:SymbolizerType">
- *         &lt;xsd:sequence>
- *           &lt;xsd:element ref="sld:Geometry" minOccurs="0"/>
- *           &lt;xsd:element ref="sld:Stroke" minOccurs="0"/>
- *         &lt;/xsd:sequence>
- *       &lt;/xsd:extension>
- *     &lt;/xsd:complexContent>
- *   &lt;/xsd:complexType>
- * &lt;/xsd:element>
- * </code></pre>
- *
- * <p>Renderers can use this information when displaying styled features, though it must be
- * remembered that not all renderers will be able to fully represent strokes as set out by this
- * interface. For example, opacity may not be supported.
- *
- * <p>Notes:
- *
- * <ul>
- *   <li>The graphical parameters and their values are derived from SVG/CSS2 standards with names
- *       and semantics which are as close as possible.
- * </ul>
- *
- * @author James Macgill, CCG
+ * @author James Macgill
+ * @author Johann Sorel (Geomatys)
  * @version $Id$
  */
-public interface LineSymbolizer extends org.opengis.style.LineSymbolizer, Symbolizer {
+public class LineSymbolizer extends AbstractSymbolizer {
+
+    private Expression offset;
+    private Stroke stroke = null;
+
+    /** Creates a new instance of DefaultLineSymbolizer */
+    protected LineSymbolizer() {
+        this(null, null, null, null, null, null);
+    }
+
+    protected LineSymbolizer(
+            Stroke stroke,
+            Expression offset,
+            Unit<Length> uom,
+            String geom,
+            String name,
+            String desc) {
+        super(name, desc, geom, uom);
+    }
+
+    public Expression getPerpendicularOffset() {
+        return offset;
+    }
+
+    public void setPerpendicularOffset(Expression offset) {
+        this.offset = offset;
+    }
+
     /**
      * Provides the graphical-symbolization parameter to use for the linear geometry.
      *
      * @return The Stroke style to use when rendering lines.
      */
-    Stroke getStroke();
+    public Stroke getStroke() {
+        return stroke;
+    }
 
     /**
-     * Provides the graphical-symbolization parameter to use for the linear geometry.
+     * Sets the graphical-symbolization parameter to use for the linear geometry.
      *
-     * @param stroke The Stroke style to use when rendering lines.
+     * @param s The stroke style to use when rendering lines.
      */
-    void setStroke(org.opengis.style.Stroke stroke);
+    public void setStroke(Stroke s) {
+        this.stroke = s;
+    }
 
     /**
-     * Define an offset to draw lines in parallel to the original geometry.
+     * Accepts a StyleVisitor to perform some operation on this LineSymbolizer.
      *
-     * @param offset Distance in UOMs to offset line; left-hand side is positive; right-hand side is
-     *     negative; the default value is 0
+     * @param visitor The visitor to accept.
      */
-    void setPerpendicularOffset(Expression offset);
+    public Object accept(StyleVisitor visitor, Object data) {
+        return visitor.visit(this, data);
+    }
+
+    public void accept(org.geotools.styling.StyleVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    /**
+     * Creates a deep copy clone.
+     * @return The deep copy clone.
+     */
+    public Object clone() {
+        LineSymbolizer clone;
+
+        try {
+            clone = (LineSymbolizer) super.clone();
+
+            if (stroke != null && stroke instanceof Cloneable) {
+                clone.stroke = (StrokeImpl) ((Cloneable) stroke).clone();
+            }
+
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e); // this should never happen.
+        }
+
+        return clone;
+    }
+
+    public String toString() {
+        StringBuffer buf = new StringBuffer();
+        buf.append("<LineSymbolizerImp property=");
+        buf.append(getGeometryPropertyName());
+        buf.append(" uom=");
+        buf.append(unitOfMeasure);
+        buf.append(" stroke=");
+        buf.append(stroke);
+        buf.append(">");
+        return buf.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((offset == null) ? 0 : offset.hashCode());
+        result = prime * result + ((stroke == null) ? 0 : stroke.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!super.equals(obj)) return false;
+        if (getClass() != obj.getClass()) return false;
+        LineSymbolizer other = (LineSymbolizer) obj;
+        if (offset == null) {
+            if (other.offset != null) return false;
+        } else if (!offset.equals(other.offset)) return false;
+        if (stroke == null) {
+            if (other.stroke != null) return false;
+        } else if (!stroke.equals(other.stroke)) return false;
+        return true;
+    }
+
+    static LineSymbolizer cast(org.opengis.style.Symbolizer symbolizer) {
+        if (symbolizer == null) {
+            return null;
+        }
+        if (symbolizer instanceof LineSymbolizer) {
+            return (LineSymbolizer) symbolizer;
+        } else if (symbolizer instanceof org.opengis.style.LineSymbolizer) {
+            org.opengis.style.LineSymbolizer lineSymbolizer =
+                    (org.opengis.style.LineSymbolizer) symbolizer;
+            LineSymbolizer copy = new LineSymbolizer();
+            copy.setDescription(lineSymbolizer.getDescription());
+            copy.setGeometryPropertyName(lineSymbolizer.getGeometryPropertyName());
+            copy.setName(lineSymbolizer.getName());
+            copy.setPerpendicularOffset(lineSymbolizer.getPerpendicularOffset());
+            copy.setStroke(lineSymbolizer.getStroke());
+            copy.setUnitOfMeasure(lineSymbolizer.getUnitOfMeasure());
+            return copy;
+        }
+        return null; // not a line symbolizer
+    }
 }

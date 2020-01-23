@@ -9,7 +9,14 @@
  */
 package org.opengis.style;
 
-import org.opengis.filter.expression.ExpressionVisitor;
+import java.awt.Font;
+import java.awt.Stroke;
+
+import org.geotools.styling.LineSymbolizer;
+import org.geotools.styling.Mark;
+import org.geotools.styling.PointSymbolizer;
+import org.geotools.styling.Style;
+
 
 /**
  * An interface for classes that want to perform operations on a Style hierarchy. It forms part of a
@@ -104,7 +111,7 @@ public interface StyleVisitor {
      *
      * @param description the description to visit
      */
-    Object visit(Description description, Object data);
+    Object visit(String description, Object data);
 
     /**
      * Called when accept is called on a displacement
