@@ -37,7 +37,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.geotools.data.Query;
 import org.locationtech.jts.geom.Envelope;
 
 
@@ -58,7 +57,6 @@ public interface FeatureCollection {
      * @return the smallest Envelope enclosing all the Features in this collection
      */
     public Envelope getEnvelope();
-    public Envelope getEnvelope(Query q);
 
     /**
      * Returns the number of features in this collection.

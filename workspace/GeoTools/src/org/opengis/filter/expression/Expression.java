@@ -32,7 +32,7 @@ public interface Expression {
     Expression NIL = new NilExpression();
 
     /** Evaluates the given expression based on the content of the given object. */
-    public Object evaluate(Object object);
+    Object evaluate(Object object);
 
     /**
      * Evaluates the given expressoin based on the content of the given object and the context type.
@@ -60,12 +60,12 @@ public interface Expression {
      * @return Evaluates the given expression based on the content of the given object an an
      *     instance of {@code context}.
      */
-    public <T> T evaluate(Object object, Class<T> context);
+    <T> T evaluate(Object object, Class<T> context);
 
     /**
      * Accepts a visitor. Subclasses must implement with a method whose content is the following:
      *
      * <pre>return visitor.{@linkplain ExpressionVisitor#visit visit}(this, extraData);</pre>
      */
-    public Object accept(ExpressionVisitor visitor, Object extraData);
+    Object accept(ExpressionVisitor visitor, Object extraData);
 }

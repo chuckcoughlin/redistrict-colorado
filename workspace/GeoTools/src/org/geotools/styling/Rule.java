@@ -19,15 +19,9 @@ package org.geotools.styling;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.filter.visitor.DuplicatingFilterVisitor;
+
 import org.geotools.util.Utilities;
-import org.opengis.filter.Filter;
-import org.opengis.metadata.citation.OnLineResource;
-import org.opengis.style.GraphicLegend;
-import org.opengis.style.Rule;
 import org.opengis.style.StyleVisitor;
-import org.opengis.util.Cloneable;
 
 /**
  * Provides the default implementation of Rule.
@@ -36,12 +30,12 @@ import org.opengis.util.Cloneable;
  * @author Johann Sorel (Geomatys)
  * @version $Id$
  */
-public class Rule implements org.geotools.styling.Rule, Cloneable {
+public class Rule implements Cloneable {
     private List<Symbolizer> symbolizers = new ArrayList<>();
 
     private GraphicLegend legend;
     private String name;
-    private DescriptionImpl description = new DescriptionImpl();
+    private String description = "";
     private Filter filter = null;
     private boolean hasElseFilter = false;
     private double maxScaleDenominator = Double.POSITIVE_INFINITY;
@@ -57,8 +51,8 @@ public class Rule implements org.geotools.styling.Rule, Cloneable {
     }
 
     protected Rule(
-            org.geotools.styling.Symbolizer[] symbolizers,
-            org.opengis.style.Description desc,
+            Symbolizer[] symbolizers,
+            String desc,
             GraphicLegend legend,
             String name,
             Filter filter,

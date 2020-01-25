@@ -16,7 +16,17 @@
  */
 package org.geotools.renderer.style;
 
-import java.awt.*;
+import java.awt.AlphaComposite;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Composite;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.Paint;
+import java.awt.RenderingHints;
+import java.awt.Shape;
+import java.awt.Stroke;
+import java.awt.TexturePaint;
 import java.awt.font.TextAttribute;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
@@ -31,44 +41,24 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-import javax.swing.*;
-import org.geotools.factory.CommonFactoryFinder;
+
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.SortOrder;
+
 import org.geotools.geometry.jts.JTS;
-import org.geotools.renderer.VendorOptionParser;
-import org.geotools.renderer.composite.BlendComposite;
-import org.geotools.renderer.composite.BlendComposite.BlendingMode;
-import org.geotools.renderer.style.RandomFillBuilder.PositionRandomizer;
-import org.geotools.styling.AnchorPoint;
 import org.geotools.styling.Displacement;
-import org.geotools.styling.ExternalGraphic;
 import org.geotools.styling.FeatureTypeStyle;
-import org.geotools.styling.Fill;
-import org.geotools.styling.Font;
-import org.geotools.styling.Graphic;
 import org.geotools.styling.Halo;
-import org.geotools.styling.LabelPlacement;
-import org.geotools.styling.LinePlacement;
 import org.geotools.styling.LineSymbolizer;
 import org.geotools.styling.Mark;
-import org.geotools.styling.Mark;
-import org.geotools.styling.PointPlacement;
 import org.geotools.styling.PointSymbolizer;
 import org.geotools.styling.PolygonSymbolizer;
 import org.geotools.styling.StyleFactory;
 import org.geotools.styling.Symbolizer;
-import org.geotools.styling.TextSymbolizer;
-import org.geotools.styling.TextSymbolizer2;
-import org.geotools.util.Range;
-import org.geotools.util.SoftValueHashMap;
-import org.geotools.util.factory.Hints;
-import org.opengis.feature.Feature;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.filter.FilterFactory;
-import org.opengis.filter.expression.Expression;
-import org.opengis.filter.expression.Literal;
-import org.opengis.filter.sort.SortBy;
-import org.opengis.filter.sort.SortOrder;
-import org.opengis.style.GraphicalSymbol;
+import org.graalvm.compiler.hotspot.replacements.TypeCheckSnippetUtils.Hints;
+
+import sun.tools.jstat.Literal;
 
 /**
  * Factory object that converts SLD style into rendered styles.
@@ -904,7 +894,7 @@ public class SLDStyleFactory {
     // be needed during rendering
     private Style2D getGraphicStroke(
             Symbolizer symbolizer,
-            org.geotools.styling.Stroke stroke,
+            Stroke stroke,
             Object feature,
             Range scaleRange) {
         if ((stroke == null) || (stroke.getGraphicStroke() == null)) {
@@ -915,7 +905,7 @@ public class SLDStyleFactory {
         return createPointStyle(feature, symbolizer, stroke.getGraphicStroke(), scaleRange, false);
     }
 
-    Stroke getStroke(org.geotools.styling.Stroke stroke, Object feature) {
+    Stroke getStroke(Stroke stroke, Object feature) {
         if (stroke == null) {
             return null;
         }

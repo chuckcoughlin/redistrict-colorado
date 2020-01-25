@@ -16,11 +16,12 @@
  */
 package org.geotools.styling;
 
-import javax.measure.Unit;
+import java.awt.Stroke;
+
 import javax.measure.quantity.Length;
-import org.opengis.filter.expression.Expression;
+import javax.measure.unit.Unit;
+
 import org.opengis.style.StyleVisitor;
-import org.opengis.util.Cloneable;
 
 /**
  * Provides a representation of a PolygonSymbolizer in an SLD Document. A PolygonSymbolizer defines
@@ -31,12 +32,12 @@ import org.opengis.util.Cloneable;
  * @version $Id$
  */
 public class PolygonSymbolizer extends AbstractSymbolizer
-        implements PolygonSymbolizer, Cloneable {
+        implements Cloneable {
 
     private Expression offset;
     private Displacement disp;
 
-    private Fill fill = new FillI();
+    private Fill fill = new Fill();
     private StrokeImpl stroke = new StrokeImpl();
 
     /** Creates a new instance of DefaultPolygonStyler */
@@ -93,7 +94,7 @@ public class PolygonSymbolizer extends AbstractSymbolizer
         if (this.fill == fill) {
             return;
         }
-        this.fill = FillI.cast(fill);
+        this.fill = Fill.cast(fill);
     }
 
     /**

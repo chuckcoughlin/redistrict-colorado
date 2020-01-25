@@ -16,11 +16,10 @@
  */
 package org.geotools.styling;
 
-import javax.measure.Unit;
 import javax.measure.quantity.Length;
-import org.geotools.util.SimpleInternationalString;
+import javax.measure.unit.Unit;
+
 import org.opengis.style.StyleVisitor;
-import org.opengis.util.Cloneable;
 
 /**
  * Provides a Java representation of the PointSymbolizer. This defines how points are to be
@@ -30,14 +29,14 @@ import org.opengis.util.Cloneable;
  * @author Johann Sorel (Geomatys)
  * @version $Id$
  */
-public class PointSymbolizer extends AbstractSymbolizer implements PointSymbolizer, Cloneable {
+public class PointSymbolizer extends AbstractSymbolizer implements Cloneable {
 
-    private GraphicImpl graphic = new GraphicImpl();
+    private Graphic graphic = new Graphic();
 
     /** Creates a new instance of DefaultPointSymbolizer */
     protected PointSymbolizer() {
         this(
-                new GraphicImpl(),
+                new Graphic(),
                 null,
                 null,
                 null,
@@ -49,7 +48,7 @@ public class PointSymbolizer extends AbstractSymbolizer implements PointSymboliz
     protected PointSymbolizer(
             Graphic graphic, Unit<Length> uom, String geom, String name, Description desc) {
         super(name, desc, geom, uom);
-        this.graphic = GraphicImpl.cast(graphic);
+        this.graphic = Graphic.cast(graphic);
     }
 
     /**
@@ -57,7 +56,7 @@ public class PointSymbolizer extends AbstractSymbolizer implements PointSymboliz
      *
      * @return The Graphic to be used when drawing a point
      */
-    public GraphicImpl getGraphic() {
+    public Graphic getGraphic() {
         return graphic;
     }
 
@@ -70,7 +69,7 @@ public class PointSymbolizer extends AbstractSymbolizer implements PointSymboliz
         if (this.graphic == graphic) {
             return;
         }
-        this.graphic = GraphicImpl.cast(graphic);
+        this.graphic = Graphic.cast(graphic);
     }
 
     /**
@@ -96,7 +95,7 @@ public class PointSymbolizer extends AbstractSymbolizer implements PointSymboliz
 
         try {
             clone = (PointSymbolizer) super.clone();
-            if (graphic != null) clone.graphic = (GraphicImpl) ((Cloneable) graphic).clone();
+            if (graphic != null) clone.graphic = (Graphic) ((Cloneable) graphic).clone();
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e); // this should never happen.
         }

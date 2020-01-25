@@ -21,15 +21,7 @@ import java.awt.Font;
 import java.awt.Stroke;
 import java.util.logging.Logger;
 
-import org.geotools.filter.FilterFactory;
 import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.MultiLineString;
-import org.locationtech.jts.geom.MultiPoint;
-import org.locationtech.jts.geom.MultiPolygon;
-import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.Polygon;
-import org.opengis.style.FeatureTypeStyle;
 import org.opengis.style.Symbolizer;
 import org.openjump.feature.Feature;
 

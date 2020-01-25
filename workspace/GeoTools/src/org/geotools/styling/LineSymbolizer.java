@@ -20,7 +20,7 @@ import java.awt.Stroke;
 
 import javax.measure.quantity.Length;
 import javax.measure.unit.Unit;
-import org.opengis.filter.expression.Expression;
+
 import org.opengis.style.StyleVisitor;
 
 /**
@@ -101,7 +101,7 @@ public class LineSymbolizer extends AbstractSymbolizer {
             clone = (LineSymbolizer) super.clone();
 
             if (stroke != null && stroke instanceof Cloneable) {
-                clone.stroke = (StrokeImpl) ((Cloneable) stroke).clone();
+                clone.stroke = (Stroke) ((Cloneable) stroke).clone();
             }
 
         } catch (CloneNotSupportedException e) {

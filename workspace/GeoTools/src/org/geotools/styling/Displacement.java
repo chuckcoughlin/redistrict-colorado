@@ -16,60 +16,31 @@
  */
 package org.geotools.styling;
 
-// OpenGIS dependencies
+import java.util.logging.Logger;
 
-import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.util.Utilities;
-import org.geotools.util.factory.GeoTools;
-import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
 import org.opengis.style.StyleVisitor;
-import org.opengis.util.Cloneable;
 
 /**
  * @author Ian Turton, CCG
  * @version $Id$
  */
-public class Displacement implements Displacement, Cloneable {
-    /** The logger for the default core module. */
-    private static final java.util.logging.Logger LOGGER =
-            org.geotools.util.logging.Logging.getLogger(Displacement.class);
+public class Displacement implements Cloneable {
+	private final static String CLSS = "Displacement";
+	private static Logger LOGGER = Logger.getLogger(CLSS);
 
-    private FilterFactory filterFactory;
     private Expression displacementX = null;
     private Expression displacementY = null;
 
     public Displacement() {
-        this(CommonFactoryFinder.getFilterFactory(GeoTools.getDefaultHints()));
-    }
-
-    public Displacement(FilterFactory factory) {
-        filterFactory = factory;
-
-        try {
-            displacementX = filterFactory.literal(0);
-            displacementY = filterFactory.literal(0);
-        } catch (org.geotools.filter.IllegalFilterException ife) {
-            LOGGER.severe("Failed to build defaultDisplacement: " + ife);
-        }
     }
 
     public Displacement(Expression dx, Expression dy) {
-        filterFactory = CommonFactoryFinder.getFilterFactory2(null);
         displacementX = dx;
         displacementY = dy;
     }
 
-    public void setFilterFactory(FilterFactory factory) {
-        filterFactory = factory;
-
-        try {
-            displacementX = filterFactory.literal(0);
-            displacementY = filterFactory.literal(0);
-        } catch (org.geotools.filter.IllegalFilterException ife) {
-            LOGGER.severe("Failed to build defaultDisplacement: " + ife);
-        }
-    }
 
     /**
      * Setter for property displacementX.

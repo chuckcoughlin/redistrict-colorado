@@ -36,7 +36,6 @@ package org.openjump.io;
 import static org.openjump.util.FileUtil.close;
 
 import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

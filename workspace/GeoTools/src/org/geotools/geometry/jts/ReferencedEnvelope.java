@@ -19,11 +19,13 @@ package org.geotools.geometry.jts;
 import java.awt.geom.Rectangle2D;
 import java.util.logging.Logger;
 
-import org.geotools.geometry.DirectPosition2D;
+import org.geotools.geometry.DirectPosition;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
-import org.opengis.geometry.DirectPosition;
+import org.locationtech.jts.geom.util.GeometryEditor.CoordinateOperation;
 import org.opengis.geometry.MismatchedDimensionException;
+import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.TransformException;
 import org.openjump.coordsys.CoordinateSystem;
 
 
@@ -303,7 +305,7 @@ public class ReferencedEnvelope extends Envelope  {
      * points within the {@code Envelope}.
      */
     public DirectPosition getLowerCorner() {
-        return new DirectPosition2D(coordsys, getMinX(), getMinY());
+        return new DirectPosition(getMinX(), getMinY(),coordsys);
     }
 
     /**
@@ -311,7 +313,7 @@ public class ReferencedEnvelope extends Envelope  {
      * points within the {@code Envelope}.
      */
     public DirectPosition getUpperCorner() {
-        return new DirectPosition2D(coordsys, getMaxX(), getMaxY());
+        return new DirectPosition(getMaxX(), getMaxY(),coordsys );
     }
 
     /**
@@ -397,17 +399,7 @@ public class ReferencedEnvelope extends Envelope  {
         super.init(bbox);
     }
 
-    /**
-     * Returns a new bounding envelope which contains the transformed shape of this bounding box. This is
-     * a convenience method that delegate its work to the {@link #transform transform} method.
-     *
-     * @since 2.4
-  
-    public Envelope toBounds(final CoordinateSystem targetCRS)
-            throws TransformException {
-        return transform(targetCRS, true);
-    }
-   */
+
     /**
      * Transforms the referenced envelope to the specified coordinate reference system.
      *
@@ -421,12 +413,11 @@ public class ReferencedEnvelope extends Envelope  {
      * @throws FactoryException if the math transform can't be determined.
      * @throws TransformException if at least one coordinate can't be transformed.
      * @see CRS#transform(CoordinateOperation, org.opengis.geometry.Envelope)
- 
-    public ReferencedEnvelope transform(CoordinateSystem targetCRS, boolean lenient)
-    									throws TransformException {
+ 	 
+    public ReferencedEnvelope transform(CoordinateSystem targetCRS, boolean lenient) throws TransformException {
         return transform(targetCRS, lenient, 5);
     }
-    */
+*/
     /**
      * Transforms the referenced envelope to the specified coordinate reference system using the
      * specified amount of points.
@@ -443,12 +434,8 @@ public class ReferencedEnvelope extends Envelope  {
      * @throws TransformException if at least one coordinate can't be transformed.
      * @see CRS#transform(CoordinateOperation, org.opengis.geometry.Envelope)
      * @since 2.3
-    
-    public ReferencedEnvelope transform(
-            final CoordinateSystem targetCRS,
-            final boolean lenient,
-            final int numPointsForTransformation)
-            throws TransformException {
+   
+    public ReferencedEnvelope transform(final CoordinateSystem targetCRS,final boolean lenient,final int numPointsForTransformation) throws TransformException {
         if (coordsys == null) {
             if (isEmpty()) {
                 // We don't have a CRS yet because we are still empty, being empty is
@@ -457,15 +444,14 @@ public class ReferencedEnvelope extends Envelope  {
             } 
             else {
                 // really this is a the code that created this ReferencedEnvelope
-                throw new NullPointerException(
-                        "Unable to transform referenced envelope, crs has not yet been provided.");
+                throw new NullPointerException("Unable to transform referenced envelope, crs has not yet been provided.");
             }
         }
 
         /*
          * Gets a first estimation using an algorithm capable to take singularity in account
-         * (North pole, South pole, 180ï¿½ longitude). We will expand this initial box later.
-         
+         * (North pole, South pole, 180deg longitude). We will expand this initial box later.
+   
         CoordinateOperation op =
                 createFromAffineTransform(
                         IDENTITY, sourceCRS, targetCRS, MatrixFactory.create(dim + 1));

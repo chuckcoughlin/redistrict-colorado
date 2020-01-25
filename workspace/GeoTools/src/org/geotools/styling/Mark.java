@@ -16,13 +16,9 @@
  */
 package org.geotools.styling;
 
-import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.util.factory.GeoTools;
-import org.opengis.filter.FilterFactory;
-import org.opengis.filter.expression.Expression;
-import org.opengis.style.GraphicalSymbol;
+import java.util.logging.Logger;
+
 import org.opengis.style.StyleVisitor;
-import org.opengis.util.Cloneable;
 
 /**
  * Default implementation of Mark.
@@ -31,17 +27,15 @@ import org.opengis.util.Cloneable;
  * @author Johann Sorel (Geomatys)
  * @version $Id$
  */
-public class Mark implements Mark, Cloneable {
-
-    /** The logger for the default core module. */
-    private static final java.util.logging.Logger LOGGER =
-            org.geotools.util.logging.Logging.getLogger(Mark.class);
+public class Mark implements Cloneable {
+	private final static String CLSS = "Mark";
+	private static Logger LOGGER = Logger.getLogger(CLSS);
 
     private final FilterFactory filterFactory;
     private FillImpl fill;
     private StrokeImpl stroke;
 
-    private ExternalMarkImpl external;
+    private ExternalMark external;
     private Expression wellKnownName = null;
 
     /** Creates a new instance of DefaultMark */
@@ -68,7 +62,7 @@ public class Mark implements Mark, Cloneable {
         } catch (org.geotools.filter.IllegalFilterException ife) {
             severe("<init>", "Failed to build default mark: ", ife);
         }
-        this.external = ExternalMarkImpl.cast(external);
+        this.external = ExternalMark.cast(external);
     }
 
     /** Convenience method for logging a message with an exception. */
@@ -261,12 +255,12 @@ public class Mark implements Mark, Cloneable {
         return true;
     }
 
-    public ExternalMarkImpl getExternalMark() {
+    public ExternalMark getExternalMark() {
         return external;
     }
 
     public void setExternalMark(org.opengis.style.ExternalMark external) {
-        this.external = ExternalMarkImpl.cast(external);
+        this.external = ExternalMark.cast(external);
     }
 
     @SuppressWarnings("deprecation")

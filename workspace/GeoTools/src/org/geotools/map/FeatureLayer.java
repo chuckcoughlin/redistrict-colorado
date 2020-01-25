@@ -16,8 +16,6 @@
  */
 package org.geotools.map;
 
-import org.geotools.data.FeatureListener;
-import org.geotools.data.Query;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.styling.Style;
 import org.locationtech.jts.geom.Envelope;
@@ -45,12 +43,6 @@ import org.openjump.feature.FeatureSchema;
 public class FeatureLayer extends StyleLayer {
 	private final FeatureCollection collection;
 
-    /** Query use to limit content of feature collection */
-    protected Query query;
-
-    /** Listener to forward feature source events as layer events */
-    protected FeatureListener sourceListener;
-
     /**
      * Creates a new instance of FeatureLayer
      *
@@ -72,54 +64,15 @@ public class FeatureLayer extends StyleLayer {
     public void dispose() {
         preDispose();
         style = null;
-        query = null;
         super.dispose();
-    }
-
-    /**
-     * Returns the definition query (filter) for this layer. If no definition query has been defined
-     * {@link Query.ALL} is returned.
-     *
-     * @return Query used to process content prior to display, or Query.ALL to indicate all content
-     *     is used
-     */
-    public Query getQuery() {
-        if (query == null) {
-            return Query.ALL;
-        } else {
-            return query;
-        }
-    }
-
-    /**
-     * Sets a definition query for the layer which acts as a filter for the features that the layer
-     * will draw.
-     *
-     * <p>A consumer must ensure that this query is used in combination with the bounding box filter
-     * generated on each map interaction to limit the number of features returned to those that
-     * complains both the definition query and relies inside the area of interest.
-     *
-     * <p>IMPORTANT: only include attribute names in the query if you want them to be ALWAYS
-     * returned. It is desirable to not include attributes at all but let the layer user (a
-     * renderer?) to decide wich attributes are actually needed to perform its requiered operation.
-     *
-     * @param query
-     */
-    public void setQuery(Query query) {
-        this.query = query;
-        fireMapLayerListenerLayerChanged(MapLayerEvent.FILTER_CHANGED);
     }
 
     @Override
     public ReferencedEnvelope getBounds() {
     	ReferencedEnvelope bounds = null;
     	Envelope envelope;
-    	if (query != null) {
-    		envelope = collection.getEnvelope(query);
-    	} 
-    	else {
-    		envelope = collection.getEnvelope();
-    	}
+    	envelope = collection.getEnvelope();
+    	
     	if (envelope != null) {
     		FeatureSchema schema = collection.getFeatureSchema();
     		CoordinateSystem coordsys = schema.getCoordinateSystem();

@@ -35,29 +35,16 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.swing.Icon;
-import org.geotools.geometry.jts.Decimator;
-import org.geotools.geometry.jts.LiteShape2;
-import org.geotools.image.io.ImageIOExt;
-import org.geotools.referencing.operation.transform.AffineTransform2D;
-import org.geotools.renderer.style.GraphicStyle2D;
-import org.geotools.renderer.style.IconStyle2D;
-import org.geotools.renderer.style.LineStyle2D;
-import org.geotools.renderer.style.MarkStyle2D;
-import org.geotools.renderer.style.PointStyle2D;
-import org.geotools.renderer.style.PolygonStyle2D;
-import org.geotools.renderer.style.Style2D;
+
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Polygon;
-import org.opengis.filter.expression.Literal;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.TransformException;
-import org.opengis.style.ExternalGraphic;
-import org.opengis.style.GraphicLegend;
-import org.opengis.style.GraphicalSymbol;
+
+import sun.tools.jstat.Literal;
 
 /**
  * A simple class that knows how to paint a Shape object onto a Graphic given a Style2D. It's the

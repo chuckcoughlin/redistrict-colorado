@@ -13,7 +13,6 @@ import java.util.logging.Logger;
 import org.openjump.feature.AttributeType;
 import org.openjump.feature.BasicFeature;
 import org.openjump.feature.Feature;
-import org.openjump.feature.FeatureCollection;
 import org.openjump.feature.FeatureDataset;
 import org.openjump.feature.FeatureSchema;
 import org.openjump.io.EndianAwareInputStream;

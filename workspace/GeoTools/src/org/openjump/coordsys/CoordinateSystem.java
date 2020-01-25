@@ -33,16 +33,33 @@
 package org.openjump.coordsys;
 
 import java.io.Serializable;
+import java.util.Properties;
 
 
 /** 
- * This class represents a coordinate system.
+ * This class represents a coordinate system. We have also subsumed the functionality of a CoordinateReferenceSystem.
+ * In doing so we're eliminated at jeast 5 layers of abstract classes and interfaces.
  */
 public class CoordinateSystem implements Comparable<CoordinateSystem>, Serializable {
     private static final long serialVersionUID = -811718450919581831L;
+    public static final String NAME_KEY = "NAME";
+    public static final String ALIAS_KEY = "ALIAS";
+    public static final String DOMAIN_OF_VALIDITY_KEY = "DOMAIN";
     private Projection projection;
+    private Properties properties;
     private String name;
     private int epsgCode;
+    
+	public static final CoordinateSystem DEFAULT = new CoordinateSystem("coordsys.CoordinateSystem.default",0, null) {
+	    public Projection getProjection() {
+	        throw new UnsupportedOperationException();
+	    }
+	    public int getEPSGCode() {
+	        throw new UnsupportedOperationException();
+	    }
+
+	};
+	
 	public static final CoordinateSystem UNSPECIFIED = new CoordinateSystem("coordsys.CoordinateSystem.unspecified",0, null) {
 	    public Projection getProjection() {
 	        throw new UnsupportedOperationException();
@@ -63,6 +80,10 @@ public class CoordinateSystem implements Comparable<CoordinateSystem>, Serializa
         this.name = name;
         this.projection = projection;
         this.epsgCode = epsgCode;
+        this.properties = new Properties();
+	    properties.put(NAME_KEY, "WGS84(DD)"); // Name used in WCS 1.0.;
+        properties.put(ALIAS_KEY, "WGS84");
+        properties.put(DOMAIN_OF_VALIDITY_KEY, "WORLD");
     }
     
     public String toString() {
@@ -77,6 +98,7 @@ public class CoordinateSystem implements Comparable<CoordinateSystem>, Serializa
     public int getEPSGCode() {
         return epsgCode;
     }
+    public String getProperty(String key) { return properties.getProperty(key); }
 
 	public int compareTo(CoordinateSystem o) {
         if (this == o) { return 0; }
@@ -84,5 +106,4 @@ public class CoordinateSystem implements Comparable<CoordinateSystem>, Serializa
         if (o == UNSPECIFIED) { return 1; }
 		return toString().compareTo(o.toString());
 	}
-
 }

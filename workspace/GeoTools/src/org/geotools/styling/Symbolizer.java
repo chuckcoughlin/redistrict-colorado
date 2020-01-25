@@ -19,7 +19,11 @@ package org.geotools.styling;
 
 import java.util.Map;
 
+import javax.measure.quantity.Length;
+import javax.measure.unit.Unit;
+
 import org.opengis.filter.expression.Expression;
+import org.opengis.style.StyleVisitor;
 
 /**
  * This is the parent interface of all Symbolizers.
@@ -47,7 +51,7 @@ import org.opengis.filter.expression.Expression;
  * @version $Id$
  */
 public interface Symbolizer {
-    void accept(org.geotools.styling.StyleVisitor visitor);
+    void accept(StyleVisitor visitor);
 
     /**
      * Defines a measure unit for the symbolizer. This parameter is inherited from GML. Renderers

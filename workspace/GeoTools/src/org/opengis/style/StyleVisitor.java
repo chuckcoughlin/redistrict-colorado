@@ -12,10 +12,23 @@ package org.opengis.style;
 import java.awt.Font;
 import java.awt.Stroke;
 
+import org.geotools.styling.Displacement;
+import org.geotools.styling.ExternalGraphic;
+import org.geotools.styling.ExternalMark;
+import org.geotools.styling.FeatureTypeStyle;
+import org.geotools.styling.Fill;
+import org.geotools.styling.Graphic;
+import org.geotools.styling.Halo;
+import org.geotools.styling.LinePlacement;
 import org.geotools.styling.LineSymbolizer;
 import org.geotools.styling.Mark;
 import org.geotools.styling.PointSymbolizer;
+import org.geotools.styling.PolygonSymbolizer;
+import org.geotools.styling.RasterSymbolizer;
+import org.geotools.styling.Rule;
+import org.geotools.styling.SelectedChannelType;
 import org.geotools.styling.Style;
+import org.geotools.styling.TextSymbolizer;
 
 
 /**
@@ -48,7 +61,7 @@ public interface StyleVisitor {
      *
      * @param style The style to visit
      */
-    Object visit(Style style, Object data);
+    Object visit(Style style);
 
     /**
      * Called when accept is called on a FetaureTypeStyle
@@ -104,7 +117,7 @@ public interface StyleVisitor {
      *
      * @param extension the extension symbolizer to visit
      */
-    Object visit(ExtensionSymbolizer extension, Object data);
+    //Object visit(ExtensionSymbolizer extension, Object data);
 
     /**
      * Called when accept is called on a description
@@ -153,14 +166,14 @@ public interface StyleVisitor {
      *
      * @param graphicFill the graphic fill to visit
      */
-    Object visit(GraphicFill graphicFill, Object data);
+    //Object visit(GraphicFill graphicFill, Object data);
 
     /**
      * Called when accept is called on a graphic stroke
      *
      * @param graphicStroke the graphic stroke to visit
      */
-    Object visit(GraphicStroke graphicStroke, Object data);
+    //Object visit(GraphicStroke graphicStroke, Object data);
 
     /**
      * Called when accept is called on a mark
@@ -188,17 +201,16 @@ public interface StyleVisitor {
      *
      * @param pointPlacement the point placement to visit
      */
-    Object visit(PointPlacement pointPlacement, Object data);
+    //Object visit(PointPlacement pointPlacement, Object data);
 
     /**
      * Called when accept is called on a anchor point
      *
      * @param anchorPoint the anchor point to visit
      */
-    Object visit(AnchorPoint anchorPoint, Object data);
+    //Object visit(AnchorPoint anchorPoint, Object data);
 
-    /**
-     * Called when accept is called on a Line Placement
+    /**Called when accept is called on a Line Placement
      *
      * @param linePlacement the line placement to visit
      */
@@ -209,7 +221,7 @@ public interface StyleVisitor {
      *
      * @param graphicLegend the legend graphic to visit
      */
-    Object visit(GraphicLegend graphicLegend, Object data);
+    //Object visit(GraphicLegend graphicLegend, Object data);
 
     /**
      * Called when accept is called on a halo
@@ -223,28 +235,28 @@ public interface StyleVisitor {
      *
      * @param colorMap the color map to visit
      */
-    Object visit(ColorMap colorMap, Object data);
+    //Object visit(ColorMap colorMap, Object data);
 
     /**
      * Called when accept is called on a color replacement
      *
      * @param colorReplacement the color replacement to visit
      */
-    Object visit(ColorReplacement colorReplacement, Object data);
+    //Object visit(ColorReplacement colorReplacement, Object data);
 
     /**
      * Called when accept is called on a raster ContrastEnhancement element
      *
      * @param contrastEnhancement the {@link ContrastEnhancement} to visit.
      */
-    Object visit(ContrastEnhancement contrastEnhancement, Object data);
+    //Object visit(ContrastEnhancement contrastEnhancement, Object data);
 
     /**
      * Called when accept is called on a raster {@link ChannelSelection} element
      *
      * @param channelSelection the {@link ChannelSelection} to visit.
      */
-    Object visit(ChannelSelection channelSelection, Object data);
+    //Object visit(ChannelSelection channelSelection, Object data);
 
     /**
      * Called when accept is called on a raster {@link SelectedChannelType} element
@@ -258,12 +270,12 @@ public interface StyleVisitor {
      *
      * @param shadedRelief the {@link ShadedRelief} to visit.
      */
-    Object visit(ShadedRelief shadedRelief, Object data);
+    //Object visit(ShadedRelief shadedRelief, Object data);
 
     /**
      * Called when accept is called on a raster {@link ContrastMethod} element
      *
      * @param method the {@link ContrastMethod} to visit
      */
-    void visit(ContrastMethod method, Object data);
+    //void visit(ContrastMethod method, Object data);
 }

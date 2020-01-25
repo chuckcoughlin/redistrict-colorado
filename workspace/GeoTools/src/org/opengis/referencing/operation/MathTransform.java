@@ -9,8 +9,8 @@
  */
 package org.opengis.referencing.operation;
 
+import org.geotools.geometry.DirectPosition;
 import org.locationtech.jts.math.Matrix;
-import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.MismatchedDimensionException;
 
 /**

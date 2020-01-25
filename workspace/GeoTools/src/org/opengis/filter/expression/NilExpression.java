@@ -30,7 +30,7 @@ public final class NilExpression implements Expression, Serializable {
 
     /** Accepts a visitor. */
     public Object accept(ExpressionVisitor visitor, Object extraData) {
-        return visitor.visit(this, extraData);
+        return visitor.visit(this,null);
     }
 
     /** Returns {@code null}. */

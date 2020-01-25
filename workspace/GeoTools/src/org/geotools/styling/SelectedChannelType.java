@@ -16,15 +16,11 @@
  */
 package org.geotools.styling;
 
-import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.util.Utilities;
-import org.opengis.filter.FilterFactory;
-import org.opengis.filter.FilterFactory2;
-import org.opengis.filter.expression.Expression;
 import org.opengis.style.StyleVisitor;
 
 /** Default implementation of SelectedChannelType. */
-public class SelectedChannelType implements SelectedChannelType {
+public class SelectedChannelType {
     private FilterFactory filterFactory;
 
     // private Expression contrastEnhancement;

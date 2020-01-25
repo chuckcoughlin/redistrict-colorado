@@ -9,8 +9,6 @@
  */
 package org.opengis.referencing.operation;
 
-import org.opengis.geometry.DirectPosition; // For javadoc
-
 /**
  * Common superclass for a number of transformation-related exceptions. {@code TransformException}
  * are thrown by {@link MathTransform} when a coordinate transformation can't be {@linkplain

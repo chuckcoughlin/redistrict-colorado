@@ -21,9 +21,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.geotools.util.Utilities;
-import org.opengis.style.Description;
-import org.opengis.util.Cloneable;
+import org.opengis.style.StyleVisitor;
 
 /**
  * Implementation of style.
@@ -57,7 +57,6 @@ public class Style implements Cloneable {
 
             ret = (FeatureTypeStyle[]) featureTypeStyles.toArray(new FeatureTypeStyle[] {});
         }
-
         return ret;
     }
 
@@ -124,7 +123,7 @@ public class Style implements Cloneable {
         List<FeatureTypeStyle> ftsCopies = new ArrayList<>();
 
         for (FeatureTypeStyle featureTypeStyle : featureTypeStyles) {
-            ftsCopies.add((FeatureTypeStyle) ((Cloneable) featureTypeStyle).clone());
+            ftsCopies.add((FeatureTypeStyle) (featureTypeStyle.clone()));
         }
 
         clone.featureTypeStyles().clear();
@@ -205,7 +204,7 @@ public class Style implements Cloneable {
         return buf.toString();
     }
 
-    public Object accept(org.opengis.style.StyleVisitor visitor, Object extraData) {
-        return visitor.visit(this, extraData);
+    public Object accept(StyleVisitor visitor,Object extraData) {
+        return visitor.visit(this);
     }
 }

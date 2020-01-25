@@ -20,26 +20,24 @@ import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.util.Utilities;
 import org.geotools.util.factory.GeoTools;
 import org.opengis.filter.FilterFactory;
-import org.opengis.filter.expression.Expression;
 import org.opengis.style.StyleVisitor;
-import org.opengis.util.Cloneable;
 
 /**
  * @version $Id$
  * @author James Macgill, CCG
  */
-public class FillI implements Fill, Cloneable {
+public class Fill implements Fill, Cloneable {
     private FilterFactory filterFactory;
     private Expression color = null;
     private Expression opacity = null;
     private Graphic graphicFill = null;
 
     /** Creates a new instance of DefaultFill */
-    protected FillI() {
+    protected Fill() {
         this(CommonFactoryFinder.getFilterFactory(GeoTools.getDefaultHints()));
     }
 
-    public FillI(FilterFactory factory) {
+    public Fill(FilterFactory factory) {
         filterFactory = factory;
     }
 
@@ -133,7 +131,7 @@ public class FillI implements Fill, Cloneable {
      */
     public void setGraphicFill(org.opengis.style.Graphic graphicFill) {
         if (this.graphicFill == graphicFill) return;
-        this.graphicFill = GraphicImpl.cast(graphicFill);
+        this.graphicFill = Graphic.cast(graphicFill);
     }
 
     public Object accept(StyleVisitor visitor, Object data) {
@@ -151,7 +149,7 @@ public class FillI implements Fill, Cloneable {
      */
     public Object clone() {
         try {
-            FillI clone = (FillI) super.clone();
+            Fill clone = (Fill) super.clone();
             if (graphicFill != null) {
                 clone.graphicFill = (Graphic) ((Cloneable) graphicFill).clone();
             }
@@ -197,8 +195,8 @@ public class FillI implements Fill, Cloneable {
             return true;
         }
 
-        if (oth instanceof FillI) {
-            FillI other = (FillI) oth;
+        if (oth instanceof Fill) {
+            Fill other = (Fill) oth;
             return Utilities.equals(this.color, other.color)
                     && Utilities.equals(this.opacity, other.opacity)
                     && Utilities.equals(this.graphicFill, other.graphicFill);
@@ -207,15 +205,15 @@ public class FillI implements Fill, Cloneable {
         return false;
     }
 
-    static FillI cast(org.opengis.style.Fill fill) {
+    static Fill cast(org.opengis.style.Fill fill) {
         if (fill == null) {
             return null;
-        } else if (fill instanceof FillI) {
-            return (FillI) fill;
+        } else if (fill instanceof Fill) {
+            return (Fill) fill;
         } else {
-            FillI copy = new FillI();
+            Fill copy = new Fill();
             copy.color = fill.getColor();
-            copy.graphicFill = GraphicImpl.cast(fill.getGraphicFill());
+            copy.graphicFill = Graphic.cast(fill.getGraphicFill());
             copy.opacity = fill.getOpacity();
             return copy;
         }

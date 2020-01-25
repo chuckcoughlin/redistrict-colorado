@@ -23,15 +23,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import org.geotools.util.Utilities;
-import org.opengis.feature.type.Name;
 import org.opengis.filter.Id;
-import org.opengis.filter.expression.Expression;
 import org.opengis.metadata.citation.OnLineResource;
-import org.opengis.style.FeatureTypeStyle;
 import org.opengis.style.SemanticType;
 import org.opengis.style.StyleVisitor;
-import org.opengis.util.Cloneable;
 
 /**
  * Implementation of Feature Type Style; care is taken to ensure everything is mutable.
@@ -40,7 +37,7 @@ import org.opengis.util.Cloneable;
  * @author Johann Sorel (Geomatys)
  * @version $Id$
  */
-public class FeatureTypeStyle implements org.geotools.styling.FeatureTypeStyle, Cloneable {
+public class FeatureTypeStyle implements Cloneable {
 
     /** This option influences how multiple rules matching the same feature are evaluated */
     public static String KEY_EVALUATION_MODE = "ruleEvaluation";
@@ -56,7 +53,7 @@ public class FeatureTypeStyle implements org.geotools.styling.FeatureTypeStyle, 
     private Id featureInstances = null;
     private Set<Name> featureTypeNames = new LinkedHashSet<Name>();
 
-    private DescriptionImpl description = new DescriptionImpl();
+    private String description = "";
     private String name = "name";
     private OnLineResource online = null;
     private Expression transformation = null;

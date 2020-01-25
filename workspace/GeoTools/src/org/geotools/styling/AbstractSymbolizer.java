@@ -22,9 +22,7 @@ import java.util.Map;
 import javax.measure.quantity.Length;
 import javax.measure.unit.Unit;
 
-import org.geotools.factory.CommonFactoryFinder;
 import org.opengis.filter.expression.Expression;
-import org.opengis.filter.expression.PropertyName;
 
 public abstract class AbstractSymbolizer implements Symbolizer {
     protected String name;
@@ -69,7 +67,7 @@ public abstract class AbstractSymbolizer implements Symbolizer {
     public void setName(String name) {
         this.name = name;
     }
-
+    @Override
     public void setUnitOfMeasure(Unit<Length> uom) {
         this.unitOfMeasure = uom;
     }
@@ -84,24 +82,6 @@ public abstract class AbstractSymbolizer implements Symbolizer {
 
     public void setGeometry(Expression geometry) {
         this.geometry = geometry;
-    }
-
-    public String getGeometryPropertyName() {
-        if (geometry instanceof PropertyName) {
-            PropertyName pg = (PropertyName) geometry;
-            return pg.getPropertyName();
-        }
-        return null;
-    }
-
-    public void setGeometryPropertyName(String geometryPropertyName) {
-        if (geometryPropertyName == null) {
-            geometry = null;
-        } 
-        else {
-            org.opengis.filter.FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
-            geometry = ff.property(geometryPropertyName);
-        }
     }
 
     public boolean hasOption(String key) {

@@ -9,10 +9,6 @@
  */
 package org.opengis.filter.expression;
 
-// Annotation
-
-import org.opengis.annotation.Extension;
-
 /**
  * Visitor with {@code visit} methods to be called by {@link Expression#accept
  * Expression.accept(...)}.
@@ -39,12 +35,21 @@ public interface ExpressionVisitor {
      * @param extraData
      * @return implementation specific
      */
-    public Object visit(NilExpression expression, Object extraData);
-    public Object visit(Add expression, Object extraData);
-    public Object visit(Divide expression, Object extraData);
-    public Object visit(Function expression, Object extraData);
-    public Object visit(Literal expression, Object extraData);
-    public Object visit(Multiply expression, Object extraData);
-    public Object visit(PropertyName expression, Object extraData);
-    public Object visit(Subtract expression, Object extraData);
+    Object visit(NilExpression expression, Object extraData);
+
+    /*
+    Object visit(Add expression, Object extraData);
+
+    Object visit(Divide expression, Object extraData);
+
+    Object visit(Function expression, Object extraData);
+
+    Object visit(Literal expression, Object extraData);
+
+    Object visit(Multiply expression, Object extraData);
+
+    Object visit(PropertyName expression, Object extraData);
+
+    Object visit(Subtract expression, Object extraData);
+    */
 }
