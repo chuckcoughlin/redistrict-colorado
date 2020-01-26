@@ -21,6 +21,7 @@ import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -691,7 +692,7 @@ public class MapContent {
      *
      * @return
      */
-    public java.util.Map<String, Object> getUserData() {
+    public Map<String, Object> getUserData() {
         monitor.writeLock().lock();
         try {
             if (userData == null) {

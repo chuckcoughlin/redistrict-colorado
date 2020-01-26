@@ -68,10 +68,6 @@ import org.opengis.referencing.operation.TransformException;
 import org.openjump.coordsys.CoordinateSystem;
 import org.openjump.io.ShapefileReader;
 
-import com.sun.prism.impl.Disposer.Record;
-
-import javafx.css.Rule;
-import jdk.internal.org.jline.utils.DiffHelper.Diff;
 
 
 
@@ -90,13 +86,13 @@ public class ShapefileRenderer implements GTRenderer {
     /** Tolerance used to compare doubles for equality */
     private static final double TOLERANCE = 1e-6;
     private static final GeometryFactory geomFactory = new GeometryFactory();
-    private static final Coordinate[] COORDS;
-    private static final MultiPolygon MULTI_POLYGON_GEOM;
-    private static final Polygon POLYGON_GEOM;
-    private static final LinearRing LINE_GEOM;
+    private static final Coordinate[] 	COORDS;
+    private static final MultiPolygon 	MULTI_POLYGON_GEOM;
+    private static final Polygon 		POLYGON_GEOM;
+    private static final LinearRing 	LINE_GEOM;
     private static final MultiLineString MULTI_LINE_GEOM;
-    private static final Point POINT_GEOM;
-    private static final MultiPoint MULTI_POINT_GEOM;
+    private static final Point 			POINT_GEOM;
+    private static final MultiPoint 	MULTI_POINT_GEOM;
     
     /**
      * Computes the scale as the ratio between map distances and real world distances,
@@ -140,7 +136,7 @@ public class ShapefileRenderer implements GTRenderer {
     private SLDStyleFactory styleFactory = new SLDStyleFactory();
     private boolean renderingStopRequested;
     private boolean concatTransforms;
-    LabelCache labelCache = new LabelCacheImpl();
+    LabelCache labelCache = new LabelCache();
     private List<RenderListener> renderListeners = new CopyOnWriteArrayList<RenderListener>();
     /** If we are caching styles; by default this is false */
     boolean caching = false;
@@ -1159,7 +1155,7 @@ public class ShapefileRenderer implements GTRenderer {
         // First, create the bbox in real world coordinates
         ReferencedEnvelope mapArea;
         try {
-            mapArea = RendererUtilities.createMapEnvelope(paintArea, worldToScreen, getContext().getCoordinateReferenceSystem());
+            mapArea = RendererUtilities.createMapEnvelope(paintArea, worldToScreen, getContext().getCoordinateSystem());
             paint(graphics, paintArea, mapArea, worldToScreen);
         } catch (NoninvertibleTransformException e) {
             fireErrorEvent(new Exception("Can't create pixel to world transform", e));
@@ -1221,8 +1217,8 @@ public class ShapefileRenderer implements GTRenderer {
         CoordinateSystem destinationCrs = context.getCoordinateSystem();
         labelCache.start();
         labelCache.clear();
-        if(labelCache instanceof LabelCacheImpl) {
-            ((LabelCacheImpl) labelCache).setLabelRenderingMode(LabelRenderingMode.valueOf(getTextRenderingMethod()));
+        if(labelCache instanceof LabelCache) {
+            ((LabelCache) labelCache).setLabelRenderingMode(LabelRenderingMode.valueOf(getTextRenderingMethod()));
         }
         for( int i = 0; i < layers.length; i++ ) {
             MapLayer currLayer = layers[i];

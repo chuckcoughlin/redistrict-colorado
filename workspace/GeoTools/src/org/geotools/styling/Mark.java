@@ -55,8 +55,8 @@ public class Mark implements Cloneable {
 
         try {
             StyleFactory sfac = new StyleFactoryImpl();
-            fill = FillImpl.cast(sfac.getDefaultFill());
-            stroke = StrokeImpl.cast(sfac.getDefaultStroke());
+            fill = Fill.cast(sfac.getDefaultFill());
+            stroke = Stroke.cast(sfac.getDefaultStroke());
 
             wellKnownName = filterFactory.literal("square");
         } catch (org.geotools.filter.IllegalFilterException ife) {
