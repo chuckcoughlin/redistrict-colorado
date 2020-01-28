@@ -22,34 +22,22 @@ import java.util.Map;
 import javax.measure.quantity.Length;
 import javax.measure.unit.Unit;
 
-import org.opengis.filter.expression.Expression;
+import org.locationtech.jts.geom.Geometry;
 
-public abstract class AbstractSymbolizer implements Symbolizer {
-    protected String name;
-    protected String description;
-    protected Expression geometry;
-    protected Unit<Length> unitOfMeasure;
-    protected Map<String, String> options;
+public class BasicSymbolizer implements Symbolizer {
+    protected String name = "";
+    protected String description = "";
+    protected Geometry geometry = null;
+    protected Unit<Length> unitOfMeasure = null;
+    protected Map<String, String> options = null;
 
-    protected AbstractSymbolizer() {}
+    protected BasicSymbolizer() {}
 
-    public AbstractSymbolizer(
-            String name, String description, Expression geometry, Unit<Length> unitOfMeasure) {
+    public BasicSymbolizer(String name, String description, Geometry geometry, Unit<Length> unitOfMeasure) {
         this.name = name;
         this.description = description;
         this.geometry = geometry;
         this.unitOfMeasure = unitOfMeasure;
-    }
-
-    public AbstractSymbolizer(
-            String name,
-            String description,
-            String geometryPropertyName,
-            Unit<Length> unitOfMeasure) {
-        this.name = name;
-        this.description = description;
-        this.unitOfMeasure = unitOfMeasure;
-        setGeometryPropertyName(geometryPropertyName);
     }
 
     public String getDescription() {
@@ -76,11 +64,11 @@ public abstract class AbstractSymbolizer implements Symbolizer {
         return unitOfMeasure;
     }
 
-    public Expression getGeometry() {
+    public Geometry getGeometry() {
         return geometry;
     }
 
-    public void setGeometry(Expression geometry) {
+    public void setGeometry(Geometry geometry) {
         this.geometry = geometry;
     }
 
@@ -94,7 +82,19 @@ public abstract class AbstractSymbolizer implements Symbolizer {
         }
         return options;
     }
-
+    /**
+     * Creates a deep copy clone.
+     * @return The deep copy clone.
+     */
+    public Object clone() {
+    	Symbolizer clone = new BasicSymbolizer();
+        clone.setName(getName());
+        clone.setDescription(getDescription());
+        clone.setGeometry(getGeometry().clone());
+        clone.setOptions(getOptions());
+        clone.setUnitOfMeasure(getUnitOfMeasure());
+        return clone;
+    }
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -112,7 +112,7 @@ public abstract class AbstractSymbolizer implements Symbolizer {
         if (this == obj) return true;
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
-        AbstractSymbolizer other = (AbstractSymbolizer) obj;
+        BasicSymbolizer other = (BasicSymbolizer) obj;
         if (description == null) {
             if (other.description != null) return false;
         } else if (!description.equals(other.description)) return false;
@@ -134,10 +134,17 @@ public abstract class AbstractSymbolizer implements Symbolizer {
                 // the other options are neither NULL or empty
                 return false;
             }
-        } else if (!options.equals(other.options)) {
+        } 
+        else if (!options.equals(other.options)) {
             // options are not considered the same
             return false;
         }
         return true;
     }
+
+	@Override
+	public void accept(StyleVisitor visitor) {
+		visitor.visit(this);
+		
+	}
 }

@@ -17,6 +17,7 @@
 package org.geotools.map;
 
 import org.geotools.styling.Style;
+import org.openjump.feature.FeatureCollection;
 
 /**
  * Layer responsible for raster content.
@@ -31,7 +32,7 @@ public abstract class RasterLayer extends StyleLayer {
      * SimpleFeatureSource used to provide the outline of the raster content. Created in a lazy
      * fashion by getFeatureSource().
      */
-    protected SimpleFeatureSource source;
+    protected FeatureCollection source;
 
     public RasterLayer(Style style) {
         super(style);
@@ -41,29 +42,6 @@ public abstract class RasterLayer extends StyleLayer {
         super(style, title);
     }
 
-    /**
-     * FetureSource representation of raster contents (in case a vector based renderer wishes to
-     * draw a polygon outline).
-     * <p>
-     * This method uses {@link DataUtilities#source(org.opengis.feature.simple.SimpleFeature[]) to
-     * wrap up the result of {@link #toFeatureCollection()}
-     */
-    @Override
-    public synchronized SimpleFeatureSource getFeatureSource() {
-        if (this.source == null) {
-            if (getUserData().containsKey("source")) {
-                // we tried already and got null - toFeatureCollection is not available!
-                return null;
-            }
-            SimpleFeatureCollection featureCollection = toFeatureCollection();
-            if (featureCollection != null) {
-                this.source = DataUtilities.source(featureCollection);
-            }
-            // Note we store source in the user data map to communicate with MapLayer
-            getUserData().put("source", source);
-        }
-        return source;
-    }
 
     @Override
     public void dispose() {
@@ -96,5 +74,6 @@ public abstract class RasterLayer extends StyleLayer {
      *
      * @return SimpleFeatureCollection indicating the location of raster content
      */
-    public abstract SimpleFeatureCollection toFeatureCollection();
+    public FeatureCollection getSource() { return source; }
+    public void setSource(FeatureCollection src) { this.source = src; }
 }

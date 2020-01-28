@@ -29,7 +29,7 @@ import org.opengis.style.StyleVisitor;
  * @author Johann Sorel (Geomatys)
  * @version $Id$
  */
-public class PointSymbolizer extends AbstractSymbolizer implements Cloneable {
+public class PointSymbolizer extends BasicSymbolizer implements Cloneable {
 
     private Graphic graphic = new Graphic();
 

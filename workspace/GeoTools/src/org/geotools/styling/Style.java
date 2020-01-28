@@ -23,7 +23,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.util.Utilities;
-import org.opengis.style.StyleVisitor;
 
 /**
  * Implementation of style.
@@ -204,7 +203,7 @@ public class Style implements Cloneable {
         return buf.toString();
     }
 
-    public Object accept(StyleVisitor visitor,Object extraData) {
+    public Object accept(StyleVisitor visitor) {
         return visitor.visit(this);
     }
 }

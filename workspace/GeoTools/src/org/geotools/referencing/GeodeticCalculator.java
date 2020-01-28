@@ -30,7 +30,6 @@ import java.util.List;
 
 import org.geotools.geometry.DirectPosition;
 import org.geotools.measure.Latitude;
-import org.geotools.metadata.i18n.ErrorKeys;
 import org.geotools.metadata.i18n.Vocabulary;
 import org.geotools.metadata.i18n.VocabularyKeys;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -39,9 +38,6 @@ import org.geotools.referencing.datum.DefaultEllipsoid;
 import org.geotools.referencing.datum.DefaultGeodeticDatum;
 import org.geotools.referencing.datum.DefaultPrimeMeridian;
 import org.geotools.referencing.util.CRSUtilities;
-import org.locationtech.jts.geomgraph.Position;
-import org.opengis.referencing.crs.CompoundCRS;
-import org.opengis.referencing.crs.GeographicCRS;
 import org.opengis.referencing.cs.AxisDirection;
 import org.opengis.referencing.cs.CoordinateSystemAxis;
 import org.opengis.referencing.datum.Datum;
@@ -227,17 +223,7 @@ public class GeodeticCalculator {
             return new DefaultGeographicCRS(
                     "Geodetic", (GeodeticDatum) datum, DefaultEllipsoidalCS.GEODETIC_2D);
         }
-        if (crs instanceof CompoundCRS) {
-            for (final CoordinateSystem component :
-                    ((CompoundCRS) crs).getCoordinateSystems()) {
-                final GeographicCRS candidate = getGeographicCRS(component);
-                if (candidate != null) {
-                    return candidate;
-                }
-            }
-        }
-        throw new IllegalArgumentException(
-                Errors.format(ErrorKeys.ILLEGAL_COORDINATE_REFERENCE_SYSTEM));
+        throw new IllegalArgumentException(String.format("%s.getGeographicCRS: Illegal coordinate system", CLSS));
     }
 
     /**
@@ -662,7 +648,7 @@ public class GeodeticCalculator {
      */
     private void computeDirection() throws IllegalStateException {
         if (!destinationValid) {
-            throw new IllegalStateException(Errors.format(ErrorKeys.DESTINATION_NOT_SET));
+            throw new IllegalArgumentException(String.format("%s.computeDirection: Destination not set", CLSS));
         }
         GeodesicData g = geod.Inverse(lat1, long1, lat2, long2);
         azimuth = g.azi1;

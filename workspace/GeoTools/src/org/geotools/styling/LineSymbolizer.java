@@ -21,7 +21,7 @@ import java.awt.Stroke;
 import javax.measure.quantity.Length;
 import javax.measure.unit.Unit;
 
-import org.opengis.style.StyleVisitor;
+import org.locationtech.jts.geom.Geometry;
 
 /**
  * Provides a representation of a LineSymbolizer in an SLD Document. A LineSymbolizer defines how a
@@ -31,31 +31,28 @@ import org.opengis.style.StyleVisitor;
  * @author Johann Sorel (Geomatys)
  * @version $Id$
  */
-public class LineSymbolizer extends AbstractSymbolizer {
+public class LineSymbolizer extends BasicSymbolizer {
 
-    private Expression offset;
+    private double offset = 0.;
     private Stroke stroke = null;
 
-    /** Creates a new instance of DefaultLineSymbolizer */
-    protected LineSymbolizer() {
-        this(null, null, null, null, null, null);
+    public LineSymbolizer() {
+    	super();
     }
-
-    protected LineSymbolizer(
-            Stroke stroke,
-            Expression offset,
+    public LineSymbolizer(Stroke stroke,
+            double offset,
             Unit<Length> uom,
-            String geom,
+            Geometry geom,
             String name,
             String desc) {
         super(name, desc, geom, uom);
     }
 
-    public Expression getPerpendicularOffset() {
+    public double getPerpendicularOffset() {
         return offset;
     }
 
-    public void setPerpendicularOffset(Expression offset) {
+    public void setPerpendicularOffset(double offset) {
         this.offset = offset;
     }
 
@@ -82,11 +79,7 @@ public class LineSymbolizer extends AbstractSymbolizer {
      *
      * @param visitor The visitor to accept.
      */
-    public Object accept(StyleVisitor visitor, Object data) {
-        return visitor.visit(this, data);
-    }
-
-    public void accept(org.geotools.styling.StyleVisitor visitor) {
+    public void accept(StyleVisitor visitor) {
         visitor.visit(this);
     }
 
@@ -95,26 +88,16 @@ public class LineSymbolizer extends AbstractSymbolizer {
      * @return The deep copy clone.
      */
     public Object clone() {
-        LineSymbolizer clone;
-
-        try {
-            clone = (LineSymbolizer) super.clone();
-
-            if (stroke != null && stroke instanceof Cloneable) {
-                clone.stroke = (Stroke) ((Cloneable) stroke).clone();
-            }
-
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e); // this should never happen.
-        }
-
+        LineSymbolizer clone = (LineSymbolizer) super.clone();
+        clone.setPerpendicularOffset(getPerpendicularOffset());
+        clone.setStroke(getStroke());
         return clone;
     }
 
     public String toString() {
         StringBuffer buf = new StringBuffer();
         buf.append("<LineSymbolizerImp property=");
-        buf.append(getGeometryPropertyName());
+        buf.append(getGeometry().toString());
         buf.append(" uom=");
         buf.append(unitOfMeasure);
         buf.append(" stroke=");
@@ -127,7 +110,7 @@ public class LineSymbolizer extends AbstractSymbolizer {
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result + ((offset == null) ? 0 : offset.hashCode());
+        result = prime * result + (int)offset;
         result = prime * result + ((stroke == null) ? 0 : stroke.hashCode());
         return result;
     }
@@ -138,33 +121,10 @@ public class LineSymbolizer extends AbstractSymbolizer {
         if (!super.equals(obj)) return false;
         if (getClass() != obj.getClass()) return false;
         LineSymbolizer other = (LineSymbolizer) obj;
-        if (offset == null) {
-            if (other.offset != null) return false;
-        } else if (!offset.equals(other.offset)) return false;
+        if (other.offset != offset) return false;
         if (stroke == null) {
             if (other.stroke != null) return false;
         } else if (!stroke.equals(other.stroke)) return false;
         return true;
-    }
-
-    static LineSymbolizer cast(org.opengis.style.Symbolizer symbolizer) {
-        if (symbolizer == null) {
-            return null;
-        }
-        if (symbolizer instanceof LineSymbolizer) {
-            return (LineSymbolizer) symbolizer;
-        } else if (symbolizer instanceof org.opengis.style.LineSymbolizer) {
-            org.opengis.style.LineSymbolizer lineSymbolizer =
-                    (org.opengis.style.LineSymbolizer) symbolizer;
-            LineSymbolizer copy = new LineSymbolizer();
-            copy.setDescription(lineSymbolizer.getDescription());
-            copy.setGeometryPropertyName(lineSymbolizer.getGeometryPropertyName());
-            copy.setName(lineSymbolizer.getName());
-            copy.setPerpendicularOffset(lineSymbolizer.getPerpendicularOffset());
-            copy.setStroke(lineSymbolizer.getStroke());
-            copy.setUnitOfMeasure(lineSymbolizer.getUnitOfMeasure());
-            return copy;
-        }
-        return null; // not a line symbolizer
     }
 }

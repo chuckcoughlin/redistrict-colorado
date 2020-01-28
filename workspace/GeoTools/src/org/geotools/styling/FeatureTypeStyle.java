@@ -28,7 +28,6 @@ import org.geotools.util.Utilities;
 import org.opengis.filter.Id;
 import org.opengis.metadata.citation.OnLineResource;
 import org.opengis.style.SemanticType;
-import org.opengis.style.StyleVisitor;
 
 /**
  * Implementation of Feature Type Style; care is taken to ensure everything is mutable.
@@ -51,14 +50,14 @@ public class FeatureTypeStyle implements Cloneable {
     private List<Rule> rules = new ArrayList<Rule>();
     private Set<SemanticType> semantics = new LinkedHashSet<SemanticType>();
     private Id featureInstances = null;
-    private Set<Name> featureTypeNames = new LinkedHashSet<Name>();
+    private Set<String> featureTypeNames = new LinkedHashSet<String>();
 
     private String description = "";
     private String name = "name";
     private OnLineResource online = null;
     private Expression transformation = null;
 
-    protected Map<String, String> options;
+    protected Map<String,String> options;
 
     /** Creates a new instance of FeatureTypeStyleImpl */
     protected FeatureTypeStyle(Rule[] rules) {
@@ -82,8 +81,8 @@ public class FeatureTypeStyle implements Cloneable {
         this.name = fts.getName();
         this.rules = new ArrayList<Rule>();
         if (fts.rules() != null) {
-            for (org.opengis.style.Rule rule : fts.rules()) {
-                rules.add(RuleImpl.cast(rule)); // need to deep copy?
+            for (Rule rule : fts.rules()) {
+                rules.add(rule); // need to deep copy?
             }
         }
         this.semantics = new LinkedHashSet<SemanticType>(fts.semanticTypeIdentifiers());

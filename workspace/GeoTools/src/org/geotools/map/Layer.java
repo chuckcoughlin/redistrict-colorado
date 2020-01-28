@@ -162,7 +162,6 @@ public abstract class Layer {
 
     /**
      * Layer creation; please use a concrete subclass to work with specific content.
-     *
      * <p>Note you should dispose() a layer after use.
      */
     protected Layer() {

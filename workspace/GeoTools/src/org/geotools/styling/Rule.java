@@ -21,7 +21,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.geotools.util.Utilities;
-import org.opengis.style.StyleVisitor;
 
 /**
  * Provides the default implementation of Rule.

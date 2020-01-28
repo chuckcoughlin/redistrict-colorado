@@ -37,7 +37,7 @@ import org.opengis.style.StyleVisitor;
  * @author Johann Sorel (Geomatys)
  * @version $Id$
  */
-public class TextSymbolizer extends AbstractSymbolizer implements TextSymbolizer2, Cloneable {
+public class TextSymbolizer extends BasicSymbolizer implements TextSymbolizer2, Cloneable {
     private List<Font> fonts = new ArrayList<Font>(1);
     private final FilterFactory filterFactory;
     private Fill fill;

@@ -463,51 +463,10 @@ public final class JTS {
      * @param crs
      * @return DirectPosition
      */
-    public static DirectPosition toDirectPosition(
-            final Coordinate point, final CoordinateSystem crs) {
-        // GeneralDirectPosition directPosition = new GeneralDirectPosition(crs);
-        // copy( point, directPosition.ordinates );
-        // return directPosition;
-
-        return new DirectPosition() {
-
-            public CoordinateSystem getCoordinateSystem() {
-                return crs;
-            }
-
-            public int getDimension() {
-                return crs.getCoordinateSystem().getDimension();
-            }
-
-            public double getOrdinate(int dimension) throws IndexOutOfBoundsException {
-                switch (dimension) {
-                    case 0:
-                        return point.x;
-                    case 1:
-                        return point.y;
-                    case 2:
-                        return point.getZ();
-                    default:
-                        return Double.NaN;
-                }
-            }
-
-            public void setOrdinate(int dimension, double value) throws IndexOutOfBoundsException {
-                switch (dimension) {
-                    case 0:
-                        point.x = value;
-                        return;
-                    case 1:
-                        point.y = value;
-                        return;
-                    case 2:
-                        point.setZ(value);
-                        return;
-                    default:
-                        // ignore
-                }
-            }
-        };
+    public static DirectPosition toDirectPosition(final Coordinate point, final CoordinateSystem crs) {
+        DirectPosition directPosition = new DirectPosition(crs);
+        directPosition.setLocation(point.x, point.y);
+        return directPosition;
     }
     /**
      * Copies the ordinates values from the specified JTS coordinates to the specified array. The

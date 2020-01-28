@@ -17,10 +17,7 @@
 package org.geotools.styling;
 
 import java.util.logging.Logger;
-
 import org.geotools.util.Utilities;
-import org.opengis.filter.expression.Expression;
-import org.opengis.style.StyleVisitor;
 
 /**
  * @author Ian Turton, CCG
@@ -30,13 +27,13 @@ public class Displacement implements Cloneable {
 	private final static String CLSS = "Displacement";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 
-    private Expression displacementX = null;
-    private Expression displacementY = null;
+    private double displacementX = 0.;
+    private double displacementY = 0.;
 
     public Displacement() {
     }
 
-    public Displacement(Expression dx, Expression dy) {
+    public Displacement(double dx, double dy) {
         displacementX = dx;
         displacementY = dy;
     }
@@ -47,32 +44,16 @@ public class Displacement implements Cloneable {
      *
      * @param displacementX New value of property displacementX.
      */
-    public void setDisplacementX(Expression displacementX) {
-        this.displacementX = displacementX;
-    }
-    /**
-     * Set displacement x to the provided literal.
-     *
-     * @param displacementX New value of property displacementX.
-     */
     public void setDisplacementX(double displacementX) {
-        this.displacementX = filterFactory.literal(displacementX);
+        this.displacementX = displacementX;
     }
     /**
      * Setter for property displacementY.
      *
      * @param displacementY New value of property displacementY.
      */
-    public void setDisplacementY(Expression displacementY) {
-        this.displacementY = displacementY;
-    }
-    /**
-     * Set displacement y to the provided literal.
-     *
-     * @param displacementY New value of property displacementX.
-     */
     public void setDisplacementY(double displacementY) {
-        this.displacementY = filterFactory.literal(displacementY);
+        this.displacementY = displacementY;
     }
 
     /**
@@ -80,24 +61,11 @@ public class Displacement implements Cloneable {
      *
      * @return Value of property displacementX.
      */
-    public Expression getDisplacementX() {
+    public double getDisplacementX() {
         return displacementX;
     }
-
-    /**
-     * Getter for property displacementY.
-     *
-     * @return Value of property displacementY.
-     */
-    public Expression getDisplacementY() {
-        return displacementY;
-    }
-
-    public Object accept(StyleVisitor visitor, Object data) {
-        return visitor.visit(this, data);
-    }
-
-    public void accept(org.geotools.styling.StyleVisitor visitor) {
+    
+    public void accept(StyleVisitor visitor) {
         visitor.visit(this);
     }
 
@@ -136,29 +104,10 @@ public class Displacement implements Cloneable {
     public int hashCode() {
         final int PRIME = 37;
         int result = 17;
-
-        if (displacementX != null) {
-            result = (result * PRIME) + displacementX.hashCode();
-        }
-
-        if (displacementY != null) {
-            result = (result * PRIME) + displacementY.hashCode();
-        }
+        result = (result * PRIME) + (int)displacementX;
+        result = (result * PRIME) + (int)displacementY;
 
         return result;
     }
 
-    static Displacement cast(org.opengis.style.Displacement displacement) {
-        if (displacement == null) {
-            return null;
-        } else if (displacement instanceof Displacement) {
-            return (Displacement) displacement;
-        } else {
-            Displacement copy = new Displacement();
-            copy.setDisplacementX(displacement.getDisplacementX());
-            copy.setDisplacementY(displacement.getDisplacementY());
-
-            return copy;
-        }
-    }
 }

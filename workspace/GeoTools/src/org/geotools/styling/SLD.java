@@ -22,7 +22,6 @@ import java.awt.Stroke;
 import java.util.logging.Logger;
 
 import org.locationtech.jts.geom.Geometry;
-import org.opengis.style.Symbolizer;
 import org.openjump.feature.Feature;
 
 
@@ -35,9 +34,6 @@ import org.openjump.feature.Feature;
 public class SLD {
 	private final static String CLSS = "SLD";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
-	
-    private static StyleFactory sf = new StyleFactory();
-    private static FilterFactory ff = new FilterFactory();
 
 
     public static final double ALIGN_LEFT = 1.0;
@@ -107,11 +103,13 @@ public class SLD {
      * @return a new Style instance
      */
     public static Style createPolygonStyle(Color outlineColor, Color fillColor, float opacity) {
-        Stroke stroke = sf.createStroke(ff.literal(outlineColor), ff.literal(1.0f));
-        Fill fill = Fill.NULL;
+        Stroke stroke = new Stroke(outlineColor,1.0f);
+        Fill fill = new Fill();
         if (fillColor != null) {
-            fill = sf.createFill(ff.literal(fillColor), ff.literal(opacity));
+            fill.setColor(fillColor);
+            fill.setOpacity(opacity);
         }
+        
         return wrapSymbolizers(sf.createPolygonSymbolizer(stroke, fill, null));
     }
 
@@ -130,7 +128,7 @@ public class SLD {
     public static Style createPolygonStyle(
             Color outlineColor, Color fillColor, float opacity, String labelField, Font labelFont) {
         Stroke stroke = sf.createStroke(ff.literal(outlineColor), ff.literal(1.0f));
-        Fill fill = Fill.NULL;
+        Fill fill = new Fill();
         if (fillColor != null) {
             fill = sf.createFill(ff.literal(fillColor), ff.literal(opacity));
         }

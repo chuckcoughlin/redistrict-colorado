@@ -33,7 +33,7 @@ import org.opengis.style.StyleVisitor;
  * @author iant
  * @author Johann Sorel (Geomatys)
  */
-public class RasterSymbolizer extends AbstractSymbolizer
+public class RasterSymbolizer extends BasicSymbolizer
         implements Cloneable {
 
     private OverlapBehavior behavior;
@@ -42,7 +42,7 @@ public class RasterSymbolizer extends AbstractSymbolizer
     private FilterFactory filterFactory;
     private ChannelSelection channelSelection = new ChannelSelectionImpl();
     private ColorMapImpl colorMap = new ColorMapImpl();
-    private ContrastEnhancementImpl contrastEnhancement = new ContrastEnhancementImpl();
+    private ContrastEnhancement contrastEnhancement = new ContrastEnhancement();
     private ShadedReliefImpl shadedRelief;
     private Symbolizer symbolizer;
     private Expression opacity;
@@ -164,7 +164,7 @@ public class RasterSymbolizer extends AbstractSymbolizer
      *
      * @return the ContrastEnhancement
      */
-    public ContrastEnhancementImpl getContrastEnhancement() {
+    public ContrastEnhancement getContrastEnhancement() {
         return contrastEnhancement;
     }
 
@@ -304,7 +304,7 @@ public class RasterSymbolizer extends AbstractSymbolizer
         if (this.contrastEnhancement == contrastEnhancement) {
             return;
         }
-        this.contrastEnhancement = ContrastEnhancementImpl.cast(contrastEnhancement);
+        this.contrastEnhancement = ContrastEnhancement.cast(contrastEnhancement);
     }
 
     /**

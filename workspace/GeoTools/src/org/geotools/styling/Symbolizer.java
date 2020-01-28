@@ -22,8 +22,7 @@ import java.util.Map;
 import javax.measure.quantity.Length;
 import javax.measure.unit.Unit;
 
-import org.opengis.filter.expression.Expression;
-import org.opengis.style.StyleVisitor;
+import org.locationtech.jts.geom.Geometry;
 
 /**
  * This is the parent interface of all Symbolizers.
@@ -94,21 +93,6 @@ public interface Symbolizer {
     void setName(String name);
 
     /**
-     * A shortcut to get the geometry property name in the case the geometry expression is a
-     * PropertyName. In case the geometry expression is null, and in the case the geometry
-     * expression is not a PropertyName, this method will return null.
-     */
-    String getGeometryPropertyName();
-
-    /**
-     * A shortcut to define the geometry expression as a {@link PropertyName} Typically, features
-     * only have one geometry so, in general, the need to select one is not required. Note: this
-     * moves a little away from the SLD spec which provides an XPath reference to a Geometry object,
-     * but does follow it in spirit.
-     */
-    void setGeometryPropertyName(String geometryPropertyName);
-
-    /**
      * This defines the geometry to be used for styling.<br>
      * The property is optional and if it is absent (null) then the "default" geometry property of
      * the feature should be used.<br>
@@ -119,14 +103,14 @@ public interface Symbolizer {
      * make up geometries out of non geometric attributes it is advised that the Expression
      * implements the SpatialTransformationFunction interface
      */
-    Expression getGeometry();
+    Geometry getGeometry();
 
     /**
      * Sets the expression used for styling. See {@link #getGeometry()} for further details.
      *
      * @param geometry
      */
-    void setGeometry(Expression geometry);
+    void setGeometry(Geometry geometry);
 
     /** Determines if a vendor option with the specific key has been set on this symbolizer. */
     boolean hasOption(String key);

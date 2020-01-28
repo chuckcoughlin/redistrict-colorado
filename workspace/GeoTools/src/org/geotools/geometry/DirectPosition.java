@@ -88,7 +88,9 @@ public class DirectPosition extends Point2D.Double {
             throw new MismatchedDimensionException(String.format("%s.ensureDimensionMatch: Mismatched dimension in %s (%d vs %d)",CLSS, name, dimension, expectedDimension));
         }
     }
-    
+    public DirectPosition() {
+    	 ordinates = new double[2];
+    }
     /**
      * Constructs a position using the specified coordinate reference system. The number of
      * dimensions is inferred from the coordinate reference system.

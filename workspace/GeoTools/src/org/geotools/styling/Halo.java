@@ -16,6 +16,7 @@
  */
 package org.geotools.styling;
 
+import java.awt.Color;
 import java.util.logging.Logger;
 
 // OpenGIS dependencies
@@ -36,9 +37,8 @@ public class Halo implements Cloneable {
 	private final static String CLSS = "Halo";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 
-    private FilterFactory filterFactory;
-    private FillImpl fill;
-    private Expression radius = null;
+    private Fill fill;
+    private double radius = Double.NaN;
 
     /**
      * Cast to HaloImpl (creating a copy if needed).
@@ -61,28 +61,13 @@ public class Halo implements Cloneable {
     }
 
     public Halo() {
-        this(CommonFactoryFinder.getFilterFactory(GeoTools.getDefaultHints()));
-    }
-
-    public Halo(FilterFactory factory) {
-        filterFactory = factory;
-        init();
-    }
-
-    public void setFilterFactory(FilterFactory factory) {
-        filterFactory = factory;
-        init();
+    	init();
     }
 
     private void init() {
-        try {
-            fill = new FillImpl(filterFactory);
-            radius = filterFactory.literal(1);
-        } catch (org.geotools.filter.IllegalFilterException ife) {
-            LOGGER.severe("Failed to build defaultHalo: " + ife);
-        }
-
-        fill.setColor(filterFactory.literal("#FFFFFF")); // default halo is white
+       fill = new Fill();
+       radius = 1.0;
+       fill.setColor(Color.WHITE);
     }
 
     /**
@@ -90,9 +75,7 @@ public class Halo implements Cloneable {
      *
      * @return Value of property fill.
      */
-    public FillImpl getFill() {
-        return fill;
-    }
+    public Fill getFill() { return fill;}
 
     /**
      * Setter for property fill.
@@ -108,7 +91,7 @@ public class Halo implements Cloneable {
      *
      * @return Value of property radius.
      */
-    public Expression getRadius() {
+    public double getRadius() {
         return radius;
     }
 
@@ -117,12 +100,8 @@ public class Halo implements Cloneable {
      *
      * @param radius New value of property radius.
      */
-    public void setRadius(Expression radius) {
-        this.radius = radius;
-    }
-
-    public Object accept(StyleVisitor visitor, Object data) {
-        return visitor.visit(this, data);
+    public void setRadius(double r) {
+        this.radius = r;
     }
 
     public void accept(org.geotools.styling.StyleVisitor visitor) {

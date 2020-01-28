@@ -44,7 +44,6 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Polygon;
 
-import sun.tools.jstat.Literal;
 
 /**
  * A simple class that knows how to paint a Shape object onto a Graphic given a Style2D. It's the

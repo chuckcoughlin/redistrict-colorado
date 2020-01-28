@@ -17,40 +17,30 @@
 package org.geotools.styling;
 
 import org.geotools.util.Utilities;
-import org.opengis.style.StyleVisitor;
 
 /** Default implementation of SelectedChannelType. */
 public class SelectedChannelType {
-    private FilterFactory filterFactory;
 
     // private Expression contrastEnhancement;
     private ContrastEnhancement contrastEnhancement;
-    private Expression name = Expression.NIL;
+    private String name = "";
 
     public SelectedChannelType() {
-        this(CommonFactoryFinder.getFilterFactory(null));
     }
 
-    public SelectedChannelType(FilterFactory factory) {
-        filterFactory = factory;
-        contrastEnhancement = contrastEnhancement(filterFactory.literal(1.0));
-    }
 
-    public SelectedChannelType(FilterFactory factory, ContrastEnhancement contrast) {
-        filterFactory = factory;
+    public SelectedChannelType(ContrastEnhancement contrast) {
         contrastEnhancement = contrast;
     }
 
-    public SelectedChannelType(org.opengis.style.SelectedChannelType gray) {
-        filterFactory = CommonFactoryFinder.getFilterFactory2(null);
+    public SelectedChannelType(SelectedChannelType gray) {
         name = gray.getChannelName();
         if (gray.getContrastEnhancement() != null) {
-            contrastEnhancement = new ContrastEnhancementImpl(gray.getContrastEnhancement());
+            contrastEnhancement = new ContrastEnhancement(gray.getContrastEnhancement());
         }
     }
 
-    @Override
-    public Expression getChannelName() {
+    public String getChannelName() {
         return name;
     }
 
@@ -58,38 +48,17 @@ public class SelectedChannelType {
         return contrastEnhancement;
     }
 
-    @Override
-    public void setChannelName(Expression name) {
+    public void setChannelName(String name) {
         this.name = name;
     }
 
-    @Override
-    public void setChannelName(String name) {
-        FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(null);
-        this.name = ff.literal(name);
+
+    public void setContrastEnhancement(ContrastEnhancement enhancement) {
+        this.contrastEnhancement = enhancement;
     }
 
-    public void setContrastEnhancement(org.opengis.style.ContrastEnhancement enhancement) {
-        this.contrastEnhancement = ContrastEnhancementImpl.cast(enhancement);
-    }
-
-    public void setContrastEnhancement(Expression gammaValue) {
-        contrastEnhancement.setGammaValue(gammaValue);
-    }
-
-    protected ContrastEnhancement contrastEnhancement(Expression expr) {
-        ContrastEnhancement enhancement = new ContrastEnhancementImpl();
-        enhancement.setGammaValue(filterFactory.literal(1.0));
-
-        return enhancement;
-    }
-
-    public Object accept(StyleVisitor visitor, Object data) {
-        return visitor.visit(this, data);
-    }
-
-    @Override
-    public void accept(org.geotools.styling.StyleVisitor visitor) {
+   
+    public void accept(StyleVisitor visitor) {
         visitor.visit(this);
     }
 

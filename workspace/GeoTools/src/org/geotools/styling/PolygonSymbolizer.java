@@ -31,11 +31,11 @@ import org.opengis.style.StyleVisitor;
  * @author Johann Sorel (Geomatys)
  * @version $Id$
  */
-public class PolygonSymbolizer extends AbstractSymbolizer
+public class PolygonSymbolizer extends BasicSymbolizer
         implements Cloneable {
 
-    private Expression offset;
-    private Displacement disp;
+    private double offset;
+    private double disp;
 
     private Fill fill = new Fill();
     private StrokeImpl stroke = new StrokeImpl();
@@ -49,11 +49,11 @@ public class PolygonSymbolizer extends AbstractSymbolizer
             Stroke stroke,
             Fill fill,
             Displacement disp,
-            Expression offset,
+            double offset,
             Unit<Length> uom,
             String geom,
             String name,
-            Description desc) {
+            String desc) {
         super(name, desc, geom, uom);
         this.stroke = StrokeImpl.cast(stroke);
         this.fill = fill;
@@ -61,11 +61,11 @@ public class PolygonSymbolizer extends AbstractSymbolizer
         this.offset = offset;
     }
 
-    public Expression getPerpendicularOffset() {
+    public double getPerpendicularOffset() {
         return offset;
     }
 
-    public void setPerpendicularOffset(Expression offset) {
+    public void setPerpendicularOffset(double offset) {
         this.offset = offset;
     }
 
@@ -119,15 +119,11 @@ public class PolygonSymbolizer extends AbstractSymbolizer
     }
 
     /**
-     * Accepts a StyleVisitor to perform some operation on this LineSymbolizer.
+     * Accepts a StyleVisitor to perform some operation on this PolygonSymbolizer.
      *
      * @param visitor The visitor to accept.
      */
-    public Object accept(StyleVisitor visitor, Object data) {
-        return visitor.visit(this, data);
-    }
-
-    public void accept(org.geotools.styling.StyleVisitor visitor) {
+    public void accept(StyleVisitor visitor) {
         visitor.visit(this);
     }
 

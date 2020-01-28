@@ -43,7 +43,7 @@ import org.geotools.renderer.GTRenderer;
 import org.geotools.renderer.RenderListener;
 import org.geotools.renderer.lite.RendererUtilities;
 import org.geotools.renderer.lite.StyledShapePainter;
-import org.geotools.renderer.style.SLDStyleFactory;
+import org.geotools.renderer.style.SLD;
 import org.geotools.styling.FeatureTypeStyle;
 import org.geotools.styling.LineSymbolizer;
 import org.geotools.styling.PointSymbolizer;
@@ -67,9 +67,6 @@ import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 import org.openjump.coordsys.CoordinateSystem;
 import org.openjump.io.ShapefileReader;
-
-
-
 
 /**
  * A LiteRenderer Implementations that is optimized for shapefiles.
@@ -131,9 +128,6 @@ public class ShapefileRenderer implements GTRenderer {
     private static final IndexInfo STREAMING_RENDERER_INFO = new IndexInfo(IndexType.NONE,null);
     static int NUM_SAMPLES = 200;
     private RenderingHints hints;
-
-    /** Factory that will resolve symbolizers into rendered styles */
-    private SLDStyleFactory styleFactory = new SLDStyleFactory();
     private boolean renderingStopRequested;
     private boolean concatTransforms;
     LabelCache labelCache = new LabelCache();
@@ -1325,9 +1319,6 @@ public class ShapefileRenderer implements GTRenderer {
         }
 
         labelCache.end(graphics, paintArea);
-        if(LOGGER.isLoggable(Level.FINE))
-            LOGGER.fine("Style cache hit ratio: " + styleFactory.getHitRatio() + " , hits "
-                + styleFactory.getHits() + ", requests " + styleFactory.getRequests());
     }
     
     /**

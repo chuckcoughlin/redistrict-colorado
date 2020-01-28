@@ -16,33 +16,20 @@
  */
 package org.geotools.styling;
 
-import org.geotools.factory.CommonFactoryFinder;
+import java.awt.Color;
 import org.geotools.util.Utilities;
-import org.geotools.util.factory.GeoTools;
-import org.opengis.filter.FilterFactory;
-import org.opengis.style.StyleVisitor;
 
 /**
  * @version $Id$
  * @author James Macgill, CCG
  */
-public class Fill implements Fill, Cloneable {
-    private FilterFactory filterFactory;
-    private Expression color = null;
-    private Expression opacity = null;
+public class Fill implements  Cloneable {
+    private Color color = null;
+    private double opacity = Double.NaN;
     private Graphic graphicFill = null;
 
-    /** Creates a new instance of DefaultFill */
-    protected Fill() {
-        this(CommonFactoryFinder.getFilterFactory(GeoTools.getDefaultHints()));
-    }
-
-    public Fill(FilterFactory factory) {
-        filterFactory = factory;
-    }
-
-    public void setFilterFactory(FilterFactory factory) {
-        filterFactory = factory;
+    /** Creates a new instance of Fill */
+    public Fill() {
     }
 
     /**
@@ -56,7 +43,7 @@ public class Fill implements Fill, Cloneable {
      *
      * @return The color of the Fill encoded as a hexidecimal RGB value.
      */
-    public Expression getColor() {
+    public Color getColor() {
         return color;
     }
 
@@ -71,15 +58,14 @@ public class Fill implements Fill, Cloneable {
      *
      * @param rgb The color of the Fill encoded as a hexidecimal RGB value.
      */
-    public void setColor(Expression rgb) {
-        if (color == rgb) return;
+    public void setColor(Color rgb) {
         color = rgb;
     }
 
     public void setColor(String rgb) {
         if (color.toString().equals(rgb)) return;
-
-        setColor(filterFactory.literal(rgb));
+        Color clr = Color.decode(rgb);
+        this.color = clr;
     }
 
     /**
@@ -92,7 +78,7 @@ public class Fill implements Fill, Cloneable {
      * @return The opacity of the fill, where 0.0 is completely transparent and 1.0 is completely
      *     opaque.
      */
-    public Expression getOpacity() {
+    public double getOpacity() {
         return opacity;
     }
 
@@ -101,16 +87,18 @@ public class Fill implements Fill, Cloneable {
      *
      * @param opacity New value of property opacity.
      */
-    public void setOpacity(Expression opacity) {
-        if (this.opacity == opacity) return;
-
+    public void setOpacity(double opacity) {
         this.opacity = opacity;
     }
 
-    public void setOpacity(String opacity) {
-        if (this.opacity.toString().equals(opacity)) return;
-
-        setOpacity(filterFactory.literal(opacity));
+    public void setOpacity(String op) {
+    	try {
+    		double val = Double.valueOf(op);
+    		this.opacity = val;
+    	}
+    	catch(NumberFormatException nfe) {
+    		
+    	}
     }
 
     /**
@@ -120,7 +108,7 @@ public class Fill implements Fill, Cloneable {
      * @return graphic The graphic to use as a stipple fill. If null then no Stipple fill should be
      *     used.
      */
-    public org.geotools.styling.Graphic getGraphicFill() {
+    public Graphic getGraphicFill() {
         return graphicFill;
     }
 
@@ -129,16 +117,12 @@ public class Fill implements Fill, Cloneable {
      *
      * @param graphicFill New value of property graphic.
      */
-    public void setGraphicFill(org.opengis.style.Graphic graphicFill) {
-        if (this.graphicFill == graphicFill) return;
-        this.graphicFill = Graphic.cast(graphicFill);
+    public void setGraphicFill(Graphic graphic) {
+        this.graphicFill = graphic;
     }
 
-    public Object accept(StyleVisitor visitor, Object data) {
-        return visitor.visit(this, data);
-    }
 
-    public void accept(org.geotools.styling.StyleVisitor visitor) {
+    public void accept(StyleVisitor visitor) {
         visitor.visit(this);
     }
 
@@ -148,16 +132,11 @@ public class Fill implements Fill, Cloneable {
      * @see org.geotools.styling.Fill#clone()
      */
     public Object clone() {
-        try {
-            Fill clone = (Fill) super.clone();
-            if (graphicFill != null) {
-                clone.graphicFill = (Graphic) ((Cloneable) graphicFill).clone();
-            }
-            return clone;
-        } catch (CloneNotSupportedException e) {
-            // This will never happen
-            throw new RuntimeException("Failed to clone FillImpl");
-        }
+        Fill clone = new Fill();
+        clone.setColor(getColor());
+        clone.setOpacity(getOpacity());
+        clone.setGraphicFill(getGraphicFill());
+        return clone;
     }
 
     /**
@@ -171,9 +150,7 @@ public class Fill implements Fill, Cloneable {
         if (color != null) {
             result = PRIME * result + color.hashCode();
         }
-        if (opacity != null) {
-            result = PRIME * result + opacity.hashCode();
-        }
+        
         if (graphicFill != null) {
             result = PRIME * result + graphicFill.hashCode();
         }
@@ -201,21 +178,6 @@ public class Fill implements Fill, Cloneable {
                     && Utilities.equals(this.opacity, other.opacity)
                     && Utilities.equals(this.graphicFill, other.graphicFill);
         }
-
         return false;
-    }
-
-    static Fill cast(org.opengis.style.Fill fill) {
-        if (fill == null) {
-            return null;
-        } else if (fill instanceof Fill) {
-            return (Fill) fill;
-        } else {
-            Fill copy = new Fill();
-            copy.color = fill.getColor();
-            copy.graphicFill = Graphic.cast(fill.getGraphicFill());
-            copy.opacity = fill.getOpacity();
-            return copy;
-        }
     }
 }
