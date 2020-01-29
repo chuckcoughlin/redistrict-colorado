@@ -16,8 +16,6 @@
  */
 package org.geotools.styling;
 
-import java.awt.Stroke;
-
 import javax.measure.quantity.Length;
 import javax.measure.unit.Unit;
 
@@ -31,18 +29,15 @@ import org.opengis.style.StyleVisitor;
  * @author Johann Sorel (Geomatys)
  * @version $Id$
  */
-public class PolygonSymbolizer extends BasicSymbolizer
-        implements Cloneable {
+public class PolygonSymbolizer extends BasicSymbolizer implements Cloneable {
 
     private double offset;
     private double disp;
-
     private Fill fill = new Fill();
-    private StrokeImpl stroke = new StrokeImpl();
+    private Stroke stroke = new Stroke();
 
     /** Creates a new instance of DefaultPolygonStyler */
     protected PolygonSymbolizer() {
-        this(null, null, null, null, null, null, null, null);
     }
 
     protected PolygonSymbolizer(
@@ -55,7 +50,7 @@ public class PolygonSymbolizer extends BasicSymbolizer
             String name,
             String desc) {
         super(name, desc, geom, uom);
-        this.stroke = StrokeImpl.cast(stroke);
+        this.stroke = Stroke.cast(stroke);
         this.fill = fill;
         this.disp = Displacement.cast(disp);
         this.offset = offset;
@@ -102,7 +97,7 @@ public class PolygonSymbolizer extends BasicSymbolizer
      *
      * @return The Stroke style to use when rendering lines.
      */
-    public StrokeImpl getStroke() {
+    public Stroke getStroke() {
         return stroke;
     }
 
@@ -115,7 +110,7 @@ public class PolygonSymbolizer extends BasicSymbolizer
         if (this.stroke == stroke) {
             return;
         }
-        this.stroke = StrokeImpl.cast(stroke);
+        this.stroke = Stroke.cast(stroke);
     }
 
     /**
@@ -143,7 +138,7 @@ public class PolygonSymbolizer extends BasicSymbolizer
             }
 
             if (stroke != null) {
-                clone.stroke = (StrokeImpl) ((Cloneable) stroke).clone();
+                clone.stroke = (Stroke) ((Cloneable) stroke).clone();
             }
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e); // this should never happen.
@@ -193,7 +188,7 @@ public class PolygonSymbolizer extends BasicSymbolizer
             org.opengis.style.PolygonSymbolizer polygonSymbolizer =
                     (org.opengis.style.PolygonSymbolizer) symbolizer;
             PolygonSymbolizer copy = new PolygonSymbolizer();
-            copy.setStroke(StrokeImpl.cast(polygonSymbolizer.getStroke()));
+            copy.setStroke(Stroke.cast(polygonSymbolizer.getStroke()));
             copy.setDescription(polygonSymbolizer.getDescription());
             copy.setDisplacement(polygonSymbolizer.getDisplacement());
             copy.setFill(polygonSymbolizer.getFill());

@@ -16,6 +16,7 @@
  */
 package org.geotools.styling;
 
+import java.awt.Color;
 import java.awt.Font;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,11 +24,6 @@ import java.util.List;
 import javax.measure.quantity.Length;
 import javax.measure.unit.Unit;
 
-import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.util.factory.GeoTools;
-import org.opengis.filter.FilterFactory;
-import org.opengis.filter.expression.Expression;
-import org.opengis.style.StyleVisitor;
 
 /**
  * Provides a Java representation of an SLD TextSymbolizer that defines how text symbols should be
@@ -37,36 +33,28 @@ import org.opengis.style.StyleVisitor;
  * @author Johann Sorel (Geomatys)
  * @version $Id$
  */
-public class TextSymbolizer extends BasicSymbolizer implements TextSymbolizer2, Cloneable {
+public class TextSymbolizer extends BasicSymbolizer implements Cloneable {
     private List<Font> fonts = new ArrayList<Font>(1);
-    private final FilterFactory filterFactory;
     private Fill fill;
     private Halo halo;
-    private LabelPlacement placement;
-    private Expression label = null;
+    private PointPlacement placement;
+    private String label = null;
     private Graphic graphic = null;
-    private Expression priority = null;
-    private Expression abxtract = null;
-    private Expression description = null;
-    private OtherText otherText = null;
-
-    protected TextSymbolizer() {
-        this(CommonFactoryFinder.getFilterFactory(GeoTools.getDefaultHints()));
-    }
+    private String description = "";
+    private String otherText = null;
 
     /** Creates a new instance of DefaultTextSymbolizer */
-    protected TextSymbolizer(FilterFactory factory) {
-        this(factory, null, null, null);
+    protected TextSymbolizer() {
     }
 
-    protected TextSymbolizer(
-            FilterFactory factory, Description desc, String name, Unit<Length> uom) {
-        super(name, desc, (Expression) null, uom);
-        this.filterFactory = factory;
-        fill = new FillImpl(factory);
-        fill.setColor(filterFactory.literal("#000000")); // default text fill is black
+    protected TextSymbolizer( String desc, String name, Unit<Length> uom) {
+    	this.description = desc;
+    	this.name = name;
+    	this.unitOfMeasure = uom;
+        fill = new Fill();
+        fill.setColor(Color.BLACK); // default text fill is black
         halo = null;
-        placement = new PointPlacementImpl();
+        placement = new PointPlacement();
     }
 
     /**
@@ -74,7 +62,7 @@ public class TextSymbolizer extends BasicSymbolizer implements TextSymbolizer2, 
      *
      * @return The fill to be used.
      */
-    public FillImpl getFill() {
+    public Fill getFill() {
         return fill;
     }
 
@@ -83,11 +71,8 @@ public class TextSymbolizer extends BasicSymbolizer implements TextSymbolizer2, 
      *
      * @param fill New value of property fill.
      */
-    public void setFill(org.opengis.style.Fill fill) {
-        if (this.fill == fill) {
-            return;
-        }
-        this.fill = FillImpl.cast(fill);
+    public void setFill(Fill fill) {
+        this.fill = fill;
     }
 
     public List<Font> fonts() {
@@ -98,15 +83,16 @@ public class TextSymbolizer extends BasicSymbolizer implements TextSymbolizer2, 
         return fonts.isEmpty() ? null : fonts.get(0);
     }
 
-    public void setFont(org.opengis.style.Font font) {
+    public void setFont(Font font) {
         if (this.fonts.size() == 1 && this.fonts.get(0) == font) {
             return; // no change
         }
         if (font != null) {
             if (this.fonts.isEmpty()) {
-                this.fonts.add(FontImpl.cast(font));
-            } else {
-                this.fonts.set(0, FontImpl.cast(font));
+                this.fonts.add(font);
+            }
+            else {
+                this.fonts.set(0, font);
             }
         }
     }
@@ -116,7 +102,7 @@ public class TextSymbolizer extends BasicSymbolizer implements TextSymbolizer2, 
      *
      * @param font New value of property font.
      */
-    public void addFont(org.geotools.styling.Font font) {
+    public void addFont(Font font) {
         fonts.add(font);
     }
 
@@ -124,7 +110,7 @@ public class TextSymbolizer extends BasicSymbolizer implements TextSymbolizer2, 
      * A halo fills an extended area outside the glyphs of a rendered text label to make the label
      * easier to read over a background.
      */
-    public HaloImpl getHalo() {
+    public Halo getHalo() {
         return halo;
     }
 
@@ -133,11 +119,8 @@ public class TextSymbolizer extends BasicSymbolizer implements TextSymbolizer2, 
      *
      * @param halo New value of property halo.
      */
-    public void setHalo(org.opengis.style.Halo halo) {
-        if (this.halo == halo) {
-            return;
-        }
-        this.halo = HaloImpl.cast(halo);
+    public void setHalo(Halo halo) {
+        this.halo = halo;
     }
 
     /**
@@ -145,7 +128,7 @@ public class TextSymbolizer extends BasicSymbolizer implements TextSymbolizer2, 
      *
      * @return Label expression.
      */
-    public Expression getLabel() {
+    public String getLabel() {
         return label;
     }
 
@@ -154,7 +137,7 @@ public class TextSymbolizer extends BasicSymbolizer implements TextSymbolizer2, 
      *
      * @param label New value of property label.
      */
-    public void setLabel(Expression label) {
+    public void setLabel(String label) {
         this.label = label;
     }
 
@@ -164,7 +147,7 @@ public class TextSymbolizer extends BasicSymbolizer implements TextSymbolizer2, 
      *
      * @return Value of property labelPlacement.
      */
-    public LabelPlacement getLabelPlacement() {
+    public PointPlacement getLabelPlacement() {
         return placement;
     }
 
@@ -173,15 +156,8 @@ public class TextSymbolizer extends BasicSymbolizer implements TextSymbolizer2, 
      *
      * @param labelPlacement New value of property labelPlacement.
      */
-    public void setLabelPlacement(org.opengis.style.LabelPlacement labelPlacement) {
-        if (this.placement == labelPlacement) {
-            return;
-        }
-        if (labelPlacement instanceof LinePlacement) {
-            this.placement = LinePlacement.cast(labelPlacement);
-        } else {
-            this.placement = PointPlacementImpl.cast(labelPlacement);
-        }
+    public void setLabelPlacement(PointPlacement labelPlacement) {
+        this.placement = labelPlacement;
     }
 
     /**
@@ -189,10 +165,6 @@ public class TextSymbolizer extends BasicSymbolizer implements TextSymbolizer2, 
      *
      * @param visitor The StyleVisitor to accept.
      */
-    public Object accept(StyleVisitor visitor, Object data) {
-        return visitor.visit(this, data);
-    }
-
     public void accept(org.geotools.styling.StyleVisitor visitor) {
         visitor.visit(this);
     }
@@ -203,21 +175,15 @@ public class TextSymbolizer extends BasicSymbolizer implements TextSymbolizer2, 
      * @return The deep copy clone.
      */
     public Object clone() {
-        try {
-            return super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionError(e); // this should never happen.
-        }
+    	TextSymbolizer clone = new TextSymbolizer();
+    	return clone;
     }
 
-    public void setPriority(Expression priority) {
-        if (this.priority == priority) {
-            return;
-        }
+    public void setPriority(double priority) {
         this.priority = priority;
     }
 
-    public Expression getPriority() {
+    public double getPriority() {
         return priority;
     }
 
@@ -234,8 +200,7 @@ public class TextSymbolizer extends BasicSymbolizer implements TextSymbolizer2, 
 
     public String toString() {
         StringBuffer buf = new StringBuffer();
-        buf.append("<TextSymbolizerImp property=");
-        buf.append(getGeometryPropertyName());
+        buf.append("<TextSymbolizer property=");
         buf.append(" label=");
         buf.append(label);
         buf.append(">");
@@ -243,68 +208,35 @@ public class TextSymbolizer extends BasicSymbolizer implements TextSymbolizer2, 
         return buf.toString();
     }
 
-    public Expression getSnippet() {
-        return abxtract;
-    }
-
-    public void setSnippet(Expression abxtract) {
-        this.abxtract = abxtract;
-    }
-
-    public Expression getFeatureDescription() {
+    public String getFeatureDescription() {
         return description;
     }
 
-    public void setFeatureDescription(Expression description) {
+    public void setFeatureDescription(String description) {
         this.description = description;
     }
 
-    public OtherText getOtherText() {
+    public String getString() {
         return otherText;
     }
 
-    public void setOtherText(OtherText otherText) {
+    public void setString(String otherText) {
         this.otherText = otherText;
     }
 
-    static TextSymbolizer cast(org.opengis.style.Symbolizer symbolizer) {
-        if (symbolizer == null) {
-            return null;
-        } else if (symbolizer instanceof TextSymbolizer) {
-            return (TextSymbolizer) symbolizer;
-        } else {
-            org.opengis.style.TextSymbolizer textSymbolizer =
-                    (org.opengis.style.TextSymbolizer) symbolizer;
-            TextSymbolizer copy = new TextSymbolizer();
-            copy.setDescription(textSymbolizer.getDescription());
-            copy.setFill(textSymbolizer.getFill());
-            copy.setFont(textSymbolizer.getFont());
-            copy.setGeometryPropertyName(textSymbolizer.getGeometryPropertyName());
-            copy.setHalo(textSymbolizer.getHalo());
-            copy.setLabel(textSymbolizer.getLabel());
-            copy.setLabelPlacement(textSymbolizer.getLabelPlacement());
-            copy.setName(textSymbolizer.getName());
-            copy.setUnitOfMeasure(textSymbolizer.getUnitOfMeasure());
-
-            return copy;
-        }
-    }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result + ((abxtract == null) ? 0 : abxtract.hashCode());
         result = prime * result + ((description == null) ? 0 : description.hashCode());
         result = prime * result + ((fill == null) ? 0 : fill.hashCode());
-        result = prime * result + ((filterFactory == null) ? 0 : filterFactory.hashCode());
         result = prime * result + ((fonts == null) ? 0 : fonts.hashCode());
         result = prime * result + ((graphic == null) ? 0 : graphic.hashCode());
         result = prime * result + ((halo == null) ? 0 : halo.hashCode());
         result = prime * result + ((label == null) ? 0 : label.hashCode());
         result = prime * result + ((otherText == null) ? 0 : otherText.hashCode());
         result = prime * result + ((placement == null) ? 0 : placement.hashCode());
-        result = prime * result + ((priority == null) ? 0 : priority.hashCode());
         return result;
     }
 
@@ -314,18 +246,14 @@ public class TextSymbolizer extends BasicSymbolizer implements TextSymbolizer2, 
         if (!super.equals(obj)) return false;
         if (getClass() != obj.getClass()) return false;
         TextSymbolizer other = (TextSymbolizer) obj;
-        if (abxtract == null) {
-            if (other.abxtract != null) return false;
-        } else if (!abxtract.equals(other.abxtract)) return false;
         if (description == null) {
             if (other.description != null) return false;
-        } else if (!description.equals(other.description)) return false;
+        } 
+        else if (!description.equals(other.description)) return false;
         if (fill == null) {
             if (other.fill != null) return false;
-        } else if (!fill.equals(other.fill)) return false;
-        if (filterFactory == null) {
-            if (other.filterFactory != null) return false;
-        } else if (!filterFactory.equals(other.filterFactory)) return false;
+        } 
+        else if (!fill.equals(other.fill)) return false;
         if (fonts == null) {
             if (other.fonts != null) return false;
         } else if (!fonts.equals(other.fonts)) return false;
@@ -344,9 +272,6 @@ public class TextSymbolizer extends BasicSymbolizer implements TextSymbolizer2, 
         if (placement == null) {
             if (other.placement != null) return false;
         } else if (!placement.equals(other.placement)) return false;
-        if (priority == null) {
-            if (other.priority != null) return false;
-        } else if (!priority.equals(other.priority)) return false;
         return true;
     }
 }

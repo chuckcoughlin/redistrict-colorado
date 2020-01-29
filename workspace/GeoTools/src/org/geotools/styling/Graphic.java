@@ -20,17 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Logger;
-
-import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.filter.ConstantExpression;
 import org.geotools.util.Utilities;
-import org.geotools.util.factory.GeoTools;
-import org.opengis.filter.FilterFactory;
-import org.opengis.filter.expression.Expression;
-import org.opengis.style.AnchorPoint;
-import org.opengis.style.GraphicalSymbol;
-import org.opengis.style.StyleVisitor;
-import org.opengis.util.Cloneable;
 
 /**
  * Direct implementation of Graphic.
@@ -39,54 +29,41 @@ import org.opengis.util.Cloneable;
  * @author Johann Sorel (Geomatys)
  * @version $Id$
  */
-public class Graphic implements Graphic, Cloneable {
+public class Graphic implements Cloneable {
 	private final static String CLSS = "Graphic";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 
-    private final List<GraphicalSymbol> graphics = new ArrayList<GraphicalSymbol>();
+    private final List<Graphic> graphics = new ArrayList<>();
 
-    private AnchorPointImpl anchor;
-    private Expression gap;
-    private Expression initialGap;
+    private AnchorPoint anchor = null;
+    private double gap = 0.;
+    private double initialGap = 0.;
 
-    private Expression rotation = null;
-    private Expression size = null;
-    private DisplacementImpl displacement = null;
-    private Expression opacity = null;
+    private double rotation = 0.;
+    private double size = 0.;
+    private Displacement displacement = null;
+    private double opacity = 0.;
 
     /** Creates a new instance of DefaultGraphic */
     protected Graphic() {
-        this(CommonFactoryFinder.getFilterFactory(GeoTools.getDefaultHints()));
     }
 
-    public Graphic(FilterFactory factory) {
-        this(factory, null, null, null);
+    public Graphic( AnchorPoint anchor, double gap, double initialGap) {
+        this.anchor = anchor;
+        this.gap = gap;
+        this.initialGap = initialGap;
     }
 
-    public Graphic(
-            FilterFactory factory, AnchorPoint anchor, Expression gap, Expression initialGap) {
-        this.anchor = AnchorPointImpl.cast(anchor);
-
-        if (gap == null) this.gap = ConstantExpression.constant(0);
-        else this.gap = gap;
-        if (initialGap == null) this.initialGap = ConstantExpression.constant(0);
-        else this.initialGap = initialGap;
-    }
-
-    public List<GraphicalSymbol> graphicalSymbols() {
+    public List<Graphic> graphicalSymbols() {
         return graphics;
     }
 
-    public AnchorPointImpl getAnchorPoint() {
+    public AnchorPoint getAnchorPoint() {
         return anchor;
     }
 
-    public void setAnchorPoint(org.geotools.styling.AnchorPoint anchor) {
-        this.anchor = AnchorPointImpl.cast(anchor);
-    }
-
-    public void setAnchorPoint(org.opengis.style.AnchorPoint anchorPoint) {
-        this.anchor = AnchorPointImpl.cast(anchorPoint);
+    public void setAnchorPoint(AnchorPoint anchorPoint) {
+        this.anchor = anchorPoint;
     }
 
     /**
@@ -99,7 +76,7 @@ public class Graphic implements Graphic, Cloneable {
      * @return The opacity of the Graphic, where 0.0 is completely transparent and 1.0 is completely
      *     opaque.
      */
-    public Expression getOpacity() {
+    public double getOpacity() {
         return opacity;
     }
 
@@ -110,7 +87,7 @@ public class Graphic implements Graphic, Cloneable {
      * @return The angle of rotation in decimal degrees. Negative values represent counter-clockwise
      *     rotation. The default is 0.0 (no rotation).
      */
-    public Expression getRotation() {
+    public double getRotation() {
         return rotation;
     }
 
@@ -126,35 +103,35 @@ public class Graphic implements Graphic, Cloneable {
      * @return The size of the graphic, the default is context specific. Negative values are not
      *     possible.
      */
-    public Expression getSize() {
+    public double getSize() {
         return size;
     }
 
-    public DisplacementImpl getDisplacement() {
+    public Displacement getDisplacement() {
         return displacement;
     }
 
-    public Expression getInitialGap() {
+    public double getInitialGap() {
         return initialGap;
     }
 
-    public void setInitialGap(Expression initialGap) {
+    public void setInitialGap(double initialGap) {
         this.initialGap = initialGap;
     }
 
-    public Expression getGap() {
+    public double getGap() {
         return gap;
     }
 
-    public void setGap(Expression gap) {
+    public void setGap(double gap) {
         this.gap = gap;
     }
 
-    public void setDisplacement(org.opengis.style.Displacement offset) {
-        this.displacement = DisplacementImpl.cast(offset);
+    public void setDisplacement(Displacement disp) {
+        this.displacement = disp;
     }
 
-    public void setOpacity(Expression opacity) {
+    public void setOpacity(double opacity) {
         this.opacity = opacity;
     }
 
@@ -163,7 +140,7 @@ public class Graphic implements Graphic, Cloneable {
      *
      * @param rotation New value of property rotation.
      */
-    public void setRotation(Expression rotation) {
+    public void setRotation(double rotation) {
         this.rotation = rotation;
     }
 
@@ -172,12 +149,8 @@ public class Graphic implements Graphic, Cloneable {
      *
      * @param size New value of property size.
      */
-    public void setSize(Expression size) {
+    public void setSize(double size) {
         this.size = size;
-    }
-
-    public Object accept(StyleVisitor visitor, Object data) {
-        return visitor.visit((org.opengis.style.GraphicStroke) this, data);
     }
 
     public void accept(org.geotools.styling.StyleVisitor visitor) {
@@ -190,17 +163,9 @@ public class Graphic implements Graphic, Cloneable {
      * @return The deep copy clone.
      */
     public Object clone() {
-        Graphic clone;
-
-        try {
-            clone = (Graphic) super.clone();
-            clone.graphics.clear();
-            clone.graphics.addAll(graphics);
-
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e); // this should never happen.
-        }
-
+        Graphic clone = new Graphic();
+        clone.graphics.clear();
+        clone.graphics.addAll(graphics);
         return clone;
     }
 
@@ -217,26 +182,11 @@ public class Graphic implements Graphic, Cloneable {
             result = (PRIME * result) + graphics.hashCode();
         }
 
-        if (rotation != null) {
-            result = (PRIME * result) + rotation.hashCode();
-        }
-
-        if (size != null) {
-            result = (PRIME * result) + size.hashCode();
-        }
-
-        if (opacity != null) {
-            result = (PRIME * result) + opacity.hashCode();
-        }
-
-        //        if (gap != null) {
-        //            result = (PRIME * result) + gap.hashCode();
-        //        }
-        //
-        //        if (initialGap != null) {
-        //            result = (PRIME * result) + initialGap.hashCode();
-        //        }
-
+        result = (PRIME * result) + (int)rotation;
+        result = (PRIME * result) + (int)size;
+        result = (PRIME * result) + (int)opacity;
+        result = (PRIME * result) + (int)gap;
+        result = (PRIME * result) + (int)initialGap;
         return result;
     }
 
@@ -264,27 +214,5 @@ public class Graphic implements Graphic, Cloneable {
         }
 
         return false;
-    }
-
-    static Graphic cast(org.opengis.style.Graphic graphic) {
-        if (graphic == null) {
-            return null;
-        } else if (graphic instanceof Graphic) {
-            return (Graphic) graphic;
-        } else {
-            Graphic copy = new Graphic();
-            copy.setAnchorPoint(graphic.getAnchorPoint());
-            copy.setDisplacement(graphic.getDisplacement());
-            if (graphic.graphicalSymbols() != null) {
-                for (GraphicalSymbol item : graphic.graphicalSymbols()) {
-                    if (item instanceof org.opengis.style.ExternalGraphic) {
-                        copy.graphicalSymbols().add(ExternalGraphic.cast(item));
-                    } else if (item instanceof org.opengis.style.Mark) {
-                        copy.graphicalSymbols().add(MarkImpl.cast(item));
-                    }
-                }
-            }
-            return copy;
-        }
     }
 }

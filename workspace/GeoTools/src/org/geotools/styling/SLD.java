@@ -265,7 +265,7 @@ public class SLD {
             Fill labelFill = sf.createFill(ff.literal(Color.BLACK));
             AnchorPoint anchor = sf.createAnchorPoint(ff.literal(0.5), ff.literal(0.0));
             Displacement disp = sf.createDisplacement(ff.literal(0), ff.literal(5));
-            LabelPlacement placement = sf.createPointPlacement(anchor, disp, ff.literal(0));
+            PontPlacement placement = sf.createPointPlacement(anchor, disp, ff.literal(0));
 
             TextSymbolizer textSym =
                     sf.createTextSymbolizer(
@@ -291,7 +291,7 @@ public class SLD {
             return null;
         }
 
-        Rule rule = sf.createRule();
+        Rule rule = new Rule();
 
         for (Symbolizer sym : symbolizers) {
             rule.symbolizers().add(sym);

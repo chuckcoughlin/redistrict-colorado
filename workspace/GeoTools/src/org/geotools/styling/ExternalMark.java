@@ -16,11 +16,10 @@
  */
 package org.geotools.styling;
 
+import java.net.URL;
 import java.util.logging.Logger;
 
 import javax.swing.Icon;
-import org.opengis.metadata.citation.OnLineResource;
-import org.opengis.style.StyleVisitor;
 
 /**
  * Default implementation of ExternalMark.
@@ -30,7 +29,7 @@ import org.opengis.style.StyleVisitor;
 public class ExternalMark {
 	private final static String CLSS = "ExternalMark";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
-    private OnLineResource onlineResource;
+    private URL url;
     private Icon inlineContent;
     private int index;
     private String format;
@@ -40,14 +39,14 @@ public class ExternalMark {
     public ExternalMark(Icon icon) {
         this.inlineContent = icon;
         this.index = -1;
-        this.onlineResource = null;
+        this.url = null;
         this.format = null;
     }
 
-    public ExternalMark(OnLineResource resource, String format, int markIndex) {
+    public ExternalMark(URL resource, String format, int markIndex) {
         this.inlineContent = null;
         this.index = markIndex;
-        this.onlineResource = resource;
+        this.url = resource;
         this.format = format;
     }
 
@@ -63,12 +62,12 @@ public class ExternalMark {
         return index;
     }
 
-    public OnLineResource getOnlineResource() {
-        return onlineResource;
+    public URL getURL() {
+        return url;
     }
 
-    public Object accept(StyleVisitor visitor, Object extraData) {
-        return visitor.visit(this, extraData);
+    public Object accept(StyleVisitor visitor) {
+        return visitor.visit(this);
     }
 
     public void setInlineContent(Icon inline) {
@@ -83,21 +82,8 @@ public class ExternalMark {
         this.index = markIndex;
     }
 
-    public void setOnlineResource(OnLineResource resource) {
-        this.onlineResource = resource;
+    public void setURL(URL resource) {
+        this.url = resource;
     }
 
-    static ExternalMark cast(org.opengis.style.ExternalMark mark) {
-        if (mark == null) {
-            return null;
-        } else if (mark instanceof ExternalMark) {
-            return (ExternalMark) mark;
-        } else {
-            ExternalMark copy = new ExternalMark();
-            copy.setFormat(mark.getFormat());
-            copy.setMarkIndex(mark.getMarkIndex());
-            copy.setOnlineResource(mark.getOnlineResource());
-            return copy;
-        }
-    }
 }

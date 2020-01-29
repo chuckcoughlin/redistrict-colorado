@@ -424,7 +424,7 @@ public class StyledShapePainter {
                     try {
                         BufferedImage image =
                                 ImageIOExt.readBufferedImage(
-                                        graphic.getOnlineResource().getLinkage().toURL());
+                                        graphic.getURL().getLinkage().toURL());
                         if ((symbolScale > 0.0) && (symbolScale != 1.0)) {
                             int w = (int) (image.getWidth() / symbolScale);
                             int h = (int) (image.getHeight() / symbolScale);

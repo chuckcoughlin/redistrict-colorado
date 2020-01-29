@@ -19,13 +19,7 @@ package org.geotools.styling;
 import java.awt.Color;
 import java.util.logging.Logger;
 
-// OpenGIS dependencies
-
-import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.util.Utilities;
-import org.geotools.util.factory.GeoTools;
-import org.opengis.filter.FilterFactory;
-import org.opengis.style.StyleVisitor;
 
 /**
  * Direct implementation of Halo.
@@ -40,25 +34,6 @@ public class Halo implements Cloneable {
     private Fill fill;
     private double radius = Double.NaN;
 
-    /**
-     * Cast to HaloImpl (creating a copy if needed).
-     *
-     * @param halo
-     * @return HaloImpl equal to the provided halo
-     */
-    static Halo cast(org.opengis.style.Halo halo) {
-        if (halo == null) {
-            return null;
-        } else if (halo instanceof Halo) {
-            return (Halo) halo;
-        } else {
-            Halo copy = new Halo();
-            copy.setFill(halo.getFill());
-            copy.setRadius(halo.getRadius());
-
-            return copy;
-        }
-    }
 
     public Halo() {
     	init();
@@ -82,8 +57,8 @@ public class Halo implements Cloneable {
      *
      * @param fill New value of property fill.
      */
-    public void setFill(org.opengis.style.Fill fill) {
-        this.fill = FillImpl.cast(fill);
+    public void setFill(Fill fill) {
+        this.fill = fill;
     }
 
     /**
@@ -114,14 +89,9 @@ public class Halo implements Cloneable {
      * @return The clone.
      */
     public Object clone() {
-        try {
-            Halo clone = (Halo) super.clone();
-            clone.fill = (FillImpl) ((Cloneable) fill).clone();
-
-            return clone;
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException("This will never happen");
-        }
+    	Halo clone = new Halo();
+    	clone.fill = (Fill)(fill.clone());
+    	return clone;
     }
 
     /**
@@ -152,9 +122,7 @@ public class Halo implements Cloneable {
         final int PRIME = 37;
         int result = 17;
 
-        if (radius != null) {
-            result = (result * PRIME) + radius.hashCode();
-        }
+        result = (result * PRIME) + (int)radius;
 
         if (fill != null) {
             result = (result * PRIME) + fill.hashCode();

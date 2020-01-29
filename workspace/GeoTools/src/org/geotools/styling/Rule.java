@@ -16,6 +16,7 @@
  */
 package org.geotools.styling;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,14 +33,12 @@ import org.geotools.util.Utilities;
 public class Rule implements Cloneable {
     private List<Symbolizer> symbolizers = new ArrayList<>();
 
-    private GraphicLegend legend;
+    private Graphic legend;
     private String name;
     private String description = "";
-    private Filter filter = null;
-    private boolean hasElseFilter = false;
     private double maxScaleDenominator = Double.POSITIVE_INFINITY;
     private double minScaleDenominator = 0.0;
-    private OnLineResource online = null;
+    private URL online = null;
 
     /** Creates a new instance of DefaultRule */
     protected Rule() {}
@@ -52,19 +51,14 @@ public class Rule implements Cloneable {
     protected Rule(
             Symbolizer[] symbolizers,
             String desc,
-            GraphicLegend legend,
+            Graphic legend,
             String name,
-            Filter filter,
-            boolean isElseFilter,
             double maxScale,
             double minScale) {
         this.symbolizers = new ArrayList<>(Arrays.asList(symbolizers));
-        description.setAbstract(desc.getAbstract());
-        description.setTitle(desc.getTitle());
+        this.description = desc;
         this.legend = legend;
         this.name = name;
-        this.filter = filter;
-        hasElseFilter = isElseFilter;
         this.maxScaleDenominator = maxScale;
         this.minScaleDenominator = minScale;
     }
@@ -72,32 +66,25 @@ public class Rule implements Cloneable {
     /** Copy constructor */
     public Rule(Rule rule) {
         this.symbolizers = new ArrayList<Symbolizer>();
-        for (org.opengis.style.Symbolizer sym : rule.symbolizers()) {
-            if (sym instanceof Symbolizer) {
-                this.symbolizers.add((Symbolizer) sym);
-            }
+        for(Symbolizer sym : rule.symbolizers()) {
+            this.symbolizers.add((Symbolizer) sym);
         }
-        if (rule.getDescription() != null && rule.getDescription().getTitle() != null) {
-            this.description.setTitle(rule.getDescription().getTitle());
+        if (rule.getDescription() != null ) {
+            this.description = rule.getDescription();
         }
-        if (rule.getDescription() != null && rule.getDescription().getAbstract() != null) {
-            this.description.setTitle(rule.getDescription().getAbstract());
-        }
-        if (rule.getLegend() instanceof org.geotools.styling.Graphic) {
+        if (rule.getLegend() instanceof Graphic) {
             this.legend = rule.getLegend();
         }
         this.name = rule.getName();
-        this.filter = rule.getFilter();
-        this.hasElseFilter = rule.isElseFilter();
         this.maxScaleDenominator = rule.getMaxScaleDenominator();
         this.minScaleDenominator = rule.getMinScaleDenominator();
     }
 
-    public GraphicLegend getLegend() {
+    public Graphic getLegend() {
         return legend;
     }
 
-    public void setLegend(GraphicLegend legend) {
+    public void setLegend(Graphic legend) {
         this.legend = legend;
     }
 
@@ -105,24 +92,23 @@ public class Rule implements Cloneable {
         return symbolizers;
     }
 
-    public org.geotools.styling.Symbolizer[] getSymbolizers() {
+    public Symbolizer[] getSymbolizers() {
 
-        final org.geotools.styling.Symbolizer[] ret;
+        final Symbolizer[] ret;
 
-        ret = new org.geotools.styling.Symbolizer[symbolizers.size()];
+        ret = new Symbolizer[symbolizers.size()];
         for (int i = 0, n = symbolizers.size(); i < n; i++) {
             ret[i] = symbolizers.get(i);
         }
-
         return ret;
     }
 
-    public DescriptionImpl getDescription() {
+    public String getDescription() {
         return description;
     }
 
-    public void setDescription(org.opengis.style.Description description) {
-        this.description = DescriptionImpl.cast(description);
+    public void setDescription(String desc) {
+        this.description = desc;
     }
 
     public String getName() {
@@ -133,21 +119,6 @@ public class Rule implements Cloneable {
         this.name = name;
     }
 
-    public Filter getFilter() {
-        return filter;
-    }
-
-    public void setFilter(Filter filter) {
-        this.filter = filter;
-    }
-
-    public boolean isElseFilter() {
-        return hasElseFilter;
-    }
-
-    public void setElseFilter(boolean defaultb) {
-        hasElseFilter = defaultb;
-    }
 
     /**
      * Getter for property maxScaleDenominator.
@@ -185,10 +156,6 @@ public class Rule implements Cloneable {
         this.minScaleDenominator = minScaleDenominator;
     }
 
-    public Object accept(StyleVisitor visitor, Object data) {
-        return visitor.visit(this, data);
-    }
-
     public void accept(org.geotools.styling.StyleVisitor visitor) {
         visitor.visit(this);
     }
@@ -203,21 +170,9 @@ public class Rule implements Cloneable {
             Rule clone = (Rule) super.clone();
 
             clone.name = name;
-            clone.description.setAbstract(description.getAbstract());
-            clone.description.setTitle(description.getTitle());
-            if (filter == null) {
-                clone.filter = null;
-            } else {
-                DuplicatingFilterVisitor visitor = new DuplicatingFilterVisitor();
-                clone.filter =
-                        (Filter)
-                                filter.accept(visitor, CommonFactoryFinder.getFilterFactory2(null));
-            }
-            clone.hasElseFilter = hasElseFilter;
+            clone.description = description;
             clone.legend = legend;
-
             clone.symbolizers = new ArrayList<Symbolizer>(symbolizers);
-
             clone.maxScaleDenominator = maxScaleDenominator;
             clone.minScaleDenominator = minScaleDenominator;
 
@@ -242,20 +197,11 @@ public class Rule implements Cloneable {
 
         if (legend != null) result = (PRIME * result) + legend.hashCode();
 
-        if (name != null) {
-            result = (PRIME * result) + name.hashCode();
-        }
+        result = (PRIME * result) + name.hashCode();
 
         if (description != null) {
             result = (PRIME * result) + description.hashCode();
         }
-
-        if (filter != null) {
-            result = (PRIME * result) + filter.hashCode();
-        }
-
-        result = (PRIME * result) + (hasElseFilter ? 1 : 0);
-
         long temp = Double.doubleToLongBits(maxScaleDenominator);
         result = (PRIME * result) + (int) (temp >>> 32);
         result = (PRIME * result) + (int) (temp & 0xFFFFFFFF);
@@ -287,8 +233,6 @@ public class Rule implements Cloneable {
 
             return Utilities.equals(name, other.name)
                     && Utilities.equals(description, other.description)
-                    && Utilities.equals(filter, other.filter)
-                    && (hasElseFilter == other.hasElseFilter)
                     && Utilities.equals(legend, other.legend)
                     && Utilities.equals(symbolizers, other.symbolizers)
                     && (Double.doubleToLongBits(maxScaleDenominator)
@@ -309,7 +253,6 @@ public class Rule implements Cloneable {
             buf.append(name);
         }
         buf.append("> ");
-        buf.append(filter);
         if (symbolizers != null) {
             buf.append("\n");
             for (Symbolizer symbolizer : symbolizers) {
@@ -321,22 +264,11 @@ public class Rule implements Cloneable {
         return buf.toString();
     }
 
-    public OnLineResource getOnlineResource() {
+    public URL getURL() {
         return online;
     }
 
-    public void setOnlineResource(OnLineResource online) {
+    public void setURL(URL online) {
         this.online = online;
-    }
-
-    static Rule cast(Rule rule) {
-        if (rule == null) {
-            return null;
-        } else if (rule instanceof Rule) {
-            return (Rule) rule;
-        } else {
-            Rule copy = new Rule(rule); // replace with casting ...
-            return copy;
-        }
     }
 }

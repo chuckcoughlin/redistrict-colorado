@@ -202,8 +202,4 @@ public class Style implements Cloneable {
         buf.append("]");
         return buf.toString();
     }
-
-    public Object accept(StyleVisitor visitor) {
-        return visitor.visit(this);
-    }
 }

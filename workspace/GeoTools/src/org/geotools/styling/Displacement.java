@@ -64,6 +64,9 @@ public class Displacement implements Cloneable {
     public double getDisplacementX() {
         return displacementX;
     }
+    public double getDisplacementY() {
+        return displacementY;
+    }
     
     public void accept(StyleVisitor visitor) {
         visitor.visit(this);
@@ -73,11 +76,10 @@ public class Displacement implements Cloneable {
      * @see org.opengis.util.Cloneable#clone()
      */
     public Object clone() {
-        try {
-            return super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException("Will not happen");
-        }
+    	Displacement clone = new Displacement();
+    	clone.displacementX = getDisplacementX();
+    	clone.displacementY = getDisplacementY();
+    	return clone;
     }
 
     /* (non-Javadoc)

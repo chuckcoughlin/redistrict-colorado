@@ -26,7 +26,7 @@ import java.util.Set;
 
 import org.geotools.util.Utilities;
 import org.opengis.filter.Id;
-import org.opengis.metadata.citation.OnLineResource;
+import org.opengis.metadata.citation.URL;
 import org.opengis.style.SemanticType;
 
 /**
@@ -54,7 +54,7 @@ public class FeatureTypeStyle implements Cloneable {
 
     private String description = "";
     private String name = "name";
-    private OnLineResource online = null;
+    private URL online = null;
     private Expression transformation = null;
 
     protected Map<String,String> options;
@@ -74,7 +74,7 @@ public class FeatureTypeStyle implements Cloneable {
         rules = new ArrayList<Rule>();
     }
 
-    public FeatureTypeStyle(org.opengis.style.FeatureTypeStyle fts) {
+    public FeatureTypeStyle(FeatureTypeStyle fts) {
         this.description = new DescriptionImpl(fts.getDescription());
         this.featureInstances = fts.getFeatureInstanceIDs();
         this.featureTypeNames = new LinkedHashSet<Name>(fts.featureTypeNames());
@@ -86,7 +86,7 @@ public class FeatureTypeStyle implements Cloneable {
             }
         }
         this.semantics = new LinkedHashSet<SemanticType>(fts.semanticTypeIdentifiers());
-        this.online = fts.getOnlineResource();
+        this.online = fts.getURL();
         this.transformation = fts.getTransformation();
     }
 
@@ -106,7 +106,7 @@ public class FeatureTypeStyle implements Cloneable {
         return featureInstances;
     }
 
-    public Description getDescription() {
+    public String getDescription() {
         return description;
     }
 
@@ -230,7 +230,7 @@ public class FeatureTypeStyle implements Cloneable {
                     && Utilities.equals(semantics, other.semantics)
                     && Utilities.equals(getOptions(), other.getOptions())
                     && Utilities.equals(getTransformation(), other.getTransformation())
-                    && Utilities.equals(getOnlineResource(), other.getOnlineResource());
+                    && Utilities.equals(getURL(), other.getURL());
         }
 
         return false;
@@ -266,11 +266,11 @@ public class FeatureTypeStyle implements Cloneable {
         return buf.toString();
     }
 
-    public void setOnlineResource(OnLineResource online) {
+    public void setURL(URL online) {
         this.online = online;
     }
 
-    public OnLineResource getOnlineResource() {
+    public URL getURL() {
         return online;
     }
 

@@ -31,7 +31,9 @@ public class BasicSymbolizer implements Symbolizer {
     protected Unit<Length> unitOfMeasure = null;
     protected Map<String, String> options = null;
 
-    protected BasicSymbolizer() {}
+    protected BasicSymbolizer() {
+    	this.options = new LinkedHashMap<>();
+    }
 
     public BasicSymbolizer(String name, String description, Geometry geometry, Unit<Length> unitOfMeasure) {
         this.name = name;
@@ -68,30 +70,32 @@ public class BasicSymbolizer implements Symbolizer {
         return geometry;
     }
 
-    public void setGeometry(Geometry geometry) {
-        this.geometry = geometry;
+    public void setGeometry(Geometry geom) {
+        this.geometry = geom;
     }
 
     public boolean hasOption(String key) {
         return options != null && options.containsKey(key);
     }
 
-    public Map<String, String> getOptions() {
+    public Map<String,String> getOptions() {
         if (options == null) {
             options = new LinkedHashMap<String, String>();
         }
         return options;
     }
+    public void setOptions(Map<String,String> opts) { this.options = opts; }
     /**
      * Creates a deep copy clone.
      * @return The deep copy clone.
      */
     public Object clone() {
-    	Symbolizer clone = new BasicSymbolizer();
+    	BasicSymbolizer clone = new BasicSymbolizer();
         clone.setName(getName());
         clone.setDescription(getDescription());
-        clone.setGeometry(getGeometry().clone());
-        clone.setOptions(getOptions());
+        clone.geometry = (Geometry)(geometry.clone());
+        clone.options = new LinkedHashMap<>();
+        clone.options.putAll(this.options);
         clone.setUnitOfMeasure(getUnitOfMeasure());
         return clone;
     }

@@ -16,9 +16,8 @@
  */
 package org.geotools.styling;
 
+import java.awt.Stroke;
 import java.util.logging.Logger;
-
-import org.opengis.style.StyleVisitor;
 
 /**
  * Default implementation of Mark.
@@ -31,34 +30,29 @@ public class Mark implements Cloneable {
 	private final static String CLSS = "Mark";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 
-    private final FilterFactory filterFactory;
-    private FillImpl fill;
-    private StrokeImpl stroke;
+    private Fill fill;
+    private Stroke stroke;
 
     private ExternalMark external;
-    private Expression wellKnownName = null;
+    private String wellKnownName = null;
 
     /** Creates a new instance of DefaultMark */
     public Mark() {
-        this(CommonFactoryFinder.getFilterFactory(GeoTools.getDefaultHints()), null);
     }
 
     public Mark(String name) {
-        this(CommonFactoryFinder.getFilterFactory(GeoTools.getDefaultHints()), null);
         LOGGER.fine("creating " + name + " type mark");
         setWellKnownName(name);
     }
 
-    public Mark(FilterFactory filterFactory, ExternalMark external) {
-        this.filterFactory = filterFactory;
+    public Mark(ExternalMark external) {
         LOGGER.fine("creating defaultMark");
 
         try {
-            StyleFactory sfac = new StyleFactoryImpl();
             fill = Fill.cast(sfac.getDefaultFill());
             stroke = Stroke.cast(sfac.getDefaultStroke());
 
-            wellKnownName = filterFactory.literal("square");
+            wellKnownName = "square";
         } catch (org.geotools.filter.IllegalFilterException ife) {
             severe("<init>", "Failed to build default mark: ", ife);
         }
@@ -80,7 +74,7 @@ public class Mark implements Cloneable {
      *
      * @return the Fill definition to use when rendering the Mark.
      */
-    public FillImpl getFill() {
+    public Fill getFill() {
         return fill;
     }
 
@@ -89,7 +83,7 @@ public class Mark implements Cloneable {
      *
      * @return The Stroke definition to use when rendering the Mark.
      */
-    public StrokeImpl getStroke() {
+    public Stroke getStroke() {
         return stroke;
     }
 
@@ -101,7 +95,7 @@ public class Mark implements Cloneable {
      *
      * @return The well-known name of a shape. The default value is "square".
      */
-    public Expression getWellKnownName() {
+    public String getWellKnownName() {
         return wellKnownName;
     }
 
@@ -110,8 +104,8 @@ public class Mark implements Cloneable {
      *
      * @param fill New value of property fill.
      */
-    public void setFill(org.opengis.style.Fill fill) {
-        this.fill = FillImpl.cast(fill);
+    public void setFill(Fill fill) {
+        this.fill = fill;
     }
 
     /**
@@ -119,8 +113,8 @@ public class Mark implements Cloneable {
      *
      * @param stroke New value of property stroke.
      */
-    public void setStroke(org.opengis.style.Stroke stroke) {
-        this.stroke = StrokeImpl.cast(stroke);
+    public void setStroke(Stroke stroke) {
+        this.stroke = stroke;
     }
 
     /**
@@ -128,24 +122,17 @@ public class Mark implements Cloneable {
      *
      * @param wellKnownName New value of property wellKnownName.
      */
-    public void setWellKnownName(Expression wellKnownName) {
-        LOGGER.entering("DefaultMark", "setWellKnownName");
-        this.wellKnownName = wellKnownName;
-    }
-
     public void setWellKnownName(String name) {
-        setWellKnownName(filterFactory.literal(name));
+        LOGGER.entering("DefaultMark", "setWellKnownName");
+        this.wellKnownName = name;
     }
 
     public String toString() {
-        return wellKnownName.toString();
+        return wellKnownName;
     }
 
-    public Object accept(StyleVisitor visitor, Object data) {
-        return visitor.visit(this, data);
-    }
 
-    public void accept(org.geotools.styling.StyleVisitor visitor) {
+    public void accept(StyleVisitor visitor) {
         visitor.visit(this);
     }
 
@@ -163,7 +150,7 @@ public class Mark implements Cloneable {
                 clone.fill = (FillImpl) ((Cloneable) fill).clone();
             }
             if (stroke != null && stroke instanceof Cloneable) {
-                clone.stroke = (StrokeImpl) ((Cloneable) stroke).clone();
+                clone.stroke = (Stroke) ((Cloneable) stroke).clone();
             }
 
             return clone;

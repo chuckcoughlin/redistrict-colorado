@@ -3,7 +3,7 @@ module org.geotools {
 	requires java.logging;
 	requires java.naming;
 	requires java.sql;
-	requires javax.measurement;
+	requires transitive javax.measurement;
 	requires transitive org.locationtech.jts;
 	requires org.apache.commons.compress;
 	

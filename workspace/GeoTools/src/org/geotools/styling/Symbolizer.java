@@ -121,5 +121,5 @@ public interface Symbolizer {
      * <p>Client code looking for the existence of a single option should use {@link
      * #hasOption(String)}
      */
-    Map<String, String> getOptions();
+    Map<String,String> getOptions();
 }

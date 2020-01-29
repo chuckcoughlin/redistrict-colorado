@@ -16,6 +16,7 @@
  */
 package org.geotools.styling;
 
+
 /**
  * An interface for classes that want to perform operations on a Style hierarchy. It forms part of a
  * GoF Visitor Pattern implementation. A call to style.accept(StyleVisitor) will result in a call to
@@ -34,28 +35,28 @@ public interface StyleVisitor {
      *
      * @param sld The StyledLayerDescriptor to visit
      */
-    void visit(StyledLayerDescriptor sld);
+    //void visit(StyledLayerDescriptor sld);
 
     /**
      * Called when accept is called on a NamedLayer.
      *
      * @param layer The NamedLayer to visit
      */
-    void visit(NamedLayer layer);
+    //void visit(NamedLayer layer);
 
     /**
      * Called when accept is called on a UserLayer.
      *
      * @param layer The UserLayer to visit
      */
-    void visit(UserLayer layer);
+    //void visit(UserLayer layer);
 
     /**
      * Called when accept is called on a FeatureTypeConstraint.
      *
      * @param ftc The FeatureTypeConstraint to visit
      */
-    void visit(FeatureTypeConstraint ftc);
+    //void visit(FeatureTypeConstraint ftc);
 
     /**
      * Called when accept is called on a Style.
@@ -196,35 +197,35 @@ public interface StyleVisitor {
      *
      * @param colorMap the color map to visit
      */
-    void visit(ColorMap colorMap);
+    //void visit(ColorMap colorMap);
 
     /**
      * Called when accept is called on a raster color map entry
      *
      * @param colorMapEntry the color map to visit
      */
-    void visit(ColorMapEntry colorMapEntry);
+    //void visit(ColorMapEntry colorMapEntry);
 
     /**
      * Called when accept is called on a raster ContrastEnhancement element
      *
      * @param contrastEnhancement the {@link ContrastEnhancement} to visit.
      */
-    void visit(ContrastEnhancement contrastEnhancement);
+    //void visit(ContrastEnhancement contrastEnhancement);
 
     /**
      * Called when accept is called on a raster {@link ImageOutline} element
      *
      * @param outline the {@link ImageOutline} to visit.
      */
-    void visit(ImageOutline outline);
+    //void visit(ImageOutline outline);
 
     /**
      * Called when accept is called on a raster {@link ChannelSelection} element
      *
      * @param cs the {@link ChannelSelection} to visit.
      */
-    void visit(ChannelSelection cs);
+    //void visit(ChannelSelection cs);
 
     /**
      * Called when accept is called on a raster {@link OverlapBehavior} element
@@ -232,7 +233,7 @@ public interface StyleVisitor {
      * @param ob the {@link OverlapBehavior} to visit.
      */
     @SuppressWarnings("deprecation")
-    void visit(OverlapBehavior ob);
+    //void visit(OverlapBehavior ob);
 
     /**
      * Called when accept is called on a raster {@link SelectedChannelType} element
@@ -246,5 +247,6 @@ public interface StyleVisitor {
      *
      * @param sr the {@link ShadedRelief} to visit.
      */
-    void visit(ShadedRelief sr);
+    //void visit(ShadedRelief sr);
+    void visit(ContrastEnhancement ce);
 }
