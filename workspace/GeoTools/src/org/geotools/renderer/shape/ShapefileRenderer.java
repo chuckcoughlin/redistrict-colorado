@@ -38,8 +38,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.management.Query;
-
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.MapContent;
 import org.geotools.renderer.GTRenderer;
@@ -72,10 +70,6 @@ import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 import org.openjump.coordsys.CoordinateSystem;
 import org.openjump.io.ShapefileReader;
-
-import com.sun.prism.impl.Disposer.Record;
-
-import jdk.internal.org.jline.utils.DiffHelper.Diff;
 
 /**
  * A LiteRenderer Implementations that is optimized for shapefiles.
@@ -1388,19 +1382,6 @@ public class ShapefileRenderer implements GTRenderer {
     	return null;
 	}
 
-    /**
-     * @deprecated
-     */
-    public void paint(Graphics2D graphics, Rectangle paintArea, Envelope mapArea) {
-        paint(graphics, paintArea, new ReferencedEnvelope(mapArea, context.getCoordinateReferenceSystem()));
-    }
-
-    /**
-     * @deprecated
-     */
-    public void paint(Graphics2D graphics, Rectangle paintArea, Envelope mapArea, AffineTransform worldToScreen) {
-        paint(graphics, paintArea, new ReferencedEnvelope(mapArea, context.getCoordinateReferenceSystem()), worldToScreen);
-    }
 
 	@Override
 	public void setMapContent(MapContent mapContent) {
