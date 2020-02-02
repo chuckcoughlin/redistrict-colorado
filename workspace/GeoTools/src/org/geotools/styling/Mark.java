@@ -16,7 +16,6 @@
  */
 package org.geotools.styling;
 
-import java.awt.Stroke;
 import java.util.logging.Logger;
 
 /**
@@ -48,25 +47,10 @@ public class Mark implements Cloneable {
     public Mark(ExternalMark external) {
         LOGGER.fine("creating defaultMark");
 
-        try {
-            fill = Fill.cast(sfac.getDefaultFill());
-            stroke = Stroke.cast(sfac.getDefaultStroke());
-
-            wellKnownName = "square";
-        } catch (org.geotools.filter.IllegalFilterException ife) {
-            severe("<init>", "Failed to build default mark: ", ife);
-        }
-        this.external = ExternalMark.cast(external);
-    }
-
-    /** Convenience method for logging a message with an exception. */
-    private static void severe(
-            final String method, final String message, final Exception exception) {
-        final java.util.logging.LogRecord record =
-                new java.util.logging.LogRecord(java.util.logging.Level.SEVERE, message);
-        record.setSourceMethodName(method);
-        record.setThrown(exception);
-        LOGGER.log(record);
+        fill = new Fill();
+        stroke = new Stroke();
+        wellKnownName = "square";
+        this.external = new ExternalMark();
     }
 
     /**
@@ -123,7 +107,6 @@ public class Mark implements Cloneable {
      * @param wellKnownName New value of property wellKnownName.
      */
     public void setWellKnownName(String name) {
-        LOGGER.entering("DefaultMark", "setWellKnownName");
         this.wellKnownName = name;
     }
 
@@ -144,20 +127,14 @@ public class Mark implements Cloneable {
      * @see org.geotools.styling.Mark#clone()
      */
     public Object clone() {
-        try {
-            Mark clone = (Mark) super.clone();
-            if (fill != null) {
-                clone.fill = (FillImpl) ((Cloneable) fill).clone();
-            }
-            if (stroke != null && stroke instanceof Cloneable) {
-                clone.stroke = (Stroke) ((Cloneable) stroke).clone();
-            }
-
-            return clone;
-        } catch (CloneNotSupportedException e) {
-            // this will never happen
-            throw new RuntimeException("Failed to clone MarkImpl");
-        }
+        Mark clone = new Mark();
+       if (fill != null) {
+           clone.fill = (Fill)(fill.clone());
+       }
+       if (stroke != null ) {
+           clone.stroke = (Stroke) (stroke.clone());
+       }
+       return clone;
     }
 
     /**
@@ -246,24 +223,7 @@ public class Mark implements Cloneable {
         return external;
     }
 
-    public void setExternalMark(org.opengis.style.ExternalMark external) {
-        this.external = ExternalMark.cast(external);
-    }
-
-    @SuppressWarnings("deprecation")
-    static Mark cast(GraphicalSymbol item) {
-        if (item == null) {
-            return null;
-        } else if (item instanceof Mark) {
-            return (Mark) item;
-        } else if (item instanceof Mark) {
-            Mark mark = (Mark) item;
-            Mark copy = new Mark();
-            copy.setStroke(mark.getStroke());
-            copy.setWellKnownName(mark.getWellKnownName());
-            copy.setExternalMark(mark.getExternalMark());
-            return copy;
-        }
-        return null;
+    public void setExternalMark(ExternalMark external) {
+        this.external = external;
     }
 }

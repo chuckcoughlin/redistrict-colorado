@@ -16,6 +16,7 @@
  */
 package org.geotools.styling;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -25,9 +26,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.geotools.util.Utilities;
-import org.opengis.filter.Id;
-import org.opengis.metadata.citation.URL;
-import org.opengis.style.SemanticType;
 
 /**
  * Implementation of Feature Type Style; care is taken to ensure everything is mutable.
@@ -49,17 +47,16 @@ public class FeatureTypeStyle implements Cloneable {
 
     private List<Rule> rules = new ArrayList<Rule>();
     private Set<SemanticType> semantics = new LinkedHashSet<SemanticType>();
-    private Id featureInstances = null;
     private Set<String> featureTypeNames = new LinkedHashSet<String>();
 
     private String description = "";
     private String name = "name";
     private URL online = null;
-    private Expression transformation = null;
+    private String transformation = null;
 
     protected Map<String,String> options;
 
-    /** Creates a new instance of FeatureTypeStyleImpl */
+    /** Creates a new instance of FeatureTypeStyle */
     protected FeatureTypeStyle(Rule[] rules) {
         this(Arrays.asList(rules));
     }
@@ -75,9 +72,8 @@ public class FeatureTypeStyle implements Cloneable {
     }
 
     public FeatureTypeStyle(FeatureTypeStyle fts) {
-        this.description = new DescriptionImpl(fts.getDescription());
-        this.featureInstances = fts.getFeatureInstanceIDs();
-        this.featureTypeNames = new LinkedHashSet<Name>(fts.featureTypeNames());
+        this.description = fts.getDescription();
+        this.featureTypeNames = new LinkedHashSet<String>(fts.featureTypeNames());
         this.name = fts.getName();
         this.rules = new ArrayList<Rule>();
         if (fts.rules() != null) {
@@ -98,12 +94,8 @@ public class FeatureTypeStyle implements Cloneable {
         return semantics;
     }
 
-    public Set<Name> featureTypeNames() {
+    public Set<String> featureTypeNames() {
         return featureTypeNames;
-    }
-
-    public Id getFeatureInstanceIDs() {
-        return featureInstances;
     }
 
     public String getDescription() {
@@ -118,11 +110,7 @@ public class FeatureTypeStyle implements Cloneable {
         this.name = name;
     }
 
-    public Object accept(StyleVisitor visitor, Object data) {
-        return visitor.visit(this, data);
-    }
-
-    public void accept(org.geotools.styling.StyleVisitor visitor) {
+    public void accept(StyleVisitor visitor) {
         visitor.visit(this);
     }
 
@@ -132,22 +120,16 @@ public class FeatureTypeStyle implements Cloneable {
      * @see org.geotools.styling.FeatureTypeStyle#clone()
      */
     public Object clone() {
-        FeatureTypeStyle clone;
-
-        try {
-            clone = (FeatureTypeStyle) super.clone();
-        } catch (final CloneNotSupportedException e) {
-            throw new AssertionError(e); // this should never happen.
-        }
+        FeatureTypeStyle clone = new FeatureTypeStyle();
 
         final List<Rule> rulesCopy = new ArrayList<Rule>();
 
         for (final Rule rl : rules) {
-            rulesCopy.add((Rule) ((Cloneable) rl).clone());
+            rulesCopy.add((Rule) (rl.clone()));
         }
 
         clone.rules = new ArrayList<Rule>();
-        clone.featureTypeNames = new LinkedHashSet<Name>();
+        clone.featureTypeNames = new LinkedHashSet<String>();
         clone.semantics = new LinkedHashSet<SemanticType>();
         final List<Rule> cloneRules = (List<Rule>) clone.rules();
         cloneRules.addAll(rulesCopy);
@@ -169,39 +151,27 @@ public class FeatureTypeStyle implements Cloneable {
         if (rules != null) {
             result = (PRIME * result) + rules.hashCode();
         }
-
-        if (featureInstances != null) {
-            result = (PRIME * result) + featureInstances.hashCode();
-        }
-
         if (semantics != null) {
             result = (PRIME * result) + semantics.hashCode();
         }
-
         if (featureTypeNames != null) {
             result = (PRIME * result) + featureTypeNames.hashCode();
         }
-
         if (name != null) {
             result = (PRIME * result) + name.hashCode();
         }
-
         if (description != null) {
             result = (PRIME * result) + description.hashCode();
         }
-
         if (options != null) {
             result = PRIME * result + options.hashCode();
         }
-
         if (transformation != null) {
             result = PRIME * result + transformation.hashCode();
         }
-
         if (online != null) {
             result = PRIME * result + online.hashCode();
         }
-
         return result;
     }
 
@@ -274,23 +244,12 @@ public class FeatureTypeStyle implements Cloneable {
         return online;
     }
 
-    static FeatureTypeStyle cast(FeatureTypeStyle featureTypeStyle) {
-        if (featureTypeStyle == null) {
-            return null;
-        } else if (featureTypeStyle instanceof FeatureTypeStyle) {
-            return (FeatureTypeStyle) featureTypeStyle;
-        } else {
-            FeatureTypeStyle copy = new FeatureTypeStyle();
-            // the above is a deep copy - replace with cast if we can
-            return copy;
-        }
-    }
 
-    public Expression getTransformation() {
+    public String getTransformation() {
         return transformation;
     }
 
-    public void setTransformation(Expression transformation) {
+    public void setTransformation(String transformation) {
         this.transformation = transformation;
     }
 

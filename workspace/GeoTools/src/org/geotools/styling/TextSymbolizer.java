@@ -179,14 +179,6 @@ public class TextSymbolizer extends BasicSymbolizer implements Cloneable {
     	return clone;
     }
 
-    public void setPriority(double priority) {
-        this.priority = priority;
-    }
-
-    public double getPriority() {
-        return priority;
-    }
-
     public Graphic getGraphic() {
         return graphic;
     }

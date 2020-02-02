@@ -149,6 +149,7 @@ public interface StyleVisitor {
      * @param mark the mark to visit
      */
     void visit(Mark mark);
+    void visit(ExternalMark mark);
 
     /**
      * Called when accept is called on a external graphic
@@ -197,7 +198,7 @@ public interface StyleVisitor {
      *
      * @param colorMap the color map to visit
      */
-    //void visit(ColorMap colorMap);
+    void visit(ColorMap colorMap);
 
     /**
      * Called when accept is called on a raster color map entry
@@ -225,7 +226,7 @@ public interface StyleVisitor {
      *
      * @param cs the {@link ChannelSelection} to visit.
      */
-    //void visit(ChannelSelection cs);
+    void visit(ChannelSelection cs);
 
     /**
      * Called when accept is called on a raster {@link OverlapBehavior} element
@@ -247,6 +248,6 @@ public interface StyleVisitor {
      *
      * @param sr the {@link ShadedRelief} to visit.
      */
-    //void visit(ShadedRelief sr);
+    void visit(ShadedRelief sr);
     void visit(ContrastEnhancement ce);
 }

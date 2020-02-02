@@ -18,8 +18,7 @@ package org.geotools.styling;
 
 import javax.measure.quantity.Length;
 import javax.measure.unit.Unit;
-
-import org.opengis.style.StyleVisitor;
+import org.locationtech.jts.geom.Geometry;
 
 /**
  * Provides a Java representation of the PointSymbolizer. This defines how points are to be
@@ -32,23 +31,15 @@ import org.opengis.style.StyleVisitor;
 public class PointSymbolizer extends BasicSymbolizer implements Cloneable {
 
     private Graphic graphic = new Graphic();
-
+    
     /** Creates a new instance of DefaultPointSymbolizer */
     protected PointSymbolizer() {
-        this(
-                new Graphic(),
-                null,
-                null,
-                null,
-                new DescriptionImpl(
-                        new SimpleInternationalString("title"),
-                        new SimpleInternationalString("abstract")));
+        this(new Graphic(),null,null,null,"title:abstract");
     }
 
-    protected PointSymbolizer(
-            Graphic graphic, Unit<Length> uom, String geom, String name, Description desc) {
+    protected PointSymbolizer(Graphic graphic, Unit<Length> uom, Geometry geom, String name, String desc) {
         super(name, desc, geom, uom);
-        this.graphic = Graphic.cast(graphic);
+        this.graphic = graphic;
     }
 
     /**
@@ -65,11 +56,8 @@ public class PointSymbolizer extends BasicSymbolizer implements Cloneable {
      *
      * @param graphic New value of property graphic.
      */
-    public void setGraphic(org.opengis.style.Graphic graphic) {
-        if (this.graphic == graphic) {
-            return;
-        }
-        this.graphic = Graphic.cast(graphic);
+    public void setGraphic(Graphic graphic) {
+        this.graphic = graphic;
     }
 
     /**
@@ -77,10 +65,6 @@ public class PointSymbolizer extends BasicSymbolizer implements Cloneable {
      *
      * @param visitor The StyleVisitor to accept.
      */
-    public Object accept(StyleVisitor visitor, Object data) {
-        return visitor.visit(this, data);
-    }
-
     public void accept(org.geotools.styling.StyleVisitor visitor) {
         visitor.visit(this);
     }
@@ -91,15 +75,8 @@ public class PointSymbolizer extends BasicSymbolizer implements Cloneable {
      * @return The deep copy clone.
      */
     public Object clone() {
-        PointSymbolizer clone;
-
-        try {
-            clone = (PointSymbolizer) super.clone();
-            if (graphic != null) clone.graphic = (Graphic) ((Cloneable) graphic).clone();
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e); // this should never happen.
-        }
-
+        PointSymbolizer clone = new PointSymbolizer();
+        if (graphic != null) clone.graphic = (Graphic) (graphic.clone());
         return clone;
     }
 
@@ -119,26 +96,8 @@ public class PointSymbolizer extends BasicSymbolizer implements Cloneable {
         PointSymbolizer other = (PointSymbolizer) obj;
         if (graphic == null) {
             if (other.graphic != null) return false;
-        } else if (!graphic.equals(other.graphic)) return false;
+        } 
+        else if (!graphic.equals(other.graphic)) return false;
         return true;
-    }
-
-    static PointSymbolizer cast(org.opengis.style.Symbolizer symbolizer) {
-        if (symbolizer == null) {
-            return null;
-        } else if (symbolizer instanceof PointSymbolizer) {
-            return (PointSymbolizer) symbolizer;
-        } else if (symbolizer instanceof org.opengis.style.PointSymbolizer) {
-            org.opengis.style.PointSymbolizer pointSymbolizer =
-                    (org.opengis.style.PointSymbolizer) symbolizer;
-            PointSymbolizer copy = new PointSymbolizer();
-            copy.setDescription(pointSymbolizer.getDescription());
-            copy.setGeometryPropertyName(pointSymbolizer.getGeometryPropertyName());
-            copy.setGraphic(pointSymbolizer.getGraphic());
-            copy.setName(pointSymbolizer.getName());
-            copy.setUnitOfMeasure(pointSymbolizer.getUnitOfMeasure());
-            return copy;
-        }
-        return null; // not a PointSymbolizer
     }
 }

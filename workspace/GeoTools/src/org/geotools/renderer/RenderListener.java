@@ -17,7 +17,7 @@
 package org.geotools.renderer;
 
 import org.geotools.map.Layer;
-import org.opengis.feature.simple.SimpleFeature;
+import org.openjump.feature.Feature;
 
 /**
  * A RenderListener is notified each time a feature is rendered and each time an error occurs during
@@ -33,7 +33,7 @@ public interface RenderListener {
      *
      * @param feature
      */
-    public void featureRenderer(SimpleFeature feature);
+    public void featureRenderer(Feature feature);
 
     /**
      * Reports a rendering error. The rendering is not normally stopped on it, a listener that wants

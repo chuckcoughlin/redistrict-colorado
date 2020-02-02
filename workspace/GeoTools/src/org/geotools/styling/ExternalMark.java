@@ -66,8 +66,8 @@ public class ExternalMark {
         return url;
     }
 
-    public Object accept(StyleVisitor visitor) {
-        return visitor.visit(this);
+    public void accept(StyleVisitor visitor) {
+        visitor.visit(this);
     }
 
     public void setInlineContent(Icon inline) {

@@ -38,6 +38,8 @@ import org.geotools.referencing.datum.DefaultEllipsoid;
 import org.geotools.referencing.datum.DefaultGeodeticDatum;
 import org.geotools.referencing.datum.DefaultPrimeMeridian;
 import org.geotools.referencing.util.CRSUtilities;
+import org.locationtech.jts.geomgraph.Position;
+import org.opengis.geometry.coordinate.Geodesic;
 import org.opengis.referencing.cs.AxisDirection;
 import org.opengis.referencing.cs.CoordinateSystemAxis;
 import org.opengis.referencing.datum.Datum;
@@ -193,7 +195,7 @@ public class GeodeticCalculator {
              *       fails with a "Bursa-Wolf parameters required" error message, then we probably
              *       have a bug somewhere.
              */
-            userToGeodetic = new DirectPosition(crs, geographicCRS, null);
+            userToGeodetic = new DirectPosition(crs, geographicCRS,null);
         } 
         else {
             userToGeodetic = null;

@@ -70,22 +70,21 @@ public class SLD {
         if(type.equalsIgnoreCase("Polygon") || type.equalsIgnoreCase("MultiPolygon")) {
             if (color.equals(Color.BLACK)) {
                 fillColor = null;
-            } else {
+            } 
+            else {
                 fillColor = color;
             }
             return createPolygonStyle(color, fillColor, 0.5f);
 
         } 
-        else if( type.equalsIgnoreCase("LineString")
-                ||  type.equalsIgnoreCase("MultiLineString") ) {
+        else if( type.equalsIgnoreCase("LineString") ||  type.equalsIgnoreCase("MultiLineString") ) {
             return createLineStyle(color, 1.0f);
-
         } 
-        else if( type.equalsIgnoreCase("Point")
-                ||  type.equalsIgnoreCase("MultiPoint")) {
+        else if( type.equalsIgnoreCase("Point") ||  type.equalsIgnoreCase("MultiPoint")) {
             if (color.equals(Color.BLACK)) {
                 fillColor = null;
-            } else {
+            } 
+            else {
                 fillColor = color;
             }
             return createPointStyle("Circle", color, fillColor, 0.5f, 3.0f);
@@ -240,7 +239,7 @@ public class SLD {
             String labelField,
             Font labelFont) {
 
-        Stroke stroke = sf.createStroke(ff.literal(lineColor), ff.literal(1.0f));
+        Stroke stroke =  new Stroke(lineColor,1.0f);
         Fill fill = Fill.NULL;
         if (fillColor != null) {
             fill = sf.createFill(ff.literal(fillColor), ff.literal(opacity));
@@ -297,7 +296,7 @@ public class SLD {
             rule.symbolizers().add(sym);
         }
 
-        FeatureTypeStyle fts = sf.createFeatureTypeStyle(new Rule[] {rule});
+        FeatureTypeStyle fts = sf.wcreateFeatureTypeStyle(new Rule[] {rule});
 
         Style style = sf.createStyle();
         style.featureTypeStyles().add(fts);

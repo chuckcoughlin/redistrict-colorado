@@ -40,8 +40,13 @@ public class Stroke implements Cloneable {
     private double width;
 
     /** Creates a new instance of Stroke */
-    protected Stroke() {
+    public Stroke() {
     	dashArray = new ArrayList<>();
+    }
+    
+    public Stroke(Color fill, double width) {
+    	this.color = fill;
+    	this.width = width;
     }
 
     /**
@@ -103,10 +108,6 @@ public class Stroke implements Cloneable {
      * amount of space to leave, and this pattern repeats.<br>
      * If an odd number of values is given, then the pattern is expanded by repeating it twice to
      * give an even number of values.
-     *
-     * <p>For example, "2 1 3 2" would produce:<br>
-     * <code>--&nbsp;---&nbsp;&nbsp;--&nbsp;---&nbsp;&nbsp;--&nbsp;---&nbsp;&nbsp;
-     * --&nbsp;---&nbsp;&nbsp;--&nbsp;---&nbsp;&nbsp;--</code>
      */
     public List<Float> dashArray() {
         return dashArray;
@@ -118,10 +119,6 @@ public class Stroke implements Cloneable {
      * amount of space to leave, and this pattern repeats.<br>
      * If an odd number of values is given, then the pattern is expanded by repeating it twice to
      * give an even number of values.
-     *
-     * <p>For example, "2 1 3 2" would produce:<br>
-     * <code>--&nbsp;---&nbsp;&nbsp;--&nbsp;---&nbsp;&nbsp;--&nbsp;---&nbsp;&nbsp;
-     * --&nbsp;---&nbsp;&nbsp;--&nbsp;---&nbsp;&nbsp;--</code>
      */
     public void setDashArray(List<Float> dashArray) {
         this.dashArray = dashArray;
