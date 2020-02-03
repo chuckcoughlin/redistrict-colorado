@@ -197,6 +197,9 @@ public class ShapefileRenderer implements GTRenderer {
     public ShapefileRenderer() {
     }
 
+    /**
+     * This is the paint method used to actually draw the map.
+     */
     public void paint( Graphics2D graphics, Rectangle paintArea, ReferencedEnvelope mapArea ) {
         if (mapArea == null || paintArea == null) {
             LOGGER.info("renderer passed null arguments");

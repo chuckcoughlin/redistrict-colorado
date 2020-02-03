@@ -16,7 +16,6 @@
  */
 package org.geotools.renderer.lite;
 
-import java.awt.BasicStroke;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
@@ -32,14 +31,13 @@ import javax.swing.Icon;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.data.crs.ForceCoordinateSystemFeatureResults;
 import org.geotools.data.simple.SimpleFeatureCollection;
-import org.geotools.geometry.Envelope2D;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.metadata.i18n.ErrorKeys;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.GeodeticCalculator;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
+import org.geotools.referencing.operation.GridToEnvelopeMapper;
 import org.geotools.referencing.operation.matrix.XAffineTransform;
 import org.geotools.renderer.style.GraphicStyle2D;
 import org.geotools.renderer.style.IconStyle2D;
@@ -93,19 +91,6 @@ public final class RendererUtilities {
             Boolean.parseBoolean(
                     System.getProperty("org.geotoools.render.lite.scale.unitCompensation", "true"));
 
-    /**
-     * Helber class for building affine transforms. We use one instance per thread, in order to
-     * avoid the need for {@code synchronized} statements.
-     */
-    private static final ThreadLocal<GridToEnvelopeMapper> gridToEnvelopeMappers =
-            new ThreadLocal<GridToEnvelopeMapper>() {
-                @Override
-                protected GridToEnvelopeMapper initialValue() {
-                    final GridToEnvelopeMapper mapper = new GridToEnvelopeMapper();
-                    mapper.setPixelAnchor(PixelInCell.CELL_CORNER);
-                    return mapper;
-                }
-            };
 
     /** Utilities classes should not be instantiated. */
     private RendererUtilities() {};
@@ -122,29 +107,28 @@ public final class RendererUtilities {
      * @return a transform that maps from real world coordinates to the screen
      */
     public static AffineTransform worldToScreenTransform(
-            ReferencedEnvelope mapExtent, Rectangle paintArea) {
-
+            ReferencedEnvelope mapExtent, Rectangle2D paintArea) {
         // //
         //
         // Convert the JTS envelope and get the transform
         //
         // //
-        final Envelope2D genvelope = new Envelope2D(mapExtent);
-
-        // //
+        final Envelope genvelope = new Envelope(mapExtent);
         //
         // Get the transform
         //
-        // //
-        final GridToEnvelopeMapper m = (GridToEnvelopeMapper) gridToEnvelopeMappers.get();
+        final GridToEnvelopeMapper mapper = new GridToEnvelopeMapper();
         try {
-            m.setGridRange(new GridEnvelope2D(paintArea));
-            m.setEnvelope(genvelope);
-            return m.createAffineTransform().createInverse();
-        } catch (MismatchedDimensionException e) {
+        	mapper.setGridRange(new Envelope(paintArea));
+            mapper.setEnvelope(genvelope);
+            mapper.setPixelAnchor(GridToEnvelopeMapper.ANCHOR_CELL_CORNER);
+            return mapper.createAffineTransform().createInverse();
+        } 
+        catch (MismatchedDimensionException e) {
             LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
             return null;
-        } catch (NoninvertibleTransformException e) {
+        } 
+        catch (NoninvertibleTransformException e) {
             LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
             return null;
         }
@@ -201,14 +185,13 @@ public final class RendererUtilities {
      * @param paintArea the size of the rendering output area
      */
     public static ReferencedEnvelope createMapEnvelope(
-            Rectangle paintArea, AffineTransform worldToScreen, final CoordinateReferenceSystem crs)
+            Rectangle paintArea, AffineTransform worldToScreen, final CoordinateSystem crs)
             throws NoninvertibleTransformException {
 
         // //
         //
         // Make sure the CRS is 2d
         //
-        // //
         final CoordinateReferenceSystem crs2d = CRS.getHorizontalCRS(crs);
         if (crs2d == null)
             throw new UnsupportedOperationException(
@@ -249,10 +232,9 @@ public final class RendererUtilities {
      */
     public static double calculateOGCScale(ReferencedEnvelope envelope, int imageWidth, Map hints) {
         // if it's geodetic, we're dealing with lat/lon unit measures
-        CoordinateReferenceSystem crs = envelope.getCoordinateReferenceSystem();
+        CoordinateSystem crs = envelope.getCoordinateSystem();
         double width = envelope.getWidth();
         double widthMeters = toMeters(width, crs);
-
         return widthMeters / (imageWidth / getDpi(hints) * 0.0254);
     }
 
@@ -270,7 +252,7 @@ public final class RendererUtilities {
      * @param crs
      * @return size adjusted for GeographicCRS or CRS units
      */
-    private static double toMeters(double size, CoordinateReferenceSystem crs) {
+    private static double toMeters(double size, CoordinateSystem crs) {
         if (crs == null) {
             LOGGER.finer(
                     "toMeters: assuming the original size is in meters already, as crs is null");
@@ -282,12 +264,12 @@ public final class RendererUtilities {
         if (!SCALE_UNIT_COMPENSATION) {
             return size;
         }
-        CoordinateReferenceSystem horizontal = CRS.getHorizontalCRS(crs);
+        CoordinateSystem horizontal = CRS.getHorizontalCRS(crs);
         if (horizontal != null) {
             crs = horizontal;
         }
         @SuppressWarnings("unchecked")
-        Unit<Length> unit = (Unit<Length>) crs.getCoordinateSystem().getAxis(0).getUnit();
+        Unit<Length> unit = (Unit<Length>) crs.getAxis(0).getUnit();
         if (unit == null) {
             LOGGER.finer(
                     "toMeters: assuming the original size is in meters already, as the first crs axis unit is null. CRS is "
@@ -401,8 +383,8 @@ public final class RendererUtilities {
             // get CRS2D for this referenced envelope, check that its 2d
             //
             // //
-            final CoordinateReferenceSystem tempCRS =
-                    CRS.getHorizontalCRS(envelope.getCoordinateReferenceSystem());
+            final CoordinateSystem tempCRS =
+                    CRS.getHorizontalCRS(envelope.getCoordinateSystem());
             if (tempCRS == null) {
                 throw new TransformException(
                         Errors.format(
@@ -610,7 +592,8 @@ public final class RendererUtilities {
     public static Geometry getCentroid(Geometry g) {
         if (g instanceof Point || g instanceof MultiPoint) {
             return g;
-        } else if (g instanceof GeometryCollection) {
+        } 
+        else if (g instanceof GeometryCollection) {
             final GeometryCollection gc = (GeometryCollection) g;
             final Coordinate[] pts = new Coordinate[gc.getNumGeometries()];
             final int length = gc.getNumGeometries();
@@ -618,7 +601,8 @@ public final class RendererUtilities {
                 pts[t] = pointInGeometry(gc.getGeometryN(t)).getCoordinate();
             }
             return g.getFactory().createMultiPoint(new CoordinateArraySequence(pts));
-        } else if (g != null) {
+        } 
+        else if (g != null) {
             return pointInGeometry(g);
         }
         return null;
@@ -651,10 +635,12 @@ public final class RendererUtilities {
         if (style instanceof GraphicStyle2D) {
             final BufferedImage image = ((GraphicStyle2D) style).getImage();
             return maxSize(image.getWidth(), image.getHeight());
-        } else if (style instanceof IconStyle2D) {
+        } 
+        else if (style instanceof IconStyle2D) {
             final Icon icon = ((IconStyle2D) style).getIcon();
             return maxSize(icon.getIconWidth(), icon.getIconHeight());
-        } else if (style instanceof LineStyle2D) {
+        } 
+        else if (style instanceof LineStyle2D) {
             LineStyle2D ls = ((LineStyle2D) style);
             double gsSize = getStyle2DSize(ls.getGraphicStroke());
             double strokeSize = 0;

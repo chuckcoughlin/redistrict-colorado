@@ -25,7 +25,7 @@ import java.util.logging.Logger;
  * @author Johann Sorel (Geomatys)
  * @version $Id$
  */
-public class Mark implements Cloneable {
+public class Mark extends Graphic implements Cloneable {
 	private final static String CLSS = "Mark";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 

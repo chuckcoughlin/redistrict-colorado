@@ -14,7 +14,7 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.referencing.operation.projection;
+package org.geotools.referencing.operation;
 
 import org.opengis.referencing.operation.TransformException;
 

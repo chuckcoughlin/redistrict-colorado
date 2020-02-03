@@ -16,15 +16,13 @@
  */
 package org.geotools.styling;
 
-import java.awt.Stroke;
-
 import javax.measure.quantity.Length;
 import javax.measure.unit.Unit;
 
 import org.locationtech.jts.geom.Geometry;
 
 /**
- * Provides a representation of a LineSymbolizer in an SLD Document. A LineSymbolizer defines how a
+ * Provides a representation of a LineSymbolizer in an SLD document. A LineSymbolizer defines how a
  * line geometry should be rendered.
  *
  * @author James Macgill
