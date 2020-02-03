@@ -285,25 +285,7 @@ public class NumberRange<T extends Number & Comparable<? super T>> extends Range
         super(type, minimum, isMinIncluded, maximum, isMaxIncluded);
     }
 
-    /**
-     * Constructs a range with the same values than the specified range, casted to the specified
-     * type.
-     *
-     * @param type The element class, usually one of {@link Byte}, {@link Short}, {@link Integer},
-     *     {@link Long}, {@link Float} or {@link Double}.
-     * @param range The range to copy. The elements must be {@link Number} instances.
-     * @throws IllegalArgumentException if the values are not convertible to the specified class.
-     */
-    NumberRange(final Class<T> type, final Range<? extends Number> range)
-            throws IllegalArgumentException {
-        // TODO: remove the (Number) casts when we will be allowed to compile for Java 6.
-        this(
-                type,
-                ClassChanger.cast((Number) range.getMinValue(), type),
-                range.isMinIncluded(),
-                ClassChanger.cast((Number) range.getMaxValue(), type),
-                range.isMaxIncluded());
-    }
+
 
     /**
      * Constructs a range with the same type and the same values than the specified range. This is a
