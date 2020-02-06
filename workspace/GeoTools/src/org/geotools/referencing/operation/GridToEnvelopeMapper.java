@@ -21,8 +21,6 @@ import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
-
-import org.geotools.referencing.operation.matrix.MatrixFactory;
 import org.geotools.referencing.operation.transform.ProjectiveTransform;
 import org.geotools.util.Utilities;
 import org.locationtech.jts.geom.Envelope;
@@ -154,7 +152,6 @@ public class GridToEnvelopeMapper {
         this.gridRange = gridRange;
         this.envelope = userRange;
     }
-
 
     /** Flush any information cached in this object. */
     private void reset() {
@@ -442,11 +439,11 @@ public class GridToEnvelopeMapper {
      */
     public MathTransform createTransform() throws IllegalStateException {
         if (transform == null) {
-            final Envelope gridRange = getGridRange();
-            final Envelope userRange = getEnvelope();
+            final ReferencedEnvelope gridRange = getGridRange();
+            final ReferencedEnvelope userRange = getEnvelope();
             final boolean swapXY = getSwapXY();
             final boolean[] reverse = getReverseAxis();
-            final PixelInCell gridType = getPixelAnchor();
+            final int gridType = getPixelAnchor();
             final int dimension = gridRange.getDimension();
             /*
              * Setup the multi-dimensional affine transform for use with OpenGIS.
@@ -454,13 +451,12 @@ public class GridToEnvelopeMapper {
              * This is done by adding 0.5 to grid coordinates.
              */
             final double translate;
-            if (PixelInCell.CELL_CENTER.equals(gridType)) {
+            if(gridType==ANCHOR_CELL_CENTER) {
                 translate = 0.5;
-            } else if (PixelInCell.CELL_CORNER.equals(gridType)) {
+            } else if (gridType==ANCHOR_CELL_CORNER) {
                 translate = 0.0;
             } else {
-                throw new IllegalStateException(
-                        Errors.format(ErrorKeys.ILLEGAL_ARGUMENT_$2, "gridType", gridType));
+            	throw new IllegalStateException(String.format("%s.createTransform: Illegal grid type (%d)", CLSS,gridType));
             }
             final Matrix matrix = MatrixFactory.create(dimension + 1);
             for (int i = 0; i < dimension; i++) {

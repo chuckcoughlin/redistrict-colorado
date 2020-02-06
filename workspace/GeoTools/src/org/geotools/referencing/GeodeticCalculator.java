@@ -30,14 +30,6 @@ import java.util.List;
 
 import org.geotools.geometry.DirectPosition;
 import org.geotools.measure.Latitude;
-import org.geotools.metadata.i18n.Vocabulary;
-import org.geotools.metadata.i18n.VocabularyKeys;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.geotools.referencing.cs.DefaultEllipsoidalCS;
-import org.geotools.referencing.datum.DefaultEllipsoid;
-import org.geotools.referencing.datum.DefaultGeodeticDatum;
-import org.geotools.referencing.datum.DefaultPrimeMeridian;
-import org.geotools.referencing.util.CRSUtilities;
 import org.locationtech.jts.geomgraph.Position;
 import org.opengis.geometry.coordinate.Geodesic;
 import org.opengis.referencing.cs.AxisDirection;
@@ -45,7 +37,6 @@ import org.opengis.referencing.cs.CoordinateSystemAxis;
 import org.opengis.referencing.datum.Datum;
 import org.opengis.referencing.datum.Ellipsoid;
 import org.opengis.referencing.datum.GeodeticDatum;
-import org.opengis.referencing.operation.TransformException;
 import org.openjump.coordsys.CoordinateSystem;
 
 
@@ -486,7 +477,7 @@ public class GeodeticCalculator {
      * @throws TransformException if the position can't be transformed.
      * @since 2.2
      */
-    public void setDestinationPosition(final DirectPosition position) throws TransformException {
+    public void setDestinationPosition(final DirectPosition position)  {
         DirectPosition p = position;
         if (userToGeodetic != null) {
             userToGeodetic.p.transform();
@@ -524,7 +515,7 @@ public class GeodeticCalculator {
      * @throws TransformException if the position can't be transformed to user coordinates.
      * @since 2.2
      */
-    public DirectPosition getDestinationPosition() throws TransformException {
+    public DirectPosition getDestinationPosition() {
         if (!destinationValid) {
             computeDestinationPoint();
         }

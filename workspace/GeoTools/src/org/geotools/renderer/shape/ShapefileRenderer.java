@@ -66,8 +66,6 @@ import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.geom.util.GeometryEditor.CoordinateOperation;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
 import org.openjump.coordsys.CoordinateSystem;
 import org.openjump.io.ShapefileReader;
 
@@ -205,8 +203,7 @@ public class ShapefileRenderer implements GTRenderer {
             LOGGER.info("renderer passed null arguments");
             return;
         } // Other arguments get checked later
-        paint(graphics, paintArea, mapArea, RendererUtilities.worldToScreenTransform(mapArea,
-                paintArea));
+        paint(graphics, paintArea, mapArea, RendererUtilities.worldToScreenTransform(mapArea,paintArea));
     }
 
     private void processStylers( Graphics2D graphics, ShapefileDataStore datastore,

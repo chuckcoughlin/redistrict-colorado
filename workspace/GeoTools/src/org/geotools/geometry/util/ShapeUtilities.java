@@ -36,6 +36,7 @@ import java.awt.geom.Rectangle2D;
  * @author Martin Desruisseaux (IRD)
  */
 public final class ShapeUtilities {
+	public static final int TRANSFORM_DIMENSION = 2;   // Calculations fixed at 2x2 
     /**
      * Valeur limite pour détecter si des points sont colinéaires ou si des coordonnées sont
      * identiques.

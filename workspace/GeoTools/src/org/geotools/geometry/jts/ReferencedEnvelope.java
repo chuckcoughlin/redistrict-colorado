@@ -16,16 +16,14 @@
  */
 package org.geotools.geometry.jts;
 
+import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 import java.util.logging.Logger;
 
 import org.geotools.geometry.DirectPosition;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
-import org.locationtech.jts.geom.util.GeometryEditor.CoordinateOperation;
 import org.opengis.geometry.MismatchedDimensionException;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
 import org.openjump.coordsys.CoordinateSystem;
 
 
@@ -137,8 +135,8 @@ public class ReferencedEnvelope extends Envelope  {
      * @param crs The coordinate reference system.
      * @throws MismatchedDimensionException if the CRS dimension is not valid.
      */
-    public ReferencedEnvelope(CoordinateSystem crs) throws MismatchedDimensionException {
-        this.coordsys = crs;
+    public ReferencedEnvelope(CoordinateSystem cs) throws MismatchedDimensionException {
+        this.coordsys = cs;
         checkCoordinateSystemDimension();
     }
 
@@ -157,10 +155,10 @@ public class ReferencedEnvelope extends Envelope  {
             final double x2,
             final double y1,
             final double y2,
-            final CoordinateSystem crs)
+            final CoordinateSystem cs)
             throws MismatchedDimensionException {
         super(x1, x2, y1, y2);
-        this.coordsys = crs;
+        this.coordsys = cs;
         checkCoordinateSystemDimension();
     }
 
@@ -176,13 +174,19 @@ public class ReferencedEnvelope extends Envelope  {
      * @throws MismatchedDimensionException if the CRS dimension is not valid.
      * @since 2.4
      */
-    public ReferencedEnvelope(final Rectangle2D rectangle, final CoordinateSystem crs)
-            throws MismatchedDimensionException {
+    public ReferencedEnvelope(final Rectangle rectangle, final CoordinateSystem crs) throws MismatchedDimensionException {
         this(   rectangle.getMinX(),
                 rectangle.getMaxX(),
                 rectangle.getMinY(),
                 rectangle.getMaxY(),
                 crs);
+    }
+    public ReferencedEnvelope(final Rectangle rectangle ) {
+        this(   rectangle.getMinX(),
+                rectangle.getMaxX(),
+                rectangle.getMinY(),
+                rectangle.getMaxY(),
+                null);
     }
 
     /**

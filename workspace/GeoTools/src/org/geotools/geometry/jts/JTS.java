@@ -29,6 +29,7 @@ import java.util.Map;
 import org.geotools.geometry.DirectPosition;
 import org.geotools.geometry.util.ShapeUtilities;
 import org.geotools.referencing.GeodeticCalculator;
+import org.geotools.util.Utilities;
 import org.locationtech.jts.algorithm.Orientation;
 import org.locationtech.jts.awt.ShapeReader;
 import org.locationtech.jts.geom.Coordinate;
@@ -48,8 +49,6 @@ import org.locationtech.jts.geom.impl.CoordinateArraySequenceFactory;
 import org.locationtech.jts.geom.util.AffineTransformation;
 import org.locationtech.jts.operation.polygonize.Polygonizer;
 import org.opengis.geometry.MismatchedDimensionException;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
 import org.openjump.coordsys.CoordinateSystem;
 
 /**
@@ -100,25 +99,12 @@ public final class JTS {
     /** Do not allow instantiation of this class. */
     private JTS() {}
 
-    /**
-     * Makes sure that an argument is non-null.
-     *
-     * @param name Argument name.
-     * @param object User argument.
-     * @throws IllegalArgumentException if {@code object} is null.
-     */
-    private static void ensureNonNull(final String name, final Object object)
-            throws IllegalArgumentException {
-        if (object == null) {
-        	throw new IllegalArgumentException(String.format("%s.ensureNonNull: Null argument(%s)",CLSS, name)); 
-        }
-    }
 
     /**
      * Transforms the envelope using the specified math transform. Note that this method can not
-     * handle the case where the envelope contains the North or South pole, or when it cross the
-     * &plusmn;180ï¿½ longitude, because {@linkplain MathTransform math transforms} do not carry
-     * suffisient informations. For a more robust envelope transformation, use {@link
+     * handle the case where the envelope contains the North or South pole, or when it crosses the
+     * 180deg longitude, because {@linkplain MathTransform math transforms} does not carry
+     * sufficient information. For a more robust envelope transformation, use {@link
      * ReferencedEnvelope#transform(CoordinateSystem, boolean)} instead.
      *
      * @param envelope The envelope to transform.
@@ -126,8 +112,7 @@ public final class JTS {
      * @return The transformed Envelope
      * @throws TransformException if at least one coordinate can't be transformed.
      */
-    public static Envelope transform(final Envelope envelope, final MathTransform transform)
-            throws TransformException {
+    public static Envelope transform(final Envelope envelope, final AffineTransformation transform) {
         return transform(envelope, null, transform, 5);
     }
 
@@ -149,7 +134,7 @@ public final class JTS {
      * @param sourceEnvelope The envelope to transform.
      * @param targetEnvelope An envelope to expand with the transformation result, or {@code null}
      *     for returning an new envelope.
-     * @param transform The transform to use.
+     * @param transform The transform to use. This is, by definition, 2 dimensional.
      * @param npoints density of each side of the rectangle.
      * @return {@code targetEnvelope} if it was non-null, or a new envelope otherwise. In all case,
      *     the returned envelope fully contains the transformed envelope.
@@ -158,16 +143,11 @@ public final class JTS {
     public static Envelope transform(
             final Envelope sourceEnvelope,
             Envelope targetEnvelope,
-            final MathTransform transform,
-            int npoints)
-            throws TransformException {
-        ensureNonNull("sourceEnvelope", sourceEnvelope);
-        ensureNonNull("transform", transform);
+            final AffineTransformation transform,
+            int npoints) {
+        Utilities.ensureNonNull("sourceEnvelope", sourceEnvelope);
+        Utilities.ensureNonNull("transform", transform);
 
-        if (transform.getSourceDimensions() != transform.getTargetDimensions()
-                || transform.getSourceDimensions() < 2) {
-        	 throw new MismatchedDimensionException(String.format("%s.transform: Bad transform",CLSS));
-        }
 
         npoints++; // for the starting point.
 
@@ -220,14 +200,12 @@ public final class JTS {
      * @param transform
      * @param npoints
      * @return ReferencedEnvelope matching provided 2D TargetCRS
-     * @throws TransformException
      */
     public static ReferencedEnvelope transformTo2D(
             final ReferencedEnvelope sourceEnvelope,
             CoordinateSystem targetCRS,
             boolean lenient,
-            int npoints)
-            throws TransformException {
+            int npoints) {
         final double xmin = sourceEnvelope.getMinX();
         final double xmax = sourceEnvelope.getMaxX();
         final double ymin = sourceEnvelope.getMinY();
@@ -281,32 +259,20 @@ public final class JTS {
      * @throws TransformException if the coordinate can't be transformed.
      */
     public static Coordinate transform(
-            final Coordinate source, Coordinate dest, final MathTransform transform)
-            throws TransformException {
-        ensureNonNull("source", source);
-        ensureNonNull("transform", transform);
+            final Coordinate source, Coordinate dest, final AffineTransformation transform) {
+        Utilities.ensureNonNull("source", source);
+        Utilities.ensureNonNull("transform", transform);
 
         if (dest == null) {
             dest = new Coordinate();
         }
 
-        final double[] array = new double[transform.getTargetDimensions()];
+        final double[] array = new double[ShapeUtilities.TRANSFORM_DIMENSION];
         copy(source, array);
         transform.transform(array, 0, array, 0, 1);
 
-        switch (transform.getTargetDimensions()) {
-            case 3:
-                dest.setZ(array[2]); // Fall through
-
-            case 2:
-                dest.y = array[1]; // Fall through
-
-            case 1:
-                dest.x = array[0]; // Fall through
-
-            case 0:
-                break;
-        }
+        dest.y = array[1]; // Fall through
+        dest.x = array[0]; // Fall through
 
         return dest;
     }
@@ -360,9 +326,8 @@ public final class JTS {
      * @param dest The destination array for transformed coordinates.
      * @throws TransformException if this method failed to transform any of the points.
      */
-    public static void xform(final MathTransform transform, final double[] src, final double[] dest)
-            throws TransformException {
-        ensureNonNull("transform", transform);
+    public static void xform(final AffineTransformation transform, final double[] src, final double[] dest) {
+        Utilities.ensureNonNull("transform", transform);
 
         final int sourceDim = transform.getSourceDimensions();
         final int targetDim = transform.getTargetDimensions();
@@ -427,11 +392,10 @@ public final class JTS {
      *     a {@linkplain org.opengis.referencing.crs.GeographicCRS geographic CRS}.
      */
     public static synchronized double orthodromicDistance(
-            final Coordinate p1, final Coordinate p2, final CoordinateSystem crs)
-            throws TransformException {
-        ensureNonNull("p1", p1);
-        ensureNonNull("p2", p2);
-        ensureNonNull("crs", crs);
+            final Coordinate p1, final Coordinate p2, final CoordinateSystem crs) {
+        Utilities.ensureNonNull("p1", p1);
+        Utilities.ensureNonNull("p2", p2);
+        Utilities.ensureNonNull("crs", crs);
 
         /*
          * Need to synchronize because we use a single instance of a Map (CALCULATORS) as well as
@@ -478,8 +442,8 @@ public final class JTS {
      * @param ordinates The destination array.
      */
     public static void copy(final Coordinate point, final double[] ordinates) {
-        ensureNonNull("point", point);
-        ensureNonNull("ordinates", ordinates);
+    	Utilities.ensureNonNull("point", point);
+    	Utilities.ensureNonNull("ordinates", ordinates);
 
         switch (ordinates.length) {
             default:
@@ -521,11 +485,10 @@ public final class JTS {
      * @throws IllegalArgumentException if either {@code shape} or {@code factory} is {@code null}
      */
     public static Geometry toGeometry(final Shape shape, final GeometryFactory factory) {
-        ensureNonNull("shape", shape);
-        ensureNonNull("factory", factory);
+    	Utilities.ensureNonNull("shape", shape);
+    	Utilities.ensureNonNull("factory", factory);
 
-        final PathIterator iterator =
-                shape.getPathIterator(null, ShapeUtilities.getFlatness(shape));
+        final PathIterator iterator = shape.getPathIterator(null, ShapeUtilities.getFlatness(shape));
         final double[] buffer = new double[6];
         final List<Coordinate> coords = new ArrayList<Coordinate>();
         final List<LineString> lines = new ArrayList<LineString>();
