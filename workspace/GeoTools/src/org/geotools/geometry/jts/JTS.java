@@ -41,6 +41,7 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.LinearRing;
+import org.locationtech.jts.geom.MultiLineString;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
@@ -48,7 +49,6 @@ import org.locationtech.jts.geom.impl.CoordinateArraySequence;
 import org.locationtech.jts.geom.impl.CoordinateArraySequenceFactory;
 import org.locationtech.jts.geom.util.AffineTransformation;
 import org.locationtech.jts.operation.polygonize.Polygonizer;
-import org.opengis.geometry.MismatchedDimensionException;
 import org.openjump.coordsys.CoordinateSystem;
 
 /**
@@ -73,7 +73,7 @@ import org.openjump.coordsys.CoordinateSystem;
  */
 public final class JTS {
 	private final static String CLSS = "JTS";
-	
+	private final static GeodeticCalculator gc = new GeodeticCalculator();
     /** A pool of direct positions for use in {@link #orthodromicDistance}. */
     private static final DirectPosition[] POSITIONS = new DirectPosition[4];
 
@@ -85,16 +85,6 @@ public final class JTS {
             POSITIONS[i] = new DirectPosition(i);
         }
     }
-
-    /**
-     * Geodetic calculators already created for a given coordinate reference system. For use in
-     * {@link #orthodromicDistance}.
-     *
-     * <p>Note: We would like to use {@link org.geotools.util.CanonicalSet}, but we can't because
-     * {@link GeodeticCalculator} keep a reference to the CRS which is used as the key.
-     */
-    private static final Map<CoordinateSystem, GeodeticCalculator> CALCULATORS =
-            new HashMap<CoordinateSystem, GeodeticCalculator>();
 
     /** Do not allow instantiation of this class. */
     private JTS() {}
@@ -267,13 +257,7 @@ public final class JTS {
             dest = new Coordinate();
         }
 
-        final double[] array = new double[ShapeUtilities.TRANSFORM_DIMENSION];
-        copy(source, array);
-        transform.transform(array, 0, array, 0, 1);
-
-        dest.y = array[1]; // Fall through
-        dest.x = array[0]; // Fall through
-
+        transform.transform(source,dest);
         return dest;
     }
 
@@ -329,41 +313,14 @@ public final class JTS {
     public static void xform(final AffineTransformation transform, final double[] src, final double[] dest) {
         Utilities.ensureNonNull("transform", transform);
 
-        final int sourceDim = transform.getSourceDimensions();
-        final int targetDim = transform.getTargetDimensions();
-
-        if (targetDim != sourceDim) {
-            throw new MismatchedDimensionException();
-        }
-
-        TransformException firstError = null;
-        boolean startPointTransformed = false;
-
-        for (int i = 0; i < src.length; i += sourceDim) {
-            try {
-                transform.transform(src, i, dest, i, 1);
-
-                if (!startPointTransformed) {
-                    startPointTransformed = true;
-
-                    for (int j = 0; j < i; j++) {
-                        System.arraycopy(dest, j, dest, i, targetDim);
-                    }
-                }
-            } catch (TransformException e) {
-                if (firstError == null) {
-                    firstError = e;
-                }
-
-                if (startPointTransformed) {
-                    System.arraycopy(dest, i - targetDim, dest, i, targetDim);
-                }
-            }
-        }
-
-        if (!startPointTransformed && (firstError != null)) {
-            throw firstError;
-        }
+        final int sourceDim = ShapeUtilities.TRANSFORM_DIMENSION;
+        final int targetDim = ShapeUtilities.TRANSFORM_DIMENSION;
+        
+        Coordinate source = new Coordinate(src[0],src[1]);
+        Coordinate destination = new Coordinate(dest[0],dest[1]);
+        transform.transform(source,destination);
+        dest[0] = destination.x;
+        dest[1] = destination.y;
     }
 
     /**
@@ -396,19 +353,6 @@ public final class JTS {
         Utilities.ensureNonNull("p1", p1);
         Utilities.ensureNonNull("p2", p2);
         Utilities.ensureNonNull("crs", crs);
-
-        /*
-         * Need to synchronize because we use a single instance of a Map (CALCULATORS) as well as
-         * shared instances of GeodeticCalculator and GeneralDirectPosition (POSITIONS). None of
-         * them are thread-safe.
-         */
-        GeodeticCalculator gc = (GeodeticCalculator) CALCULATORS.get(crs);
-
-        if (gc == null) {
-            gc = new GeodeticCalculator(crs);
-            CALCULATORS.put(crs, gc);
-        }
-        assert crs.equals(gc);
 
         final DirectPosition pos = POSITIONS[Math.min(POSITIONS.length - 1, crs.getDimension())];
         pos.setCoordinateSystem(crs);
@@ -620,7 +564,7 @@ public final class JTS {
      * @throws IllegalArgumentException if either {@code env} or {@code factory} is {@code null}
      */
     public static Polygon toGeometry(final Envelope envelope, GeometryFactory factory) {
-        ensureNonNull("env", envelope);
+        Utilities.ensureNonNull("env", envelope);
         if (factory == null) {
             factory = new GeometryFactory();
         }
@@ -731,16 +675,13 @@ public final class JTS {
      * @return The geometry transformed to be in {@link DefaultGeographicCRS#WGS84}.
      * @throws TransformException If at least one coordinate can't be transformed.
      */
-    public static Geometry toGeographic(Geometry geom, final CoordinateSystem crs) throws TransformException {
+    public static Geometry toGeographic(Geometry geom, final CoordinateSystem crs)  {
         if (crs == null) {
             return geom;
         }
-        if( crs.equals(CoordinateSystem.DEFAULT) ) {
-            return geom;
-        } 
         else {
-            throw new TransformException(String.format("%s.toGeographic: Can't reproject %s", CLSS,crs.getName()));
-        }
+        	return geom;
+        } 
     }
 
     /**
@@ -788,8 +729,8 @@ public final class JTS {
      */
     public static Geometry smooth(final Geometry geom, double fit, final GeometryFactory factory) {
 
-        ensureNonNull("geom", geom);
-        ensureNonNull("factory", factory);
+        Utilities.ensureNonNull("geom", geom);
+        Utilities.ensureNonNull("factory", factory);
 
         // Adjust fit if necessary
         fit = Math.max(0.0, Math.min(1.0, fit));
@@ -1097,7 +1038,7 @@ public final class JTS {
      * @return a new instance of the provided {@link Geometry} without collinear vertices.
      */
     public static Geometry removeCollinearVertices(final Geometry geometry, int minPoints) {
-        ensureNonNull("geometry", geometry);
+        Utilities.ensureNonNull("geometry", geometry);
 
         if ((minPoints <= 0) || (geometry.getNumPoints() < minPoints)) {
             return geometry;

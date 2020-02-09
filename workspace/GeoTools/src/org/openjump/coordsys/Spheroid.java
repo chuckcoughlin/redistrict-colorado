@@ -37,7 +37,6 @@ package org.openjump.coordsys;
  * GRS80 spheroid.
  */
 public class Spheroid {
-
   public double a;// semimajor axis
   public double b;// semiminor axis
   public double f;// flattening

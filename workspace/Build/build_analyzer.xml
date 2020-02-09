@@ -19,7 +19,7 @@
 		<mkdir dir="${install.dir}/bin"/>
 	</target>
 	
-	<target name="build" depends="version,jsr-275,geotools,fxgraphics,rc-core,rc-ui,rc-analyzer" />
+	<target name="build" depends="version,jsr-275,geolib,geotools,fxgraphics,rc-core,rc-ui,rc-analyzer" />
 	<target name="version" description="Copy VERSION file for building">
 		<copy todir="${basedir}/../RCAnalyzer/src/redistrict/colorado/common/">
 			<fileset dir="${install.dir}/../release/">
@@ -30,20 +30,35 @@
 			  tofile="${basedir}/../RCAnalyzer/src/redistrict/colorado/common/Version.java/"/>
 	</target>
 	<target name="jsr-275" description="Build Unit of Measure jar">
-				<echo message="Compile JSR-275" />
-				<delete dir="${temp.dir}" />
-				<mkdir dir="${temp.dir}"/>
-				<javac	srcdir="../JSR275/src"
-				       	destdir="${temp.dir}"
-						compiler="javac10+"
-						source="13" target="13"
-						debug="true"
-						modulepathref="common-modulepath"
-						includeantruntime="false"
-				/>
-				<jar destfile="${lib.dir}/${jsr-275-jar}" includes="**/*.class,**/*.png,**/*.css" basedir="${temp.dir}">
-				</jar>
-		</target>
+		<echo message="Compile JSR-275" />
+		<delete dir="${temp.dir}" />
+		<mkdir dir="${temp.dir}"/>
+		<javac	srcdir="../JSR275/src"
+				destdir="${temp.dir}"
+				compiler="javac10+"
+				source="13" target="13"
+				debug="true"
+				modulepathref="common-modulepath"
+				includeantruntime="false"
+		/>
+		<jar destfile="${lib.dir}/${jsr-275-jar}" includes="**/*.class,**/*.png,**/*.css" basedir="${temp.dir}">
+		</jar>
+	</target>
+	<target name="geolib" description="Build GeographicLib jar">
+		<echo message="Compile GeographicLib" />
+		<delete dir="${temp.dir}" />
+		<mkdir dir="${temp.dir}"/>
+		<javac	srcdir="../GeographicLib/src"
+				destdir="${temp.dir}"
+				compiler="javac10+"
+				source="13" target="13"
+				debug="true"
+				modulepathref="common-modulepath"
+				includeantruntime="false"
+		/>
+		<jar destfile="${lib.dir}/${geolib-jar}" includes="**/*.class,**/*.png,**/*.css" basedir="${temp.dir}">
+		</jar>
+	</target>
 	<target name="fxgraphics" description="Build FXGraphics jar">
 			<echo message="Compile FXGraphics" />
 			<delete dir="${temp.dir}" />

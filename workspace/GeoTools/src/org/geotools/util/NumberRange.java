@@ -383,23 +383,6 @@ public class NumberRange<T extends Number & Comparable<? super T>> extends Range
     }
 
     /**
-     * Returns the {@linkplain #getMinimum() minimum value} with the specified inclusive or
-     * exclusive state. If this range is unbounded, then {@link Double#NEGATIVE_INFINITY} is
-     * returned.
-     *
-     * @param inclusive {@code true} for the minimum value inclusive, or {@code false} for the
-     *     minimum value exclusive.
-     * @return The minimum value, inclusive or exclusive as requested.
-     */
-    public double getMinimum(final boolean inclusive) {
-        double value = getMinimum();
-        if (inclusive != isMinIncluded()) {
-            value = XMath.rool(getElementClass(), value, inclusive ? +1 : -1);
-        }
-        return value;
-    }
-
-    /**
      * Returns the {@linkplain #getMaxValue maximum value} as a {@code double}. If this range is
      * unbounded, then {@link Double#POSITIVE_INFINITY} is returned.
      *
@@ -410,20 +393,4 @@ public class NumberRange<T extends Number & Comparable<? super T>> extends Range
         return (value != null) ? value.doubleValue() : Double.POSITIVE_INFINITY;
     }
 
-    /**
-     * Returns the {@linkplain #getMaximum() maximum value} with the specified inclusive or
-     * exclusive state. If this range is unbounded, then {@link Double#POSITIVE_INFINITY} is
-     * returned.
-     *
-     * @param inclusive {@code true} for the maximum value inclusive, or {@code false} for the
-     *     maximum value exclusive.
-     * @return The maximum value, inclusive or exclusive as requested.
-     */
-    public double getMaximum(final boolean inclusive) {
-        double value = getMaximum();
-        if (inclusive != isMaxIncluded()) {
-            value = XMath.rool(getElementClass(), value, inclusive ? -1 : +1);
-        }
-        return value;
-    }
 }

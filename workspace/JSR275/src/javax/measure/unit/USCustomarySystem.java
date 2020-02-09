@@ -48,9 +48,7 @@ public final class USCustomarySystem extends SystemOfUnits {
      *
      * @return the NonSI instance.
      */
-    public static USCustomarySystem getInstance() {
-        return INSTANCE;
-    }
+    public static USCustomarySystem getInstance() {return INSTANCE;}
     private static final USCustomarySystem INSTANCE = new USCustomarySystem();
 
 

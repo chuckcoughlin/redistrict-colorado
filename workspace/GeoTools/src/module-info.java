@@ -7,6 +7,7 @@ module org.geotools {
 	requires transitive org.locationtech.jts;
 	requires org.apache.commons.compress;
 	requires commons.math3;
+	requires geographic.lib;
 	
 	exports org.geotools.data.dbf;
 	exports org.geotools.data.shapefile;

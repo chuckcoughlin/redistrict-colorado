@@ -40,12 +40,10 @@ Java 13.
 * https://github.com/locationtech/jts/releases jts-core-16.1.jar VividSolutions JTS Topology Suite
 * https://repo1.maven.org/maven2/com/googlecode/json-simple/json-simple/1.1.1/ json-simple-1.1.1.jar JSON parser
 * https://sourceforge.net/projects/geotools/files/GeoTools%2021%20Releases/21.2 GeoTools. 11000 source files, we use only a small fraction.
-
 * http://www.openjump.org/jpp.html OpenJUMP 1.14. This GIS package is extremely comprehensive consisting of over 1600 source files. We have simplified it drastically, using perhaps 50.
-
 * https://github.com/jfree/fxgraphics2d FXGraphics2D. This is an implementation of the Java Graphics2D API that targets the JavaFX Canvas.
-
 * https://github.com/unitsofmeasurement/jsr-275 JSR-275 units of measure.
+* https://sourceforge.net/projects/geographiclib/files/distrib/GeographicLib-1.50.zip/download GeographicLib, a Java library of routines for converting between geographic and geocentric coordinates.
 
 *** Modularization ***<br/>
 The open source jar files listed above have all been manually updated for Java11 module compatibility and then stored in our `git`  repository.

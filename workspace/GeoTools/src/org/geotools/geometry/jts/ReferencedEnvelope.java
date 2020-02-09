@@ -188,6 +188,13 @@ public class ReferencedEnvelope extends Envelope  {
                 rectangle.getMaxY(),
                 null);
     }
+    public ReferencedEnvelope(final Rectangle2D rectangle,final CoordinateSystem crs ) {
+        this(   rectangle.getMinX(),
+                rectangle.getMaxX(),
+                rectangle.getMinY(),
+                rectangle.getMaxY(),
+                crs);
+    }
 
     /**
      * Creates a new envelope from an existing envelope.

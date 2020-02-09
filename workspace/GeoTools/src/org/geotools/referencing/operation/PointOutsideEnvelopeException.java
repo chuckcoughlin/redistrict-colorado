@@ -16,7 +16,6 @@
  */
 package org.geotools.referencing.operation;
 
-import org.opengis.referencing.operation.TransformException;
 
 /**
  * Thrown by {@link MapProjection} when a map projection failed because the point is outside the
@@ -26,8 +25,8 @@ import org.opengis.referencing.operation.TransformException;
  * @version $Id$
  * @author Martin Desruisseaux (IRD)
  */
-public class PointOutsideEnvelopeException extends TransformException {
-    /** Serial number for interoperability with different versions. */
+public class PointOutsideEnvelopeException extends Exception {
+    /** Serial number for interoperability with diferent versions. */
     private static final long serialVersionUID = -4384490413772200352L;
 
     /** Constructs a new exception with no detail message. */

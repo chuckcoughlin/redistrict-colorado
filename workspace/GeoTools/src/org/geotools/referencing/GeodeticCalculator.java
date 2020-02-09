@@ -31,13 +31,14 @@ import java.util.List;
 import org.geotools.geometry.DirectPosition;
 import org.geotools.measure.Latitude;
 import org.locationtech.jts.geomgraph.Position;
-import org.opengis.geometry.coordinate.Geodesic;
-import org.opengis.referencing.cs.AxisDirection;
-import org.opengis.referencing.cs.CoordinateSystemAxis;
-import org.opengis.referencing.datum.Datum;
-import org.opengis.referencing.datum.Ellipsoid;
-import org.opengis.referencing.datum.GeodeticDatum;
+import org.openjump.coordsys.AxisDirection;
 import org.openjump.coordsys.CoordinateSystem;
+import org.openjump.coordsys.CoordinateSystemAxis;
+
+import net.sf.geographiclib.Geodesic;
+import net.sf.geographiclib.GeodesicData;
+import net.sf.geographiclib.GeodesicLine;
+import net.sf.geographiclib.GeodesicMask;
 
 
 /**
@@ -87,26 +88,10 @@ public class GeodeticCalculator {
      * {@code null}, will be created the first time {@link #getCoordinateSystem} is
      * invoked.
      */
-    private CoordinateSystem CoordinateSystem;
-
-    /**
-     * The coordinate reference system for all methods working on {@link Point2D} objects. If {@code
-     * null}, will be created the first time {@link #getGeographicCRS} is invoked.
-     */
-    private CoordinateSystem geographicCRS;
-
-    /** The encapsulated ellipsoid. */
-    private final Ellipsoid ellipsoid;
-
-    /*
-     * The semi major axis of the reference ellipsoid.
-     */
-    private final double semiMajorAxis;
-
-    /*
-     * The flattening the reference ellipsoid.
-     */
-    private final double flattening;
+    private final CoordinateSystem coordinateSystem;
+    private final Ellipsoid ellipsoid;   // The encapsulated ellipsoid
+    private final double semiMajorAxis;  //The semi major axis of the reference ellipsoid.
+    private final double flattening;     //The flattening the reference ellipsoid.
 
     /**
      * The (<var>latitude</var>, <var>longitude</var>) coordinate of the first point <strong>in
@@ -143,54 +128,12 @@ public class GeodeticCalculator {
 
     /** Constructs a new geodetic calculator associated with the WGS84 ellipsoid. */
     public GeodeticCalculator() {
-        this(DefaultEllipsoid.WGS84);
-    }
-
-    /**
-     * Constructs a new geodetic calculator associated with the specified ellipsoid. All
-     * calculations done by the new instance are referenced to this ellipsoid.
-     *
-     * @param ellipsoid The ellipsoid onto which calculates distances and azimuths.
-     */
-    public GeodeticCalculator(final Ellipsoid ellipsoid) {
-        this(ellipsoid, null);
-    }
-
-    /**
-     * Constructs a new geodetic calculator expecting coordinates in the supplied CRS. The ellipsoid
-     * will be inferred from the CRS.
-     *
-     * @param crs The reference system for the {@link Position} objects.
-     * @since 2.2
-     */
-    public GeodeticCalculator(final CoordinateSystem crs) {
-        this(CRS.getEllipsoid(crs), crs);
-    }
-
-    /** For internal use by public constructors only. */
-    private GeodeticCalculator(final Ellipsoid ellipsoid, final CoordinateSystem crs) {
-        if (ellipsoid == null) {
-            throw new IllegalArgumentException(String.format("%s.constructor: Null argument: %s", CLSS,"ellipsoid"));
-        }
-        this.ellipsoid = ellipsoid;
-        semiMajorAxis = ellipsoid.getSemiMajorAxis();
-        flattening = 1 / ellipsoid.getInverseFlattening();
-        geod = new Geodesic(semiMajorAxis, flattening);
-        if (crs != null) {
-            CoordinateSystem = crs;
-            geographicCRS = crs;
-            /*
-             * Note: there is no need to set Hints.LENIENT_DATUM_SHIFT to Boolean.TRUE here since
-             *       the target CRS computed by our internal getGeographicCRS(crs) method should
-             *       returns a CRS using the same datum than the specified CRS. If the factory
-             *       fails with a "Bursa-Wolf parameters required" error message, then we probably
-             *       have a bug somewhere.
-             */
-            userToGeodetic = new DirectPosition(crs, geographicCRS,null);
-        } 
-        else {
-            userToGeodetic = null;
-        }
+        this.coordinateSystem = CoordinateSystem.DEFAULT;  // Geodetic 2D
+        this.ellipsoid = Ellipsoid.DEFAULT;
+        this.semiMajorAxis = ellipsoid.getSemiMajorAxis();
+        this.flattening = 1 / ellipsoid.getInverseFlattening();
+        this.geod = new Geodesic(semiMajorAxis, flattening);
+        this.userToGeodetic = new DirectPosition(coordinateSystem);
     }
 
     ///////////////////////////////////////////////////////////
@@ -198,35 +141,6 @@ public class GeodeticCalculator {
     ////////        H E L P E R   M E T H O D S        ////////
     ////////                                           ////////
     ///////////////////////////////////////////////////////////
-
-    /**
-     * Returns the first two-dimensional geographic CRS using standard axis, creating one if needed.
-     */
-    private static CoordinateSystem getGeographicCRS(final CoordinateSystem crs) {
-        if (crs instanceof CoordinateSystem) {
-            final CoordinateSystem cs = crs;
-            if (cs.getDimension() == 2
-                    && isStandard(cs.getAxis(0), AxisDirection.EAST)
-                    && isStandard(cs.getAxis(1), AxisDirection.NORTH)) {
-                return  crs;
-            }
-        }
-        final Datum datum = CRSUtilities.getDatum(crs);
-        if (datum instanceof GeodeticDatum) {
-            return new DefaultGeographicCRS(
-                    "Geodetic", (GeodeticDatum) datum, DefaultEllipsoidalCS.GEODETIC_2D);
-        }
-        throw new IllegalArgumentException(String.format("%s.getGeographicCRS: Illegal coordinate system", CLSS));
-    }
-
-    /**
-     * Returns {@code true} if the specified axis is oriented toward the specified direction and
-     * uses decimal degrees units.
-     */
-    private static boolean isStandard(
-            final CoordinateSystemAxis axis, final AxisDirection direction) {
-        return direction.equals(axis.getDirection()) && NonSI.DEGREE_ANGLE.equals(axis.getUnit());
-    }
 
     /**
      * Checks the latidude validity. The argument {@code latidude} should be greater than or equal
@@ -294,40 +208,12 @@ public class GeodeticCalculator {
     ///////////////////////////////////////////////////////////////
 
     /**
-     * Returns the coordinate reference system for all methods working on {@link Position} objects.
-     * This is the CRS specified at {@linkplain #GeodeticCalculator(CoordinateSystem)
-     * construction time}.
+     * Returns the coordinate system for all methods working on {@link Position} objects.
      *
-     * @return The CRS for all {@link Position}s.
+     * @return The coordinate system for all {@link Position}s.
      * @since 2.2
      */
-    public CoordinateSystem getCoordinateSystem() {
-        if (CoordinateSystem == null) {
-            CoordinateSystem = getGeographicCRS();
-        }
-        return CoordinateSystem;
-    }
-
-    /**
-     * Returns the geographic coordinate reference system for all methods working on {@link Point2D}
-     * objects. This is inferred from the CRS specified at {@linkplain
-     * #GeodeticCalculator(CoordinateSystem) construction time}.
-     *
-     * @return The CRS for {@link Point2D}s.
-     * @since 2.3
-     */
-    public CoordinateSystem getGeographicCRS() {
-        if (geographicCRS == null) {
-            final String name = Vocabulary.format(VocabularyKeys.GEODETIC_2D);
-            geographicCRS =
-                    new DefaultGeographicCRS(
-                            name,
-                            new DefaultGeodeticDatum(
-                                    name, getEllipsoid(), DefaultPrimeMeridian.GREENWICH),
-                            DefaultEllipsoidalCS.GEODETIC_2D);
-        }
-        return geographicCRS;
-    }
+    public CoordinateSystem getCoordinateSystem() {return coordinateSystem;}
 
     /**
      * Returns the referenced ellipsoid.
@@ -387,7 +273,7 @@ public class GeodeticCalculator {
      * @throws TransformException if the position can't be transformed.
      * @since 2.3
      */
-    public void setStartingPosition(final DirectPosition position) throws TransformException {
+    public void setStartingPosition(final DirectPosition position)  {
         if (userToGeodetic != null) {     // DirectPosition
             userToGeodetic.transform(position);
             position = userToGeodetic;
@@ -416,7 +302,7 @@ public class GeodeticCalculator {
      * @throws TransformException if the position can't be transformed to user coordinates.
      * @since 2.3
      */
-    public DirectPosition getStartingPosition() throws TransformException {
+    public DirectPosition getStartingPosition() {
         DirectPosition position = userToGeodetic;
         if (position == null) {
             position = new DirectPosition(CoordinateSystem.DEFAULT);

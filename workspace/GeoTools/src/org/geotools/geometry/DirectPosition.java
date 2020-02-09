@@ -126,8 +126,8 @@ public class DirectPosition extends Point2D.Double {
     /**
      * Constructs a 2D position from the specified ordinates. Despite their name, the
      * (<var>x</var>,<var>y</var>) coordinates don't need to be oriented toward ({@linkplain
-     * org.opengis.referencing.cs.AxisDirection#EAST East}, {@linkplain
-     * org.opengis.referencing.cs.AxisDirection#NORTH North}). See the {@link DirectPosition2D}
+     * org.openjump.coordsys.AxisDirection#EAST East}, {@linkplain
+     * org.openjump.coordsys.AxisDirection#NORTH North}). See the {@link DirectPosition2D}
      * javadoc for details.
      *
      * @param x The first ordinate value.
@@ -140,8 +140,8 @@ public class DirectPosition extends Point2D.Double {
     /**
      * Constructs a 2D position from the specified ordinates. Despite their name, the
      * (<var>x</var>,<var>y</var>) coordinates don't need to be oriented toward ({@linkplain
-     * org.opengis.referencing.cs.AxisDirection#EAST East}, {@linkplain
-     * org.opengis.referencing.cs.AxisDirection#NORTH North}). See the {@link DirectPosition2D}
+     * org.openjump.coordsys.AxisDirection#EAST East}, {@linkplain
+     * org.openjump.coordsys.AxisDirection#NORTH North}). See the {@link DirectPosition2D}
      * javadoc for details.
      *
      * @param x The first ordinate value.
@@ -155,9 +155,9 @@ public class DirectPosition extends Point2D.Double {
     /**
      * Constructs a 3D position from the specified ordinates. Despite their name, the
      * (<var>x</var>,<var>y</var>,<var>z</var>) coordinates don't need to be oriented toward
-     * ({@linkplain org.opengis.referencing.cs.AxisDirection#EAST East}, {@linkplain
-     * org.opengis.referencing.cs.AxisDirection#NORTH North}, {@linkplain
-     * org.opengis.referencing.cs.AxisDirection#UP Up}).
+     * ({@linkplain org.openjump.coordsys.AxisDirection#EAST East}, {@linkplain
+     * org.openjump.coordsys.AxisDirection#NORTH North}, {@linkplain
+     * org.openjump.coordsys.AxisDirection#UP Up}).
      *
      * @param x The first ordinate value.
      * @param y The second ordinate value.

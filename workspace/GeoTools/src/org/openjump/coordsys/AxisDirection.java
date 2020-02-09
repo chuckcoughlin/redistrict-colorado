@@ -4,7 +4,7 @@
  * This program is free software; you may redistribute it and/or
  * modify it under the terms of the GNU General Public License.
  */
-package org.opengis.referencing.cs;
+package org.openjump.coordsys;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -49,7 +49,7 @@ public class FeatureSchema implements Cloneable, Serializable {
 	private static final String CLSS = "FeatureSchema";
     private static final long serialVersionUID = -8627306219650589202L;
 
-    protected CoordinateSystem coordinateSystem = CoordinateSystem.UNSPECIFIED;
+    protected CoordinateSystem coordinateSystem = CoordinateSystem.DEFAULT;
     protected Map<String,Integer> attributeNameToIndexMap = new HashMap<>();
     protected int geometryIndex = -1;
     protected int externalPKIndex = -1;    // [mmichaud 2013-07-21] database id used in client-server environment

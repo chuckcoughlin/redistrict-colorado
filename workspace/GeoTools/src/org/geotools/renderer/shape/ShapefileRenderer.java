@@ -53,6 +53,7 @@ import org.geotools.styling.Rule;
 import org.geotools.styling.Style;
 import org.geotools.styling.Symbolizer;
 import org.geotools.styling.TextSymbolizer;
+import org.geotools.util.NumberRange;
 import org.locationtech.jts.awt.PolygonShape;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
@@ -1144,7 +1145,7 @@ public class ShapefileRenderer implements GTRenderer {
         return rendererHints;
     }
 
-    public void paint( Graphics2D graphics, Rectangle paintArea, AffineTransform worldToScreen ) {
+    public void paint( Graphics2D graphics, Rectangle paintArea, AffineTransformation worldToScreen ) {
         if (worldToScreen == null || paintArea == null) {
             LOGGER.info("renderer passed null arguments");
             return;
@@ -1160,7 +1161,7 @@ public class ShapefileRenderer implements GTRenderer {
     }
 
     public void paint( Graphics2D graphics, Rectangle paintArea, ReferencedEnvelope envelope,
-            AffineTransform transform ) {
+            AffineTransformation transform ) {
         if( transform == null ){
             throw new NullPointerException("Transform is required");
         }

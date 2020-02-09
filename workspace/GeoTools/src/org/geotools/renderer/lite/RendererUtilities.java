@@ -16,9 +16,11 @@
  */
 package org.geotools.renderer.lite;
 
+import java.awt.BasicStroke;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.Map;
 import java.util.logging.Level;
@@ -57,18 +59,11 @@ import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.geom.impl.CoordinateArraySequence;
 import org.locationtech.jts.geom.prep.PreparedGeometry;
 import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
+import org.locationtech.jts.geom.util.AffineTransformation;
 import org.opengis.geometry.MismatchedDimensionException;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.crs.EngineeringCRS;
-import org.opengis.referencing.crs.GeographicCRS;
-import org.opengis.referencing.cs.AxisDirection;
-import org.opengis.referencing.datum.PixelInCell;
-import org.opengis.referencing.operation.TransformException;
+import org.openjump.coordsys.AxisDirection;
 import org.openjump.coordsys.CoordinateSystem;
 import org.openjump.feature.FeatureCollection;
-
-import si.uom.SI;
 
 /**
  * Class for holding utility functions that are common tasks for people using the
@@ -80,17 +75,6 @@ import si.uom.SI;
 public final class RendererUtilities {
 	private final static String CLSS = "RendererUtilities";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
-
-    /**
-     * Enable unit correction in {@link #toMeters(double, CoordinateReferenceSystem)} calculation.
-     *
-     * <p>Toggle for a bug fix that will invalidate a good number of SLDs out there (and thus, we
-     * allow people to turn off the fix).
-     */
-    static boolean SCALE_UNIT_COMPENSATION =
-            Boolean.parseBoolean(
-                    System.getProperty("org.geotoools.render.lite.scale.unitCompensation", "true"));
-
 
     /** Utilities classes should not be instantiated. */
     private RendererUtilities() {};
@@ -106,8 +90,7 @@ public final class RendererUtilities {
      * @param paintArea the size of the rendering output area
      * @return a transform that maps from real world coordinates to the screen
      */
-    public static AffineTransform worldToScreenTransform(
-            ReferencedEnvelope mapExtent, Rectangle2D paintArea) {
+    public static AffineTransformation worldToScreenTransform(ReferencedEnvelope mapExtent, Rectangle2D paintArea) {
         // //
         //
         // Convert the JTS envelope and get the transform
@@ -511,7 +494,7 @@ public final class RendererUtilities {
 
     private static double getGeodeticSegmentLength(
             double minx, double miny, double maxx, double maxy) {
-        final GeodeticCalculator calculator = new GeodeticCalculator(DefaultGeographicCRS.WGS84);
+        final GeodeticCalculator calculator = new GeodeticCalculator();  // Use default calculator
         double rminx = rollLongitude(minx);
         double rminy = rollLatitude(miny);
         double rmaxx = rollLongitude(maxx);
@@ -545,7 +528,7 @@ public final class RendererUtilities {
      * @throws TransformException
      * @todo add georeferenced envelope check when merge with trunk will be performed
      */
-    public static AffineTransform worldToScreenTransform(
+    public static AffineTransformation worldToScreenTransform(
             Envelope mapExtent, Rectangle paintArea, CoordinateReferenceSystem destinationCrs)
             throws TransformException {
 
