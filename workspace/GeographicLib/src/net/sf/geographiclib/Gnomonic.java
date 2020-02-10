@@ -277,11 +277,4 @@ public class Gnomonic {
    *   the value inherited from the Geodesic object used in the constructor.
    **********************************************************************/
   public double Flattening() { return _f; }
-
-  /**
-   * @deprecated An old name for {@link #EquatorialRadius()}.
-   * @return <i>a</i> the equatorial radius of the ellipsoid (meters).
-   **********************************************************************/
-  // @Deprecated
-  public double MajorRadius() { return EquatorialRadius(); }
 }

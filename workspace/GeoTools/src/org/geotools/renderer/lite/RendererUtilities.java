@@ -237,8 +237,7 @@ public final class RendererUtilities {
      */
     private static double toMeters(double size, CoordinateSystem crs) {
         if (crs == null) {
-            LOGGER.finer(
-                    "toMeters: assuming the original size is in meters already, as crs is null");
+            LOGGER.finer("toMeters: assuming the original size is in meters already, as crs is null");
             return size;
         }
         if (crs instanceof GeographicCRS) {

@@ -71,7 +71,8 @@ import org.openjump.coordsys.CoordinateSystem;
 import org.openjump.io.ShapefileReader;
 
 /**
- * A LiteRenderer Implementations that is optimized for shapefiles.
+ * A LiteRenderer Implementations that is optimized for shapefiles. We have removed 
+ * the IndexInfo features.
  * 
  * @author jeichar
  * @since 2.1.x

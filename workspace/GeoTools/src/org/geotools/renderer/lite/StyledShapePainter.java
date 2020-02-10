@@ -38,11 +38,24 @@ import java.util.logging.Logger;
 
 import javax.swing.Icon;
 
+import org.geotools.geometry.jts.Decimator;
+import org.geotools.geometry.jts.LiteShape2;
+import org.geotools.renderer.LabelCache;
+import org.geotools.renderer.style.GraphicStyle2D;
+import org.geotools.renderer.style.IconStyle2D;
+import org.geotools.renderer.style.LineStyle2D;
+import org.geotools.renderer.style.MarkStyle2D;
+import org.geotools.renderer.style.PointStyle2D;
+import org.geotools.renderer.style.PolygonStyle2D;
+import org.geotools.renderer.style.Style2D;
+import org.geotools.styling.ExternalGraphic;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Polygon;
+
+import sun.tools.jstat.Literal;
 
 
 /**

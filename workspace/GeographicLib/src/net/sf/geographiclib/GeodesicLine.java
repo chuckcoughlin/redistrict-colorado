@@ -742,11 +742,4 @@ public class GeodesicLine {
    * @return <i>a13</i>, the arc length to point 3 (degrees).
    **********************************************************************/
   public double Arc() { return GenDistance(true); }
-
-  /**
-   * @deprecated An old name for {@link #EquatorialRadius()}.
-   * @return <i>a</i> the equatorial radius of the ellipsoid (meters).
-   **********************************************************************/
-  // @Deprecated
-  public double MajorRadius() { return EquatorialRadius(); }
 }

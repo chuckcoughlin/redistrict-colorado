@@ -1201,13 +1201,6 @@ public class Geodesic {
   public double EllipsoidArea() { return 4 * Math.PI * _c2; }
 
   /**
-   * @deprecated An old name for {@link #EquatorialRadius()}.
-   * @return <i>a</i> the equatorial radius of the ellipsoid (meters).
-   **********************************************************************/
-  // @Deprecated
-  public double MajorRadius() { return EquatorialRadius(); }
-
-  /**
    * A global instantiation of Geodesic with the parameters for the WGS84
    * ellipsoid.
    **********************************************************************/

@@ -193,14 +193,6 @@ public class GeodeticCalculator {
         }
     }
 
-    /**
-     * Format the specified coordinates using the specified formatter, which should be an instance
-     * of {@link CoordinateFormat}.
-     */
-    private static String format(final Format cf, final double longitude, final double latitude) {
-        return cf.format(new DirectPosition(longitude, latitude));
-    }
-
     ///////////////////////////////////////////////////////////////
     ////////                                               ////////
     ////////        G E O D E T I C   M E T H O D S        ////////
