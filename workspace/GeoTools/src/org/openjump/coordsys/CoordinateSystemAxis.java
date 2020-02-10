@@ -156,16 +156,6 @@ public class CoordinateSystemAxis  {
 	public static final CoordinateSystemAxis ALTITUDE =
 			new CoordinateSystemAxis("ALTITUDE", AxisDirection.UP);
 
-
-
-
-	/**
-	 * The axis with opposite direction, or {@code null} if unknow. Not serialized because only used
-	 * for the predefined constants.
-	 */
-	private transient CoordinateSystemAxis opposite;
-
-
 	/**
 	 * Constructs an axis with a name as an {@linkplain InternationalString international string}
 	 * and an abbreviation. The {@linkplain #getName name of this identified object} is set to the
@@ -238,6 +228,12 @@ public class CoordinateSystemAxis  {
 	 * method is not public because only a few predefined constants have this information.
 	 */
 	final CoordinateSystemAxis getOpposite() {
+		CoordinateSystemAxis opposite = null;
+		String name = getName();
+		if( direction.equals(AxisDirection.EAST)) opposite = new CoordinateSystemAxis(name,AxisDirection.WEST);
+		
+		opposite.setMaximumValue(getMaximumValue());
+		opposite.setMinimumValue(getMinimumValue());
 		return opposite;
 	}
 

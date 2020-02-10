@@ -26,9 +26,8 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.measure.quantity.Length;
-import javax.measure.unit.Unit;
 import javax.swing.Icon;
+import javax.xml.crypto.dsig.TransformException;
 
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.data.crs.ForceCoordinateSystemFeatureResults;
@@ -40,7 +39,6 @@ import org.geotools.referencing.CRS;
 import org.geotools.referencing.GeodeticCalculator;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.operation.GridToEnvelopeMapper;
-import org.geotools.referencing.operation.matrix.XAffineTransform;
 import org.geotools.renderer.style.GraphicStyle2D;
 import org.geotools.renderer.style.IconStyle2D;
 import org.geotools.renderer.style.LineStyle2D;
@@ -96,16 +94,16 @@ public final class RendererUtilities {
         // Convert the JTS envelope and get the transform
         //
         // //
-        final Envelope genvelope = new Envelope(mapExtent);
+        final ReferencedEnvelope genvelope = new ReferencedEnvelope(mapExtent);
         //
         // Get the transform
         //
         final GridToEnvelopeMapper mapper = new GridToEnvelopeMapper();
         try {
-        	mapper.setGridRange(new Envelope(paintArea));
+        	mapper.setGridRange(new ReferencedEnvelope(paintArea,null));
             mapper.setEnvelope(genvelope);
             mapper.setPixelAnchor(GridToEnvelopeMapper.ANCHOR_CELL_CORNER);
-            return mapper.createAffineTransform().createInverse();
+            return mapper.createAffineTransform().getInverse();
         } 
         catch (MismatchedDimensionException e) {
             LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
@@ -171,17 +169,8 @@ public final class RendererUtilities {
             Rectangle paintArea, AffineTransform worldToScreen, final CoordinateSystem crs)
             throws NoninvertibleTransformException {
 
-        // //
-        //
-        // Make sure the CRS is 2d
-        //
-        final CoordinateReferenceSystem crs2d = CRS.getHorizontalCRS(crs);
-        if (crs2d == null)
-            throw new UnsupportedOperationException(
-                    Errors.format(ErrorKeys.CANT_REDUCE_TO_TWO_DIMENSIONS_$1, crs));
-
         Envelope env = createMapEnvelope(paintArea, worldToScreen);
-        return new ReferencedEnvelope(env, crs2d);
+        return new ReferencedEnvelope(env,crs);
     }
 
     static final double OGC_DEGREE_TO_METERS = 6378137.0 * 2.0 * Math.PI / 360;
@@ -198,7 +187,7 @@ public final class RendererUtilities {
         if (scaleDenominator <= 0.0)
             throw new IllegalArgumentException("The scale denominator must be positive.");
         double scale = 1.0 / scaleDenominator;
-        return scale * (getDpi(hints) / 0.0254);
+        return scale * (getDpi() / 0.0254);
     }
 
     /**
@@ -218,7 +207,7 @@ public final class RendererUtilities {
         CoordinateSystem crs = envelope.getCoordinateSystem();
         double width = envelope.getWidth();
         double widthMeters = toMeters(width, crs);
-        return widthMeters / (imageWidth / getDpi(hints) * 0.0254);
+        return widthMeters / (imageWidth / getDpi() * 0.0254);
     }
 
     /**
@@ -235,91 +224,33 @@ public final class RendererUtilities {
      * @param crs
      * @return size adjusted for GeographicCRS or CRS units
      */
-    private static double toMeters(double size, CoordinateSystem crs) {
-        if (crs == null) {
+    private static double toMeters(double size, CoordinateSystem cs) {
+        if (cs == null) {
             LOGGER.finer("toMeters: assuming the original size is in meters already, as crs is null");
             return size;
         }
-        if (crs instanceof GeographicCRS) {
-            return size * OGC_DEGREE_TO_METERS;
-        }
-        if (!SCALE_UNIT_COMPENSATION) {
-            return size;
-        }
-        CoordinateSystem horizontal = CRS.getHorizontalCRS(crs);
-        if (horizontal != null) {
-            crs = horizontal;
-        }
-        @SuppressWarnings("unchecked")
-        Unit<Length> unit = (Unit<Length>) crs.getAxis(0).getUnit();
-        if (unit == null) {
-            LOGGER.finer(
-                    "toMeters: assuming the original size is in meters already, as the first crs axis unit is null. CRS is "
-                            + crs);
-            return size;
-        }
-        if (!unit.isCompatible(SI.METRE)) {
-            LOGGER.warning("toMeters: could not convert unit " + unit + " to meters");
-            return size;
-        }
-        return unit.getConverterTo(SI.METRE).convert(size);
+        return size;
     }
 
-    /**
-     * This method performs the computation using the methods suggested by the OGC SLD
-     * specification, page 26.
-     *
-     * @param crs the coordinate reference system. Used to check if we are operating in degrees or
-     *     meters.
-     * @param worldToScreen the transformation mapping world coordinates to screen coordinates.
-     *     Might specify a rotation in addition to translation and scaling.
-     * @return
-     */
-    public static double calculateOGCScaleAffine(
-            CoordinateReferenceSystem crs, AffineTransform worldToScreen, Map hints) {
-        double scale = XAffineTransform.getScale(worldToScreen);
-        // if it's geodetic, we're dealing with lat/lon unit measures
-        if (crs instanceof GeographicCRS) {
-            return (OGC_DEGREE_TO_METERS * getDpi(hints)) / (scale * 0.0254);
-        } else {
-            return (getDpi(hints)) / (scale * 0.0254);
-        }
-    }
 
     /**
      * First searches the hints for the scale denominator hint otherwise calls {@link
      * #calculateScale(org.geotools.util.SoftValueHashMap.Reference, int, int, double)}. If the
      * hints contains a DPI then that DPI is used otherwise 90 is used (the OGS default).
      */
-    public static double calculateScale(
-            ReferencedEnvelope envelope, int imageWidth, int imageHeight, Map hints)
-            throws TransformException, FactoryException {
-
-        if (hints != null && hints.containsKey("declaredScaleDenominator")) {
-            Double scale = (Double) hints.get("declaredScaleDenominator");
-            if (scale.doubleValue() <= 0)
-                throw new IllegalArgumentException(
-                        "the declaredScaleDenominator must be greater than 0, was: "
-                                + scale.doubleValue());
-            return scale.doubleValue();
-        }
-
-        return calculateScale(envelope, imageWidth, imageHeight, getDpi(hints));
+    public static double calculateScale(ReferencedEnvelope envelope, int imageWidth, int imageHeight) {
+        Double scale = (Double) getDpi();
+        return scale.doubleValue();
     }
 
     /**
-     * Either gets a DPI from the hints, or return the OGC standard, stating that a pixel is 0.28 mm
+     * Return the OGC standard, stating that a pixel is 0.28 mm
      * (the result is a non integer DPI...)
      *
-     * @param hints
      * @return DPI as doubles, to avoid issues with integer trunking in scale computation expression
      */
-    public static double getDpi(Map hints) {
-        if (hints != null && hints.containsKey("dpi")) {
-            return ((Number) hints.get("dpi")).doubleValue();
-        } else {
-            return 25.4 / 0.28; // 90 = OGC standard
-        }
+    public static double getDpi() {
+        return 25.4 / 0.28; // 90 = OGC standard
     }
 
     /**
@@ -354,36 +285,20 @@ public final class RendererUtilities {
      * @throws TransformException
      * @throws FactoryException
      */
-    public static double calculateScale(
-            ReferencedEnvelope envelope, int imageWidth, int imageHeight, double DPI)
-            throws TransformException, FactoryException {
+    public static double calculateScale(ReferencedEnvelope envelope, int imageWidth, int imageHeight, double DPI) {
 
-        final double diagonalGroundDistance;
-        if (!(envelope.getCoordinateReferenceSystem() instanceof EngineeringCRS)) {
-            // //
-            //
-            // get CRS2D for this referenced envelope, check that its 2d
-            //
-            // //
-            final CoordinateSystem tempCRS =
-                    CRS.getHorizontalCRS(envelope.getCoordinateSystem());
-            if (tempCRS == null) {
-                throw new TransformException(
-                        Errors.format(
-                                ErrorKeys.CANT_REDUCE_TO_TWO_DIMENSIONS_$1,
-                                envelope.getCoordinateReferenceSystem()));
-            }
-            ReferencedEnvelope envelopeWGS84 = envelope.transform(DefaultGeographicCRS.WGS84, true);
-            diagonalGroundDistance = geodeticDiagonalDistance(envelopeWGS84);
-        } else {
-            // if it's an engineering crs, compute only the graphical scale, assuming a CAD space
-            diagonalGroundDistance =
-                    Math.sqrt(
-                            envelope.getWidth() * envelope.getWidth()
-                                    + envelope.getHeight() * envelope.getHeight());
-        }
+    	final double diagonalGroundDistance;
+    	// //
+    	//
+    	// get CRS2D for this referenced envelope, check that its 2d
+    	//
+    	// //
 
-        // //
+    	ReferencedEnvelope envelopeWGS84 = envelope.transform(DefaultGeographicCRS.WGS84, true);
+    	diagonalGroundDistance = geodeticDiagonalDistance(envelopeWGS84);
+
+
+    	// //
         //
         // Compute the distances on the requested image using the provided DPI.
         //
@@ -528,8 +443,7 @@ public final class RendererUtilities {
      * @todo add georeferenced envelope check when merge with trunk will be performed
      */
     public static AffineTransformation worldToScreenTransform(
-            Envelope mapExtent, Rectangle paintArea, CoordinateReferenceSystem destinationCrs)
-            throws TransformException {
+            Envelope mapExtent, Rectangle paintArea, CoordinateSystem destinationCrs) {
 
         // is the crs also lon,lat?
         final CoordinateSystem crs2D = CRS.getHorizontalCRS(destinationCrs);
@@ -664,9 +578,9 @@ public final class RendererUtilities {
      *     correct CRS
      */
     static FeatureCollection fixFeatureCollectionReferencing(
-            FeatureCollection features, CoordinateReferenceSystem sourceCrs) {
+            FeatureCollection features, CoordinateSystem sourceCrs) {
         // this is the reader's CRS
-        CoordinateReferenceSystem rCS = null;
+        CoordinateSystem rCS = null;
         try {
             rCS =
                     features.getSchema()

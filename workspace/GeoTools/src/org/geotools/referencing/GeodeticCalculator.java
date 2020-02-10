@@ -46,14 +46,11 @@ import net.sf.geographiclib.GeodesicMask;
  * generic ellipsoid and calculates the following properties:
  *
  * <p>
- *
  * <ul>
  *   <li>Distance and azimuth between two points.
  *   <li>Point located at a given distance and azimuth from an other point.
  * </ul>
- *
  * <p>The calculation uses the following information:
- *
  * <p>
  *
  * <ul>
@@ -69,6 +66,8 @@ import net.sf.geographiclib.GeodesicMask;
  *
  * <p>Note: This class is not thread-safe. If geodetic calculations are needed in a multi-threads
  * environment, create one distinct instance of {@code GeodeticCalculator} for each thread.
+ * 
+ * For starting and ending position, we assume that user and geodetic coordinates are the same.
  *
  * @since 2.1
  * @version $Id$
@@ -77,11 +76,6 @@ import net.sf.geographiclib.GeodesicMask;
  */
 public class GeodeticCalculator {
 	public final static String CLSS = "GeodeticCalculator";
-    /**
-     * The transform from user coordinates to geodetic coordinates used for computation, or {@code
-     * null} if no transformations are required.
-     */
-    private final DirectPosition userToGeodetic;
 
     /**
      * The coordinate reference system for all methods working on {@link Position} objects. If
@@ -126,14 +120,15 @@ public class GeodeticCalculator {
     /** The object that carries out the geodesic calculations. */
     private Geodesic geod;
 
-    /** Constructs a new geodetic calculator associated with the WGS84 ellipsoid. */
+    /** Constructs a new geodetic calculator associated with the WGS84 ellipsoid. 
+     *  
+     */
     public GeodeticCalculator() {
         this.coordinateSystem = CoordinateSystem.DEFAULT;  // Geodetic 2D
         this.ellipsoid = Ellipsoid.DEFAULT;
         this.semiMajorAxis = ellipsoid.getSemiMajorAxis();
         this.flattening = 1 / ellipsoid.getInverseFlattening();
         this.geod = new Geodesic(semiMajorAxis, flattening);
-        this.userToGeodetic = new DirectPosition(coordinateSystem);
     }
 
     ///////////////////////////////////////////////////////////
@@ -262,14 +257,9 @@ public class GeodeticCalculator {
      * #GeodeticCalculator(CoordinateSystem) constructor}.
      *
      * @param position The position in user coordinate reference system.
-     * @throws TransformException if the position can't be transformed.
      * @since 2.3
      */
     public void setStartingPosition(final DirectPosition position)  {
-        if (userToGeodetic != null) {     // DirectPosition
-            userToGeodetic.transform(position);
-            position = userToGeodetic;
-        }
         setStartingGeographicPoint(position.getOrdinate(0), position.getOrdinate(1));
     }
 
@@ -295,15 +285,9 @@ public class GeodeticCalculator {
      * @since 2.3
      */
     public DirectPosition getStartingPosition() {
-        DirectPosition position = userToGeodetic;
-        if (position == null) {
-            position = new DirectPosition(CoordinateSystem.DEFAULT);
-        }
+        DirectPosition position =  new DirectPosition(CoordinateSystem.DEFAULT);
         position.setOrdinate(0, long1);
         position.setOrdinate(1, lat1);
-        if (userToGeodetic != null) {
-            //position = userToGeodetic.inverseTransform();
-        }
         return position;
     }
 
@@ -355,12 +339,7 @@ public class GeodeticCalculator {
      * @throws TransformException if the position can't be transformed.
      * @since 2.2
      */
-    public void setDestinationPosition(final DirectPosition position)  {
-        DirectPosition p = position;
-        if (userToGeodetic != null) {
-            userToGeodetic.p.transform();
-            p = userToGeodetic;
-        }
+    public void setDestinationPosition(final DirectPosition p)  {
         setDestinationGeographicPoint(p.getOrdinate(0), p.getOrdinate(1));
     }
 
@@ -397,15 +376,9 @@ public class GeodeticCalculator {
         if (!destinationValid) {
             computeDestinationPoint();
         }
-        DirectPosition position = userToGeodetic;
-        if (position == null) {
-            position = new DirectPosition(CoordinateSystem.DEFAULT);
-        }
+        DirectPosition position = new DirectPosition(CoordinateSystem.DEFAULT);
         position.setOrdinate(0, long2);
         position.setOrdinate(1, lat2);
-        if (userToGeodetic != null) {
-            position = userToGeodetic.inverseTransform();
-        }
         return position;
     }
 

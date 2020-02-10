@@ -52,7 +52,7 @@ public class DirectPosition extends Point2D.Double {
     private static final long serialVersionUID = 9171833698385715524L;
 
     public final double[] ordinates;
-    private CoordinateSystem crs;
+    private CoordinateSystem cs;
 
     /**
      * Convenience method for checking coordinate reference system validity.
@@ -100,7 +100,7 @@ public class DirectPosition extends Point2D.Double {
      */
     public DirectPosition(final CoordinateSystem crs) {
         this(crs.getDimension());
-        this.crs = crs;
+        this.cs = crs;
     }
 
     /**
@@ -184,7 +184,7 @@ public class DirectPosition extends Point2D.Double {
      */
     public DirectPosition(final DirectPosition point) {
         ordinates = point.ordinates; // Should already be cloned.
-        crs = point.getCoordinateSystem();
+        cs = point.getCoordinateSystem();
     }
 
     /**
@@ -195,7 +195,7 @@ public class DirectPosition extends Point2D.Double {
      * @return The coordinate reference system, or {@code null}.
      */
     public final CoordinateSystem getCoordinateSystem() {
-        return crs;
+        return cs;
     }
 
     /**
@@ -208,7 +208,7 @@ public class DirectPosition extends Point2D.Double {
     public void setCoordinateSystem(final CoordinateSystem crs)
             throws MismatchedDimensionException {
         checkCoordinateSystemDimension(crs, getDimension());
-        this.crs = crs;
+        this.cs = crs;
     }
 
     /**
@@ -270,7 +270,7 @@ public class DirectPosition extends Point2D.Double {
     public final void setLocation(final DirectPosition position)
             throws MismatchedDimensionException {
         ensureDimensionMatch("position", position.ordinates.length, ordinates.length);
-        setCoordinateSystem(position.crs);
+        setCoordinateSystem(position.cs);
         System.arraycopy(position.ordinates, 0, ordinates, 0, ordinates.length);
     }
 
@@ -307,8 +307,8 @@ public class DirectPosition extends Point2D.Double {
     @Override
     public int hashCode() {
         int code = Arrays.hashCode(ordinates);
-        if (crs != null) {
-            code += crs.hashCode();
+        if (cs != null) {
+            code += cs.hashCode();
         }
         assert code == super.hashCode();
         return code;

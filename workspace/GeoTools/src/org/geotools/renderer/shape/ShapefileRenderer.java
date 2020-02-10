@@ -24,7 +24,6 @@ import java.awt.font.GlyphVector;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,14 +37,16 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.geotools.geometry.jts.Decimator;
+import org.geotools.geometry.jts.GeometryClipper;
+import org.geotools.geometry.jts.LiteShape2;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.MapContent;
 import org.geotools.renderer.GTRenderer;
 import org.geotools.renderer.RenderListener;
-import org.geotools.renderer.lite.LabelCache;
 import org.geotools.renderer.lite.RendererUtilities;
 import org.geotools.renderer.lite.StyledShapePainter;
-import org.geotools.styling.FeatureTypeStyle;
+import org.geotools.renderer.style.Style2D;
 import org.geotools.styling.LineSymbolizer;
 import org.geotools.styling.PointSymbolizer;
 import org.geotools.styling.PolygonSymbolizer;
@@ -66,8 +67,10 @@ import org.locationtech.jts.geom.MultiPoint;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
+import org.locationtech.jts.geom.util.AffineTransformation;
 import org.locationtech.jts.geom.util.GeometryEditor.CoordinateOperation;
 import org.openjump.coordsys.CoordinateSystem;
+import org.openjump.feature.Feature;
 import org.openjump.io.ShapefileReader;
 
 /**
@@ -128,18 +131,17 @@ public class ShapefileRenderer implements GTRenderer {
         MULTI_POINT_GEOM 	= geomFactory.createMultiPoint(COORDS);
     }
 
-    private static final IndexInfo STREAMING_RENDERER_INFO = new IndexInfo(IndexType.NONE,null);
+
     static int NUM_SAMPLES = 200;
     private RenderingHints hints;
     private boolean renderingStopRequested;
     private boolean concatTransforms;
-    LabelCache labelCache = new LabelCache();
     private List<RenderListener> renderListeners = new CopyOnWriteArrayList<RenderListener>();
     /** If we are caching styles; by default this is false */
     boolean caching = false;
     private double scaleDenominator;
     private Object defaultGeom;
-    IndexInfo[] layerIndexInfo;
+
 
     /**
      * Maps between the AttributeType index of the new generated FeatureType and the real
@@ -148,7 +150,7 @@ public class ShapefileRenderer implements GTRenderer {
     int[] attributeIndexing;
 
     /** The painter class we use to depict shapes onto the screen */
-    private StyledShapePainter painter = new StyledShapePainter(labelCache);
+    private StyledShapePainter painter = new StyledShapePainter();
     private Map decimators = new HashMap();
     
     /**
@@ -208,491 +210,6 @@ public class ShapefileRenderer implements GTRenderer {
         paint(graphics, paintArea, mapArea, RendererUtilities.worldToScreenTransform(mapArea,paintArea));
     }
 
-    private void processStylers( Graphics2D graphics, ShapefileDataStore datastore,
-            Query query, Envelope bbox, Rectangle screenSize, MathTransform mt, Style style, IndexInfo info,
-            Transaction transaction, String layerId) throws IOException {
-        if (LOGGER.isLoggable(Level.FINE)) {
-            LOGGER.fine("processing " + style.getFeatureTypeStyles().length + " stylers");
-        }
-
-        FeatureTypeStyle[] featureStylers = style.getFeatureTypeStyles();
-        SimpleFeatureType type;
-
-        try {
-            type = createFeatureType(query, style, datastore);
-        } catch (Exception e) {
-            fireErrorEvent(e);
-            LOGGER.logp(Level.WARNING, "org.geotools.renderer.shape.ShapefileRenderer", "processStylers", "Could not prep style for rendering", e);
-            return;
-        }
-
-        for( int i = 0; i < featureStylers.length; i++ ) {
-            if (LOGGER.isLoggable(Level.FINE)) {
-                LOGGER.fine("processing style " + i);
-            }
-
-            FeatureTypeStyle fts = featureStylers[i];
-            String typeName = datastore.getSchema().getTypeName();
-
-            if ((typeName != null) &&
-                    ( FeatureTypes.isDecendedFrom(datastore.getSchema(), null, fts.getFeatureTypeName()) 
-                    || typeName .equalsIgnoreCase(fts.getFeatureTypeName()))) {
-                // get applicable rules at the current scale
-                Rule[] rules = fts.getRules();
-                List<Rule> ruleList = new ArrayList<Rule>();
-                List<Rule> elseRuleList = new ArrayList<Rule>();
-                
-                // TODO process filter for geometry expressions and restrict bbox further based on 
-                // the result
-                
-                for( int j = 0; j < rules.length; j++ ) {
-                    if (LOGGER.isLoggable(Level.FINE)) {
-                        LOGGER.fine("processing rule " + j);
-                    }
-
-                    Rule r = rules[j];
-                    Filter f = r.getFilter();
-                    if(f != null) {
-                    	GeometryFilterChecker checker = new GeometryFilterChecker();
-                        f.accept(checker, null);
-                        // geometry filters are quite unlikely in SLD, but if we have any,
-                        // we need to reproject it to screen space since geometries are
-                        // read directly in screen space
-                        if(checker.isGeometryFilterPresent()) {
-                        	// make copy so we don't modify the style
-                        	DuplicatingStyleVisitor duplicator = new DuplicatingStyleVisitor();
-                            r.accept(duplicator);
-                            r=(Rule) duplicator.getCopy();
-                            
-                            FilterTransformer transformer= new  FilterTransformer(mt);
-                            r.setFilter((Filter) r.getFilter().accept(transformer, null));
-                        }
-                    }
-                    if (isWithInScale(r)) {
-                        if (r.hasElseFilter()) {
-                            elseRuleList.add(r);
-                        } else {
-                            ruleList.add(r);
-                        }
-                    }
-                }
-
-                // apply uom rescaling
-                double pixelsPerMeters = RendererUtilities.calculatePixelsPerMeterRatio(scaleDenominator, rendererHints);
-                UomRescaleStyleVisitor rescaleVisitor = new UomRescaleStyleVisitor(pixelsPerMeters);
-                for (int j = 0; j < ruleList.size(); j++) {
-                    rescaleVisitor.visit(ruleList.get(j));
-                    ruleList.set(j, (Rule) rescaleVisitor.getCopy());
-                }
-                for (int j = 0; j < elseRuleList.size(); j++) {
-                    rescaleVisitor.visit(elseRuleList.get(j));
-                    elseRuleList.set(j, (Rule) rescaleVisitor.getCopy());
-                }
-                
-                // apply dpi rescale
-                double dpi = RendererUtilities.getDpi(getRendererHints());
-                double standardDpi = RendererUtilities.getDpi(Collections.emptyMap());
-                if(dpi != standardDpi) {
-                    double scaleFactor = dpi / standardDpi;
-                    RescaleStyleVisitor dpiVisitor = new RescaleStyleVisitor(scaleFactor);
-                    for (int j = 0; j < ruleList.size(); j++) {
-                        dpiVisitor.visit(ruleList.get(j));
-                        ruleList.set(j, (Rule) dpiVisitor.getCopy());
-                    }
-                    for (int j = 0; j < elseRuleList.size(); j++) {
-                        dpiVisitor.visit(elseRuleList.get(j));
-                        elseRuleList.set(j, (Rule) dpiVisitor.getCopy());
-                    }
-                }
-
-                // process the features according to the rules
-                // TODO: find a better way to declare the scale ranges so that
-                // we
-                // get style caching also between multiple rendering runs
-                NumberRange scaleRange = new NumberRange(scaleDenominator, scaleDenominator);
-
-                Set modifiedFIDs = processTransaction(graphics, bbox, mt, datastore, transaction,
-                        typeName, query, ruleList, elseRuleList, scaleRange, layerId);
-
-                // don't try to read the shapefile if there is nothing to draw
-                if(ruleList.size() > 0 || elseRuleList.size() > 0)
-                	processShapefile(graphics, datastore, bbox,screenSize, mt, info, type, query, ruleList,
-                        elseRuleList, modifiedFIDs, scaleRange, layerId);
-            }
-        }
-    }
-
-    private Set processTransaction( Graphics2D graphics, Envelope bbox, MathTransform transform,
-            DataStore ds, Transaction transaction, String typename, Query query, List ruleList,
-            List elseRuleList, NumberRange scaleRange, String layerId ) {
-        if (transaction == Transaction.AUTO_COMMIT) {
-            return Collections.EMPTY_SET;
-        }
-
-        TransactionStateDiff state = (TransactionStateDiff) transaction.getState(ds);
-
-        if (state == null) {
-            return Collections.EMPTY_SET;
-        }
-        // set of fids that has been modified (ie updated or deleted)
-        Set fids = new HashSet();
-        Map modified = null;
-        Map added = null;
-        Diff diff=null;
-
-        try {
-            diff = state.diff(typename);
-            modified = diff.modified2;
-            added = diff.added;
-            fids = new HashSet();
-        } catch (IOException e) {
-            fids = Collections.EMPTY_SET;
-            return fids;
-        }
-
-        if (!diff.isEmpty()) {
-            SimpleFeature feature;
-
-            for( Iterator modifiedIter = modified.keySet().iterator(), 
-            		addedIter=added.values().iterator(); 
-            	modifiedIter.hasNext() || addedIter.hasNext(); ) {
-                try {
-                    if (renderingStopRequested) {
-                        break;
-                    }
-                    boolean doElse = true;
-                    if( modifiedIter.hasNext() ){
-                    	String fid= (String) modifiedIter.next();
-                    	feature = (SimpleFeature) modified.get(fid);
-                        fids.add(fid);
-                    } else {
-                        feature = (SimpleFeature) addedIter.next();
-                    }
-                    if( feature == TransactionStateDiff.NULL){
-                        continue; // skip this feature as it is removed
-                    }
-                    if (!query.getFilter().evaluate(feature)){
-                        // currently this is failing for TransactionStateDiff.NULL
-                        continue; 
-                    }
-    
-                    // applicable rules
-                    for( Iterator it = ruleList.iterator(); it.hasNext(); ) {
-                        Rule r = (Rule) it.next();
-
-                        if (LOGGER.isLoggable(Level.FINER)) {
-                            LOGGER.finer("applying rule: " + r.toString());
-                        }
-
-                        if (LOGGER.isLoggable(Level.FINER)) {
-                            LOGGER.finer("this rule applies ...");
-                        }
-
-                        Filter filter = r.getFilter();
-
-                        if ((filter == null) || filter.evaluate(feature)) {
-                            doElse = false;
-
-                            if (LOGGER.isLoggable(Level.FINER)) {
-                                LOGGER.finer("processing Symobolizer ...");
-                            }
-
-                            Symbolizer[] symbolizers = r.getSymbolizers();
-
-                            try {
-                                processSymbolizers(graphics, feature, symbolizers, scaleRange,
-                                        transform, layerId);
-                            } catch (Exception e) {
-                                fireErrorEvent(e);
-
-                                continue;
-                            }
-
-                            if (LOGGER.isLoggable(Level.FINER)) {
-                                LOGGER.finer("... done!");
-                            }
-                        }
-                    }
-
-                    if (doElse) {
-                        // rules with an else filter
-                        if (LOGGER.isLoggable(Level.FINER)) {
-                            LOGGER.finer("rules with an else filter");
-                        }
-
-                        for( Iterator it = elseRuleList.iterator(); it.hasNext(); ) {
-                            Rule r = (Rule) it.next();
-                            Symbolizer[] symbolizers = r.getSymbolizers();
-
-                            if (LOGGER.isLoggable(Level.FINER)) {
-                                LOGGER.finer("processing Symobolizer ...");
-                            }
-
-                            try {
-                                processSymbolizers(graphics, feature, symbolizers, scaleRange,
-                                        transform, layerId);
-                            } catch (Exception e) {
-                                fireErrorEvent(e);
-
-                                continue;
-                            }
-
-                            if (LOGGER.isLoggable(Level.FINER)) {
-                                LOGGER.finer("... done!");
-                            }
-                        }
-                    }
-
-                    if (LOGGER.isLoggable(Level.FINER)) {
-                        LOGGER.finer("feature rendered event ...");
-                    }
-                }
-                catch (RuntimeException e) {
-                    fireErrorEvent(e);
-                }
-            }
-        }
-        return fids;
-    }
-
-    private void processShapefile( Graphics2D graphics, ShapefileDataStore datastore,
-            Envelope bbox, Rectangle screenSize, MathTransform mt, IndexInfo info, SimpleFeatureType type, Query query,
-            List ruleList, List elseRuleList, Set modifiedFIDs, NumberRange scaleRange, String layerId )
-            throws IOException {
-        IndexedDbaseFileReader dbfreader = null;
-        IndexInfo.Reader shpreader = null;
-        FIDReader fidReader = null;
-        
-        int hit = 0;
-        int miss = 0;
-
-        try {
-    		// clips Graphics to current drawing area before painting
-            graphics = (Graphics2D)graphics.create();
-            graphics.clip(screenSize);
-    
-            // don't waste time processing the dbf file if the only attribute loades is the geometry
-            if(type.getAttributeCount() > 1) {
-                try {
-                    dbfreader = ShapefileRendererUtil.getDBFReader(datastore);
-                } catch (Exception e) {
-                    fireErrorEvent(e);
-                }
-            }
-    
-            OpacityFinder opacityFinder = new OpacityFinder(getAcceptableSymbolizers(type
-                    .getGeometryDescriptor()));
-    
-            for( Iterator iter = ruleList.iterator(); iter.hasNext(); ) {
-                Rule rule = (Rule) iter.next();
-                rule.accept(opacityFinder);
-            }
-            
-            // create index as needed
-            if(datastore instanceof IndexedShapefileDataStore) {
-                ((IndexedShapefileDataStore) datastore).createSpatialIndex(false);
-            }
-            
-            boolean useJTS=true;
-            try {
-                shpreader = new IndexInfo.Reader(info, ShapefileRendererUtil.getShpReader(datastore,
-                        bbox, screenSize, mt, opacityFinder.hasOpacity, useJTS), bbox);
-            } catch (Exception e) {
-                fireErrorEvent(e);
-                return;
-            }
-    
-            
-            try {
-                fidReader = ShapefileRendererUtil.getFidReader(datastore,shpreader);
-            } catch (Exception e) {
-                fireErrorEvent(e);
-                return;
-            }
-            
-            SimpleFeatureBuilder fbuilder = new SimpleFeatureBuilder(type);
-        
-            while( true ) {
-                try {
-                    if (renderingStopRequested) {
-                        break;
-                    }
-
-                    if (!shpreader.hasNext()) {
-                        break;
-                    }
-
-                    boolean doElse = true;
-
-                    String nextFid = null;
-                    if( fidReader.hasNext() ){
-                        try {
-                            nextFid = fidReader.next();
-                        }
-                        catch( NoSuchElementException invalidIndex){
-                            fireErrorEvent(new IllegalStateException("Skipping invalid FID; Please regenerate your index.", invalidIndex));
-                            // TODO: mark index as needing regeneration
-                        }
-                    }
-                    else {
-                        fireErrorEvent(new IllegalStateException("Skipping invalid FID; shape and index are out of sync please regenerate index."));
-                        // TODO: mark index as needing regeneration
-                    }
-                    if(LOGGER.isLoggable(Level.FINER))
-                        LOGGER.finer("trying to read geometry ...");                    
-                    if (nextFid == null || modifiedFIDs.contains(nextFid)) {
-                        // this one is modified we will get it when we processTransaction
-                        shpreader.next();
-                        if( dbfreader != null && !dbfreader.IsRandomAccessEnabled() ){
-                            dbfreader.skip();
-                        }
-                        continue;
-                    }
-                    
-                    // store the current record number, we'll use it for reading the dbf
-                    final int recno = shpreader.getRecordNumber();
-                    ShapefileReader.Record record = shpreader.next();
-
-                    Object geom = record.shape();
-                    if (geom == null) {
-                        miss++;
-                        if(LOGGER.isLoggable(Level.FINEST))
-                            LOGGER.finest("skipping geometry");
-                        if( dbfreader != null && !dbfreader.IsRandomAccessEnabled() )
-                            dbfreader.skip();
-                        continue;
-                    } else {
-                        hit++;
-                    }
-                    
-                    // read the dbf file only if we got a non null shape
-                    if( dbfreader != null && dbfreader.IsRandomAccessEnabled() ){
-                        dbfreader.goTo(recno);
-                    }
-
-                    SimpleFeature feature = createFeature(fbuilder, record, dbfreader, nextFid);
-                    if (!query.getFilter().evaluate(feature))
-                        continue;
-
-                    if (renderingStopRequested) {
-                        break;
-                    }
-
-                    if (LOGGER.isLoggable(Level.FINEST)) {
-                        LOGGER.finest("... done: " + geom.toString());
-                    }
-
-                    if (LOGGER.isLoggable(Level.FINER)) {
-                        LOGGER.fine("... done: " + type.getTypeName());
-                    }
-
-                    // applicable rules
-                    for( Iterator it = ruleList.iterator(); it.hasNext(); ) {
-                        Rule r = (Rule) it.next();
-
-                        if (LOGGER.isLoggable(Level.FINER)) {
-                            LOGGER.finer("applying rule: " + r.toString());
-                        }
-
-                        if (LOGGER.isLoggable(Level.FINER)) {
-                            LOGGER.finer("this rule applies ...");
-                        }
-
-                        Filter filter = r.getFilter();
-
-                        if ((filter == null) || filter.evaluate(feature)) {
-                            doElse = false;
-
-                            if (LOGGER.isLoggable(Level.FINER)) {
-                                LOGGER.finer("processing Symobolizer ...");
-                            }
-
-                            Symbolizer[] symbolizers = r.getSymbolizers();
-
-                            processSymbolizers(graphics, feature, geom, symbolizers, scaleRange, useJTS, layerId, screenSize);
-
-                            if (LOGGER.isLoggable(Level.FINER)) {
-                                LOGGER.finer("... done!");
-                            }
-                        }
-                    }
-
-                    if (doElse) {
-                        // rules with an else filter
-                        if (LOGGER.isLoggable(Level.FINER)) {
-                            LOGGER.finer("rules with an else filter");
-                        }
-
-                        for( Iterator it = elseRuleList.iterator(); it.hasNext(); ) {
-                            Rule r = (Rule) it.next();
-                            Symbolizer[] symbolizers = r.getSymbolizers();
-
-                            if (LOGGER.isLoggable(Level.FINER)) {
-                                LOGGER.finer("processing Symobolizer ...");
-                            }
-
-                            processSymbolizers(graphics, feature, geom, symbolizers, scaleRange, useJTS, layerId, screenSize);
-
-                            if (LOGGER.isLoggable(Level.FINER)) {
-                                LOGGER.finer("... done!");
-                            }
-                        }
-                    }
-
-                    if (LOGGER.isLoggable(Level.FINER)) {
-                        LOGGER.finer("feature rendered event ...");
-                    }
-                } catch (Exception e) {
-                    fireErrorEvent(e);
-                }
-            }
-        } finally {
-            try {
-                if (dbfreader != null) {
-                    dbfreader.close();
-                }
-            } finally {
-                try {
-                    if (shpreader != null) {
-                        shpreader.close();
-                    }
-                } finally {
-                    if (fidReader != null)
-                        fidReader.close();
-                }
-            }
-        }
-        if(LOGGER.isLoggable(Level.FINE)) {
-            LOGGER.log(Level.FINE, type.getTypeName() + "): hit " + hit + " miss " + miss);
-        }
-    }
-
-    private Class[] getAcceptableSymbolizers( GeometryDescriptor defaultGeometry ) {
-        Class binding = defaultGeometry.getType().getBinding();
-        if (Polygon.class.isAssignableFrom(binding)
-                || MultiPolygon.class.isAssignableFrom(binding)) {
-            return new Class[]{PointSymbolizer.class, LineSymbolizer.class, PolygonSymbolizer.class};
-        }
-
-        return new Class[]{PointSymbolizer.class, LineSymbolizer.class};
-    }
-
-    SimpleFeature createFeature(SimpleFeatureBuilder builder, Record record, DbaseFileReader dbfreader, String id )
-            throws Exception {
-        SimpleFeatureType type = builder.getFeatureType();
-        if (type.getAttributeCount() == 1) {
-            builder.add(getGeom(record.shape(), type.getGeometryDescriptor()));
-            return builder.buildFeature(id);
-        } else {
-            dbfreader.read();
-            for( int i = 0; i < (type.getAttributeCount() - 1); i++ ) {
-                builder.add(dbfreader.readField(attributeIndexing[i]));
-            }
-            builder.add(getGeom(record.shape(), type.getGeometryDescriptor()));
-            return builder.buildFeature(id);
-        }
-    }
-
     /**
      * Return provided geom; or use a default value if null.
      * 
@@ -741,7 +258,7 @@ public class ShapefileRenderer implements GTRenderer {
      * @throws FactoryConfigurationError
      * @throws SchemaException
      */
-    SimpleFeatureType createFeatureType( Query query, Style style, ShapefileDataStore ds)
+    public SimpleFeatureType createFeatureType( Query query, Style style, ShapefileDataStore ds)
             throws SchemaException, IOException {
         SimpleFeatureType schema = ds.getSchema();
         String[] attributes = findStyleAttributes((query == null) ? Query.ALL : query, style,
@@ -902,8 +419,7 @@ public class ShapefileRenderer implements GTRenderer {
      * @throws FactoryException
      */
     private void processSymbolizers( final Graphics2D graphics, final SimpleFeature feature,
-            final Symbolizer[] symbolizers, NumberRange scaleRange, MathTransform transform, String layerId )
-            throws TransformException, FactoryException {
+            final Symbolizer[] symbolizers, NumberRange scaleRange, MathTransform transform, String layerId ) {
         LiteShape2 shape;
 
         for( int m = 0; m < symbolizers.length; m++ ) {
@@ -916,12 +432,10 @@ public class ShapefileRenderer implements GTRenderer {
                 g = RendererUtilities.getCentroid(g);
             shape = new LiteShape2(g, transform, getDecimator(transform), false);
 
-            if (symbolizers[m] instanceof TextSymbolizer) {
-                labelCache.put(layerId, (TextSymbolizer) symbolizers[m], feature, shape, scaleRange);
-            } else {
+            
                 Style2D style = styleFactory.createStyle(feature, symbolizers[m], scaleRange);
                 painter.paint(graphics, shape, style, scaleDenominator);
-            }
+            
         }
 
         fireFeatureRenderedEvent(feature);
@@ -935,7 +449,7 @@ public class ShapefileRenderer implements GTRenderer {
      * @throws org.opengis.referencing.operation.NoninvertibleTransformException
      */
     private Decimator getDecimator( MathTransform mathTransform  )
-            throws org.opengis.referencing.operation.NoninvertibleTransformException {
+            throws NoninvertibleTransformException {
         Decimator decimator=null;
         
         if( mathTransform!=null )
@@ -1009,12 +523,12 @@ public class ShapefileRenderer implements GTRenderer {
         renderListeners.remove(listener);
     }
 
-    private void fireFeatureRenderedEvent( SimpleFeature feature ) {
+    private void fireFeatureRenderedEvent( Feature feature ) {
         if (renderListeners.size() > 0) {
             RenderListener listener;
             for (int i = 0; i < renderListeners.size(); i++) {
                 listener = renderListeners.get(i);
-                listener.featureRenderer((SimpleFeature) feature);
+                listener.featureRenderer((Feature) feature);
             }
         }
     }
@@ -1079,29 +593,7 @@ public class ShapefileRenderer implements GTRenderer {
         this.concatTransforms = concatTransforms;
     }
 
-    public IndexInfo useIndex( ShapefileDataStore ds ) throws IOException, StoreException {
-        IndexInfo info;
 
-        ShpFiles shpFiles = ShapefileRendererUtil.getShpFiles(ds);
-        if (ds.isLocal()) {
-
-            if (!shpFiles.exists(SHX)) {
-                info = new IndexInfo(IndexType.NONE, shpFiles);
-                LOGGER.fine("No indexing");
-            } else if (shpFiles.exists(QIX)) {
-                info = new IndexInfo(IndexType.QIX, shpFiles);
-                LOGGER.fine("Using quad tree");
-            } else {
-                info = new IndexInfo(IndexType.NONE, shpFiles);
-                LOGGER.fine("No indexing");
-            }
-        } else {
-            info = new IndexInfo(IndexType.NONE, shpFiles);
-            LOGGER.fine("No indexing");
-        }
-
-        return info;
-    }
 
     /**
      * By default ignores all feature renderered events and logs all exceptions as severe.
@@ -1110,7 +602,7 @@ public class ShapefileRenderer implements GTRenderer {
         /**
          * @see org.geotools.renderer.lite.RenderListener#featureRenderer(org.geotools.feature.Feature)
          */
-        public void featureRenderer( SimpleFeature feature ) {
+        public void featureRenderer( Feature feature ) {
             // do nothing.
         }
 
@@ -1131,14 +623,6 @@ public class ShapefileRenderer implements GTRenderer {
     }
 
     public void setRendererHints(Map hints) {
-    	if( hints!=null && hints.containsKey(LABEL_CACHE_KEY) ){
-    		LabelCache cache=(LabelCache) hints.get(LABEL_CACHE_KEY);
-    		if( cache==null )
-    			throw new NullPointerException("Label_Cache_Hint has a null value for the labelcache");
-    		
-    		this.labelCache=cache;
-    		this.painter=new StyledShapePainter(cache);
-    	}
         rendererHints = hints;
     }
     
@@ -1162,7 +646,7 @@ public class ShapefileRenderer implements GTRenderer {
     }
 
     public void paint( Graphics2D graphics, Rectangle paintArea, ReferencedEnvelope envelope,
-            AffineTransformation transform ) {
+            AffineTransform transform ) {
         if( transform == null ){
             throw new NullPointerException("Transform is required");
         }
@@ -1190,7 +674,6 @@ public class ShapefileRenderer implements GTRenderer {
          */
         if (concatTransforms) {
             AffineTransform atg = graphics.getTransform();
-
             // graphics.setTransform(new AffineTransform());
             atg.concatenate(transform);
             transform = atg;
@@ -1214,11 +697,7 @@ public class ShapefileRenderer implements GTRenderer {
 
         // get detstination CRS
         CoordinateSystem destinationCrs = context.getCoordinateSystem();
-        labelCache.start();
-        labelCache.clear();
-        if(labelCache instanceof LabelCache) {
-            ((LabelCache) labelCache).setLabelRenderingMode(LabelRenderingMode.valueOf(getTextRenderingMethod()));
-        }
+
         for( int i = 0; i < layers.length; i++ ) {
             MapLayer currLayer = layers[i];
 
@@ -1352,19 +831,17 @@ public class ShapefileRenderer implements GTRenderer {
         return result;
     }
     
+    // Does not consider rotation
     private double computeScale(ReferencedEnvelope envelope, CoordinateSystem crs, Rectangle paintArea,
-            AffineTransform worldToScreen, Map hints) {
+            AffineTransform worldToScreen) {
         if(getScaleComputationMethod().equals(SCALE_ACCURATE)) {
             try {
-               return RendererUtilities.calculateScale(envelope, paintArea.width, paintArea.height, hints);
-            } catch (Exception e) // probably either (1) no CRS (2) error xforming
+               return RendererUtilities.calculateScale(envelope, paintArea.width, paintArea.height);
+            } 
+            catch (Exception e) // probably either (1) no CRS (2) error xforming
             {
                 LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
             }
-        } 
-        if (XAffineTransform.getRotation(worldToScreen) != 0.0) {
-            return RendererUtilities.calculateOGCScaleAffine(envelope.getCoordinateSystem(),
-                    worldToScreen, hints);
         } 
         return RendererUtilities.calculateOGCScale(envelope, paintArea.width, hints);
     }

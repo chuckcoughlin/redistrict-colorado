@@ -16,15 +16,14 @@
  */
 package org.geotools.referencing.operation;
 
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.util.Arrays;
 import java.util.logging.Logger;
 
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.Utilities;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.util.AffineTransformation;
-import org.locationtech.jts.math.Matrix;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.openjump.coordsys.AxisDirection;
 import org.openjump.coordsys.CoordinateSystem;

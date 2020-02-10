@@ -31,8 +31,6 @@ import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -40,7 +38,6 @@ import javax.swing.Icon;
 
 import org.geotools.geometry.jts.Decimator;
 import org.geotools.geometry.jts.LiteShape2;
-import org.geotools.renderer.LabelCache;
 import org.geotools.renderer.style.GraphicStyle2D;
 import org.geotools.renderer.style.IconStyle2D;
 import org.geotools.renderer.style.LineStyle2D;
@@ -48,14 +45,12 @@ import org.geotools.renderer.style.MarkStyle2D;
 import org.geotools.renderer.style.PointStyle2D;
 import org.geotools.renderer.style.PolygonStyle2D;
 import org.geotools.renderer.style.Style2D;
-import org.geotools.styling.ExternalGraphic;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Polygon;
 
-import sun.tools.jstat.Literal;
 
 
 /**
@@ -85,17 +80,8 @@ public class StyledShapePainter {
                     System.getProperty(
                             "org.geotools.renderer.lite.optimizeVectorHatchFills", "true"));
 
-    /**
-     * the label cache, used to populate the label cache with reserved areas for labeling obstacles
-     */
-    LabelCache labelCache;
-
     public StyledShapePainter() {
         // nothing do do, just needs to exist
-    }
-
-    public StyledShapePainter(LabelCache cache) {
-        this.labelCache = cache;
     }
 
     public void paint(
@@ -126,7 +112,6 @@ public class StyledShapePainter {
         if (style == null) {
             // TODO: what's going on? Should not be reached...
             LOGGER.severe("ShapePainter has been asked to paint a null style!!");
-
             return;
         }
 
@@ -167,12 +152,6 @@ public class StyledShapePainter {
 
                         icon.paintIcon(null, graphics, 0, 0);
 
-                        if (isLabelObstacle) {
-                            // TODO: rotation?
-                            labelCache.put(
-                                    new Rectangle2D.Double(
-                                            x, y, icon.getIconWidth(), icon.getIconHeight()));
-                        }
                     }
                     citer.next();
                 }
@@ -203,15 +182,12 @@ public class StyledShapePainter {
                             graphics.setComposite(ms2d.getContourComposite());
                             graphics.draw(transformedShape);
                         }
-
-                        if (isLabelObstacle) {
-                            labelCache.put(transformedShape.getBounds2D());
-                        }
                     }
                 }
                 citer.next();
             }
-        } else if (style instanceof GraphicStyle2D) {
+        } 
+        else if (style instanceof GraphicStyle2D) {
             float[] coords = new float[2];
             PathIterator iter = getPathIterator(shape);
             iter.currentSegment(coords);
@@ -237,10 +213,8 @@ public class StyledShapePainter {
                 }
                 iter.next();
             }
-        } else {
-            if (isLabelObstacle) {
-                labelCache.put(shape.getBounds2D());
-            }
+        } 
+        else {
             // if the style is a polygon one, process it even if the polyline is
             // not closed (by SLD specification)
             if (style instanceof PolygonStyle2D
@@ -353,7 +327,8 @@ public class StyledShapePainter {
                         dashShape(shape, ls2d.getStroke()),
                         ls2d.getGraphicStroke(),
                         isLabelObstacle);
-            } else {
+            } 
+            else {
                 Paint paint = ls2d.getContour();
 
                 if (paint instanceof TexturePaint) {
@@ -400,6 +375,7 @@ public class StyledShapePainter {
      * @param legend The legend to apply.
      * @param symbolScale The scale of the symbol, if the legend graphic has to be rescaled
      */
+    /*
     public void paint(
             final Graphics2D graphics,
             final LiteShape2 shape,
@@ -487,7 +463,7 @@ public class StyledShapePainter {
             }
         }
     }
-
+*/
     Shape dashShape(Shape shape, Stroke stroke) {
         if (!(stroke instanceof BasicStroke)) {
             return shape;
@@ -500,6 +476,7 @@ public class StyledShapePainter {
 
         return new DashedShape(shape, bs.getDashArray(), bs.getDashPhase());
     }
+ 
 
     /**
      * Extracts a ath iterator from the shape
@@ -728,8 +705,6 @@ public class StyledShapePainter {
         if (isLabelObstacle) {
             int w = Math.max(image.getWidth() * 1, 1);
             int h = Math.max(image.getHeight() * 1, 1);
-
-            labelCache.put(new Rectangle2D.Double(x + dx, y + dy, w, h));
         }
 
         graphics.setComposite(composite);
@@ -786,12 +761,9 @@ public class StyledShapePainter {
                     graphics.setStroke(ms2d.getStroke());
                     graphics.draw(transformedShape);
                 }
-
-                if (isLabelObstacle) {
-                    labelCache.put(transformedShape.getBounds2D());
-                }
             }
-        } else if (style instanceof IconStyle2D) {
+        } 
+        else if (style instanceof IconStyle2D) {
             IconStyle2D icons = (IconStyle2D) style;
             Icon icon = icons.getIcon();
 
@@ -811,12 +783,6 @@ public class StyledShapePainter {
                 icon.paintIcon(null, graphics, 0, 0);
             } finally {
                 graphics.setTransform(temp);
-            }
-
-            if (isLabelObstacle) {
-                labelCache.put(
-                        new Rectangle2D.Double(
-                                x + dx, y + dy, icon.getIconWidth(), icon.getIconHeight()));
             }
         }
     }
@@ -883,6 +849,7 @@ public class StyledShapePainter {
                 final Shape rescaledStipple =
                         AffineTransform.getScaleInstance(scaleFactor, scaleFactor)
                                 .createTransformedShape(markShape);
+                /*
                 ParallelLinesFiller filler = ParallelLinesFiller.fromStipple(rescaledStipple);
                 if (filler != null) {
                     Graphics2D clippedGraphics = (Graphics2D) graphics.create();
@@ -896,14 +863,18 @@ public class StyledShapePainter {
                     filler.fillRectangle(shape.getBounds2D(), this, clippedGraphics, lineStyle);
                     return;
                 }
+                */
             }
-        } else if (graphicFill instanceof IconStyle2D) {
+        } 
+        else if (graphicFill instanceof IconStyle2D) {
             Icon icon = ((IconStyle2D) graphicFill).getIcon();
             stippleSize = new Rectangle2D.Double(0, 0, icon.getIconWidth(), icon.getIconHeight());
-        } else if (graphicFill instanceof GraphicStyle2D) {
+        } 
+        else if (graphicFill instanceof GraphicStyle2D) {
             BufferedImage image = ((GraphicStyle2D) graphicFill).getImage();
             stippleSize = new Rectangle2D.Double(0, 0, image.getWidth(), image.getHeight());
-        } else {
+        } 
+        else {
             // if graphic fill does not provide bounds information, it is considered
             // to be unsupported for stipple painting
             return;
@@ -964,7 +935,6 @@ public class StyledShapePainter {
         Geometry stipplePoint = geomFactory.createPoint(stippleCoord);
 
         // builds a LiteShape2 object from the JTS geometry
-        AffineTransform2D identityTransf = new AffineTransform2D(new AffineTransform());
         Decimator nullDecimator = new Decimator(-1, -1);
 
         // paints graphic fill as a stipple
@@ -981,7 +951,7 @@ public class StyledShapePainter {
                 LiteShape2 stippleShape;
                 try {
                     stippleShape =
-                            new LiteShape2(stipplePoint, identityTransf, nullDecimator, false);
+                            new LiteShape2(stipplePoint, new AffineTransform(), nullDecimator, false);
                 } catch (Exception e) {
                     throw new RuntimeException("Unxpected exception building lite shape", e);
                 }
