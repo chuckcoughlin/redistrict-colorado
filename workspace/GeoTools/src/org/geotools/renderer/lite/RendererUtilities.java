@@ -27,17 +27,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.Icon;
-import javax.xml.crypto.dsig.TransformException;
 
-import org.geotools.coverage.grid.GridEnvelope2D;
-import org.geotools.data.crs.ForceCoordinateSystemFeatureResults;
-import org.geotools.data.simple.SimpleFeatureCollection;
-import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.geometry.DirectPosition;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.metadata.i18n.ErrorKeys;
-import org.geotools.referencing.CRS;
 import org.geotools.referencing.GeodeticCalculator;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.operation.GridToEnvelopeMapper;
 import org.geotools.renderer.style.GraphicStyle2D;
 import org.geotools.renderer.style.IconStyle2D;
@@ -57,11 +50,10 @@ import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.geom.impl.CoordinateArraySequence;
 import org.locationtech.jts.geom.prep.PreparedGeometry;
 import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
-import org.locationtech.jts.geom.util.AffineTransformation;
+import org.locationtech.jts.geom.util.NoninvertibleTransformationException;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.openjump.coordsys.AxisDirection;
 import org.openjump.coordsys.CoordinateSystem;
-import org.openjump.feature.FeatureCollection;
 
 /**
  * Class for holding utility functions that are common tasks for people using the
@@ -88,7 +80,7 @@ public final class RendererUtilities {
      * @param paintArea the size of the rendering output area
      * @return a transform that maps from real world coordinates to the screen
      */
-    public static AffineTransformation worldToScreenTransform(ReferencedEnvelope mapExtent, Rectangle2D paintArea) {
+    public static AffineTransform worldToScreenTransform(ReferencedEnvelope mapExtent, Rectangle2D paintArea) {
         // //
         //
         // Convert the JTS envelope and get the transform
@@ -103,7 +95,7 @@ public final class RendererUtilities {
         	mapper.setGridRange(new ReferencedEnvelope(paintArea,null));
             mapper.setEnvelope(genvelope);
             mapper.setPixelAnchor(GridToEnvelopeMapper.ANCHOR_CELL_CORNER);
-            return mapper.createAffineTransform().getInverse();
+            return mapper.createAffineTransform().createInverse();
         } 
         catch (MismatchedDimensionException e) {
             LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
@@ -282,20 +274,14 @@ public final class RendererUtilities {
      *     <p>TODO should I take into account also the destination CRS? Otherwise I am just assuming
      *     that the final crs is lon,lat that is it maps lon to x (n raster space) and lat to y (in
      *     raster space).
-     * @throws TransformException
-     * @throws FactoryException
      */
     public static double calculateScale(ReferencedEnvelope envelope, int imageWidth, int imageHeight, double DPI) {
 
     	final double diagonalGroundDistance;
-    	// //
-    	//
-    	// get CRS2D for this referenced envelope, check that its 2d
-    	//
-    	// //
 
-    	ReferencedEnvelope envelopeWGS84 = envelope.transform(DefaultGeographicCRS.WGS84, true);
-    	diagonalGroundDistance = geodeticDiagonalDistance(envelopeWGS84);
+    	DirectPosition uc = envelope.getUpperCorner();
+    	DirectPosition lc = envelope.getLowerCorner();
+    	diagonalGroundDistance = Math.sqrt((uc.x-lc.x)*(uc.x-lc.x)+(uc.y-lc.y)*(uc.y-lc.y));
 
 
     	// //
@@ -303,13 +289,12 @@ public final class RendererUtilities {
         // Compute the distances on the requested image using the provided DPI.
         //
         // //
-        // pythagorus theorm
+        // pythagorian theorm
         double diagonalPixelDistancePixels =
                 Math.sqrt(imageWidth * imageWidth + imageHeight * imageHeight);
         double diagonalPixelDistanceMeters =
                 diagonalPixelDistancePixels / DPI * 2.54 / 100; // 2.54 = cm/inch, 100= cm/m
         return diagonalGroundDistance / diagonalPixelDistanceMeters;
-        // remember, this is the denominator, not the actual scale;
     }
 
     private static double geodeticDiagonalDistance(Envelope env) {
@@ -339,26 +324,22 @@ public final class RendererUtilities {
             qMinX =
                     Math.min(
                             qMinX,
-                            (int)
-                                    (Math.signum(env.getMinX())
+                            (int)(Math.signum(env.getMinX())
                                             * Math.ceil(Math.abs(env.getMinX() / 180.0))));
             qMaxX =
                     Math.max(
                             qMaxX,
-                            (int)
-                                    (Math.signum(env.getMaxX())
+                            (int)(Math.signum(env.getMaxX())
                                             * Math.ceil(Math.abs(env.getMaxX() / 180.0))));
             qMinY =
                     Math.min(
                             qMinY,
-                            (int)
-                                    (Math.signum(env.getMinY())
+                            (int) (Math.signum(env.getMinY())
                                             * Math.ceil(Math.abs((env.getMinY() + 90) / 180.0))));
             qMaxY =
                     Math.max(
                             qMaxY,
-                            (int)
-                                    (Math.signum(env.getMaxY())
+                            (int) (Math.signum(env.getMaxY())
                                             * Math.ceil(Math.abs((env.getMaxY() + 90) / 180.0))));
             for (int i = qMinX; i < qMaxX; i++) {
                 for (int j = qMinY; j < qMaxY; j++) {
@@ -439,32 +420,23 @@ public final class RendererUtilities {
      * @param mapExtent The envelope of the map in lon,lat
      * @param paintArea The area to paint as a rectangle
      * @param destinationCrs
-     * @throws TransformException
      * @todo add georeferenced envelope check when merge with trunk will be performed
      */
-    public static AffineTransformation worldToScreenTransform(
+    public static AffineTransform worldToScreenTransform(
             Envelope mapExtent, Rectangle paintArea, CoordinateSystem destinationCrs) {
 
-        // is the crs also lon,lat?
-        final CoordinateSystem crs2D = CRS.getHorizontalCRS(destinationCrs);
-        if (crs2D == null)
-            throw new TransformException(
-                    Errors.format(ErrorKeys.CANT_REDUCE_TO_TWO_DIMENSIONS_$1, destinationCrs));
         final boolean lonFirst =
-                crs2D.getCoordinateSystem()
+        		destinationCrs
                         .getAxis(0)
                         .getDirection()
-                        .absolute()
                         .equals(AxisDirection.EAST);
-        final GeneralEnvelope newEnvelope =
+        final ReferencedEnvelope newEnvelope =
                 lonFirst
-                        ? new GeneralEnvelope(
-                                new double[] {mapExtent.getMinX(), mapExtent.getMinY()},
-                                new double[] {mapExtent.getMaxX(), mapExtent.getMaxY()})
-                        : new GeneralEnvelope(
-                                new double[] {mapExtent.getMinY(), mapExtent.getMinX()},
-                                new double[] {mapExtent.getMaxY(), mapExtent.getMaxX()});
-        newEnvelope.setCoordinateReferenceSystem(destinationCrs);
+                        ? new ReferencedEnvelope(mapExtent.getMinX(), mapExtent.getMinY(),
+                                mapExtent.getMaxX(), mapExtent.getMaxY(),destinationCrs)
+                        : new ReferencedEnvelope(
+                                mapExtent.getMinY(), mapExtent.getMinX(),
+                                mapExtent.getMaxY(), mapExtent.getMaxX(),destinationCrs);
 
         //
         // with this method I can build a world to grid transform
@@ -472,10 +444,20 @@ public final class RendererUtilities {
         // is a hashtable lookup. The benefit is reusing the last
         // transform (instead of creating a new one) if the grid
         // and envelope are the same one than during last invocation.
-        final GridToEnvelopeMapper m = (GridToEnvelopeMapper) gridToEnvelopeMappers.get();
-        m.setGridRange(new GridEnvelope2D(paintArea));
+        final GridToEnvelopeMapper m = new GridToEnvelopeMapper();
+        m.setGridRange(new ReferencedEnvelope(paintArea));
         m.setEnvelope(newEnvelope);
-        return (AffineTransform) (m.createTransform().inverse());
+        AffineTransform result = null;
+        try {
+			result = m.createTransform().createInverse();
+		} 
+        catch (IllegalStateException e) {
+			e.printStackTrace();
+		} 
+        catch (NoninvertibleTransformException e) {
+			e.printStackTrace();
+		}
+        return result;
     }
 
     /**
@@ -565,46 +547,6 @@ public final class RendererUtilities {
             d2 = 0;
         }
         return Math.max(d1, d2);
-    }
-
-    /**
-     * Makes sure the feature collection generates the desired sourceCrs, this is mostly a
-     * workaround against feature sources generating feature collections without a CRS (which is
-     * fatal to the reprojection handling later in the code)
-     *
-     * @param features
-     * @param sourceCrs
-     * @return FeatureCollection<SimpleFeatureType, SimpleFeature> that produces results with the
-     *     correct CRS
-     */
-    static FeatureCollection fixFeatureCollectionReferencing(
-            FeatureCollection features, CoordinateSystem sourceCrs) {
-        // this is the reader's CRS
-        CoordinateSystem rCS = null;
-        try {
-            rCS =
-                    features.getSchema()
-                            .getGeometryDescriptor()
-                            .getType()
-                            .getCoordinateReferenceSystem();
-        } catch (NullPointerException e) {
-            // life sucks sometimes
-        }
-
-        if (rCS != sourceCrs && sourceCrs != null) {
-            // if the datastore is producing null CRS, we recode.
-            // if the datastore's CRS != real CRS, then we recode
-            if ((rCS == null) || !CRS.equalsIgnoreMetadata(rCS, sourceCrs)) {
-                // need to retag the features
-                try {
-                    return new ForceCoordinateSystemFeatureResults(
-                            (SimpleFeatureCollection) features, sourceCrs);
-                } catch (Exception ee) {
-                    LOGGER.log(Level.WARNING, ee.getLocalizedMessage(), ee);
-                }
-            }
-        }
-        return features;
     }
 
     /**

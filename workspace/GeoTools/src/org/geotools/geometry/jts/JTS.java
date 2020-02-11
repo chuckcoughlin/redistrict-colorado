@@ -17,14 +17,14 @@
 package org.geotools.geometry.jts;
 
 import java.awt.Shape;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.IllegalPathStateException;
 import java.awt.geom.PathIterator;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.geotools.geometry.DirectPosition;
 import org.geotools.geometry.util.ShapeUtilities;
@@ -47,8 +47,8 @@ import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.geom.impl.CoordinateArraySequence;
 import org.locationtech.jts.geom.impl.CoordinateArraySequenceFactory;
-import org.locationtech.jts.geom.util.AffineTransformation;
 import org.locationtech.jts.operation.polygonize.Polygonizer;
+import org.opengis.referencing.operation.TransformException;
 import org.openjump.coordsys.CoordinateSystem;
 
 /**
@@ -76,9 +76,7 @@ public final class JTS {
 	private final static GeodeticCalculator gc = new GeodeticCalculator();
     /** A pool of direct positions for use in {@link #orthodromicDistance}. */
     private static final DirectPosition[] POSITIONS = new DirectPosition[4];
-
-    public static final AffineTransformation Y_INVERSION =
-            new AffineTransformation(1, 0, 0, 0, -1, 0);
+    public static final AffineTransform Y_INVERSION = new AffineTransform(1, 0, 0, 0, -1, 0);
 
     static {
         for (int i = 0; i < POSITIONS.length; i++) {
@@ -102,7 +100,7 @@ public final class JTS {
      * @return The transformed Envelope
      * @throws TransformException if at least one coordinate can't be transformed.
      */
-    public static Envelope transform(final Envelope envelope, final AffineTransformation transform) {
+    public static Envelope transform(final Envelope envelope, final AffineTransform transform) {
         return transform(envelope, null, transform, 5);
     }
 
@@ -133,7 +131,7 @@ public final class JTS {
     public static Envelope transform(
             final Envelope sourceEnvelope,
             Envelope targetEnvelope,
-            final AffineTransformation transform,
+            final AffineTransform transform,
             int npoints) {
         Utilities.ensureNonNull("sourceEnvelope", sourceEnvelope);
         Utilities.ensureNonNull("transform", transform);
@@ -249,15 +247,16 @@ public final class JTS {
      * @throws TransformException if the coordinate can't be transformed.
      */
     public static Coordinate transform(
-            final Coordinate source, Coordinate dest, final AffineTransformation transform) {
+            final Coordinate source, Coordinate dest, final AffineTransform transform) {
         Utilities.ensureNonNull("source", source);
         Utilities.ensureNonNull("transform", transform);
 
         if (dest == null) {
             dest = new Coordinate();
         }
-
-        transform.transform(source,dest);
+        Point2D.Double srcPoint = new Point2D.Double(source.x,source.y);
+        Point2D.Double destPoint = new Point2D.Double(dest.x,dest.y);
+        transform.transform(srcPoint,destPoint);
         return dest;
     }
 
@@ -310,17 +309,14 @@ public final class JTS {
      * @param dest The destination array for transformed coordinates.
      * @throws TransformException if this method failed to transform any of the points.
      */
-    public static void xform(final AffineTransformation transform, final double[] src, final double[] dest) {
+    public static void xform(final AffineTransform transform, final double[] src, final double[] dest) {
         Utilities.ensureNonNull("transform", transform);
-
-        final int sourceDim = ShapeUtilities.TRANSFORM_DIMENSION;
-        final int targetDim = ShapeUtilities.TRANSFORM_DIMENSION;
         
-        Coordinate source = new Coordinate(src[0],src[1]);
-        Coordinate destination = new Coordinate(dest[0],dest[1]);
-        transform.transform(source,destination);
-        dest[0] = destination.x;
-        dest[1] = destination.y;
+        Point2D.Double srcPoint = new Point2D.Double(src[0],src[1]);
+        Point2D.Double destPoint = new Point2D.Double(dest[0],dest[1]);
+        transform.transform(srcPoint,destPoint);
+        dest[0] = destPoint.x;
+        dest[1] = destPoint.y;
     }
 
     /**
@@ -1143,45 +1139,7 @@ public final class JTS {
                 rectangle.getMinX(), rectangle.getMaxX(), rectangle.getMinY(), rectangle.getMaxY());
     }
 
-    /**
-     * Converts a AWT polygon into a JTS one (unlike {@link toGeometry} which always returns lines
-     * instead)
-     *
-     * @return
-     */
-    public static Polygon toPolygon(java.awt.Polygon polygon) {
-        return toPolygonInternal(polygon);
-    }
-
-    /**
-     * Converts a AWT rectangle into a JTS one (unlike {@link toGeometry} which always returns lines
-     * instead)
-     *
-     * @return
-     */
-    public static Polygon toPolygon(java.awt.Rectangle rectangle) {
-        return toPolygonInternal(rectangle);
-    }
-
-    /**
-     * Converts a AWT rectangle into a JTS one (unlike {@link toGeometry} which always returns lines
-     * instead)
-     *
-     * @return
-     */
-    public static Polygon toPolygon(Rectangle2D rectangle) {
-        return toPolygonInternal(rectangle);
-    }
-
-    private static Polygon toPolygonInternal(Shape shape) {
-        Geometry geomROI = null;
-        if (shape != null) {
-            geomROI = ShapeReader.read(shape, 0, new GeometryFactory());
-            geomROI.apply(Y_INVERSION);
-        }
-        return (Polygon) geomROI;
-    }
-
+  
     /**
      * Envelope equality with target tolerance.
      *

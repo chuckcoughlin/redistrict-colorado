@@ -24,16 +24,13 @@ package org.geotools.referencing;
 import java.awt.Shape;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
-import java.text.Format;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.geotools.geometry.DirectPosition;
 import org.geotools.measure.Latitude;
 import org.locationtech.jts.geomgraph.Position;
-import org.openjump.coordsys.AxisDirection;
 import org.openjump.coordsys.CoordinateSystem;
-import org.openjump.coordsys.CoordinateSystemAxis;
 
 import net.sf.geographiclib.Geodesic;
 import net.sf.geographiclib.GeodesicData;
@@ -281,7 +278,6 @@ public class GeodeticCalculator {
      * #GeodeticCalculator(CoordinateSystem) constructor}.
      *
      * @return The starting position in user CRS.
-     * @throws TransformException if the position can't be transformed to user coordinates.
      * @since 2.3
      */
     public DirectPosition getStartingPosition() {
@@ -336,7 +332,6 @@ public class GeodeticCalculator {
      * #GeodeticCalculator(CoordinateSystem) constructor}.
      *
      * @param position The position in user coordinate reference system.
-     * @throws TransformException if the position can't be transformed.
      * @since 2.2
      */
     public void setDestinationPosition(final DirectPosition p)  {
@@ -369,7 +364,6 @@ public class GeodeticCalculator {
      * #GeodeticCalculator(CoordinateSystem) constructor}.
      *
      * @return The destination position in user CRS.
-     * @throws TransformException if the position can't be transformed to user coordinates.
      * @since 2.2
      */
     public DirectPosition getDestinationPosition() {

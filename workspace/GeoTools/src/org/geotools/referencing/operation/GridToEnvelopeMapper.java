@@ -23,7 +23,6 @@ import java.util.logging.Logger;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.Utilities;
 import org.locationtech.jts.geom.Envelope;
-import org.locationtech.jts.geom.util.AffineTransformation;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.openjump.coordsys.AxisDirection;
 import org.openjump.coordsys.CoordinateSystem;
@@ -98,7 +97,7 @@ public class GridToEnvelopeMapper {
     private int anchor = ANCHOR_CELL_CENTER;
 
     /** The math transform, or {@code null} if not yet computed. */
-    private AffineTransformation transform;
+    private AffineTransform transform;
 
     /** Creates a new instance of {@code GridToEnvelopeMapper}. */
     public GridToEnvelopeMapper() {}
@@ -247,7 +246,7 @@ public class GridToEnvelopeMapper {
      * @return the transform.
      * @throws IllegalStateException if the grid range or the envelope were not set.
      */
-    public AffineTransformation createTransform() throws IllegalStateException {
+    public AffineTransform createTransform() throws IllegalStateException {
         if (transform == null) {
             final ReferencedEnvelope gridEnvelope = getGridRange();
             final ReferencedEnvelope userEnvelope = getEnvelope();
@@ -305,7 +304,7 @@ public class GridToEnvelopeMapper {
                 double m10 = 0.; 	// y shear
                 double m11 = scaley;  // y scale
                 double m12 = offsety; // dy
-                transform = new AffineTransformation(m00,m01,m02,m10,m11,m12); 
+                transform = new AffineTransform(m00,m01,m02,m10,m11,m12); 
             }
             
         }
@@ -318,8 +317,8 @@ public class GridToEnvelopeMapper {
      * @return The math transform as a two-dimensional affine transform.
      * @throws IllegalStateException if the math transform is not of the appropriate type.
      */
-    public AffineTransformation createAffineTransform() throws IllegalStateException {
-        final AffineTransformation transform = createTransform();
+    public AffineTransform createAffineTransform() throws IllegalStateException {
+        final AffineTransform transform = createTransform();
         if (transform != null) {
             return transform;
         }

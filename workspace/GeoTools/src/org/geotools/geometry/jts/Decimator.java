@@ -20,6 +20,7 @@ import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.util.logging.Logger;
 
+
 import org.locationtech.jts.geom.CoordinateSequence;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
@@ -29,7 +30,6 @@ import org.locationtech.jts.geom.LinearRing;
 import org.locationtech.jts.geom.MultiPoint;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
-import org.locationtech.jts.geom.util.AffineTransformation;
 
 /**
  * Accepts geometries and collapses all the vertices that will be rendered to the same pixel. This

@@ -19,13 +19,11 @@ package org.geotools.renderer;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
-import java.awt.geom.AffineTransform;
 import java.util.Map;
 
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.MapContent;
-import org.locationtech.jts.geom.Envelope;
-import org.locationtech.jts.geom.util.AffineTransformation;
+
 
 /**
  * GeoTools renderer for rendering spatial content into a Graphics2D. Typical usage:
@@ -54,12 +52,6 @@ import org.locationtech.jts.geom.util.AffineTransformation;
 public interface GTRenderer {
 
     /**
-     * If you call this method from another thread than the one that called <code>paint</code> or
-     * <code>render</code> the rendering will be forcefully stopped before termination.
-     */
-    public void stopRendering();
-
-    /**
      * adds a listener that responds to error events of feature rendered events.
      *
      * @see RenderListener
@@ -75,29 +67,6 @@ public interface GTRenderer {
      */
     public void removeRenderListener(RenderListener listener);
 
-    /** Hints used to configure Java2D Graphics prior to rendering. */
-    public void setJava2DHints(RenderingHints hints);
-
-    /**
-     * Hints used to configure Java2D Graphics prior to rendering.
-     *
-     * @return Hints
-     */
-    public RenderingHints getJava2DHints();
-
-    /**
-     * Hints used to configure rendering process.
-     *
-     * @param hints
-     */
-    public void setRendererHints(Map<Object, Object> hints);
-
-    /**
-     * Hints used to configure rendering process
-     *
-     * @return Hints used to configure rendering process
-     */
-    public Map<Object, Object> getRendererHints();
 
     /**
      * Sets the {@code MapContent} which contains the data to be rendered.
