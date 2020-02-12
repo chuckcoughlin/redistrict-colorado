@@ -21,15 +21,14 @@ import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.font.GlyphVector;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.NoninvertibleTransformException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.map.Layer;
 import org.geotools.map.MapContent;
+import org.geotools.map.MapLayer;
+import org.geotools.referencing.ReferencedEnvelope;
 import org.geotools.renderer.GTRenderer;
 import org.geotools.renderer.RenderListener;
 import org.geotools.renderer.lite.RendererUtilities;
@@ -44,11 +43,10 @@ import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 import org.openjump.coordsys.CoordinateSystem;
-import org.openjump.feature.Feature;
 
 /**
  * A LiteRenderer Implementations that is optimized for shapefiles. We have removed 
- * the IndexInfo features.
+ * the IndexInfo features and label caching.
  * 
  * @author jeichar
  * @since 2.1.x
@@ -119,7 +117,7 @@ public class ShapefileRenderer implements GTRenderer {
     int[] attributeIndexing;
 
     /** The painter class we use to depict shapes onto the screen */
-    private StyledShapePainter painter = new StyledShapePainter();
+    private final StyledShapePainter painter = new StyledShapePainter();
     
     /**
      * Text will be rendered using the usual calls gc.drawString/drawGlyphVector.
@@ -141,7 +139,6 @@ public class ShapefileRenderer implements GTRenderer {
     public static final String TEXT_RENDERING_KEY = "textRenderingMethod";
     private String textRenderingModeDEFAULT = TEXT_RENDERING_STRING;
     
-	public static final String LABEL_CACHE_KEY = "labelCache";
 	public static final String FORCE_CRS_KEY = "forceCRS";
 	public static final String DPI_KEY = "dpi";
 	public static final String DECLARED_SCALE_DENOM_KEY = "declaredScaleDenominator";
@@ -155,13 +152,14 @@ public class ShapefileRenderer implements GTRenderer {
     }
 
     /**
-     * This is the paint method used to actually draw the map.
+     * This is the paint method used to actually draw the map. We always go from geodesic coordinates
+     * to view coordinates.
      */
     public void paint( Graphics2D graphics, Rectangle paintArea, ReferencedEnvelope mapArea ) {
         if (mapArea == null || paintArea == null) {
-            LOGGER.info("renderer passed null arguments");
+            LOGGER.info(String.format("%s.paint: paint or mapping area is null",CLSS));
             return;
-        } // Other arguments get checked later
+        } 
         paint(graphics, paintArea, mapArea, RendererUtilities.worldToScreenTransform(mapArea,paintArea));
     }
 
@@ -220,50 +218,9 @@ public class ShapefileRenderer implements GTRenderer {
     }
 
 
-
-    /**
-     * By default ignores all feature renderered events and logs all exceptions as severe.
-     */
-    private static class DefaultRenderListener implements RenderListener {
-        /**
-         * @see org.geotools.renderer.lite.RenderListener#featureRenderer(org.geotools.feature.Feature)
-         */
-        public void featureRenderer( Feature feature ) {
-            // do nothing.
-        }
-
-        /**
-         * @see org.geotools.renderer.lite.RenderListener#errorOccurred(java.lang.Exception)
-         */
-        public void errorOccurred( Exception e ) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        }
-    }
-
-    public void paint( Graphics2D graphics, Rectangle paintArea, AffineTransform worldToScreen ) {
-        if (worldToScreen == null || paintArea == null) {
-            LOGGER.info("renderer passed null arguments");
-            return;
-        } // Other arguments get checked later
-        // First, create the bbox in real world coordinates
-        ReferencedEnvelope mapArea;
-        try {
-            mapArea = RendererUtilities.createMapEnvelope(paintArea, worldToScreen, content.getCoordinateSystem());
-            paint(graphics, paintArea, mapArea, worldToScreen);
-        } 
-        catch (NoninvertibleTransformException e) {
-            fireErrorEvent(new Exception("Can't create pixel to world transform", e));
-        }
-    }
-
     private void paint( Graphics2D graphics, Rectangle paintArea, ReferencedEnvelope envelope,AffineTransform transform ) {
         if( transform == null ){
             throw new NullPointerException("Transform is required");
-        }
-
-        if ((graphics == null) || (paintArea == null)) {
-            LOGGER.info("renderer passed null arguments");
-            return;
         }
 
         if (LOGGER.isLoggable(Level.FINE)) {
@@ -295,17 +252,11 @@ public class ShapefileRenderer implements GTRenderer {
             setScaleDenominator(1 / transform.getScaleX()); // DJB old method - the best we can do            
         }
 
-        List<Layer> layers = content.layers();
-       
-        for( Layer layer:layers ) {
+        List<MapLayer> layers = content.layers();
+        for( MapLayer layer:layers ) {
 
-            if (!layer.isVisible()) {
-                // Only render layer when layer is visible
-                continue;
-            }
-
+            if (!layer.isVisible()) { continue;}
             ReferencedEnvelope bbox = envelope;
-
             try {
 
             } 

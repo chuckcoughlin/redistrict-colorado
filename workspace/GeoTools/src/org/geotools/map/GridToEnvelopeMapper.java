@@ -14,13 +14,13 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.referencing.operation;
+package org.geotools.map;
 
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.logging.Logger;
 
-import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.referencing.ReferencedEnvelope;
 import org.geotools.util.Utilities;
 import org.locationtech.jts.geom.Envelope;
 import org.opengis.geometry.MismatchedDimensionException;
@@ -305,8 +305,7 @@ public class GridToEnvelopeMapper {
                 double m11 = scaley;  // y scale
                 double m12 = offsety; // dy
                 transform = new AffineTransform(m00,m01,m02,m10,m11,m12); 
-            }
-            
+            } 
         }
         return transform;
     }

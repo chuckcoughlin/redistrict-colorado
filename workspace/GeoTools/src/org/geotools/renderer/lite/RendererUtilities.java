@@ -29,9 +29,9 @@ import java.util.logging.Logger;
 import javax.swing.Icon;
 
 import org.geotools.geometry.DirectPosition;
-import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.map.GridToEnvelopeMapper;
 import org.geotools.referencing.GeodeticCalculator;
-import org.geotools.referencing.operation.GridToEnvelopeMapper;
+import org.geotools.referencing.ReferencedEnvelope;
 import org.geotools.renderer.style.GraphicStyle2D;
 import org.geotools.renderer.style.IconStyle2D;
 import org.geotools.renderer.style.LineStyle2D;
@@ -50,7 +50,6 @@ import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.geom.impl.CoordinateArraySequence;
 import org.locationtech.jts.geom.prep.PreparedGeometry;
 import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
-import org.locationtech.jts.geom.util.NoninvertibleTransformationException;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.openjump.coordsys.AxisDirection;
 import org.openjump.coordsys.CoordinateSystem;
@@ -70,7 +69,8 @@ public final class RendererUtilities {
     private RendererUtilities() {};
 
     /**
-     * Sets up the affine transform
+     * Sets up the affine transform for projecting a GEODESIC coordinate system to a flat view coordinate
+     * system.
      *
      * <p>NOTE It is worth to note that here we do not take into account the half a pixel
      * translation stated by ogc for coverages bounds. One reason is that WMS 1.1.1 does not follow
@@ -119,10 +119,6 @@ public final class RendererUtilities {
      */
     public static Envelope createMapEnvelope(Rectangle paintArea, AffineTransform worldToScreen)
             throws NoninvertibleTransformException {
-        //
-        // (X1,Y1) (X2,Y1)
-        //
-        // (X1,Y2) (X2,Y2)
         double[] pts = new double[8];
         pts[0] = paintArea.getMinX();
         pts[1] = paintArea.getMinY();

@@ -21,8 +21,8 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.util.Map;
 
-import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.MapContent;
+import org.geotools.referencing.ReferencedEnvelope;
 
 
 /**

@@ -24,7 +24,7 @@ import java.util.EventObject;
  * @author wolf
  */
 public class MapLayerListEvent extends EventObject {
-    private Layer layer;
+    private final MapLayer layer;
 
     /** Holds value of property fromIndex. */
     private int fromIndex;
@@ -32,11 +32,8 @@ public class MapLayerListEvent extends EventObject {
     /** Holds value of property toIndex. */
     private int toIndex;
 
-    /** Holds value of property mapLayerEvent. */
-    private MapLayerEvent mapLayerEvent;
-
     /** Creates a new instance of MapLayerListEvent */
-    public MapLayerListEvent(MapContent source, Layer layer, int fromIndex, int toIndex) {
+    public MapLayerListEvent(MapContent source, MapLayer layer, int fromIndex, int toIndex) {
         super(source);
         this.layer = layer;
         this.fromIndex = fromIndex;
@@ -50,28 +47,20 @@ public class MapLayerListEvent extends EventObject {
      * @param layer Layer being reported against; may be null
      * @param position index modified in layer list
      */
-    public MapLayerListEvent(MapContent source, Layer layer, int position) {
+    public MapLayerListEvent(MapContent source, MapLayer layer, int position) {
         super(source);
         this.layer = layer;
         this.fromIndex = position;
         this.toIndex = position;
     }
 
-    public MapLayerListEvent(
-            MapContent map, Layer element, int index, MapLayerEvent mapLayerEvent) {
-        super(map);
-        this.layer = element;
-        this.fromIndex = index;
-        this.toIndex = index;
-        this.mapLayerEvent = mapLayerEvent;
-    }
 
     /**
      * Return the layer involved in the change.
      *
      * @return
      */
-    public Layer getLayer() {
+    public MapLayer getLayer() {
         return layer;
     }
 
@@ -93,14 +82,5 @@ public class MapLayerListEvent extends EventObject {
      */
     public int getToIndex() {
         return this.toIndex;
-    }
-
-    /**
-     * Returns the map layer event that originated this layer list event
-     *
-     * @return Value of property mapLayerEvent.
-     */
-    public MapLayerEvent getMapLayerEvent() {
-        return this.mapLayerEvent;
     }
 }

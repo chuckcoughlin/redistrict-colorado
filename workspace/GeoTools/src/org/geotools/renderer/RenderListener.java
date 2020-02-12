@@ -16,7 +16,7 @@
  */
 package org.geotools.renderer;
 
-import org.geotools.map.Layer;
+import org.geotools.map.MapLayer;
 import org.openjump.feature.Feature;
 
 /**
@@ -44,12 +44,12 @@ public interface RenderListener {
     public void errorOccurred(Exception e);
 
     /** Event issued when the layer begins rendering. */
-    default void layerStart(Layer layer) {
+    default void layerStart(MapLayer layer) {
         // does nothing
     }
 
     /** Event issued when the layer completed rendering. May not be issued. */
-    default void layerEnd(Layer layer) {
+    default void layerEnd(MapLayer layer) {
         // does nothing
     }
 

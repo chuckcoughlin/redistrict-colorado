@@ -27,7 +27,7 @@ import redistrict.colorado.ui.navigation.LayerNavigationPane;
 		private LayerNavigationPane navPane = new LayerNavigationPane();
 		private Label headerLabel = new Label("Map Canvas");
 		private LayerModel model;
-		private LayerMap map;
+		private MapRenderer map;
 		
 		public MapPane() {
 			super(ViewMode.LAYER,DisplayOption.MAP);
@@ -35,7 +35,7 @@ import redistrict.colorado.ui.navigation.LayerNavigationPane;
 			headerLabel.getStyleClass().add("list-header-label");
 			getChildren().add(headerLabel);
 			
-			map = new LayerMap(model,UIConstants.SCENE_WIDTH, UIConstants.SCENE_HEIGHT);
+			map = new MapRenderer(model,UIConstants.SCENE_WIDTH, UIConstants.SCENE_HEIGHT);
 			Node canvas = map.getCanvas();
 			getChildren().add(canvas);
 

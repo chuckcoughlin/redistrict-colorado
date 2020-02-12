@@ -14,7 +14,7 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.geometry.jts;
+package org.geotools.referencing;
 
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
@@ -47,77 +47,76 @@ public class ReferencedEnvelope extends Envelope  {
 	
 	
     /** A ReferencedEnvelope containing "everything" */
-    public static ReferencedEnvelope EVERYTHING =
-            new ReferencedEnvelope(
-                    Double.NEGATIVE_INFINITY,
-                    Double.POSITIVE_INFINITY,
-                    Double.NEGATIVE_INFINITY,
-                    Double.POSITIVE_INFINITY,
-                    null) {
-                private static final long serialVersionUID = -3188702602373537164L;
+	public static ReferencedEnvelope EVERYTHING =
+			new ReferencedEnvelope(
+					Double.NEGATIVE_INFINITY,
+					Double.POSITIVE_INFINITY,
+					Double.NEGATIVE_INFINITY,
+					Double.POSITIVE_INFINITY,null) {
+		private static final long serialVersionUID = -3188702602373537164L;
 
-                public boolean contains(Coordinate p) {
-                    return true;
-                }
+		public boolean contains(Coordinate p) {
+			return true;
+		}
 
-                public boolean contains(DirectPosition pos) {
-                    return true;
-                }
+		public boolean contains(DirectPosition pos) {
+			return true;
+		}
 
-                public boolean contains(double x, double y) {
-                    return true;
-                }
+		public boolean contains(double x, double y) {
+			return true;
+		}
 
-                public boolean contains(Envelope box) {
-                    return true;
-                }
+		public boolean contains(Envelope box) {
+			return true;
+		}
 
-                public boolean isEmpty() {
-                    return false;
-                }
+		public boolean isEmpty() {
+			return false;
+		}
 
-                public boolean isNull() {
-                    return true;
-                }
+		public boolean isNull() {
+			return true;
+		}
 
-                public double getArea() {
-                    // return super.getArea();
-                    return Double.POSITIVE_INFINITY;
-                }
+		public double getArea() {
+			// return super.getArea();
+			return Double.POSITIVE_INFINITY;
+		}
 
-                public void setBounds(Envelope arg0) {
-                    throw new IllegalStateException("Cannot modify ReferencedEnvelope.EVERYTHING");
-                }
+		public void setBounds(Envelope arg0) {
+			throw new IllegalStateException("Cannot modify ReferencedEnvelope.EVERYTHING");
+		}
 
-                public Coordinate centre() {
-                    return new Coordinate();
-                }
+		public Coordinate centre() {
+			return new Coordinate();
+		}
 
-                public void setToNull() {
-                    // um ignore this as we are already "null"
-                }
+		public void setToNull() {
+			// um ignore this as we are already "null"
+		}
 
-                public boolean equals(Object obj) {
-                    if (obj == EVERYTHING) {
-                        return true;
-                    }
-                    if (obj instanceof ReferencedEnvelope) {
-                        ReferencedEnvelope other = (ReferencedEnvelope) obj;
-                        if (other.coordsys != EVERYTHING.coordsys) return false;
-                        if (other.getMinX() != EVERYTHING.getMinX()) return false;
-                        if (other.getMinY() != EVERYTHING.getMinY()) return false;
-                        if (other.getMaxX() != EVERYTHING.getMaxX()) return false;
-                        if (other.getMaxY() != EVERYTHING.getMaxY()) return false;
+		public boolean equals(Object obj) {
+			if (obj == EVERYTHING) {
+				return true;
+			}
+			if (obj instanceof ReferencedEnvelope) {
+				ReferencedEnvelope other = (ReferencedEnvelope) obj;
+				if (other.coordsys != EVERYTHING.coordsys) return false;
+				if (other.getMinX() != EVERYTHING.getMinX()) return false;
+				if (other.getMinY() != EVERYTHING.getMinY()) return false;
+				if (other.getMaxX() != EVERYTHING.getMaxX()) return false;
+				if (other.getMaxY() != EVERYTHING.getMaxY()) return false;
 
-                        return true;
-                    }
-                    return super.equals(obj);
-                }
+				return true;
+			}
+			return super.equals(obj);
+		}
 
-                public String toString() {
-                    return "ReferencedEnvelope.EVERYTHING";
-                }
-            };
+		public String toString() {
+			return "ReferencedEnvelope.EVERYTHING";
+		}
+	};
     /** Serial number for compatibility with different versions. */
     private static final long serialVersionUID = -3188702602373537163L;
 
@@ -158,7 +157,8 @@ public class ReferencedEnvelope extends Envelope  {
             final CoordinateSystem cs)
             throws MismatchedDimensionException {
         super(x1, x2, y1, y2);
-        this.coordsys = cs;
+        if( cs==null ) this.coordsys = CoordinateSystem.GEODETIC;
+        else this.coordsys = cs;
         checkCoordinateSystemDimension();
     }
 
@@ -174,12 +174,12 @@ public class ReferencedEnvelope extends Envelope  {
      * @throws MismatchedDimensionException if the CRS dimension is not valid.
      * @since 2.4
      */
-    public ReferencedEnvelope(final Rectangle rectangle, final CoordinateSystem crs) throws MismatchedDimensionException {
+    public ReferencedEnvelope(final Rectangle rectangle, final CoordinateSystem cs) throws MismatchedDimensionException {
         this(   rectangle.getMinX(),
                 rectangle.getMaxX(),
                 rectangle.getMinY(),
                 rectangle.getMaxY(),
-                crs);
+                cs);
     }
     public ReferencedEnvelope(final Rectangle rectangle ) {
         this(   rectangle.getMinX(),
@@ -188,12 +188,12 @@ public class ReferencedEnvelope extends Envelope  {
                 rectangle.getMaxY(),
                 null);
     }
-    public ReferencedEnvelope(final Rectangle2D rectangle,final CoordinateSystem crs ) {
+    public ReferencedEnvelope(final Rectangle2D rectangle,final CoordinateSystem cs ) {
         this(   rectangle.getMinX(),
                 rectangle.getMaxX(),
                 rectangle.getMinY(),
                 rectangle.getMaxY(),
-                crs);
+                cs);
     }
 
     /**
@@ -217,10 +217,10 @@ public class ReferencedEnvelope extends Envelope  {
      * @param crs The coordinate reference system.
      * @throws MismatchedDimensionExceptionif the CRS dimension is not valid.
      */
-    public ReferencedEnvelope(final Envelope envelope, final CoordinateSystem crs)
+    public ReferencedEnvelope(final Envelope envelope, final CoordinateSystem cs)
             throws MismatchedDimensionException {
         super(envelope);
-        this.coordsys = crs;
+        this.coordsys = cs;
         checkCoordinateSystemDimension();
     }
 

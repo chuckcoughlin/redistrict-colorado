@@ -121,7 +121,7 @@ public class GeodeticCalculator {
      *  
      */
     public GeodeticCalculator() {
-        this.coordinateSystem = CoordinateSystem.DEFAULT;  // Geodetic 2D
+        this.coordinateSystem = CoordinateSystem.GEODETIC;  // Geodetic 2D
         this.ellipsoid = Ellipsoid.DEFAULT;
         this.semiMajorAxis = ellipsoid.getSemiMajorAxis();
         this.flattening = 1 / ellipsoid.getInverseFlattening();
@@ -281,7 +281,7 @@ public class GeodeticCalculator {
      * @since 2.3
      */
     public DirectPosition getStartingPosition() {
-        DirectPosition position =  new DirectPosition(CoordinateSystem.DEFAULT);
+        DirectPosition position =  new DirectPosition(CoordinateSystem.GEODETIC);
         position.setOrdinate(0, long1);
         position.setOrdinate(1, lat1);
         return position;
@@ -370,7 +370,7 @@ public class GeodeticCalculator {
         if (!destinationValid) {
             computeDestinationPoint();
         }
-        DirectPosition position = new DirectPosition(CoordinateSystem.DEFAULT);
+        DirectPosition position = new DirectPosition(CoordinateSystem.GEODETIC);
         position.setOrdinate(0, long2);
         position.setOrdinate(1, lat2);
         return position;

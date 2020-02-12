@@ -29,6 +29,7 @@ import java.util.List;
 import org.geotools.geometry.DirectPosition;
 import org.geotools.geometry.util.ShapeUtilities;
 import org.geotools.referencing.GeodeticCalculator;
+import org.geotools.referencing.ReferencedEnvelope;
 import org.geotools.util.Utilities;
 import org.locationtech.jts.algorithm.Orientation;
 import org.locationtech.jts.awt.ShapeReader;
@@ -274,11 +275,11 @@ public final class JTS {
      * @throws TransformException If at least one coordinate can't be transformed.
      */
     public static ReferencedEnvelope toGeographic(final Envelope envelope, final CoordinateSystem crs) {
-        if(crs.equals(CoordinateSystem.DEFAULT)) {
+        if(crs.equals(CoordinateSystem.GEODETIC)) {
             if (envelope instanceof ReferencedEnvelope) {
                 return (ReferencedEnvelope)envelope;
             }
-            return ReferencedEnvelope.create(envelope, CoordinateSystem.DEFAULT);
+            return ReferencedEnvelope.create(envelope, CoordinateSystem.GEODETIC);
         }
         ReferencedEnvelope initial = ReferencedEnvelope.create(envelope, crs);
         return toGeographic(initial);
@@ -295,7 +296,7 @@ public final class JTS {
      * @return The envelope transformed to be in WGS84 CRS
      */
     public static ReferencedEnvelope toGeographic(final ReferencedEnvelope envelope) {
-        return toGeographic(envelope,CoordinateSystem.DEFAULT);
+        return toGeographic(envelope,CoordinateSystem.GEODETIC);
     }
     /**
      * Like a transform but eXtreme!

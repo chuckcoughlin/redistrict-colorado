@@ -23,16 +23,12 @@ public class RightSideController implements ChangeListener<LeftSelectionEvent> {
 	private final BasicRightSideNode[] nodes;
 	
 	private final EventBindingHub hub;
-	
-	
+
 	public RightSideController(BasicRightSideNode[] brnodes) {
 		this.hub = EventBindingHub.getInstance();
 		this.nodes = brnodes;
 		hub.addLeftSideSelectionListener(this);
 	}
-	
-
-
 
 	/**
 	 * Listen for changes to the selected layer based on our subscription to the hub.
@@ -52,7 +48,5 @@ public class RightSideController implements ChangeListener<LeftSelectionEvent> {
 				node.setVisible(false);
 			}
 		}
-		
-		
 	}
 }

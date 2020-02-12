@@ -56,7 +56,7 @@ public class CoordinateSystem  {
      * CoordinateSystemAxis#GEODETIC_LATITUDE geodetic latitude}</var> axis in decimal
      * degrees.
      */
-    public static CoordinateSystem DEFAULT =
+    public static CoordinateSystem GEODETIC =
             new CoordinateSystem("GEODETIC_2D",
                     CoordinateSystemAxis.GEODETIC_LONGITUDE,
                     CoordinateSystemAxis.GEODETIC_LATITUDE);

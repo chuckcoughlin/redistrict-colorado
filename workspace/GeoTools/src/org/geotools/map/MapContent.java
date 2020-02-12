@@ -16,19 +16,17 @@
  */
 package org.geotools.map;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+import java.io.IOException;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.referencing.ReferencedEnvelope;
+import org.opengis.referencing.operation.TransformException;
 import org.openjump.coordsys.CoordinateSystem;
 
 /**
@@ -58,14 +56,10 @@ public class MapContent {
 
     static final String UNDISPOSED_MAPCONTENT_ERROR = "Call MapContent dispose() to prevent memory leaks";
 
-    private final LayerList layerList;           /** Layers to be rendered */
-    private CopyOnWriteArrayList<MapLayerListListener> mapListeners;    
-    private HashMap<String, Object> userData;  /** Custom application-specific information */
+    private final LayerList layerList;        /** Layers to be rendered */
+    private final CopyOnWriteArrayList<MapLayerListListener> mapListeners;    
     private String title;
-
-    /** PropertyListener list used for notifications */
-    private CopyOnWriteArrayList<PropertyChangeListener> propertyListeners;
-
+    
     /**
      * Viewport for map rendering.
      *
@@ -73,15 +67,15 @@ public class MapContent {
      * you are free to maintain a separate viewport; or indeed construct many viewports representing
      * tiles to be rendered.
      */
-    protected MapViewport viewport;
-    private MapLayerListener layerListener;   /** Watch individual layers and report changes */
+    private MapViewport viewport;
     private final ReadWriteLock monitor;
 
     /** 
      * Creates a new map content. */
     public MapContent() {
-        layerList = new LayerList();
-        monitor = new ReentrantReadWriteLock();
+    	this.layerList = new LayerList();
+        this.monitor = new ReentrantReadWriteLock();
+        this.mapListeners = new CopyOnWriteArrayList<MapLayerListListener>();
     }
 
     /**
@@ -91,36 +85,15 @@ public class MapContent {
      * responsibility of your application and are not cleaned up by this method.
      */
     public void dispose() {
-        for (Layer layer : layerList) {
+        for (MapLayer layer : layerList) {
             if (layer != null) {
-                // Layer.dispose will inform listeners of the impending
-                // disposal, then remove listeners from this layer
-                layer.preDispose();
                 layer.dispose();
             }
         }
         layerList.clear();
 
-        if (this.mapListeners != null) {
-            this.mapListeners.clear();
-            this.mapListeners = null;
-        }
-
-        if (this.layerListener != null) {
-            this.layerListener = null;
-        }
-
-        if (this.propertyListeners != null) {
-            this.propertyListeners.clear();
-            this.propertyListeners = null;
-        }
-
+        this.mapListeners.clear();
         this.title = null;
-        if (this.userData != null) {
-            // remove property listeners prior to removing userData
-            this.userData.clear();
-            this.userData = null;
-        }
     }
 
     /**
@@ -132,92 +105,14 @@ public class MapContent {
     public void addMapLayerListListener(MapLayerListListener listener) {
         monitor.writeLock().lock();
         try {
-            if (mapListeners == null) {
-                mapListeners = new CopyOnWriteArrayList<MapLayerListListener>();
-            }
-            boolean added = mapListeners.addIfAbsent(listener);
-            if (added && mapListeners.size() == 1) {
-                listenToMapLayers(true);
-            }
-        } finally {
+            mapListeners.addIfAbsent(listener);
+        } 
+        finally {
             monitor.writeLock().unlock();
         }
     }
 
-    /**
-     * Listen to the map layers; passing any events on to our own mapListListeners.
-     *
-     * <p>This method only has an effect if we have any actuall mapListListeners.
-     *
-     * @param listen True to connect to all the layers and listen to events
-     */
-    protected void listenToMapLayers(boolean listen) {
-        monitor.writeLock().lock();
-        try {
-            if (mapListeners == null || mapListeners.isEmpty()) {
-                return; // not worth listening nobody is interested
-            }
-            if (layerListener == null) {
-                layerListener =
-                        new MapLayerListener() {
-
-                            @Override
-                            public void layerShown(MapLayerEvent event) {
-                                Layer layer = (Layer) event.getSource();
-                                int index = layerList.indexOf(layer);
-                                fireLayerEvent(layer, index, event);
-                            }
-
-                            @Override
-                            public void layerSelected(MapLayerEvent event) {
-                                Layer layer = (Layer) event.getSource();
-                                int index = layerList.indexOf(layer);
-                                fireLayerEvent(layer, index, event);
-                            }
-
-                            @Override
-                            public void layerHidden(MapLayerEvent event) {
-                                Layer layer = (Layer) event.getSource();
-                                int index = layerList.indexOf(layer);
-                                fireLayerEvent(layer, index, event);
-                            }
-
-                            @Override
-                            public void layerDeselected(MapLayerEvent event) {
-                                Layer layer = (Layer) event.getSource();
-                                int index = layerList.indexOf(layer);
-                                fireLayerEvent(layer, index, event);
-                            }
-
-                            @Override
-                            public void layerChanged(MapLayerEvent event) {
-                                Layer layer = (Layer) event.getSource();
-                                int index = layerList.indexOf(layer);
-                                fireLayerEvent(layer, index, event);
-                            }
-
-                            @Override
-                            public void layerPreDispose(MapLayerEvent event) {
-                                Layer layer = (Layer) event.getSource();
-                                int index = layerList.indexOf(layer);
-                                fireLayerEvent(layer, index, event);
-                            }
-                        };
-            }
-            if (listen) {
-                for (Layer layer : layerList) {
-                    layer.addMapLayerListener(layerListener);
-                }
-            } else {
-                for (Layer layer : layerList) {
-                    layer.removeMapLayerListener(layerListener);
-                }
-            }
-        } finally {
-            monitor.writeLock().unlock();
-        }
-    }
-
+ 
     /**
      * Remove interest in receiving {@link LayerListEvent}.
      *
@@ -226,9 +121,7 @@ public class MapContent {
     public void removeMapLayerListListener(MapLayerListListener listener) {
         monitor.writeLock().lock();
         try {
-            if (mapListeners != null) {
-                mapListeners.remove(listener);
-            }
+            mapListeners.remove(listener);
         } finally {
             monitor.writeLock().unlock();
         }
@@ -242,11 +135,12 @@ public class MapContent {
      * @param layer
      * @return true if the layer was added
      */
-    public boolean addLayer(Layer layer) {
+    public boolean addLayer(MapLayer layer) {
         monitor.writeLock().lock();
         try {
             return layerList.addIfAbsent(layer);
-        } finally {
+        } 
+        finally {
             monitor.writeLock().unlock();
         }
     }
@@ -257,7 +151,7 @@ public class MapContent {
      * @param layers layers to add (may be {@code null} or empty)
      * @return the number of layers added
      */
-    public int addLayers(Collection<? extends Layer> layers) {
+    public int addLayers(Collection<? extends MapLayer> layers) {
         monitor.writeLock().lock();
         try {
             if (layers == null || layers.isEmpty()) {
@@ -277,7 +171,7 @@ public class MapContent {
      * @param layer the layer to be removed
      * @return {@code true} if the layer was removed
      */
-    public boolean removeLayer(Layer layer) {
+    public boolean removeLayer(MapLayer layer) {
         monitor.writeLock().lock();
         try {
             return layerList.remove(layer);
@@ -319,7 +213,7 @@ public class MapContent {
      *
      * @return a "live" reference to the layer list for this map content
      */
-    public List<Layer> layers() {
+    public List<MapLayer> layers() {
         monitor.readLock().lock();
         try {
             return layerList;
@@ -328,7 +222,7 @@ public class MapContent {
         }
     }
 
-    protected void fireLayerAdded(Layer element, int fromIndex, int toIndex) {
+    protected void fireLayerAdded(MapLayer element, int fromIndex, int toIndex) {
         monitor.readLock().lock();
         try {
             if (mapListeners == null) {
@@ -354,7 +248,7 @@ public class MapContent {
         }
     }
 
-    protected void fireLayerRemoved(Layer element, int fromIndex, int toIndex) {
+    protected void fireLayerRemoved(MapLayer element, int fromIndex, int toIndex) {
         monitor.readLock().lock();
         try {
             if (mapListeners == null) {
@@ -380,7 +274,7 @@ public class MapContent {
         }
     }
 
-    protected void fireLayerMoved(Layer element, int toIndex) {
+    protected void fireLayerMoved(MapLayer element, int toIndex) {
         monitor.readLock().lock();
         try {
             if (mapListeners == null) {
@@ -406,65 +300,9 @@ public class MapContent {
         }
     }
 
-    protected void fireLayerPreDispose(Layer element, int toIndex) {
-        monitor.readLock().lock();
-        try {
-            if (mapListeners == null) {
-                return;
-            }
-            MapLayerListEvent event = new MapLayerListEvent(this, element, toIndex);
-            for (MapLayerListListener mapLayerListListener : mapListeners) {
-                try {
-                    mapLayerListListener.layerPreDispose(event);
-                } catch (Throwable t) {
-                    if (LOGGER.isLoggable(Level.FINER)) {
-                        LOGGER.logp(
-                                Level.FINE,
-                                mapLayerListListener.getClass().getName(),
-                                "layerMoved",
-                                t.getLocalizedMessage(),
-                                t);
-                    }
-                }
-            }
-        } finally {
-            monitor.readLock().unlock();
-        }
-    }
+   
 
-    protected void fireLayerEvent(Layer element, int index, MapLayerEvent layerEvent) {
-        monitor.readLock().lock();
-        try {
-            if (mapListeners == null) {
-                return;
-            }
-            MapLayerListEvent mapEvent = new MapLayerListEvent(this, element, index, layerEvent);
-            for (MapLayerListListener mapLayerListListener : mapListeners) {
-                try {
-                    switch (layerEvent.getReason()) {
-                        case MapLayerEvent.PRE_DISPOSE:
-                            mapLayerListListener.layerPreDispose(mapEvent);
-                            break;
-
-                        default:
-                            mapLayerListListener.layerChanged(mapEvent);
-                    }
-                } catch (Throwable t) {
-                    if (LOGGER.isLoggable(Level.FINER)) {
-                        LOGGER.logp(
-                                Level.FINE,
-                                mapLayerListListener.getClass().getName(),
-                                "layerAdded",
-                                t.getLocalizedMessage(),
-                                t);
-                    }
-                }
-            }
-        } finally {
-            monitor.readLock().unlock();
-        }
-    }
-
+    
     /**
      * Get the bounding box of all the layers in this Map. If all the layers cannot determine the
      * bounding box in the speed required for each layer, then null is returned. We assume that the
@@ -483,7 +321,7 @@ public class MapContent {
             }
             ReferencedEnvelope maxBounds = null;
 
-            for (Layer layer : layerList) {
+            for (MapLayer layer : layerList) {
                 if (layer == null) {
                     continue;
                 }
@@ -644,96 +482,6 @@ public class MapContent {
         }
     }
 
-    //
-    // Properties
-    //
-    /**
-     * Registers PropertyChangeListener to receive events.
-     *
-     * @param listener The listener to register.
-     */
-    public void addPropertyChangeListener(java.beans.PropertyChangeListener listener) {
-        monitor.writeLock().lock();
-        try {
-            if (propertyListeners == null) {
-                propertyListeners = new CopyOnWriteArrayList<java.beans.PropertyChangeListener>();
-            }
-            if (!propertyListeners.contains(listener)) {
-                propertyListeners.add(listener);
-            }
-
-        } finally {
-            monitor.writeLock().unlock();
-        }
-    }
-
-    /**
-     * Removes PropertyChangeListener from the list of listeners.
-     *
-     * @param listener The listener to remove.
-     */
-    public void removePropertyChangeListener(java.beans.PropertyChangeListener listener) {
-        monitor.writeLock().lock();
-        try {
-            if (propertyListeners != null) {
-                propertyListeners.remove(listener);
-            }
-
-        } finally {
-            monitor.writeLock().unlock();
-        }
-    }
-
-    /**
-     * As an example it can be used to record contact details, map abstract, keywords and so forth
-     * for an OGC "Open Web Service Context" document.
-     *
-     * <p>Modifications to the userData will result in a propertyChange event.
-     *
-     * @return
-     */
-    public Map<String, Object> getUserData() {
-        monitor.writeLock().lock();
-        try {
-            if (userData == null) {
-                userData =
-                        new HashMap<String, Object>() {
-                            private static final long serialVersionUID = 8011733882551971475L;
-
-                            @Override
-                            public Object put(String key, Object value) {
-                                Object old = super.put(key, value);
-                                fireProperty(key, old, value);
-                                return old;
-                            }
-
-                            @Override
-                            public Object remove(Object key) {
-                                Object old = super.remove(key);
-                                fireProperty((String) key, old, null);
-                                return old;
-                            }
-
-                            @Override
-                            public void putAll(
-                                    java.util.Map<? extends String, ? extends Object> m) {
-                                super.putAll(m);
-                                fireProperty("userData", null, null);
-                            }
-
-                            @Override
-                            public void clear() {
-                                super.clear();
-                                fireProperty("userData", null, null);
-                            }
-                        };
-            }
-            return this.userData;
-        } finally {
-            monitor.writeLock().unlock();
-        }
-    }
-
     /**
      * Get the title, returns an empty string if it has not been set yet.
      *
@@ -758,37 +506,9 @@ public class MapContent {
         try {
             String old = this.title;
             this.title = title;
-            fireProperty("title", old, title);
 
         } finally {
             monitor.writeLock().unlock();
-        }
-    }
-
-    protected void fireProperty(String propertyName, Object old, Object value) {
-        monitor.readLock().lock();
-        try {
-            if (propertyListeners == null) {
-                return;
-            }
-            PropertyChangeEvent event = new PropertyChangeEvent(this, "propertyName", old, value);
-            for (PropertyChangeListener propertyChangeListener : propertyListeners) {
-                try {
-                    propertyChangeListener.propertyChange(event);
-                } catch (Throwable t) {
-                    if (LOGGER.isLoggable(Level.FINER)) {
-                        LOGGER.logp(
-                                Level.FINE,
-                                propertyChangeListener.getClass().getName(),
-                                "propertyChange",
-                                t.getLocalizedMessage(),
-                                t);
-                    }
-                }
-            }
-
-        } finally {
-            monitor.readLock().unlock();
         }
     }
 
@@ -800,7 +520,7 @@ public class MapContent {
     private void checkViewportCRS() {
         if (viewport != null && getCoordinateSystem() == null && viewport.isEditable()) {
 
-            for (Layer layer : layerList) {
+            for (MapLayer layer : layerList) {
                 ReferencedEnvelope bounds = layer.getBounds();
                 if (bounds != null) {
                     CoordinateSystem crs = bounds.getCoordinateSystem();
@@ -813,7 +533,7 @@ public class MapContent {
         }
     }
 
-    private class LayerList extends CopyOnWriteArrayList<Layer> {
+    private class LayerList extends CopyOnWriteArrayList<MapLayer> {
 
         private static final long serialVersionUID = 8011733882551971475L;
 
@@ -825,12 +545,9 @@ public class MapContent {
          * @param element the layer to add
          */
         @Override
-        public void add(int index, Layer element) {
+        public void add(int index, MapLayer element) {
             if (!contains(element)) {
                 super.add(index, element);
-                if (layerListener != null) {
-                    element.addMapLayerListener(layerListener);
-                }
                 checkViewportCRS();
                 fireLayerAdded(element, index, index);
             }
@@ -845,7 +562,7 @@ public class MapContent {
          *     this list
          */
         @Override
-        public boolean add(Layer element) {
+        public boolean add(MapLayer element) {
             return addIfAbsent(element);
         }
 
@@ -857,7 +574,7 @@ public class MapContent {
          * @return {@code true} is any layers were added; {@code false} otherwise
          */
         @Override
-        public boolean addAll(Collection<? extends Layer> layers) {
+        public boolean addAll(Collection<? extends MapLayer> layers) {
             return addAllAbsent(layers) > 0;
         }
 
@@ -870,16 +587,13 @@ public class MapContent {
          * @return {@code true} if any layers were added; {@code false} otherwise
          */
         @Override
-        public boolean addAll(int index, Collection<? extends Layer> layers) {
+        public boolean addAll(int index, Collection<? extends MapLayer> layers) {
             boolean added = false;
             int pos = index;
 
-            for (Layer layer : layers) {
+            for (MapLayer layer : layers) {
                 if (!contains(layer)) {
                     add(pos, layer);
-                    if (layerListener != null) {
-                        layer.addMapLayerListener(layerListener);
-                    }
                     added = true;
                     pos++;
                 }
@@ -900,15 +614,10 @@ public class MapContent {
          * @return the number of layers added
          */
         @Override
-        public int addAllAbsent(Collection<? extends Layer> layers) {
+        public int addAllAbsent(Collection<? extends MapLayer> layers) {
             int start = size();
             int added = super.addAllAbsent(layers);
             if (added > 0) {
-                if (layerListener != null) {
-                    for (int i = start; i < size(); i++) {
-                        get(i).addMapLayerListener(layerListener);
-                    }
-                }
                 checkViewportCRS();
                 fireLayerAdded(null, start, size() - 1);
             }
@@ -924,12 +633,9 @@ public class MapContent {
          *     this list
          */
         @Override
-        public boolean addIfAbsent(Layer element) {
+        public boolean addIfAbsent(MapLayer element) {
             boolean added = super.addIfAbsent(element);
             if (added) {
-                if (layerListener != null) {
-                    element.addMapLayerListener(layerListener);
-                }
                 checkViewportCRS();
                 fireLayerAdded(element, size() - 1, size() - 1);
             }
@@ -939,10 +645,7 @@ public class MapContent {
         /** Removes all layers from this list and calls their {@code dispose} methods. */
         @Override
         public void clear() {
-            for (Layer element : this) {
-                if (layerListener != null) {
-                    element.removeMapLayerListener(layerListener);
-                }
+            for (MapLayer element : this) {
                 element.dispose();
             }
             super.clear();
@@ -958,12 +661,9 @@ public class MapContent {
          * @return the layer that was removed (will have been disposed)
          */
         @Override
-        public Layer remove(int index) {
-            Layer removed = super.remove(index);
+        public MapLayer remove(int index) {
+            MapLayer removed = super.remove(index);
             fireLayerRemoved(removed, index, index);
-            if (layerListener != null) {
-                removed.removeMapLayerListener(layerListener);
-            }
             removed.dispose();
             return removed;
         }
@@ -980,12 +680,9 @@ public class MapContent {
         public boolean remove(Object element) {
             boolean removed = super.remove(element);
             if (removed) {
-                fireLayerRemoved((Layer) element, -1, -1);
-                if (element instanceof Layer) {
-                    Layer layer = (Layer) element;
-                    if (layerListener != null) {
-                        layer.removeMapLayerListener(layerListener);
-                    }
+                fireLayerRemoved((MapLayer) element, -1, -1);
+                if (element instanceof MapLayer) {
+                    MapLayer layer = (MapLayer) element;
                     layer.dispose();
                 }
             }
@@ -1001,12 +698,9 @@ public class MapContent {
         @Override
         public boolean removeAll(Collection<?> layers) {
             for (Object obj : layers) {
-                Layer element = (Layer) obj;
+                MapLayer element = (MapLayer) obj;
                 if (!contains(element)) {
                     continue;
-                }
-                if (layerListener != null) {
-                    element.removeMapLayerListener(layerListener);
                 }
                 element.dispose();
             }
@@ -1023,11 +717,8 @@ public class MapContent {
          */
         @Override
         public boolean retainAll(Collection<?> layers) {
-            for (Layer element : this) {
+            for (MapLayer element : this) {
                 if (!layers.contains(element)) {
-                    if (layerListener != null) {
-                        element.removeMapLayerListener(layerListener);
-                    }
                     element.dispose();
                 }
             }
@@ -1054,13 +745,13 @@ public class MapContent {
          * @return the layer that was replaced
          */
         @Override
-        public Layer set(int index, Layer element) {
+        public MapLayer set(int index, MapLayer element) {
             /*
              * Note: rather than calling the superclass set method here
              * we call remove followed by add to ensure correct event
              * and listener handling.
              */
-            Layer removed = remove(index);
+            MapLayer removed = remove(index);
             add(index, element);
             checkViewportCRS();
             return removed;
@@ -1073,7 +764,7 @@ public class MapContent {
          * @param destPosition new position of the layer
          */
         private void move(int sourcePosition, int destPosition) {
-            Layer layer = super.remove(sourcePosition);
+            MapLayer layer = super.remove(sourcePosition);
             super.add(destPosition, layer);
             fireLayerMoved(layer, destPosition);
         }

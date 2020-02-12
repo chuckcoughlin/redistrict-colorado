@@ -19,7 +19,7 @@ package org.geotools.map;
 import java.util.EnumSet;
 import java.util.EventObject;
 
-import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.referencing.ReferencedEnvelope;
 import org.openjump.coordsys.CoordinateSystem;
 
 /**

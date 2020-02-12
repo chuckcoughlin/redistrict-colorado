@@ -71,14 +71,6 @@ public class StyledShapePainter {
             Boolean.parseBoolean(
                     System.getProperty("org.geotools.renderer.lite.roundIconCoords", "true"));
 
-    /**
-     * Whether to apply the new vector hatch fill optimization, or not (on by default, this is just
-     * a safeguard)
-     */
-    public static boolean OPTIMIZE_VECTOR_HATCH_FILLS =
-            Boolean.parseBoolean(
-                    System.getProperty(
-                            "org.geotools.renderer.lite.optimizeVectorHatchFills", "true"));
 
     public StyledShapePainter() {
         // nothing do do, just needs to exist
@@ -844,26 +836,6 @@ public class StyledShapePainter {
             double scaleFactor = size;
             if (boundsFill.getHeight() > 0) {
                 scaleFactor = size / boundsFill.getHeight();
-            }
-            if (OPTIMIZE_VECTOR_HATCH_FILLS) {
-                final Shape rescaledStipple =
-                        AffineTransform.getScaleInstance(scaleFactor, scaleFactor)
-                                .createTransformedShape(markShape);
-                /*
-                ParallelLinesFiller filler = ParallelLinesFiller.fromStipple(rescaledStipple);
-                if (filler != null) {
-                    Graphics2D clippedGraphics = (Graphics2D) graphics.create();
-                    // adds the provided shape to the Graphics current clip region
-                    clippedGraphics.clip(shape);
-                    LineStyle2D lineStyle = new LineStyle2D();
-                    lineStyle.setStroke(ms2d.getStroke());
-                    lineStyle.setContour(ms2d.getContour());
-                    lineStyle.setContourComposite(ms2d.getContourComposite());
-                    lineStyle.setGraphicStroke(ms2d.getGraphicStroke());
-                    filler.fillRectangle(shape.getBounds2D(), this, clippedGraphics, lineStyle);
-                    return;
-                }
-                */
             }
         } 
         else if (graphicFill instanceof IconStyle2D) {

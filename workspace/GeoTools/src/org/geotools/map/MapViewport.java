@@ -28,8 +28,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.MapBoundsEvent.Type;
+import org.geotools.referencing.ReferencedEnvelope;
 import org.openjump.coordsys.CoordinateSystem;
 
 /**

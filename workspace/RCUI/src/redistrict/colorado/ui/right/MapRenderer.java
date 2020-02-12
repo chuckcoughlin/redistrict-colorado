@@ -9,7 +9,7 @@ import java.awt.Color;
 import java.awt.Rectangle;
 import java.util.logging.Logger;
 
-import org.geotools.map.FeatureLayer;
+import org.geotools.map.MapLayer;
 import org.geotools.map.MapContent;
 import org.geotools.renderer.shape.ShapefileRenderer;
 import org.geotools.styling.SLD;
@@ -25,18 +25,18 @@ import redistrict.colorado.core.LayerModel;
 import redistrict.colorado.db.Database;
 
 /**
- * Render a shapefile referenced by a model
+ * Render a shapefile referenced by a model as a display layer.
  */
-	public class LayerMap  {
-		private final static String CLSS = "LayerCanvas";
+	public class MapRenderer  {
+		private final static String CLSS = "MapRenderer";
 		private static Logger LOGGER = Logger.getLogger(CLSS);
 		private LayerModel model = null;
 		
 		private Canvas canvas;
-		private MapContent map;
+		private MapContent content;
 		private GraphicsContext gc;
 
-		public LayerMap(LayerModel mdl,double width, double height) {
+		public MapRenderer(LayerModel mdl,double width, double height) {
 			setModel(mdl);
 			canvas = new Canvas(width, height);
 			gc = canvas.getGraphicsContext2D();
@@ -49,22 +49,21 @@ import redistrict.colorado.db.Database;
 		}
 
 		private void initMap() {
-			map = new MapContent();
-			map.setTitle(model.getName());
+			content = new MapContent();
+			content.setTitle(model.getName());
 			// Outline, fill, alpha
 			Style style = SLD.createPolygonStyle(Color.BLUE,Color.LIGHT_GRAY,1.0f);
-			FeatureLayer layer = new FeatureLayer(model.getFeatures(), style);
-			map.addLayer(layer);
-			map.getViewport().setScreenArea(new Rectangle((int) canvas.getWidth(), (int) canvas.getHeight()));
+			MapLayer layer = new MapLayer(model.getFeatures(), style);
+			content.addLayer(layer);
+			content.getViewport().setScreenArea(new Rectangle((int) canvas.getWidth(), (int) canvas.getHeight()));
 		}
 
 		private void drawMap(GraphicsContext gc) {
 			ShapefileRenderer renderer = new ShapefileRenderer();
-			renderer.setMapContent(map);
+			renderer.setMapContent(content);
 			FXGraphics2D graphics = new FXGraphics2D(gc);
 			graphics.setBackground(java.awt.Color.WHITE);
-			Rectangle rectangle = new Rectangle((int) canvas.getWidth(), (int) canvas.getHeight());
-			renderer.paint(graphics, rectangle, map.getViewport().getBounds());
+			renderer.paint(graphics, content.getViewport().getScreenArea(), content.getViewport().getBounds());
 		}
 		
 		/**
