@@ -45,7 +45,7 @@ public class Graphic implements Cloneable {
     private double opacity = 0.;
 
     /** Creates a new instance of DefaultGraphic */
-    protected Graphic() {
+    public Graphic() {
     }
 
     public Graphic( AnchorPoint anchor, double gap, double initialGap) {

@@ -38,13 +38,13 @@ import javax.swing.Icon;
 
 import org.geotools.geometry.jts.Decimator;
 import org.geotools.geometry.jts.FeatureShape;
-import org.geotools.renderer.style.GraphicStyle2D;
-import org.geotools.renderer.style.IconStyle2D;
-import org.geotools.renderer.style.LineStyle2D;
-import org.geotools.renderer.style.MarkStyle2D;
-import org.geotools.renderer.style.PointStyle2D;
-import org.geotools.renderer.style.PolygonStyle2D;
-import org.geotools.renderer.style.Style2D;
+import org.geotools.renderer.style.GraphicStyle;
+import org.geotools.renderer.style.IconStyle;
+import org.geotools.renderer.style.LineStyle;
+import org.geotools.renderer.style.MarkStyle;
+import org.geotools.renderer.style.PointStyle;
+import org.geotools.renderer.style.PolygonStyle;
+import org.geotools.renderer.style.Style;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -79,7 +79,7 @@ public class StyledShapePainter {
     public void paint(
             final Graphics2D graphics,
             final FeatureShape shape,
-            final Style2D style,
+            final Style style,
             final double scale) {
         paint(graphics, shape, style, scale, false);
     }
@@ -98,7 +98,7 @@ public class StyledShapePainter {
     public void paint(
             final Graphics2D graphics,
             final FeatureShape shape,
-            final Style2D style,
+            final Style style,
             final double scale,
             boolean isLabelObstacle) {
         if (style == null) {
@@ -113,10 +113,10 @@ public class StyledShapePainter {
             return;
         }
 
-        if (style instanceof IconStyle2D) {
+        if (style instanceof IconStyle) {
             AffineTransform temp = graphics.getTransform();
             try {
-                IconStyle2D icoStyle = (IconStyle2D) style;
+                IconStyle icoStyle = (IconStyle) style;
                 Icon icon = icoStyle.getIcon();
                 graphics.setComposite(icoStyle.getComposite());
 
@@ -150,12 +150,12 @@ public class StyledShapePainter {
             } finally {
                 graphics.setTransform(temp);
             }
-        } else if (style instanceof MarkStyle2D) {
+        } else if (style instanceof MarkStyle) {
             PathIterator citer = getPathIterator(shape);
 
             // get the point onto the shape has to be painted
             float[] coords = new float[2];
-            MarkStyle2D ms2d = (MarkStyle2D) style;
+            MarkStyle ms2d = (MarkStyle) style;
 
             Shape transformedShape;
             while (!(citer.isDone())) {
@@ -179,12 +179,12 @@ public class StyledShapePainter {
                 citer.next();
             }
         } 
-        else if (style instanceof GraphicStyle2D) {
+        else if (style instanceof GraphicStyle) {
             float[] coords = new float[2];
             PathIterator iter = getPathIterator(shape);
             iter.currentSegment(coords);
 
-            GraphicStyle2D gs2d = (GraphicStyle2D) style;
+            GraphicStyle gs2d = (GraphicStyle) style;
 
             BufferedImage image = gs2d.getImage();
             double dx = gs2d.getDisplacementX() - gs2d.getAnchorPointX() * image.getWidth();
@@ -209,9 +209,9 @@ public class StyledShapePainter {
         else {
             // if the style is a polygon one, process it even if the polyline is
             // not closed (by SLD specification)
-            if (style instanceof PolygonStyle2D
-                    && !optimizeOutFill((PolygonStyle2D) style, shape)) {
-                PolygonStyle2D ps2d = (PolygonStyle2D) style;
+            if (style instanceof PolygonStyle
+                    && !optimizeOutFill((PolygonStyle) style, shape)) {
+                PolygonStyle ps2d = (PolygonStyle) style;
 
                 if (ps2d.getFill() != null) {
                     Paint paint = ps2d.getFill();
@@ -255,8 +255,8 @@ public class StyledShapePainter {
                 }
             }
 
-            if (style instanceof LineStyle2D) {
-                LineStyle2D ls2d = (LineStyle2D) style;
+            if (style instanceof LineStyle) {
+                LineStyle ls2d = (LineStyle) style;
                 paintLineStyle(graphics, shape, ls2d, isLabelObstacle, 0.5f);
             }
         }
@@ -271,7 +271,7 @@ public class StyledShapePainter {
      * @param shape
      * @return
      */
-    private boolean optimizeOutFill(PolygonStyle2D style, FeatureShape shape) {
+    private boolean optimizeOutFill(PolygonStyle style, FeatureShape shape) {
         // if we have a graphic stroke the outline might not be solid, so, not covering
         if (style.getGraphicStroke() != null) {
             return false;
@@ -305,7 +305,7 @@ public class StyledShapePainter {
     void paintLineStyle(
             final Graphics2D graphics,
             final FeatureShape shape,
-            final LineStyle2D ls2d,
+            final LineStyle ls2d,
             boolean isLabelObstacle,
             float strokeWidthAdjustment) {
 
@@ -499,7 +499,7 @@ public class StyledShapePainter {
 
     // draws the image along the path
     private void drawWithGraphicsStroke(
-            Graphics2D graphics, Shape shape, Style2D graphicStroke, boolean isLabelObstacle) {
+            Graphics2D graphics, Shape shape, Style graphicStroke, boolean isLabelObstacle) {
         PathIterator pi = shape.getPathIterator(null);
         double[] coords = new double[4];
         int type;
@@ -507,18 +507,18 @@ public class StyledShapePainter {
         // I suppose the image has been already scaled and its square
         double imageSize;
         double graphicRotation = 0; // rotation in radians
-        if (graphicStroke instanceof MarkStyle2D) {
-            imageSize = ((MarkStyle2D) graphicStroke).getSize();
-            graphicRotation = ((MarkStyle2D) graphicStroke).getRotation();
-        } else if (graphicStroke instanceof IconStyle2D) {
-            imageSize = ((IconStyle2D) graphicStroke).getIcon().getIconWidth();
-            graphicRotation = ((IconStyle2D) graphicStroke).getRotation();
+        if (graphicStroke instanceof MarkStyle) {
+            imageSize = ((MarkStyle) graphicStroke).getSize();
+            graphicRotation = ((MarkStyle) graphicStroke).getRotation();
+        } else if (graphicStroke instanceof IconStyle) {
+            imageSize = ((IconStyle) graphicStroke).getIcon().getIconWidth();
+            graphicRotation = ((IconStyle) graphicStroke).getRotation();
         } else {
-            GraphicStyle2D gs = (GraphicStyle2D) graphicStroke;
+            GraphicStyle gs = (GraphicStyle) graphicStroke;
             imageSize = gs.getImage().getWidth() - gs.getBorder();
-            graphicRotation = ((GraphicStyle2D) graphicStroke).getRotation();
+            graphicRotation = ((GraphicStyle) graphicStroke).getRotation();
         }
-        Composite composite = ((PointStyle2D) graphicStroke).getComposite();
+        Composite composite = ((PointStyle) graphicStroke).getComposite();
         if (composite == null) {
             composite = AlphaComposite.SrcOver;
         }
@@ -718,7 +718,7 @@ public class StyledShapePainter {
             Graphics2D graphics,
             double x,
             double y,
-            Style2D style,
+            Style style,
             double rotation,
             double graphicRotation,
             Composite composite,
@@ -729,16 +729,16 @@ public class StyledShapePainter {
 
         graphics.setComposite(composite);
 
-        if (style instanceof GraphicStyle2D) {
-            GraphicStyle2D gstyle = (GraphicStyle2D) style;
+        if (style instanceof GraphicStyle) {
+            GraphicStyle gstyle = (GraphicStyle) style;
             BufferedImage image = gstyle.getImage();
             double dx = -image.getWidth() * gstyle.getAnchorPointX() + gstyle.getDisplacementX();
             double dy = -image.getHeight() * gstyle.getAnchorPointY() + gstyle.getDisplacementY();
             renderImage(graphics, x, y, dx, dy, image, rotation, composite, isLabelObstacle);
-        } else if (style instanceof MarkStyle2D) {
+        } else if (style instanceof MarkStyle) {
             // almost like the code in the main paint method, but
             // here we don't use the mark composite
-            MarkStyle2D ms2d = (MarkStyle2D) style;
+            MarkStyle ms2d = (MarkStyle) style;
             Shape transformedShape =
                     ms2d.getTransformedShape(
                             (float) x, (float) y, (float) rotation, (float) graphicRotation);
@@ -755,8 +755,8 @@ public class StyledShapePainter {
                 }
             }
         } 
-        else if (style instanceof IconStyle2D) {
-            IconStyle2D icons = (IconStyle2D) style;
+        else if (style instanceof IconStyle) {
+            IconStyle icons = (IconStyle) style;
             Icon icon = icons.getIcon();
 
             AffineTransform markAT = new AffineTransform(graphics.getTransform());
@@ -816,14 +816,14 @@ public class StyledShapePainter {
      * @throws FactoryException
      */
     protected void paintGraphicFill(
-            Graphics2D graphics, Shape shape, Style2D graphicFill, double scale) {
+            Graphics2D graphics, Shape shape, Style graphicFill, double scale) {
         // retrieves the bounds of the provided shape
         Rectangle2D boundsShape = shape.getBounds2D();
 
         // retrieves the size of the stipple to be painted based on the provided graphic fill
         Rectangle2D stippleSize = null;
-        if (graphicFill instanceof MarkStyle2D) {
-            final MarkStyle2D ms2d = (MarkStyle2D) graphicFill;
+        if (graphicFill instanceof MarkStyle) {
+            final MarkStyle ms2d = (MarkStyle) graphicFill;
             final Shape markShape = ms2d.getShape();
             double size = ms2d.getSize();
             Rectangle2D boundsFill = markShape.getBounds2D();
@@ -838,12 +838,12 @@ public class StyledShapePainter {
                 scaleFactor = size / boundsFill.getHeight();
             }
         } 
-        else if (graphicFill instanceof IconStyle2D) {
-            Icon icon = ((IconStyle2D) graphicFill).getIcon();
+        else if (graphicFill instanceof IconStyle) {
+            Icon icon = ((IconStyle) graphicFill).getIcon();
             stippleSize = new Rectangle2D.Double(0, 0, icon.getIconWidth(), icon.getIconHeight());
         } 
-        else if (graphicFill instanceof GraphicStyle2D) {
-            BufferedImage image = ((GraphicStyle2D) graphicFill).getImage();
+        else if (graphicFill instanceof GraphicStyle) {
+            BufferedImage image = ((GraphicStyle) graphicFill).getImage();
             stippleSize = new Rectangle2D.Double(0, 0, image.getWidth(), image.getHeight());
         } 
         else {

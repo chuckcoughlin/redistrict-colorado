@@ -27,9 +27,9 @@ import java.awt.Paint;
  * @author Andrea Aime
  * @version $Id$
  */
-public class PolygonStyle2D extends LineStyle2D {
+public class PolygonStyle extends LineStyle {
     protected Paint fill;
-    protected Style2D graphicFill;
+    protected Style graphicFill;
     protected Composite fillComposite;
 
     /**
@@ -38,7 +38,7 @@ public class PolygonStyle2D extends LineStyle2D {
      *
      * @return the current fill or null if none
      */
-    public Style2D getGraphicFill() {
+    public Style getGraphicFill() {
         return graphicFill;
     }
 
@@ -48,7 +48,7 @@ public class PolygonStyle2D extends LineStyle2D {
      *
      * @param graphicFill
      */
-    public void setGraphicFill(Style2D graphicFill) {
+    public void setGraphicFill(Style graphicFill) {
         this.graphicFill = graphicFill;
     }
 

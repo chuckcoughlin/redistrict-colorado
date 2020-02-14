@@ -37,7 +37,7 @@ public class PolygonSymbolizer extends BasicSymbolizer implements Cloneable {
     private Stroke stroke = new Stroke();
 
     /** Creates a new instance of DefaultPolygonStyler */
-    protected PolygonSymbolizer() {
+    public PolygonSymbolizer() {
     }
 
     protected PolygonSymbolizer(

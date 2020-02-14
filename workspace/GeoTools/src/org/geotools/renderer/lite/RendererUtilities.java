@@ -32,11 +32,11 @@ import org.geotools.geometry.DirectPosition;
 import org.geotools.map.GridToEnvelopeMapper;
 import org.geotools.referencing.GeodeticCalculator;
 import org.geotools.referencing.ReferencedEnvelope;
-import org.geotools.renderer.style.GraphicStyle2D;
-import org.geotools.renderer.style.IconStyle2D;
-import org.geotools.renderer.style.LineStyle2D;
-import org.geotools.renderer.style.MarkStyle2D;
-import org.geotools.renderer.style.Style2D;
+import org.geotools.renderer.style.GraphicStyle;
+import org.geotools.renderer.style.IconStyle;
+import org.geotools.renderer.style.LineStyle;
+import org.geotools.renderer.style.MarkStyle;
+import org.geotools.renderer.style.Style;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
@@ -505,18 +505,18 @@ public final class RendererUtilities {
         return p;
     }
 
-    public static double getStyle2DSize(Style2D style) {
-        if (style instanceof GraphicStyle2D) {
-            final BufferedImage image = ((GraphicStyle2D) style).getImage();
+    public static double getStyleSize(Style style) {
+        if (style instanceof GraphicStyle) {
+            final BufferedImage image = ((GraphicStyle) style).getImage();
             return maxSize(image.getWidth(), image.getHeight());
         } 
-        else if (style instanceof IconStyle2D) {
-            final Icon icon = ((IconStyle2D) style).getIcon();
+        else if (style instanceof IconStyle) {
+            final Icon icon = ((IconStyle) style).getIcon();
             return maxSize(icon.getIconWidth(), icon.getIconHeight());
         } 
-        else if (style instanceof LineStyle2D) {
-            LineStyle2D ls = ((LineStyle2D) style);
-            double gsSize = getStyle2DSize(ls.getGraphicStroke());
+        else if (style instanceof LineStyle) {
+            LineStyle ls = ((LineStyle) style);
+            double gsSize = getStyleSize(ls.getGraphicStroke());
             double strokeSize = 0;
             if (ls.getStroke() instanceof BasicStroke) {
                 strokeSize = ((BasicStroke) ls.getStroke()).getLineWidth();
@@ -524,8 +524,8 @@ public final class RendererUtilities {
             double offset = ls.getPerpendicularOffset();
             double lineSize = maxSize(maxSize(gsSize, strokeSize), offset);
             // a MarkStyle2D is also a LineStyle2D, but we have to account for the symbol size
-            if (style instanceof MarkStyle2D) {
-                MarkStyle2D mark = (MarkStyle2D) style;
+            if (style instanceof MarkStyle) {
+                MarkStyle mark = (MarkStyle) style;
                 return mark.getSize() + lineSize;
             } else {
                 return lineSize;

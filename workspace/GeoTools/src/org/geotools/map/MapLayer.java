@@ -19,8 +19,7 @@ package org.geotools.map;
 import java.util.logging.Logger;
 
 import org.geotools.referencing.ReferencedEnvelope;
-import org.geotools.renderer.style.Style2D;
-import org.geotools.styling.Style;
+import org.geotools.renderer.style.Style;
 import org.locationtech.jts.geom.Envelope;
 import org.openjump.coordsys.CoordinateSystem;
 import org.openjump.feature.FeatureCollection;
@@ -43,7 +42,7 @@ public class MapLayer {
 	
 	private final FeatureCollection collection;
 	private boolean selected = true;
-    private Style2D style;
+    private Style style;
     private String title;
     private boolean visible = true;   //Flag to mark the layer as visible when being rendered
     
@@ -53,11 +52,11 @@ public class MapLayer {
      * @param features the collection of features for this layer
      * @param style the style used to represent this layer
      */
-    public MapLayer(FeatureCollection features, Style2D style) {
+    public MapLayer(FeatureCollection features, Style style) {
         this(features,style,"");
     }
 
-    public MapLayer(FeatureCollection features, Style2D style, String title) {
+    public MapLayer(FeatureCollection features, Style style, String title) {
         this.collection = features;
         this.style = style;
         this.title = title;
@@ -93,13 +92,13 @@ public class MapLayer {
     /**
      * Get the style for this layer.
      */
-    public Style2D getStyle() {return style; }
+    public Style getStyle() {return style; }
 
     /**
      * Sets the style for this layer.
      * @param style The new style
      */
-    public void setStyle(Style2D style) {
+    public void setStyle(Style style) {
         if (style == null) {
             throw new NullPointerException("Style is required");
         }

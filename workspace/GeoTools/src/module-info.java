@@ -13,6 +13,7 @@ module org.geotools {
 	exports org.geotools.data.shapefile;
 	exports org.geotools.map;
 	exports org.geotools.renderer.shape;
+	exports org.geotools.renderer.style;
 	exports org.geotools.referencing;
 	exports org.geotools.styling;
 	exports org.openjump.coordsys;

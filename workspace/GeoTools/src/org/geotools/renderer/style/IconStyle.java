@@ -24,7 +24,7 @@ import javax.swing.Icon;
  *
  * @author milton
  */
-public class IconStyle2D extends Style2D implements PointStyle2D {
+public class IconStyle extends Style implements PointStyle {
     private Icon icon;
 
     private float rotation;
@@ -39,7 +39,7 @@ public class IconStyle2D extends Style2D implements PointStyle2D {
 
     private float anchorPointY = 0.5f;
 
-    public IconStyle2D(
+    public IconStyle(
             Icon icon, Object feature, float displacementX, float displacementY, float rotation) {
         this.icon = icon;
         this.rotation = rotation;
@@ -47,7 +47,7 @@ public class IconStyle2D extends Style2D implements PointStyle2D {
         this.displacementY = displacementY;
     }
 
-    public IconStyle2D(Icon icon, Object feature) {
+    public IconStyle(Icon icon, Object feature) {
         this.icon = icon;
     }
 

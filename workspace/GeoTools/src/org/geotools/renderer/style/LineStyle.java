@@ -28,7 +28,7 @@ import java.awt.Stroke;
  *
  * @author aaime
  */
-public class LineStyle2D extends Style2D {
+public class LineStyle extends Style {
     protected Paint contour;
     protected Stroke stroke;
 
@@ -37,7 +37,7 @@ public class LineStyle2D extends Style2D {
     protected double perpendicularOffset;
 
     /** Holds value of property graphicStroke. */
-    private Style2D graphicStroke;
+    private Style graphicStroke;
 
     /**
      * Returns the stroke for the {@linkplain org.geotools.renderer.geom.Polyline polyline} to be
@@ -104,7 +104,7 @@ public class LineStyle2D extends Style2D {
      *
      * @return Value of property graphicStroke.
      */
-    public Style2D getGraphicStroke() {
+    public Style getGraphicStroke() {
         return this.graphicStroke;
     }
 
@@ -113,7 +113,7 @@ public class LineStyle2D extends Style2D {
      *
      * @param graphicStroke New value of property graphicStroke.
      */
-    public void setGraphicStroke(Style2D graphicStroke) {
+    public void setGraphicStroke(Style graphicStroke) {
         this.graphicStroke = graphicStroke;
     }
 

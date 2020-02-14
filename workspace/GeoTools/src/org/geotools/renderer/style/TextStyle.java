@@ -68,7 +68,7 @@ import javax.swing.Icon;
  * <p>This replaces the old behavior which converted a LinePlacement -> pointplacement and set the
  * absoluteLineDisplacement flag!
  */
-public class TextStyle2D extends Style2D {
+public class TextStyle extends Style {
     GlyphVector textGlyphVector;
     Shape haloShape;
     String label;
@@ -86,7 +86,7 @@ public class TextStyle2D extends Style2D {
     Paint haloFill;
     Composite haloComposite;
     float haloRadius;
-    Style2D graphic;
+    Style graphic;
 
     /** Holds value of property fill. */
     private Paint fill;
@@ -94,11 +94,11 @@ public class TextStyle2D extends Style2D {
     /** Holds value of property composite. */
     private Composite composite;
 
-    public TextStyle2D() {
+    public TextStyle() {
         // default constructor
     }
 
-    public TextStyle2D(TextStyle2D t) {
+    public TextStyle(TextStyle t) {
         this.anchorX = t.anchorX;
         this.anchorY = t.anchorY;
         this.composite = t.composite;
@@ -329,26 +329,29 @@ public class TextStyle2D extends Style2D {
         return this.getClass().getCanonicalName() + "[\"" + label + "\"]";
     }
 
-    /** Sets the style2D to be drawn underneath this text */
-    public void setGraphic(Style2D s) {
+    /** Sets the style to be drawn underneath this text */
+    public void setGraphic(Style s) {
         graphic = s;
     }
 
     /** gets the Style2D to be drawn underneath this text */
-    public Style2D getGraphic() {
+    public Style getGraphic() {
         return graphic;
     }
 
     public Rectangle getGraphicDimensions() {
-        if (graphic instanceof MarkStyle2D) {
-            return ((MarkStyle2D) graphic).getTransformedShape(0f, 0f).getBounds();
-        } else if (graphic instanceof GraphicStyle2D) {
-            BufferedImage i = ((GraphicStyle2D) graphic).getImage();
+        if (graphic instanceof MarkStyle) {
+            return ((MarkStyle) graphic).getTransformedShape(0f, 0f).getBounds();
+        } 
+        else if (graphic instanceof GraphicStyle) {
+            BufferedImage i = ((GraphicStyle) graphic).getImage();
             return new Rectangle(i.getWidth(), i.getHeight());
-        } else if (graphic instanceof IconStyle2D) {
-            final Icon icon = ((IconStyle2D) graphic).getIcon();
+        } 
+        else if (graphic instanceof IconStyle) {
+            final Icon icon = ((IconStyle) graphic).getIcon();
             return new Rectangle(icon.getIconWidth(), icon.getIconWidth());
-        } else {
+        } 
+        else {
             throw new RuntimeException(
                     "Can't render graphic which is not a MarkStyle2D or a GraphicStyle2D");
         }

@@ -25,7 +25,7 @@ import java.awt.image.BufferedImage;
  * @author Andrea Aime
  * @version $Id$
  */
-public class GraphicStyle2D extends Style2D implements PointStyle2D {
+public class GraphicStyle extends Style implements PointStyle {
     BufferedImage image;
     int border = 0;
     float rotation;
@@ -46,18 +46,18 @@ public class GraphicStyle2D extends Style2D implements PointStyle2D {
      * @param image The image that will be used to depict the centroid/point/...
      * @param rotation The image rotation
      */
-    public GraphicStyle2D(BufferedImage image, float rotation) {
+    public GraphicStyle(BufferedImage image, float rotation) {
         this.image = image;
         this.rotation = rotation;
     }
 
-    public GraphicStyle2D(BufferedImage image, float rotation, int border) {
+    public GraphicStyle(BufferedImage image, float rotation, int border) {
         this.image = image;
         this.rotation = rotation;
         this.border = border;
     }
 
-    public GraphicStyle2D(BufferedImage image, int border) {
+    public GraphicStyle(BufferedImage image, int border) {
         this.image = image;
         this.border = border;
     }

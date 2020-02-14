@@ -14,12 +14,19 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.styling;
+package org.geotools.renderer.style;
 
 import java.awt.Color;
-import java.awt.Font;
 import java.util.logging.Logger;
 
+import org.geotools.styling.Fill;
+import org.geotools.styling.Graphic;
+import org.geotools.styling.LineSymbolizer;
+import org.geotools.styling.Mark;
+import org.geotools.styling.PointSymbolizer;
+import org.geotools.styling.PolygonSymbolizer;
+import org.geotools.styling.Stroke;
+import org.geotools.styling.Symbolizer;
 import org.locationtech.jts.geom.Geometry;
 import org.openjump.feature.Feature;
 
@@ -164,7 +171,7 @@ public class SLD {
     }
 
     /**
-     * Wrap one or more symbolizers into a Rule / FeatureTypeStyle / Style
+     * Wrap one or more symbolizers into a Style
      *
      * @param symbolizers one or more symbolizer objects
      * @return a new Style instance or null if no symbolizers are provided
@@ -174,16 +181,8 @@ public class SLD {
             return null;
         }
 
-        Rule rule = new Rule();
-
-        for (Symbolizer sym : symbolizers) {
-            rule.symbolizers().add(sym);
-        }
-
-        FeatureTypeStyle fts = new FeatureTypeStyle(new Rule[] {rule});
 
         Style style = new Style();
-        style.featureTypeStyles().add(fts);
 
         return style;
     }

@@ -24,13 +24,23 @@ package org.geotools.renderer.style;
  *
  * @version $Id$
  */
-public abstract class Style implements Cloneable {
-    /** Maximum scale at which the geometry has to be painted with this style */
+public class Style implements Cloneable {
     protected double maxScale = Double.POSITIVE_INFINITY;
-
-    /** Minimum scale at which the geometry has to be painted with this style */
     protected double minScale = 0;
-
+    private String description = "";
+    private String name = "Default Styler";
+    
+    /** Creates a new instance of Style */
+    protected Style() {}
+    protected Style(String nam,String desc) {
+    	this.name = nam;
+    	this.description=desc;
+    }
+    public String getDescription() { return description;}
+    public void setDescription(String desc) { this.description=desc; }
+    public String getName() { return name;}
+    public void setName(String nam) { this.name=nam; }
+    
     /**
      * Gets the maximum scale at which the geometry has to be painted with this style (inclusive)
      *
@@ -76,14 +86,24 @@ public abstract class Style implements Cloneable {
     public boolean isScaleInRange(double scale) {
         return (scale >= minScale) && (scale <= maxScale);
     }
+    /**
+     * Overrides hashcode.
+     *
+     * @return The hash code.
+     */
+    @Override
+    public int hashCode() {
+        final int PRIME = 1000003;
+        int result = 0;
 
+        result = (PRIME * result) + description.hashCode();
+        result = (PRIME * result) + name.hashCode();
+        return result;
+    }
     @Override
     public Style clone() {
-        try {
-            return (Style) super.clone();
-        } catch (CloneNotSupportedException e) {
-            // can't happen, we implement cloneable
-            throw new RuntimeException(e);
-        }
+       Style clone =  new Style(name,description);
+       clone.setMinMaxScale(getMinScale(), getMaxScale());
+       return clone;
     }
 }

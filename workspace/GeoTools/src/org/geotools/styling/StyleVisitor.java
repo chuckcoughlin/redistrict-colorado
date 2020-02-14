@@ -16,6 +16,7 @@
  */
 package org.geotools.styling;
 
+import org.geotools.renderer.style.Style;
 
 /**
  * An interface for classes that want to perform operations on a Style hierarchy. It forms part of a
@@ -65,19 +66,6 @@ public interface StyleVisitor {
      */
     void visit(Style style);
 
-    /**
-     * Called when accept is called on a rule
-     *
-     * @param rule the rule to visit
-     */
-    void visit(Rule rule);
-
-    /**
-     * Called when accept is called on a fetauretypestyle
-     *
-     * @param fts the feature type styler to visit
-     */
-    void visit(FeatureTypeStyle fts);
 
     /**
      * Called when accept is called on a fill

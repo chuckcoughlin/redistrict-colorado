@@ -34,7 +34,7 @@ import org.geotools.renderer.GTRenderer;
 import org.geotools.renderer.RenderListener;
 import org.geotools.renderer.lite.RendererUtilities;
 import org.geotools.renderer.lite.StyledShapePainter;
-import org.geotools.renderer.style.Style2D;
+import org.geotools.renderer.style.Style;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
@@ -264,7 +264,7 @@ public class ShapefileRenderer implements GTRenderer, MapLayerListListener {
         	if (layer.isVisible()) {
         		try {
         			layer.getBounds();
-        			Style2D style = layer.getStyle();
+        			Style style = layer.getStyle();
         			FeatureCollection collection = layer.getFeatures();
         			for( Feature feature:collection.getFeatures()) {
         				FeatureShape shape = new FeatureShape(feature,transform);

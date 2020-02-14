@@ -29,7 +29,7 @@ import org.geotools.geometry.jts.TransformedShape;
  * @author Andrea Aime
  * @version $Id$
  */
-public class MarkStyle2D extends PolygonStyle2D implements PointStyle2D {
+public class MarkStyle extends PolygonStyle implements PointStyle {
 
     static boolean maxMarkSizeEnabled = Boolean.getBoolean("org.geotools.maxMarkSizeEnabled");
 
@@ -170,7 +170,7 @@ public class MarkStyle2D extends PolygonStyle2D implements PointStyle2D {
      * @param useMaxMarkSize
      */
     public static void setMaxMarkSizeEnabled(boolean useMaxMarkSize) {
-        MarkStyle2D.maxMarkSizeEnabled = useMaxMarkSize;
+        MarkStyle.maxMarkSizeEnabled = useMaxMarkSize;
     }
 
     public float getDisplacementX() {

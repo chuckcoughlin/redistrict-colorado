@@ -33,7 +33,7 @@ public class PointSymbolizer extends BasicSymbolizer implements Cloneable {
     private Graphic graphic = new Graphic();
     
     /** Creates a new instance of DefaultPointSymbolizer */
-    protected PointSymbolizer() {
+    public PointSymbolizer() {
         this(new Graphic(),null,null,null,"title:abstract");
     }
 

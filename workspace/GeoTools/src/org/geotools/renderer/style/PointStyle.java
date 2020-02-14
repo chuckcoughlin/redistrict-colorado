@@ -25,7 +25,7 @@ import java.awt.Composite;
  *
  * @author Andrea Aime - GeoSolutions
  */
-public interface PointStyle2D {
+public interface PointStyle {
 
     /** The point symbol rotation, in radians. */
     public float getRotation();

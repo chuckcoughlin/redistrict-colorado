@@ -9,11 +9,11 @@ import java.awt.Color;
 import java.awt.Rectangle;
 import java.util.logging.Logger;
 
-import org.geotools.map.MapLayer;
 import org.geotools.map.MapContent;
+import org.geotools.map.MapLayer;
 import org.geotools.renderer.shape.ShapefileRenderer;
-import org.geotools.styling.SLD;
-import org.geotools.styling.Style;
+import org.geotools.renderer.style.SLD;
+import org.geotools.renderer.style.Style;
 import org.jfree.fx.FXGraphics2D;
 import org.openjump.io.ShapefileReader;
 
