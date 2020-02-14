@@ -33,7 +33,7 @@ import org.locationtech.jts.geom.Polygon;
  * @author Andrea Aime
  * @version $Id$
  */
-public final class GeomCollectionIterator extends AbstractLiteIterator {
+public final class GeomCollectionIterator extends AbstractPathIterator {
     /** Transform applied on the coordinates during iteration */
     private AffineTransform at;
 
@@ -49,24 +49,15 @@ public final class GeomCollectionIterator extends AbstractLiteIterator {
     /** True when the iterator is terminate */
     private boolean done = false;
 
-    /** If true, apply simple distance based generalization */
-    private boolean generalize = false;
-
-    /** Maximum distance for point elision when generalizing */
-    private double maxDistance = 1.0;
-
     public GeomCollectionIterator() {}
 
     /**
      * @param gc
      * @param at
      */
-    public void init(
-            GeometryCollection gc, AffineTransform at, boolean generalize, double maxDistance) {
+    public void init(GeometryCollection gc, AffineTransform at) {
         this.gc = gc;
         this.at = at == null ? new AffineTransform() : at;
-        this.generalize = generalize;
-        this.maxDistance = maxDistance;
         currentGeom = 0;
         done = false;
         currentIterator = gc.isEmpty() ? EmptyIterator.INSTANCE : getIterator(gc.getGeometryN(0));
@@ -77,31 +68,10 @@ public final class GeomCollectionIterator extends AbstractLiteIterator {
      *
      * @param gc The geometry collection the iterator will use
      * @param at The affine transform applied to coordinates during iteration
-     * @param generalize if true apply simple distance based generalization
-     * @param maxDistance during iteration, a point will be skipped if it's distance from the
-     *     previous is less than maxDistance
      */
     public GeomCollectionIterator(
-            GeometryCollection gc, AffineTransform at, boolean generalize, double maxDistance) {
-        init(gc, at, generalize, maxDistance);
-    }
-
-    /**
-     * Sets the distance limit for point skipping during distance based generalization
-     *
-     * @param distance the maximum distance for point skipping
-     */
-    public void setMaxDistance(double distance) {
-        maxDistance = distance;
-    }
-
-    /**
-     * Returns the distance limit for point skipping during distance based generalization
-     *
-     * @return the maximum distance for distance based generalization
-     */
-    public double getMaxDistance() {
-        return maxDistance;
+            GeometryCollection gc, AffineTransform at) {
+        init(gc, at);
     }
 
     /**
@@ -110,19 +80,19 @@ public final class GeomCollectionIterator extends AbstractLiteIterator {
      * @param g The geometry whole iterator is requested
      * @return the specific iterator for the geometry passed.
      */
-    private AbstractLiteIterator getIterator(Geometry g) {
-        AbstractLiteIterator pi = null;
+    private AbstractPathIterator getIterator(Geometry g) {
+        AbstractPathIterator pi = null;
 
         if (g.isEmpty()) return EmptyIterator.INSTANCE;
         if (g instanceof Polygon) {
             Polygon p = (Polygon) g;
-            pi = new PolygonIterator(p, at, generalize, maxDistance);
+            pi = new PolygonIterator(p, at);
         } else if (g instanceof GeometryCollection) {
             GeometryCollection gc = (GeometryCollection) g;
-            pi = new GeomCollectionIterator(gc, at, generalize, maxDistance);
+            pi = new GeomCollectionIterator(gc, at);
         } else if (g instanceof LineString || g instanceof LinearRing) {
             LineString ls = (LineString) g;
-            pi = new LineIterator(ls, at, generalize, (float) maxDistance);
+            pi = new LineIterator(ls, at);
         } else if (g instanceof Point) {
             Point p = (Point) g;
             pi = new PointIterator(p, at);

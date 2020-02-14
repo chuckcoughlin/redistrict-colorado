@@ -20,11 +20,11 @@ import java.awt.geom.AffineTransform;
 import org.locationtech.jts.geom.Point;
 
 /**
- * A path iterator for the LiteShape class, specialized to iterate over Point objects.
+ * A path iterator for the 	FeatureShape class, specialized to iterate over Point objects.
  *
  * @author Andrea Aime
  */
-public final class PointIterator extends AbstractLiteIterator {
+public final class PointIterator extends AbstractPathIterator {
     /** Transform applied on the coordinates during iteration */
     private AffineTransform at;
 

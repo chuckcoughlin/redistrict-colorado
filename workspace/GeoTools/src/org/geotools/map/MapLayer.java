@@ -16,11 +16,10 @@
  */
 package org.geotools.map;
 
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.referencing.ReferencedEnvelope;
+import org.geotools.renderer.style.Style2D;
 import org.geotools.styling.Style;
 import org.locationtech.jts.geom.Envelope;
 import org.openjump.coordsys.CoordinateSystem;
@@ -28,8 +27,8 @@ import org.openjump.feature.FeatureCollection;
 import org.openjump.feature.FeatureSchema;
 
 /**
- * Layer responsible for rendering vector information provided by a FeatureSource.
- * Layers usually represent a single dataset; and arranged into a z-order by a Map for display.
+ * MapLayer responsible for rendering vector information provided by a FeatureCollection.
+ * Layers usually represent a single dataset, and arranged into a z-order by a Map for display.
  *
  * Please note that a StyleLayerDescriptor (defined by SLD) document is usually used to describe the
  * rendering requirements for an entire Map; while a Style (defined by SE) is focused on a single
@@ -44,9 +43,9 @@ public class MapLayer {
 	
 	private final FeatureCollection collection;
 	private boolean selected = true;
-    private Style style;
+    private Style2D style;
     private String title;
-    private boolean visible = true; //Flag to mark the layer as visible when being rendered
+    private boolean visible = true;   //Flag to mark the layer as visible when being rendered
     
     /**
      * Creates a new instance of FeatureLayer
@@ -54,11 +53,11 @@ public class MapLayer {
      * @param features the collection of features for this layer
      * @param style the style used to represent this layer
      */
-    public MapLayer(FeatureCollection features, Style style) {
+    public MapLayer(FeatureCollection features, Style2D style) {
         this(features,style,"");
     }
 
-    public MapLayer(FeatureCollection features, Style style, String title) {
+    public MapLayer(FeatureCollection features, Style2D style, String title) {
         this.collection = features;
         this.style = style;
         this.title = title;
@@ -90,16 +89,17 @@ public class MapLayer {
     	return null; // unknown
     }
     
+    public FeatureCollection getFeatures() { return this.collection; }
     /**
      * Get the style for this layer.
      */
-    public Style getStyle() {return style; }
+    public Style2D getStyle() {return style; }
 
     /**
      * Sets the style for this layer.
      * @param style The new style
      */
-    public void setStyle(Style style) {
+    public void setStyle(Style2D style) {
         if (style == null) {
             throw new NullPointerException("Style is required");
         }

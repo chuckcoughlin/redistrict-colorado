@@ -32,7 +32,6 @@ import org.geotools.referencing.GeodeticCalculator;
 import org.geotools.referencing.ReferencedEnvelope;
 import org.geotools.util.Utilities;
 import org.locationtech.jts.algorithm.Orientation;
-import org.locationtech.jts.awt.ShapeReader;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.CoordinateSequence;
 import org.locationtech.jts.geom.CoordinateSequenceFactory;
@@ -42,14 +41,12 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.LinearRing;
-import org.locationtech.jts.geom.MultiLineString;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.geom.impl.CoordinateArraySequence;
 import org.locationtech.jts.geom.impl.CoordinateArraySequenceFactory;
 import org.locationtech.jts.operation.polygonize.Polygonizer;
-import org.opengis.referencing.operation.TransformException;
 import org.openjump.coordsys.CoordinateSystem;
 
 /**

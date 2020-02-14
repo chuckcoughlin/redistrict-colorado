@@ -18,21 +18,23 @@ package org.geotools.renderer.shape;
 
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.Shape;
-import java.awt.font.GlyphVector;
 import java.awt.geom.AffineTransform;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.geotools.geometry.jts.FeatureShape;
 import org.geotools.map.MapContent;
 import org.geotools.map.MapLayer;
+import org.geotools.map.MapLayerListEvent;
+import org.geotools.map.MapLayerListListener;
 import org.geotools.referencing.ReferencedEnvelope;
 import org.geotools.renderer.GTRenderer;
 import org.geotools.renderer.RenderListener;
 import org.geotools.renderer.lite.RendererUtilities;
 import org.geotools.renderer.lite.StyledShapePainter;
+import org.geotools.renderer.style.Style2D;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
@@ -43,6 +45,8 @@ import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 import org.openjump.coordsys.CoordinateSystem;
+import org.openjump.feature.Feature;
+import org.openjump.feature.FeatureCollection;
 
 /**
  * A LiteRenderer Implementations that is optimized for shapefiles. We have removed 
@@ -53,9 +57,13 @@ import org.openjump.coordsys.CoordinateSystem;
  *
  * @source $URL$
  */
-public class ShapefileRenderer implements GTRenderer {
+public class ShapefileRenderer implements GTRenderer, MapLayerListListener {
 	private final static String CLSS = "ShapefileRenderer";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
+	private Graphics2D graphics = null;
+    private boolean concatTransforms;
+    private List<RenderListener> renderListeners = new CopyOnWriteArrayList<RenderListener>();
+    private MapContent content = null;
 
     /** Tolerance used to compare doubles for equality */
     private static final double TOLERANCE = 1e-6;
@@ -104,9 +112,7 @@ public class ShapefileRenderer implements GTRenderer {
 
 
     static int NUM_SAMPLES = 200;
-    private boolean concatTransforms;
-    private List<RenderListener> renderListeners = new CopyOnWriteArrayList<RenderListener>();
-    private MapContent content;
+
     private double scaleDenominator = 1.0;
 
 
@@ -160,7 +166,8 @@ public class ShapefileRenderer implements GTRenderer {
             LOGGER.info(String.format("%s.paint: paint or mapping area is null",CLSS));
             return;
         } 
-        paint(graphics, paintArea, mapArea, RendererUtilities.worldToScreenTransform(mapArea,paintArea));
+        this.graphics = graphics;
+        paint(paintArea, mapArea, RendererUtilities.worldToScreenTransform(mapArea,paintArea));
     }
 
     /**
@@ -218,7 +225,7 @@ public class ShapefileRenderer implements GTRenderer {
     }
 
 
-    private void paint( Graphics2D graphics, Rectangle paintArea, ReferencedEnvelope envelope,AffineTransform transform ) {
+    private void paint(Rectangle paintArea, ReferencedEnvelope envelope,AffineTransform transform ) {
         if( transform == null ){
             throw new NullPointerException("Transform is required");
         }
@@ -234,7 +241,6 @@ public class ShapefileRenderer implements GTRenderer {
          */
         if (concatTransforms) {
             AffineTransform atg = graphics.getTransform();
-            // graphics.setTransform(new AffineTransform());
             atg.concatenate(transform);
             transform = atg;
         }
@@ -255,15 +261,21 @@ public class ShapefileRenderer implements GTRenderer {
         List<MapLayer> layers = content.layers();
         for( MapLayer layer:layers ) {
 
-            if (!layer.isVisible()) { continue;}
-            ReferencedEnvelope bbox = envelope;
-            try {
-
-            } 
-            catch (Exception exception) {
-                Exception e = new Exception("Exception rendering layer " + layer, exception);
-                fireErrorEvent(e);
-            }
+        	if (layer.isVisible()) {
+        		try {
+        			layer.getBounds();
+        			Style2D style = layer.getStyle();
+        			FeatureCollection collection = layer.getFeatures();
+        			for( Feature feature:collection.getFeatures()) {
+        				FeatureShape shape = new FeatureShape(feature,transform);
+        				painter.paint(graphics, shape, style, scaleDenominator);
+        			}
+        		} 
+        		catch (Exception exception) {
+        			Exception e = new Exception(String.format("%s.paint: Exception rendering layer %s",CLSS,layer.getTitle()), exception);
+        			fireErrorEvent(e);
+        		}
+        	}
         }
     }
     /**
@@ -297,4 +309,25 @@ public class ShapefileRenderer implements GTRenderer {
 
 	@Override
 	public MapContent getMapContent() {return this.content;}
+
+	/**
+	 * The layer element has been modified. If it is visible, re-paint.
+	 */
+	@Override
+	public void layerModified(MapLayerListEvent event) {
+		MapLayer layer = event.getLayer();
+		if( layer.isVisible()) {
+			//paint( graphics, Rectangle paintArea, ReferencedEnvelope envelope)
+		}
+		
+	}
+
+	/**
+	 * The layer list has been modified. Re-paint.
+	 */
+	@Override
+	public void layerListModified(MapLayerListEvent event) {
+		//paint(graphics, Rectangle paintArea, ReferencedEnvelope envelope)
+		
+	}
 }

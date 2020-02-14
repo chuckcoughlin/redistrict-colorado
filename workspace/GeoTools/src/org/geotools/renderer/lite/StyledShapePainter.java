@@ -37,7 +37,7 @@ import java.util.logging.Logger;
 import javax.swing.Icon;
 
 import org.geotools.geometry.jts.Decimator;
-import org.geotools.geometry.jts.LiteShape2;
+import org.geotools.geometry.jts.FeatureShape;
 import org.geotools.renderer.style.GraphicStyle2D;
 import org.geotools.renderer.style.IconStyle2D;
 import org.geotools.renderer.style.LineStyle2D;
@@ -78,7 +78,7 @@ public class StyledShapePainter {
 
     public void paint(
             final Graphics2D graphics,
-            final LiteShape2 shape,
+            final FeatureShape shape,
             final Style2D style,
             final double scale) {
         paint(graphics, shape, style, scale, false);
@@ -97,7 +97,7 @@ public class StyledShapePainter {
      */
     public void paint(
             final Graphics2D graphics,
-            final LiteShape2 shape,
+            final FeatureShape shape,
             final Style2D style,
             final double scale,
             boolean isLabelObstacle) {
@@ -271,7 +271,7 @@ public class StyledShapePainter {
      * @param shape
      * @return
      */
-    private boolean optimizeOutFill(PolygonStyle2D style, LiteShape2 shape) {
+    private boolean optimizeOutFill(PolygonStyle2D style, FeatureShape shape) {
         // if we have a graphic stroke the outline might not be solid, so, not covering
         if (style.getGraphicStroke() != null) {
             return false;
@@ -304,7 +304,7 @@ public class StyledShapePainter {
 
     void paintLineStyle(
             final Graphics2D graphics,
-            final LiteShape2 shape,
+            final FeatureShape shape,
             final LineStyle2D ls2d,
             boolean isLabelObstacle,
             float strokeWidthAdjustment) {
@@ -476,7 +476,7 @@ public class StyledShapePainter {
      * @param shape
      * @return
      */
-    private PathIterator getPathIterator(final LiteShape2 shape) {
+    private PathIterator getPathIterator(final FeatureShape shape) {
         return shape.getPathIterator(IDENTITY_TRANSFORM);
     }
 
@@ -786,14 +786,14 @@ public class StyledShapePainter {
      * @param g
      * @param shape
      */
-    void fillLiteShape(Graphics2D g, LiteShape2 shape) {
+    void fillLiteShape(Graphics2D g, FeatureShape shape) {
         if (shape.getGeometry() instanceof MultiPolygon
                 && shape.getGeometry().getNumGeometries() > 1) {
             MultiPolygon mp = (MultiPolygon) shape.getGeometry();
             for (int i = 0; i < mp.getNumGeometries(); i++) {
                 Polygon p = (Polygon) mp.getGeometryN(i);
                 try {
-                    g.fill(new LiteShape2(p, null, null, false, false));
+                    g.fill(new FeatureShape(p, null));
                 } catch (Exception e) {
                     // should not really happen, but anyways
                     throw new RuntimeException(
@@ -920,10 +920,10 @@ public class StyledShapePainter {
                 stippleCoord.x = stippleSize.getCenterX() + translateX;
                 stippleCoord.y = stippleSize.getCenterY() + translateY;
                 stipplePoint.geometryChanged();
-                LiteShape2 stippleShape;
+                FeatureShape stippleShape;
                 try {
                     stippleShape =
-                            new LiteShape2(stipplePoint, new AffineTransform(), nullDecimator, false);
+                            new FeatureShape(stipplePoint, new AffineTransform());
                 } catch (Exception e) {
                     throw new RuntimeException("Unxpected exception building lite shape", e);
                 }

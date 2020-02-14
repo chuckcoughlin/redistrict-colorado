@@ -19,7 +19,7 @@ import redistrict.colorado.ui.ViewMode;
 import redistrict.colorado.ui.navigation.LayerNavigationPane;
 
 /**
- * Plot a map. Parent is an AnchorPane.
+ * Plot a single layer graphically. Parent is an AnchorPane.
  */
 	public class MapPane extends BasicRightSideNode {
 		private final static String CLSS = "MapPane";

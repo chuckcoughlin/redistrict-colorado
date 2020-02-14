@@ -25,7 +25,7 @@ import redistrict.colorado.core.LayerModel;
 import redistrict.colorado.db.Database;
 
 /**
- * Render a shapefile referenced by a model as a display layer.
+ * Render shapes as referenced by a single layer model in a panel on the screen.
  */
 	public class MapRenderer  {
 		private final static String CLSS = "MapRenderer";

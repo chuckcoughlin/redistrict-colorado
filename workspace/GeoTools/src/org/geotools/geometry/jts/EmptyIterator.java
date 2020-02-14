@@ -21,7 +21,7 @@ package org.geotools.geometry.jts;
  *
  * @since 2.4
  */
-public class EmptyIterator extends AbstractLiteIterator {
+public class EmptyIterator extends AbstractPathIterator {
 
     public static final EmptyIterator INSTANCE = new EmptyIterator();
 

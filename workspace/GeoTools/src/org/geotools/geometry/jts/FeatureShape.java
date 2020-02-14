@@ -19,9 +19,11 @@ package org.geotools.geometry.jts;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.geom.Rectangle2D.Double;
 
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
@@ -31,6 +33,7 @@ import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.LinearRing;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
+import org.openjump.feature.Feature;
 
 /**
  * A thin wrapper that adapts a JTS geometry to the Shape interface so that the geometry can be used
@@ -46,18 +49,13 @@ import org.locationtech.jts.geom.Polygon;
  * @author Jesse Eichar
  * @version $Id$
  */
-public final class LiteShape2 implements Shape, Cloneable {
+public final class FeatureShape implements Shape, Cloneable {
 
-    /** The wrapped JTS geometry */
     private Geometry geometry;
-    private boolean generalize = false;
-    private double maxDistance = 1;
-
-    /** transform from dataspace to screenspace */
-    private AffineTransform mathTransform;
+    private AffineTransform mathTransform; // transform dataspace to screenspace 
 
     /**
-     * Creates a new LiteShape object.
+     * Creates a shape from a feature.
      *
      * @param geom - the wrapped geometry
      * @param mathTransform - the transformation applied to the geometry in order to get to the
@@ -68,76 +66,59 @@ public final class LiteShape2 implements Shape, Cloneable {
      * @throws TransformException
      * @throws FactoryException
      */
-    public LiteShape2(
-            Geometry geom,
-            AffineTransform mathTransform,
-            Decimator decimator,
-            boolean generalize,
-            double maxDistance) {
-        this(geom, mathTransform, decimator, generalize);
-        this.maxDistance = maxDistance;
-    }
+    public FeatureShape(Feature feature,AffineTransform transform) {
+    	this.geometry = feature.getGeometry();
+    	this.mathTransform = transform;
+        Decimator decimator = null;
+        // if we have a transform, a decimation span can be created
+        if (mathTransform != null
+                && !mathTransform.isIdentity()
+                && geometry != null) {
+        	Rectangle2D r2d = new Rectangle.Double();
+        	try {
+				XAffineTransform.inverseTransform(mathTransform, getRectangle(this.geometry.getEnvelopeInternal()), r2d);
+				decimator = new Decimator( mathTransform,r2d.getBounds(),0.);
+				decimator.decimate(geometry);
+			} 
+        	catch (NoninvertibleTransformException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        }
 
+    }
+    
     /**
-     * Creates a new LiteShape object.
+     * Creates a shape from a geometry.
      *
      * @param geom - the wrapped geometry
      * @param mathTransform - the transformation applied to the geometry in order to get to the
      *     shape points
      * @param decimator -
      * @param generalize - set to true if the geometry need to be generalized during rendering
+     * @param maxDistance - distance used in the generalization process
+     * @throws TransformException
+     * @throws FactoryException
      */
-    public LiteShape2( Geometry geom, AffineTransform mathTransform, Decimator decimator, boolean generalize) {
-        this(geom, mathTransform, decimator, generalize, true);
-    }
-
-    /**
-     * Creates a new LiteShape object.
-     *
-     * @param geom - the wrapped geometry
-     * @param mathTransform - the transformation applied to the geometry in order to get to the
-     *     shape points
-     * @param decimator -
-     * @param generalize - set to true if the geometry need to be generalized during rendering
-     * @param clone - if clone is false the original geometry may be modified directly, if true it
-     *     will be cloned to make sure the original remains untouched
-     */
-    public LiteShape2(
-            Geometry geom,
-            AffineTransform mathTransform,
-            Decimator decimator,
-            boolean generalize,
-            boolean clone) {
-        if (geom != null) {
-            if (!clone) this.geometry = geom;
-            else this.geometry = LiteCoordinateSequence.cloneGeometry(geom);
+    public FeatureShape(Geometry geom,AffineTransform transform) {
+    	this.geometry = geom;
+    	this.mathTransform = transform;
+        Decimator decimator = null;
+        // if we have a transform, a decimation span can be created
+        if (mathTransform != null
+                && !mathTransform.isIdentity()
+                && geometry != null) {
+        	Rectangle2D r2d = new Rectangle.Double();
+        	try {
+				XAffineTransform.inverseTransform(mathTransform, getRectangle(this.geometry.getEnvelopeInternal()), r2d);
+				decimator = new Decimator( mathTransform,r2d.getBounds(),0.);
+				decimator.decimate(geometry);
+			} 
+        	catch (NoninvertibleTransformException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
         }
-
-        this.mathTransform = mathTransform;
-        if (decimator != null) {
-            this.geometry = decimator.decimateTransformGeneralize(this.geometry, this.mathTransform);
-            this.geometry.geometryChanged();
-        } 
-        /*
-        else {
-            // if we have a transform a decimation span can be detected, so try to decimate anyways
-            if (mathTransform != null
-                    && !mathTransform.isIdentity()
-                    && generalize
-                    && geometry != null) {
-            	Rectangle r2d = new Rectangle();
-            	XAffineTransform.inverseTransform(mathTransform, getRectangle(this.geometry.getEnvelopeInternal()), r2d);
-                new Decimator( mathTransform,r2d,0.)
-                        .decimate(this.geometry);
-                this.geometry.geometryChanged();
-            }
-            if (geometry != null) {
-                transformGeometry(geometry);
-                this.geometry.geometryChanged();
-            }
-        }
-        */
-        this.generalize = false;
     }
 
     private Rectangle getRectangle(Envelope envelope) {
@@ -369,13 +350,13 @@ public final class LiteShape2 implements Shape, Cloneable {
         }
 
         if (this.geometry instanceof Polygon) {
-            pi = new PolygonIterator((Polygon) geometry, at, generalize, maxDistance);
-        } else if (this.geometry instanceof LineString) {
-            pi = new LineIterator((LineString) geometry, at, generalize, (float) maxDistance);
-        } else if (this.geometry instanceof GeometryCollection) {
-            pi =
-                    new GeomCollectionIterator(
-                            (GeometryCollection) geometry, at, generalize, maxDistance);
+            pi = new PolygonIterator((Polygon) geometry, at);
+        } 
+        else if (this.geometry instanceof LineString) {
+            pi = new LineIterator((LineString) geometry, at);
+        } 
+        else if (this.geometry instanceof GeometryCollection) {
+            pi = new GeomCollectionIterator((GeometryCollection) geometry, at);
         }
         return pi;
     }

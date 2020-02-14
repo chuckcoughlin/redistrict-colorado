@@ -19,68 +19,29 @@ package org.geotools.map;
 import java.util.EventObject;
 
 /**
- * Event object used to report changes in the list of layers managed by a MapContext
+ * Event object used to report changes in the list of layers managed by a MapContent.
  *
  * @author wolf
  */
 public class MapLayerListEvent extends EventObject {
-    private final MapLayer layer;
+	private static final long serialVersionUID = 742769616357947429L;
+	private final MapLayer layer;
 
-    /** Holds value of property fromIndex. */
-    private int fromIndex;
-
-    /** Holds value of property toIndex. */
-    private int toIndex;
-
-    /** Creates a new instance of MapLayerListEvent */
-    public MapLayerListEvent(MapContent source, MapLayer layer, int fromIndex, int toIndex) {
+    /** Create a new instance of MapLayerListEvent for a layer edit action */
+    public MapLayerListEvent(MapContent source, MapLayer layer) {
         super(source);
         this.layer = layer;
-        this.fromIndex = fromIndex;
-        this.toIndex = toIndex;
     }
-
-    /**
-     * Creates a new instance of MapLayerListEvent
-     *
-     * @param source Map issuing the event
-     * @param layer Layer being reported against; may be null
-     * @param position index modified in layer list
-     */
-    public MapLayerListEvent(MapContent source, MapLayer layer, int position) {
+    
+    /** Creates a new instance of MapLayerListEvent for a layer list modification */
+    public MapLayerListEvent(MapContent source) {
         super(source);
-        this.layer = layer;
-        this.fromIndex = position;
-        this.toIndex = position;
-    }
-
-
-    /**
-     * Return the layer involved in the change.
-     *
-     * @return
-     */
-    public MapLayer getLayer() {
-        return layer;
+        this.layer = null;
     }
 
     /**
-     * Returns the index of the first layer involved in the change
-     *
-     * @return The old index of the layer. -1 will be returned if the layer was not in the
-     *     MapContext
+     * Return the layer involved in a layer edit.
+     * @return the modified layer
      */
-    public int getFromIndex() {
-        return this.fromIndex;
-    }
-
-    /**
-     * Returns the index of the last layer involved in the change
-     *
-     * @return The old index of the layer. -1 will be returned if the layer is no more in the
-     *     MapContext
-     */
-    public int getToIndex() {
-        return this.toIndex;
-    }
+    public MapLayer getLayer() { return this.layer; }
 }

@@ -25,7 +25,7 @@ import java.awt.geom.PathIterator;
  *
  * @author Andrea Aime
  */
-public abstract class AbstractLiteIterator implements PathIterator {
+public abstract class AbstractPathIterator implements PathIterator {
 
     protected double[] dcoords = new double[2];
 

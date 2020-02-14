@@ -25,37 +25,19 @@ import java.util.EventListener;
  */
 public interface MapLayerListListener extends EventListener {
     /**
-     * Triggered when a new layer is added to the MapContext
-     *
-     * @param event encapsulating the event information
-     */
-    public void layerAdded(MapLayerListEvent event);
-
-    /**
-     * Triggered when a layer is removed from the MapContext
-     *
-     * @param event encapsulating the event information
-     */
-    public void layerRemoved(MapLayerListEvent event);
-
-    /**
      * Triggered when something in a layer changed (data, style, title)
      *
      * @param event encapsulating the event information
      */
-    public void layerChanged(MapLayerListEvent event);
+    public void layerModified(MapLayerListEvent event);
 
     /**
-     * Triggered when a group of layers chenges position in the layer list
+     * Triggered when one or more layers changes position in the layer list,
+     * or a layer is added or removed. It is assumed that the recipient
+     * will query the source for the new order.
      *
      * @param event encapsulating the event information
      */
-    public void layerMoved(MapLayerListEvent event);
+    public void layerListModified(MapLayerListEvent event);
 
-    /**
-     * Triggered when a layer is about to be disposed.
-     *
-     * @param event encapsulating the event information
-     */
-    public void layerPreDispose(MapLayerListEvent event);
 }

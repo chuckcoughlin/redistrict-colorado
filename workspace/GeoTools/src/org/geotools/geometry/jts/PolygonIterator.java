@@ -23,13 +23,13 @@ import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Polygon;
 
 /**
- * A path iterator for the LiteShape class, specialized to iterate over Polygon objects.
+ * A path iterator for the FeatureShape class, specialized to iterate over Polygon objects.
  *
  * @author Andrea Aime
  * @author simone giannecchini
  * @version $Id$
  */
-public final class PolygonIterator extends AbstractLiteIterator {
+public final class PolygonIterator extends AbstractPathIterator {
     /** Transform applied on the coordinates during iteration */
     private AffineTransform at;
 
@@ -50,12 +50,6 @@ public final class PolygonIterator extends AbstractLiteIterator {
 
     /** True when the iteration is terminated */
     private boolean done = false;
-
-    /** If true, apply simple distance based generalization */
-    private boolean generalize = false;
-
-    /** Maximum distance for point elision when generalizing */
-    private double maxDistance = 1.0;
 
     /** Horizontal scale, got from the affine transform and cached */
     private double xScale;
@@ -87,50 +81,6 @@ public final class PolygonIterator extends AbstractLiteIterator {
         yScale = Math.sqrt((at.getScaleY() * at.getScaleY()) + (at.getShearY() * at.getShearY()));
 
         coords = rings[0].getCoordinateSequence();
-    }
-
-    /**
-     * Creates a new PolygonIterator object.
-     *
-     * @param p The polygon
-     * @param at The affine transform applied to coordinates during iteration
-     * @param generalize if true apply simple distance based generalization
-     */
-    public PolygonIterator(Polygon p, AffineTransform at, boolean generalize) {
-        this(p, at);
-        this.generalize = generalize;
-    }
-
-    /**
-     * Creates a new PolygonIterator object.
-     *
-     * @param p The polygon
-     * @param at The affine transform applied to coordinates during iteration
-     * @param generalize if true apply simple distance based generalization
-     * @param maxDistance during iteration, a point will be skipped if it's distance from the
-     *     previous is less than maxDistance
-     */
-    public PolygonIterator(Polygon p, AffineTransform at, boolean generalize, double maxDistance) {
-        this(p, at, generalize);
-        this.maxDistance = maxDistance;
-    }
-
-    /**
-     * Sets the distance limit for point skipping during distance based generalization
-     *
-     * @param distance the maximum distance for point skipping
-     */
-    public void setMaxDistance(double distance) {
-        maxDistance = distance;
-    }
-
-    /**
-     * Returns the distance limit for point skipping during distance based generalization
-     *
-     * @return the maximum distance for distance based generalization
-     */
-    public double getMaxDistance() {
-        return maxDistance;
     }
 
     /**
@@ -204,35 +154,9 @@ public final class PolygonIterator extends AbstractLiteIterator {
             } else {
                 done = true;
             }
-        } else {
-            if (generalize) {
-                if (oldCoord == null) {
-                    currentCoord++;
-                    oldCoord = coords.getCoordinate(currentCoord);
-                } else {
-                    double distx = 0;
-                    double disty = 0;
-
-                    do {
-                        currentCoord++;
-
-                        if (currentCoord < coords.size()) {
-                            distx = Math.abs(coords.getX(currentCoord) - oldCoord.x);
-                            disty = Math.abs(coords.getY(currentCoord) - oldCoord.y);
-                        }
-                    } while (((distx * xScale) < maxDistance)
-                            && ((disty * yScale) < maxDistance)
-                            && (currentCoord < coords.size()));
-
-                    if (currentCoord < coords.size()) {
-                        oldCoord = coords.getCoordinate(currentCoord);
-                    } else {
-                        oldCoord = null;
-                    }
-                }
-            } else {
-                currentCoord++;
-            }
+        } 
+        else {
+           currentCoord++;
         }
     }
 }

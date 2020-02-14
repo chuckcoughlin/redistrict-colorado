@@ -22,13 +22,13 @@ import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.LinearRing;
 
 /**
- * A path iterator for the LiteShape class, specialized to iterate over LineString object.
+ * A path iterator for the FeatureShape class, specialized to iterate over LineString object.
  *
  * @author Andrea Aime
  * @author simone giannecchini
  * @version $Id$
  */
-public final class LineIterator extends AbstractLiteIterator {
+public final class LineIterator extends AbstractPathIterator {
     /** Transform applied on the coordinates during iteration */
     private AffineTransform at;
 
@@ -48,13 +48,6 @@ public final class LineIterator extends AbstractLiteIterator {
 
     /** True if the line is a ring */
     private boolean isClosed;
-
-    /** If true, apply simple distance based generalization */
-    private boolean generalize = false;
-
-    /** Maximum distance for point elision when generalizing */
-    private float maxDistance = 1.0f;
-
     /** Horizontal scale, got from the affine transform and cached */
     private float xScale;
 
@@ -74,57 +67,8 @@ public final class LineIterator extends AbstractLiteIterator {
      * @param ls The line string the iterator will use
      * @param at The affine transform applied to coordinates during iteration
      */
-    public LineIterator(LineString ls, AffineTransform at, boolean generalize, float maxDistance) {
-        init(ls, at, generalize, maxDistance);
-    }
-
-    /**
-     * Creates a new instance of LineIterator
-     *
-     * @param ls The line string the iterator will use
-     * @param at The affine transform applied to coordinates during iteration
-     * @param generalize if true apply simple distance based generalization
-     */
-    //    public LineIterator(LineString ls, AffineTransform at, boolean generalize) {
-    //        this(ls, at);
-    //
-    //    }
-
-    /**
-     * Creates a new instance of LineIterator
-     *
-     * @param ls The line string the iterator will use
-     * @param at The affine transform applied to coordinates during iteration
-     * @param generalize if true apply simple distance based generalization
-     * @param maxDistance during iteration, a point will be skipped if it's distance from the
-     *     previous is less than maxDistance
-     */
-    //    public LineIterator(
-    //        LineString ls, AffineTransform at, boolean generalize,
-    //        double maxDistance) {
-    //        this(ls, at, generalize);
-    //
-    //    }
-
-    /**
-     * @param ls a LineString
-     * @param at
-     * @param generalize
-     * @param maxDistance
-     * @param xScale
-     * @param yScale
-     */
-    public void init(
-            LineString ls,
-            AffineTransform at,
-            boolean generalize,
-            float maxDistance,
-            float xScale,
-            float yScale) {
-        this.xScale = xScale;
-        this.yScale = yScale;
-
-        _init(ls, at, generalize, maxDistance);
+    public LineIterator(LineString ls, AffineTransform at) {
+        init(ls, at);
     }
 
     /**
@@ -133,29 +77,7 @@ public final class LineIterator extends AbstractLiteIterator {
      * @param generalize
      * @param maxDistance
      */
-    public void init(LineString ls, AffineTransform at, boolean generalize, float maxDistance) {
-        if (at == null) at = new AffineTransform();
-        _init(ls, at, generalize, maxDistance);
-
-        xScale =
-                (float)
-                        Math.sqrt(
-                                (at.getScaleX() * at.getScaleX())
-                                        + (at.getShearX() * at.getShearX()));
-        yScale =
-                (float)
-                        Math.sqrt(
-                                (at.getScaleY() * at.getScaleY())
-                                        + (at.getShearY() * at.getShearY()));
-    }
-
-    /**
-     * @param ls
-     * @param at
-     * @param generalize
-     * @param maxDistance
-     */
-    private void _init(LineString ls, AffineTransform at, boolean generalize, float maxDistance) {
+    private void init(LineString ls, AffineTransform at) {
         if (at == null) {
             at = NO_TRANSFORM;
         }
@@ -165,32 +87,22 @@ public final class LineIterator extends AbstractLiteIterator {
         coordinateCount = coordinates.size();
         isClosed = ls instanceof LinearRing;
 
-        this.generalize = generalize;
-        this.maxDistance = maxDistance;
         done = false;
         currentCoord = 0;
 
         oldX = Float.NaN;
         oldY = Float.NaN;
+        
+        xScale =
+                (float) Math.sqrt(
+                                (at.getScaleX() * at.getScaleX())
+                                        + (at.getShearX() * at.getShearX()));
+        yScale =
+                (float) Math.sqrt(
+                                (at.getScaleY() * at.getScaleY())
+                                        + (at.getShearY() * at.getShearY()));
     }
 
-    /**
-     * Sets the distance limit for point skipping during distance based generalization
-     *
-     * @param distance the maximum distance for point skipping
-     */
-    public void setMaxDistance(float distance) {
-        maxDistance = distance;
-    }
-
-    /**
-     * Returns the distance limit for point skipping during distance based generalization
-     *
-     * @return the maximum distance for distance based generalization
-     */
-    public double getMaxDistance() {
-        return maxDistance;
-    }
 
     //    /**
     //     * Returns the coordinates and type of the current path segment in the
@@ -287,38 +199,9 @@ public final class LineIterator extends AbstractLiteIterator {
         if (((currentCoord == (coordinateCount - 1)) && !isClosed)
                 || ((currentCoord == coordinateCount) && isClosed)) {
             done = true;
-        } else {
-            if (generalize) {
-                if (Float.isNaN(oldX)) {
-                    currentCoord++;
-                    oldX = (float) coordinates.getX(currentCoord);
-                    oldY = (float) coordinates.getY(currentCoord);
-                } else {
-                    float distx = 0;
-                    float disty = 0;
-                    float x = 0;
-                    float y = 0;
-
-                    do {
-                        currentCoord++;
-                        x = (float) coordinates.getX(currentCoord);
-                        y = (float) coordinates.getY(currentCoord);
-
-                        if (currentCoord < coordinateCount) {
-                            distx = Math.abs(x - oldX);
-                            disty = Math.abs(y - oldY);
-                        }
-                    } while (((distx * xScale) < maxDistance)
-                            && ((disty * yScale) < maxDistance)
-                            && ((!isClosed && (currentCoord < (coordinateCount - 1)))
-                                    || (isClosed && (currentCoord < coordinateCount))));
-
-                    oldX = x;
-                    oldY = y;
-                }
-            } else {
-                currentCoord++;
-            }
+        } 
+        else {
+            currentCoord++;
         }
     }
 

@@ -15,6 +15,7 @@ module org.geotools {
 	exports org.geotools.renderer.shape;
 	exports org.geotools.referencing;
 	exports org.geotools.styling;
+	exports org.openjump.coordsys;
 	exports org.openjump.feature;
 	exports org.openjump.io;
 }
