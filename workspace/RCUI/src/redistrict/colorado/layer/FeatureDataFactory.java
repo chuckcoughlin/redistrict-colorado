@@ -9,6 +9,8 @@ package redistrict.colorado.layer;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import org.geotools.util.GeometryUtilities;
+import org.locationtech.jts.geom.Geometry;
 import org.openjump.feature.Feature;
 
 import javafx.beans.property.SimpleStringProperty;
@@ -41,10 +43,11 @@ public class FeatureDataFactory implements Callback<TableColumn.CellDataFeatures
 		StringProperty property = new SimpleStringProperty();
 		String alias = cdf.getTableColumn().getText();
 		String name = nameForAliasMap.get(alias);
-		LOGGER.info(String.format("%s.call cfd= %s, alias = %s, name= %s",CLSS,cdf,alias,name));
+		//LOGGER.info(String.format("%s.call cfd= %s, alias = %s, name= %s",CLSS,cdf,alias,name));
 		if( name==null) name = alias;
-		property.setValue(feature.getAttribute(name).toString());
-
+		Object value = feature.getAttribute(name);
+		if( value instanceof Geometry) value = GeometryUtilities.toText((Geometry)value);
+		property.setValue(value.toString());
 		return property;
 	}
 }

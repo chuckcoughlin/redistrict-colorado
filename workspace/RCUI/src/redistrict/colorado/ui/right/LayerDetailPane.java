@@ -14,6 +14,8 @@ import org.openjump.io.ShapefileReader;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
@@ -31,89 +33,101 @@ import redistrict.colorado.ui.navigation.LayerNavigationPane;
 /**
  * Display the shapefile demographic information in table form.
  */
-	public class LayerDetailPane extends BasicRightSideNode {
-		private final static String CLSS = "LayerDetailPane";
-		private static Logger LOGGER = Logger.getLogger(CLSS);
-		private LayerModel model;
-		private final ObservableList<Feature> items;
-		private LayerNavigationPane navPane = new LayerNavigationPane();
-		private final Label headerLabel = new Label("Layer Details");
-		private final TableView<Feature> table;
-		private final CheckBox showAllColumns;  // Including the hidden ones
-		
-		public LayerDetailPane() {
-			super(ViewMode.LAYER,DisplayOption.DETAIL);
-			this.model = hub.getSelectedLayer();
-			this.items = FXCollections.observableArrayList();
-			this.showAllColumns = new CheckBox("Show All");
-			this.table = new TableView<Feature>();
-	        table.setPrefSize(UIConstants.FEATURE_TABLE_WIDTH, UIConstants.FEATURE_TABLE_HEIGHT);
-	        table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
-	        
-			showAllColumns.setIndeterminate(false);
-			headerLabel.getStyleClass().add("list-header-label");
-			getChildren().add(headerLabel);
-			getChildren().add(showAllColumns);
-			getChildren().add(table);
-			getChildren().add(navPane);
-			setTopAnchor(headerLabel,0.);
-			setTopAnchor(showAllColumns,UIConstants.BUTTON_PANEL_HEIGHT/5);
-			setTopAnchor(table,UIConstants.BUTTON_PANEL_HEIGHT);
-			setLeftAnchor(showAllColumns,UIConstants.BUTTON_PANEL_HEIGHT/5);
-			setLeftAnchor(headerLabel,UIConstants.LIST_PANEL_LEFT_MARGIN);
-			setRightAnchor(headerLabel,UIConstants.LIST_PANEL_RIGHT_MARGIN);
-			setLeftAnchor(table,UIConstants.LIST_PANEL_LEFT_MARGIN);
-			setRightAnchor(table,UIConstants.LIST_PANEL_RIGHT_MARGIN);
-			setBottomAnchor(table,UIConstants.BUTTON_PANEL_HEIGHT);
-			setBottomAnchor(navPane,0.);
-			setLeftAnchor(navPane,UIConstants.LIST_PANEL_LEFT_MARGIN);
-			setRightAnchor(navPane,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+public class LayerDetailPane extends BasicRightSideNode {
+	private final static String CLSS = "LayerDetailPane";
+	private static Logger LOGGER = Logger.getLogger(CLSS);
+	private LayerModel model;
+	private final ObservableList<Feature> items;
+	private LayerNavigationPane navPane = new LayerNavigationPane();
+	private final Label headerLabel = new Label("Layer Details");
+	private final TableView<Feature> table;
+	private final CheckBox showAllColumns;  // Including the hidden ones
+	private final EventHandler<ActionEvent> eventHandler;
+
+	public LayerDetailPane() {
+		super(ViewMode.LAYER,DisplayOption.DETAIL);
+		this.model = hub.getSelectedLayer();
+		this.items = FXCollections.observableArrayList();
+		this.showAllColumns = new CheckBox("Show All");
+		this.table = new TableView<Feature>();
+		this.eventHandler = new ActionEventHandler();
+		table.setPrefSize(UIConstants.FEATURE_TABLE_WIDTH, UIConstants.FEATURE_TABLE_HEIGHT);
+		table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+
+		showAllColumns.setIndeterminate(false);
+		showAllColumns.setOnAction(eventHandler);
+		headerLabel.getStyleClass().add("list-header-label");
+		getChildren().add(headerLabel);
+		getChildren().add(showAllColumns);
+		getChildren().add(table);
+		getChildren().add(navPane);
+		setTopAnchor(headerLabel,0.);
+		setTopAnchor(showAllColumns,UIConstants.BUTTON_PANEL_HEIGHT/5);
+		setTopAnchor(table,UIConstants.BUTTON_PANEL_HEIGHT);
+		setLeftAnchor(showAllColumns,UIConstants.BUTTON_PANEL_HEIGHT/5);
+		setLeftAnchor(headerLabel,UIConstants.LIST_PANEL_LEFT_MARGIN);
+		setRightAnchor(headerLabel,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+		setLeftAnchor(table,UIConstants.LIST_PANEL_LEFT_MARGIN);
+		setRightAnchor(table,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+		setBottomAnchor(table,UIConstants.BUTTON_PANEL_HEIGHT);
+		setBottomAnchor(navPane,0.);
+		setLeftAnchor(navPane,UIConstants.LIST_PANEL_LEFT_MARGIN);
+		setRightAnchor(navPane,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+		updateModel();
+	}
+
+	@Override
+	public void updateModel() {
+		LayerModel selectedModel = hub.getSelectedLayer();
+		if( selectedModel!=null) {
+			this.model = selectedModel;
+			LOGGER.info(String.format("%s.updateModel: Model is %s", CLSS,model.getName()));
+			if( model.getFeatures()==null ) {
+				try {
+					model.setFeatures(ShapefileReader.read(model.getShapefilePath()));
+				}
+				catch( Exception ex) {
+					model.setFeatures(null);
+					String msg = String.format("%s: Failed to parse shapefile %s (%s)",CLSS,model.getShapefilePath(),ex.getLocalizedMessage());
+					LOGGER.warning(msg);
+					EventBindingHub.getInstance().setMessage(msg);
+				}
+				Database.getInstance().getFeatureAttributeTable().synchronizeFeatureAttributes(model.getId(), model.getFeatures().getFeatureSchema().getAttributeNames());
+			}
+			navPane.updateTextForModel();
+			table.getColumns().clear();
+			items.clear();
+			for(Feature feat:model.getFeatures().getFeatures()) {
+				items.add(feat);
+			}
+
+			TableColumn<Feature,String> column;
+			Map<String,String> aliasMap = Database.getInstance().getFeatureAttributeTable().getNamesForFeatureAliases(model.getId());
+			FeatureDataFactory factory = new FeatureDataFactory(aliasMap);
+			List<FeatureConfiguration> configurations = Database.getInstance().getFeatureAttributeTable().getFeatureAttributes(model.getId());
+			boolean showAll = showAllColumns.isSelected();
+
+			for(FeatureConfiguration fc:configurations) {
+				if(fc.isVisible()||showAll ) {
+					column = new TableColumn<>(fc.getAlias());
+					column.setCellValueFactory(factory);
+					//LOGGER.info(String.format("%s.updateModel: Added column %s", CLSS,fc.getAlias()));
+					table.getColumns().add(column);
+				}
+			}
+			LOGGER.info(String.format("%s.updateModel: Table has %d rows", CLSS,items.size()));
+			table.setItems(items);
+		}
+	}
+	
+	/**
+	 * The checkbox has been selected. Update the model
+	 */
+	public class ActionEventHandler implements EventHandler<ActionEvent> {
+		@Override
+		public void handle(ActionEvent event) {
 			updateModel();
 		}
+	}
 
-		@Override
-		public void updateModel() {
-			LayerModel selectedModel = hub.getSelectedLayer();
-			if( selectedModel!=null) {
-				this.model = selectedModel;
-				LOGGER.info(String.format("%s.updateModel: Model is %s", CLSS,model.getName()));
-				if( model.getFeatures()==null ) {
-					try {
-						model.setFeatures(ShapefileReader.read(model.getShapefilePath()));
-					}
-					catch( Exception ex) {
-						model.setFeatures(null);
-						String msg = String.format("%s: Failed to parse shapefile %s (%s)",CLSS,model.getShapefilePath(),ex.getLocalizedMessage());
-						LOGGER.warning(msg);
-						EventBindingHub.getInstance().setMessage(msg);
-					}
-					Database.getInstance().getFeatureAttributeTable().synchronizeFeatureAttributes(model.getId(), model.getFeatures().getFeatureSchema().getAttributeNames());
-				}
-				navPane.updateTextForModel();
-				table.getColumns().clear();
-				items.clear();
-				for(Feature feat:model.getFeatures().getFeatures()) {
-					items.add(feat);
-				}
-				
-				TableColumn<Feature,String> column;
-		        Map<String,String> aliasMap = Database.getInstance().getFeatureAttributeTable().getNamesForFeatureAliases(model.getId());
-		        FeatureDataFactory factory = new FeatureDataFactory(aliasMap);
-		        List<FeatureConfiguration> configurations = Database.getInstance().getFeatureAttributeTable().getFeatureAttributes(model.getId());
-		        boolean showAll = showAllColumns.isSelected();
-		        
-		        for(FeatureConfiguration fc:configurations) {
-		        	if(fc.isVisible()||showAll ) {
-		        		column = new TableColumn<>(fc.getAlias());
-		        		column.setCellValueFactory(factory);
-		        		//LOGGER.info(String.format("%s.updateModel: Added column %s", CLSS,fc.getAlias()));
-		        		table.getColumns().add(column);
-		        	}
-		        }
-		        LOGGER.info(String.format("%s.updateModel: Table has %d rows", CLSS,items.size()));
-		        table.setItems(items);
-			}
-		}
-	
-	
 }

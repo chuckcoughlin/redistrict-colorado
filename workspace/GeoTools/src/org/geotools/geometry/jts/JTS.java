@@ -27,9 +27,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.geotools.geometry.DirectPosition;
-import org.geotools.geometry.util.ShapeUtilities;
 import org.geotools.referencing.GeodeticCalculator;
 import org.geotools.referencing.ReferencedEnvelope;
+import org.geotools.util.ShapeUtilities;
 import org.geotools.util.Utilities;
 import org.locationtech.jts.algorithm.Orientation;
 import org.locationtech.jts.geom.Coordinate;

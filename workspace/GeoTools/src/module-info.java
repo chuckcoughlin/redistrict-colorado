@@ -12,10 +12,11 @@ module org.geotools {
 	exports org.geotools.data.dbf;
 	exports org.geotools.data.shapefile;
 	exports org.geotools.map;
-	exports org.geotools.renderer.shape;
+	exports org.geotools.renderer;
 	exports org.geotools.renderer.style;
 	exports org.geotools.referencing;
 	exports org.geotools.styling;
+	exports org.geotools.util;
 	exports org.openjump.coordsys;
 	exports org.openjump.feature;
 	exports org.openjump.io;

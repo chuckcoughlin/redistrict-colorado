@@ -21,6 +21,7 @@ import java.awt.image.BufferedImage;
 import java.util.logging.Logger;
 
 import org.geotools.referencing.ReferencedEnvelope;
+import org.geotools.util.RendererUtilities;
 import org.geotools.util.Utilities;
 import org.locationtech.jts.geom.Envelope;
 import org.opengis.geometry.MismatchedDimensionException;
@@ -85,10 +86,10 @@ public class GridToEnvelopeMapper {
 	public static final int ANCHOR_CELL_CORNER = 2;
 
     /** The grid range, or {@code null} if not yet specified. */
-    private ReferencedEnvelope gridRange;
+    private ReferencedEnvelope gridRange = null;
 
     /** The envelope, or {@code null} if not yet specified. */
-    private ReferencedEnvelope envelope;
+    private ReferencedEnvelope userRange = null;
 
     /**
      * Whatever the {@code gridToCRS} transform will maps pixel center or corner. The default value
@@ -115,7 +116,7 @@ public class GridToEnvelopeMapper {
      */
     public GridToEnvelopeMapper(final ReferencedEnvelope gridRange, final ReferencedEnvelope userRange) {
         this.gridRange = gridRange;
-        this.envelope = userRange;
+        this.userRange = userRange;
     }
 
     /**
@@ -176,10 +177,10 @@ public class GridToEnvelopeMapper {
      * @throws IllegalStateException if the envelope has not yet been defined.
      */
     public ReferencedEnvelope getEnvelope() throws IllegalStateException {
-        if (envelope == null) {
+        if (userRange == null) {
         	throw new IllegalStateException(String.format("%s.getEnvelope: envelope never set", CLSS));
         }
-        return envelope;
+        return userRange;
     }
 
     /**
@@ -189,8 +190,8 @@ public class GridToEnvelopeMapper {
      * @param envelope The new envelope.
      */
     public void setEnvelope(final ReferencedEnvelope envelope) {
-        if (!Utilities.equals(this.envelope, envelope)) {
-            this.envelope = envelope;
+        if (!Utilities.equals(this.userRange, envelope)) {
+            this.userRange = envelope;
         }
     }
 
@@ -211,24 +212,13 @@ public class GridToEnvelopeMapper {
      */
     public boolean reverseAxis(int i) {
     	AxisDirection grid = gridRange.getCoordinateSystem().getAxis(i).getDirection();
-    	AxisDirection user = envelope.getCoordinateSystem().getAxis(i).getDirection();
+    	AxisDirection user = userRange.getCoordinateSystem().getAxis(i).getDirection();
     	boolean result = !grid.equals(user);
-        if( swapXY(envelope.getCoordinateSystem()) ) result = !result;
+        if( swapXY(userRange.getCoordinateSystem()) ) result = !result;
        
         return result;
     }
 
-    /** Returns the coordinate system in use with the envelope. */
-    private CoordinateSystem getCoordinateSystem() {
-        if (envelope != null) {
-            final CoordinateSystem crs;
-            crs = envelope.getCoordinateSystem();
-            if (crs != null) {
-                return crs;
-            }
-        }
-        return null;
-    }
     /**
      * Applies heuristic rules in order to determine if the two first axis should be interchanged.
      */
@@ -248,11 +238,9 @@ public class GridToEnvelopeMapper {
      */
     public AffineTransform createTransform() throws IllegalStateException {
         if (transform == null) {
-            final ReferencedEnvelope gridEnvelope = getGridRange();
-            final ReferencedEnvelope userEnvelope = getEnvelope();
-            final boolean swapXY = swapXY(userEnvelope.getCoordinateSystem());
+            final boolean swapXY = swapXY(userRange.getCoordinateSystem());
             final int gridType = getPixelAnchor();
-            final int dimension = gridEnvelope.getDimension();
+            final int dimension = gridRange.getDimension();
             
             /*
              * Setup the multi-dimensional affine transform for use with OpenGIS.
@@ -273,24 +261,24 @@ public class GridToEnvelopeMapper {
             if( dimension>1 ){
 
                 
-                double scalex = userEnvelope.getSpan(0) / gridEnvelope.getSpan(0);
-                double scaley = userEnvelope.getSpan(1) / gridEnvelope.getSpan(1);
-                double offsetx = userEnvelope.getMaximum(0);
-                double offsety = userEnvelope.getMaximum(1);
+                double scalex = userRange.getSpan(0) / gridRange.getSpan(0);
+                double scaley = userRange.getSpan(1) / gridRange.getSpan(1);
+                double offsetx = userRange.getMaximum(0);
+                double offsety = userRange.getMaximum(1);
                 if (reverseAxis(0)) {
-                    offsetx = userEnvelope.getMinimum(0);
+                    offsetx = userRange.getMinimum(0);
                 } 
                 else {
                     scalex = -scalex;
                 }
                 if (reverseAxis(1)) {
-                    offsety = userEnvelope.getMinimum(1);
+                    offsety = userRange.getMinimum(1);
                 } 
                 else {
                     scaley = -scaley;
                 }
-                offsetx -= scalex * (gridEnvelope.getMinX() - translate);
-                offsety -= scaley * (gridEnvelope.getMinY() - translate);
+                offsetx -= scalex * (gridRange.getMinX() - translate);
+                offsety -= scaley * (gridRange.getMinY() - translate);
                 
                 if( swapXY ) {
                 	double tmp = scalex;
@@ -304,6 +292,9 @@ public class GridToEnvelopeMapper {
                 double m10 = 0.; 	// y shear
                 double m11 = scaley;  // y scale
                 double m12 = offsety; // dy
+                LOGGER.info(String.format("%s.createTransform: %2.1f,%2.1f,%2.1f,%2.1f",CLSS,gridRange.getWidth(),gridRange.getHeight(),userRange.getWidth(),userRange.getHeight()));
+                LOGGER.info(String.format("%s.createTransform: grid:%s, user:%s", CLSS,RendererUtilities.toText("",gridRange),RendererUtilities.toText("",userRange)));
+                LOGGER.info(String.format("%s.createTransform: %2.1f,%2.1f,%2.1f,%2.1f,%2.1f,%2.1f",CLSS,m00,m01,m02,m10,m11,m12));
                 transform = new AffineTransform(m00,m01,m02,m10,m11,m12); 
             } 
         }

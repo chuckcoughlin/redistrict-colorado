@@ -24,7 +24,8 @@ The list below describes some publicly-available data-sets that are compatible w
 
 Other resources:
 * [Colorado Redistricting Data Used](https://www.colorado.gov/pacific/cga-redistrict/data-used). This page documents the resources used in the state of Colorado for the 2010 redistricting effort.
-
+ * HouseFinalPlan2010.zip - Colorado House district boundaries 2010.
+ * SenateFinalPlan2010.zip - Colorado Senate district boundaries 2010.
 
 * [DRA 2020](http://gardow.com/davebradlee/redistricting/default.html) - Dave's Redistricting, an interactive tool that lets you draw your own boundaries. Unfortunately the application does not export shapefiles.
 

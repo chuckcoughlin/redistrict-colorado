@@ -14,7 +14,7 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.renderer.lite;
+package org.geotools.util;
 
 import java.awt.BasicStroke;
 import java.awt.Rectangle;
@@ -55,7 +55,7 @@ import org.openjump.coordsys.AxisDirection;
 import org.openjump.coordsys.CoordinateSystem;
 
 /**
- * Class for holding utility functions that are common tasks for people using the
+ * Class for holding static utility functions that are common tasks for people using the
  * "StreamingRenderer/Renderer".
  *
  * @author dblasby
@@ -73,36 +73,31 @@ public final class RendererUtilities {
      * system.
      *
      * <p>NOTE It is worth to note that here we do not take into account the half a pixel
-     * translation stated by ogc for coverages bounds. One reason is that WMS 1.1.1 does not follow
+     * translation stated by ogc for coverage bounds. One reason is that WMS 1.1.1 does not follow
      * it!!!
      *
      * @param mapExtent the map extent
      * @param paintArea the size of the rendering output area
      * @return a transform that maps from real world coordinates to the screen
      */
-    public static AffineTransform worldToScreenTransform(ReferencedEnvelope mapExtent, Rectangle2D paintArea) {
-        // //
-        //
-        // Convert the JTS envelope and get the transform
-        //
-        // //
+    public static AffineTransform worldToScreenTransform(ReferencedEnvelope mapExtent, Rectangle paintArea) {
         final ReferencedEnvelope genvelope = new ReferencedEnvelope(mapExtent);
-        //
-        // Get the transform
-        //
         final GridToEnvelopeMapper mapper = new GridToEnvelopeMapper();
         try {
         	mapper.setGridRange(new ReferencedEnvelope(paintArea,null));
             mapper.setEnvelope(genvelope);
             mapper.setPixelAnchor(GridToEnvelopeMapper.ANCHOR_CELL_CORNER);
-            return mapper.createAffineTransform().createInverse();
+            LOGGER.info(String.format("%s.worldToScreen: %s %s",CLSS,RendererUtilities.toText("mapExtent",mapExtent),RendererUtilities.toText("paintArea",paintArea)));
+            AffineTransform at = mapper.createAffineTransform();
+            AffineTransform inverse = at.createInverse();
+            return inverse;
         } 
         catch (MismatchedDimensionException e) {
-            LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
+        	LOGGER.log(Level.WARNING, String.format("%s.worldtoScreenTransform (%s)",CLSS,e.getLocalizedMessage()),e);
             return null;
         } 
         catch (NoninvertibleTransformException e) {
-            LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
+            LOGGER.log(Level.WARNING, String.format("%s.worldtoScreenTransform (%s)",CLSS,e.getLocalizedMessage()), e);
             return null;
         }
     }
@@ -220,6 +215,18 @@ public final class RendererUtilities {
         return size;
     }
 
+    public static String toText(String label,Rectangle rect) {
+		String text = String.format("%s (%2.1f-%2.1f,%2.1f-%2.1f)",label,rect.getMinX(),rect.getMaxX(),rect.getMinY(),rect.getMaxY()); 
+		return text;
+	}
+    public static String toText(String label,Rectangle2D rect) {
+		String text = String.format("%s (%2.1f-%2.1f,%2.1f-%2.1f)",label,rect.getMinX(),rect.getMaxX(),rect.getMinY(),rect.getMaxY()); 
+		return text;
+	}
+    public static String toText(String label,Envelope rect) {
+		String text = String.format("%s (%2.1f-%2.1f,%2.1f-%2.1f)",label,rect.getMinX(),rect.getMaxX(),rect.getMinY(),rect.getMaxY()); 
+		return text;
+	}
 
     /**
      * First searches the hints for the scale denominator hint otherwise calls {@link
@@ -427,8 +434,7 @@ public final class RendererUtilities {
                         .getDirection()
                         .equals(AxisDirection.EAST);
         final ReferencedEnvelope newEnvelope =
-                lonFirst
-                        ? new ReferencedEnvelope(mapExtent.getMinX(), mapExtent.getMinY(),
+                lonFirst? new ReferencedEnvelope(mapExtent.getMinX(), mapExtent.getMinY(),
                                 mapExtent.getMaxX(), mapExtent.getMaxY(),destinationCrs)
                         : new ReferencedEnvelope(
                                 mapExtent.getMinY(), mapExtent.getMinX(),

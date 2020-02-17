@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 
 import org.geotools.map.MapContent;
 import org.geotools.map.MapLayer;
-import org.geotools.renderer.shape.ShapefileRenderer;
+import org.geotools.renderer.ShapefileRenderer;
 import org.geotools.renderer.style.SLD;
 import org.geotools.renderer.style.Style;
 import org.jfree.fx.FXGraphics2D;
@@ -36,43 +36,23 @@ import redistrict.colorado.db.Database;
 		private MapContent content;
 		private GraphicsContext gc;
 
-		public MapRenderer(LayerModel mdl,double width, double height) {
-			setModel(mdl);
+		public MapRenderer(double width, double height) {
 			canvas = new Canvas(width, height);
 			gc = canvas.getGraphicsContext2D();
-			initMap();
-			drawMap(gc);
 		}
 
 		public Node getCanvas() {
 			return canvas;
 		}
 
-		private void initMap() {
-			content = new MapContent();
-			content.setTitle(model.getName());
-			// Outline, fill, alpha
-			Style style = SLD.createPolygonStyle(Color.BLUE,Color.LIGHT_GRAY,1.0f);
-			MapLayer layer = new MapLayer(model.getFeatures(), style);
-			content.addLayer(layer);
-			content.getViewport().setScreenArea(new Rectangle((int) canvas.getWidth(), (int) canvas.getHeight()));
-		}
-
-		private void drawMap(GraphicsContext gc) {
-			ShapefileRenderer renderer = new ShapefileRenderer();
-			renderer.setMapContent(content);
-			FXGraphics2D graphics = new FXGraphics2D(gc);
-			graphics.setBackground(java.awt.Color.WHITE);
-			renderer.paint(graphics, content.getViewport().getScreenArea(), content.getViewport().getBounds());
-		}
-		
 		/**
-		 * When a new model is defined, make sure that its contents have been populated.
-		 * @param m
+		 * When a new model is defined or old model modified, make sure that its features are populated on screen.
+		 * If the model has not been refreshed from the file yet this session, then do so now.
+		 * @param m the model
 		 */
-		public void setModel(LayerModel m) {
+		public void updateModel(LayerModel m) {
 			this.model = m;
-			if( model.getFeatures()==null && !model.getShapefilePath().isEmpty()) {
+			if(  model.getFeatures()==null && !model.getShapefilePath().isEmpty()) {
 				try {
 					model.setFeatures(ShapefileReader.read(model.getShapefilePath()));
 					LOGGER.info(String.format("%s.onSave: Shapefile has %d records, %d attributes", CLSS,model.getFeatures().getFeatures().size(),model.getFeatures().getFeatureSchema().getAttributeCount()));
@@ -85,6 +65,25 @@ import redistrict.colorado.db.Database;
 				}
 				Database.getInstance().getFeatureAttributeTable().synchronizeFeatureAttributes(model.getId(), model.getFeatures().getFeatureSchema().getAttributeNames());
 			}
+			initializeContent();
+			drawMap();
 		}
 		
+		private void initializeContent() {
+			content = new MapContent();
+			content.setTitle((model==null?"":model.getName()));
+			// Outline, fill, alpha
+			Style style = SLD.createPolygonStyle(Color.BLUE,Color.LIGHT_GRAY,1.0f);
+			MapLayer layer = new MapLayer(model.getFeatures(), style);
+			content.addLayer(layer);
+			content.getViewport().setScreenArea(new Rectangle((int) canvas.getWidth(), (int) canvas.getHeight()));
+		}
+
+		private void drawMap() {
+			ShapefileRenderer renderer = new ShapefileRenderer();
+			renderer.setMapContent(content);
+			FXGraphics2D graphics = new FXGraphics2D(gc);
+			graphics.setBackground(java.awt.Color.WHITE);
+			renderer.paint(graphics, content.getViewport().getScreenArea(), content.getViewport().getBounds());
+		}
 }

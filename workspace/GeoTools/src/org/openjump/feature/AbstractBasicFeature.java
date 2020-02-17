@@ -114,7 +114,7 @@ public abstract class AbstractBasicFeature implements Feature, Serializable {
 
     /**
      * Returns a String representation of the attribute at the given index.
-     * If the attribute at the given index is null, the method returns null.
+     * If the attribute at the given index is null, the method returns blank.
      *
      *@param  attributeIndex  the array index of the attribute
      *@return                 a String representation of the attribute.
@@ -127,13 +127,10 @@ public abstract class AbstractBasicFeature implements Feature, Serializable {
         //#getString should be strict: it should throw an Exception if it is used
         //on a non-String attribute. [Jon Aquino]
         Object result = getAttribute(attributeIndex);
-        //We used to eat ArrayOutOfBoundsExceptions here. I've removed this behaviour
-        //because ArrayOutOfBoundsExceptions are bugs and should be exposed. [Jon Aquino]        
-        //Is it valid for an attribute to be null? If not, we should put an
-        //Assert here [Jon Aquino]
         if (result != null) {
             return result.toString();
-        } else {
+        } 
+        else {
             return "";
         }
     }

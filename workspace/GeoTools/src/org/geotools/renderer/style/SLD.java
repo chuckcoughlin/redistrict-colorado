@@ -19,6 +19,7 @@ package org.geotools.renderer.style;
 import java.awt.Color;
 import java.util.logging.Logger;
 
+import org.geotools.geometry.jts.Geometries;
 import org.geotools.styling.Fill;
 import org.geotools.styling.Graphic;
 import org.geotools.styling.LineSymbolizer;
@@ -28,6 +29,7 @@ import org.geotools.styling.PolygonSymbolizer;
 import org.geotools.styling.Stroke;
 import org.geotools.styling.Symbolizer;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Polygon;
 import org.openjump.feature.Feature;
 
 
@@ -69,35 +71,27 @@ public class SLD {
      * @throws java.io.IOException if the data store cannot be accessed
      */
     public static Style createSimpleStyle(Feature feature, Color color) {
-        Geometry geom = feature.getGeometry();
-        String type = geom.getGeometryType();
-        LOGGER.info(String.format("%s.createSimpleStyle: %s",CLSS,type));
         Color fillColor = null;
-
-        if(type.equalsIgnoreCase("Polygon") || type.equalsIgnoreCase("MultiPolygon")) {
-            if (color.equals(Color.BLACK)) {
-                fillColor = null;
-            } 
-            else {
-                fillColor = color;
-            }
-            return createPolygonStyle(color, fillColor, 0.5f);
-
-        } 
-        else if( type.equalsIgnoreCase("LineString") ||  type.equalsIgnoreCase("MultiLineString") ) {
-            return createLineStyle(color, 1.0f);
-        } 
-        else if( type.equalsIgnoreCase("Point") ||  type.equalsIgnoreCase("MultiPoint")) {
-            if (color.equals(Color.BLACK)) {
-                fillColor = null;
-            } 
-            else {
-                fillColor = color;
-            }
-            return createPointStyle("Circle", color, fillColor, 0.5f, 3.0f);
+        Geometry geom = feature.getGeometry();
+        LOGGER.info(String.format("%s.createSimpleStyle: %s",CLSS,geom.getGeometryType()));
+        switch (Geometries.get(geom)) {
+			case POINT:
+			case MULTIPOINT:
+				if (color.equals(Color.BLACK)) { fillColor = null;} 
+	            else {fillColor = color;}
+	            return createPointStyle("Circle", color, fillColor, 0.5f, 3.0f);
+			case LINESTRING:
+			case MULTILINESTRING:
+				return createLineStyle(color, 1.0f);
+			case POLYGON:
+			case MULTIPOLYGON:
+				 if (color.equals(Color.BLACK)) {fillColor = null; }
+		         else {fillColor = color;}
+		         return createPolygonStyle(color, fillColor, 0.5f);
+			case GEOMETRYCOLLECTION:
+			default:
+				throw new UnsupportedOperationException("No style method for " + geom.getGeometryType());
         }
-
-        throw new UnsupportedOperationException("No style method for " + type);
     }
 
     /**

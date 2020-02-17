@@ -35,7 +35,7 @@ import redistrict.colorado.ui.navigation.LayerNavigationPane;
 			headerLabel.getStyleClass().add("list-header-label");
 			getChildren().add(headerLabel);
 			
-			map = new MapRenderer(model,UIConstants.SCENE_WIDTH, UIConstants.SCENE_HEIGHT);
+			map = new MapRenderer(UIConstants.SCENE_WIDTH, UIConstants.SCENE_HEIGHT);
 			Node canvas = map.getCanvas();
 			getChildren().add(canvas);
 
@@ -44,26 +44,35 @@ import redistrict.colorado.ui.navigation.LayerNavigationPane;
 			setLeftAnchor(headerLabel,UIConstants.LIST_PANEL_LEFT_MARGIN);
 			setRightAnchor(headerLabel,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 			
+			setLeftAnchor(canvas,UIConstants.LIST_PANEL_LEFT_MARGIN);
+			setRightAnchor(canvas,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+			
 			setBottomAnchor(navPane,0.);
 			setLeftAnchor(navPane,UIConstants.LIST_PANEL_LEFT_MARGIN);
 			setRightAnchor(navPane,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+			updateModel();
 		}
 		
 		@Override
 		public void updateModel() {
-			model = hub.getSelectedLayer();
-			map.setModel(model);
-			navPane.updateTextForModel();
-			if( model.getFeatures()==null ) {
-				try {
-					model.setFeatures(ShapefileReader.read(model.getShapefilePath()));
+			LayerModel selectedModel = hub.getSelectedLayer();
+			if( selectedModel!=null) {
+				model = selectedModel;;
+				LOGGER.info(String.format("%s.updateModel: selected = %s", CLSS,model.getName()));
+				navPane.updateTextForModel();
+				if( model.getFeatures()==null ) {
+					try {
+						model.setFeatures(ShapefileReader.read(model.getShapefilePath()));
+						map.updateModel(model);
+					}
+					catch( Exception ex) {
+						model.setFeatures(null);
+						String msg = String.format("%s: Failed to parse shapefile %s (%s)",CLSS,model.getShapefilePath(),ex.getLocalizedMessage());
+						LOGGER.warning(msg);
+						EventBindingHub.getInstance().setMessage(msg);
+					}
 				}
-				catch( Exception ex) {
-					model.setFeatures(null);
-					String msg = String.format("%s: Failed to parse shapefile %s (%s)",CLSS,model.getShapefilePath(),ex.getLocalizedMessage());
-					LOGGER.warning(msg);
-					EventBindingHub.getInstance().setMessage(msg);
-				}
+				map.updateModel(model);
 			}
 		}
 }

@@ -14,7 +14,7 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.renderer.shape;
+package org.geotools.renderer;
 
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -30,20 +30,10 @@ import org.geotools.map.MapLayer;
 import org.geotools.map.MapLayerListEvent;
 import org.geotools.map.MapLayerListListener;
 import org.geotools.referencing.ReferencedEnvelope;
-import org.geotools.renderer.GTRenderer;
-import org.geotools.renderer.RenderListener;
-import org.geotools.renderer.lite.RendererUtilities;
 import org.geotools.renderer.lite.StyledShapePainter;
 import org.geotools.renderer.style.Style;
+import org.geotools.util.RendererUtilities;
 import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.LinearRing;
-import org.locationtech.jts.geom.MultiLineString;
-import org.locationtech.jts.geom.MultiPoint;
-import org.locationtech.jts.geom.MultiPolygon;
-import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.Polygon;
 import org.openjump.coordsys.CoordinateSystem;
 import org.openjump.feature.Feature;
 import org.openjump.feature.FeatureCollection;
@@ -57,7 +47,7 @@ import org.openjump.feature.FeatureCollection;
  *
  * @source $URL$
  */
-public class ShapefileRenderer implements GTRenderer, MapLayerListListener {
+public class ShapefileRenderer implements GTRenderer {
 	private final static String CLSS = "ShapefileRenderer";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private Graphics2D graphics = null;
@@ -65,16 +55,7 @@ public class ShapefileRenderer implements GTRenderer, MapLayerListListener {
     private List<RenderListener> renderListeners = new CopyOnWriteArrayList<RenderListener>();
     private MapContent content = null;
 
-    /** Tolerance used to compare doubles for equality */
-    private static final double TOLERANCE = 1e-6;
-    private static final GeometryFactory geomFactory = new GeometryFactory();
     private static final Coordinate[] 	COORDS;
-    private static final MultiPolygon 	MULTI_POLYGON_GEOM;
-    private static final Polygon 		POLYGON_GEOM;
-    private static final LinearRing 	LINE_GEOM;
-    private static final MultiLineString MULTI_LINE_GEOM;
-    private static final Point 			POINT_GEOM;
-    private static final MultiPoint 	MULTI_POINT_GEOM;
     
     /**
      * Computes the scale as the ratio between map distances and real world distances,
@@ -102,12 +83,6 @@ public class ShapefileRenderer implements GTRenderer, MapLayerListListener {
         COORDS[2] = new Coordinate(5.0, 5.0);
         COORDS[3] = new Coordinate(0.0, 5.0);
         COORDS[4] = new Coordinate(0.0, 0.0);
-        LINE_GEOM 		= geomFactory.createLinearRing(COORDS);
-        MULTI_LINE_GEOM = geomFactory.createMultiLineString(new LineString[]{LINE_GEOM});
-        POLYGON_GEOM	 = geomFactory.createPolygon(LINE_GEOM, new LinearRing[0]);
-        MULTI_POLYGON_GEOM 	= geomFactory.createMultiPolygon(new Polygon[]{POLYGON_GEOM});
-        POINT_GEOM 			= geomFactory.createPoint(COORDS[2]);
-        MULTI_POINT_GEOM 	= geomFactory.createMultiPoint(COORDS);
     }
 
 
@@ -143,7 +118,6 @@ public class ShapefileRenderer implements GTRenderer, MapLayerListListener {
      * The text rendering method, either TEXT_RENDERING_OUTLINE or TEXT_RENDERING_STRING
      */
     public static final String TEXT_RENDERING_KEY = "textRenderingMethod";
-    private String textRenderingModeDEFAULT = TEXT_RENDERING_STRING;
     
 	public static final String FORCE_CRS_KEY = "forceCRS";
 	public static final String DPI_KEY = "dpi";
@@ -260,7 +234,6 @@ public class ShapefileRenderer implements GTRenderer, MapLayerListListener {
 
         List<MapLayer> layers = content.layers();
         for( MapLayer layer:layers ) {
-
         	if (layer.isVisible()) {
         		try {
         			layer.getBounds();
@@ -309,25 +282,4 @@ public class ShapefileRenderer implements GTRenderer, MapLayerListListener {
 
 	@Override
 	public MapContent getMapContent() {return this.content;}
-
-	/**
-	 * The layer element has been modified. If it is visible, re-paint.
-	 */
-	@Override
-	public void layerModified(MapLayerListEvent event) {
-		MapLayer layer = event.getLayer();
-		if( layer.isVisible()) {
-			//paint( graphics, Rectangle paintArea, ReferencedEnvelope envelope)
-		}
-		
-	}
-
-	/**
-	 * The layer list has been modified. Re-paint.
-	 */
-	@Override
-	public void layerListModified(MapLayerListEvent event) {
-		//paint(graphics, Rectangle paintArea, ReferencedEnvelope envelope)
-		
-	}
 }

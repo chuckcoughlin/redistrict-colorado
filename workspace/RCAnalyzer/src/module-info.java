@@ -13,6 +13,7 @@ module rc.analyzer {
 	requires javafx.base;
 	requires transitive javafx.graphics;
 	requires transitive javafx.controls;
+	requires jdk.jdwp.agent;
 	
 	/* For debuggubg */
 	requires java.instrument;
