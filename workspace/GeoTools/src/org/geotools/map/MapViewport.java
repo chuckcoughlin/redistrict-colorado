@@ -21,14 +21,12 @@ import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.geotools.map.MapBoundsEvent.Type;
 import org.geotools.referencing.ReferencedEnvelope;
 import org.openjump.coordsys.CoordinateSystem;
 
@@ -92,7 +90,6 @@ public class MapViewport {
      * image) coordinates.
      */
     private AffineTransform worldToScreen;
-    private CopyOnWriteArrayList<MapBoundsListener> boundsListeners;
     private boolean matchingAspectRatio;
     private boolean hasCenteringTransforms;
     /**
@@ -224,31 +221,6 @@ public class MapViewport {
     }
 
     /**
-     * Used by client application to track the bounds of this viewport.
-     *
-     * @param listener
-     */
-    public void addMapBoundsListener(MapBoundsListener listener) {
-        lock.writeLock().lock();
-        try {
-            if (boundsListeners == null) {
-                boundsListeners = new CopyOnWriteArrayList<MapBoundsListener>();
-            }
-            if (!boundsListeners.contains(listener)) {
-                boundsListeners.add(listener);
-            }
-        } finally {
-            lock.writeLock().unlock();
-        }
-    }
-
-    public void removeMapBoundsListener(MapBoundsListener listener) {
-        if (boundsListeners != null) {
-            boundsListeners.remove(listener);
-        }
-    }
-
-    /**
      * Checks if the view port bounds are empty (undefined). This will be {@code true} if either or
      * both of the world bounds and screen bounds are empty.
      *
@@ -304,7 +276,6 @@ public class MapViewport {
                 ReferencedEnvelope old = bounds;
                 copyBounds(requestedBounds);
                 setTransforms(true);
-                fireMapBoundsListenerMapBoundsChanged(Type.BOUNDS, old, bounds);
             }
         } finally {
             lock.writeLock().unlock();
@@ -403,34 +374,6 @@ public class MapViewport {
     	finally {
     		lock.writeLock().unlock();
     	}
-    }
-
-    /** Notifies MapBoundsListeners about a change to the bounds or crs. */
-    protected void fireMapBoundsListenerMapBoundsChanged(
-            Type type, ReferencedEnvelope oldBounds, ReferencedEnvelope newBounds) {
-
-        if (boundsListeners == null) {
-            return;
-        }
-        if (newBounds == bounds) {
-            // issue a copy to the boundsListeners for safety
-            newBounds = new ReferencedEnvelope(bounds);
-        }
-        MapBoundsEvent event = new MapBoundsEvent(this, type, oldBounds, newBounds);
-        for (MapBoundsListener boundsListener : boundsListeners) {
-            try {
-                boundsListener.mapBoundsChanged(event);
-            } catch (Throwable t) {
-                if (LOGGER.isLoggable(Level.FINER)) {
-                    LOGGER.logp(
-                            Level.FINE,
-                            boundsListener.getClass().getName(),
-                            "mapBoundsChanged",
-                            t.getLocalizedMessage(),
-                            t);
-                }
-            }
-        }
     }
 
     /**

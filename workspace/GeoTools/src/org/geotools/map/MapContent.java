@@ -370,34 +370,6 @@ public class MapContent {
     }
 
     /**
-     * Register interest in receiving {@link MapBoundsEvent}s.
-     *
-     * @param listener The object to notify when the area of interest has changed.
-     */
-    public void addMapBoundsListener(MapBoundsListener listener) {
-        monitor.writeLock().lock();
-        try {
-            getViewport().addMapBoundsListener(listener);
-        } finally {
-            monitor.writeLock().unlock();
-        }
-    }
-
-    /**
-     * Remove interest in receiving a {@link BoundingBoxEvent}s.
-     *
-     * @param listener The object to stop sending change events.
-     */
-    public void removeMapBoundsListener(MapBoundsListener listener) {
-        monitor.writeLock().lock();
-        try {
-            getViewport().removeMapBoundsListener(listener);
-        } finally {
-            monitor.writeLock().unlock();
-        }
-    }
-
-    /**
      * The extent of the map currently (sometimes called the map "viewport".
      *
      * <p>Note Well: The bounds should match your screen aspect ratio (or the map will appear
