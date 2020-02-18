@@ -7,7 +7,7 @@
  *
  *    All Rights Reserved. http://www.opengis.org/legal/
  */
-package org.opengis.referencing.operation;
+package org.opengis.geometry;
 
 
 /**

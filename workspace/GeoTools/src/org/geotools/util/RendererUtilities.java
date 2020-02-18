@@ -19,8 +19,6 @@ package org.geotools.util;
 import java.awt.BasicStroke;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.NoninvertibleTransformException;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -46,8 +44,6 @@ import org.locationtech.jts.geom.impl.CoordinateArraySequence;
 import org.locationtech.jts.geom.prep.PreparedGeometry;
 import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
 import org.opengis.geometry.MismatchedDimensionException;
-import org.openjump.coordsys.AxisDirection;
-import org.openjump.coordsys.CoordinateSystem;
 
 /**
  * Class for holding static utility functions that are common tasks for people using the
@@ -101,24 +97,25 @@ public final class RendererUtilities {
     }
     
     /**
-     * First searches the hints for the scale denominator hint otherwise calls {@link
-     * #calculateScale(org.geotools.util.SoftValueHashMap.Reference, int, int, double)}. If the
-     * hints contains a DPI then that DPI is used otherwise 90 is used (the OGS default).
+     * Calculate a scaling conversion from physical to screen coordinates.
+     * @param from the source coordinates in degrees lat/lon. 
+     * @param to the destination envelope in screen coordinates
      */
-    public static double calculateScale(ReferencedEnvelope envelope, double imageWidth, double imageHeight) {
-        Double scale = (Double) getDpi();
-        return scale.doubleValue();
+    public static double calculateXScale(ReferencedEnvelope from, ReferencedEnvelope to) {
+    	double scale = to.getWidth()/from.getWidth();
+        return scale;
+    }
+    
+    /**
+     * Calculate a scaling conversion from physical to screen coordinates.
+     * @param from the source coordinates in degrees lat/lon. 
+     * @param to the destination envelope in screen coordinates
+     */
+    public static double calculateYScale(ReferencedEnvelope from, ReferencedEnvelope to) {
+    	double scale = to.getHeight()/from.getHeight();
+        return scale;
     }
 
-    /**
-     * Return the OGC standard, stating that a pixel is 0.28 mm
-     * (the result is a non integer DPI...)
-     *
-     * @return DPI as doubles, to avoid issues with integer trunking in scale computation expression
-     */
-    public static double getDpi() {
-        return 25.4 / 0.28; // 90 = OGC standard
-    }
 
     /**
      * Finds the centroid of the input geometry if input = point, line, polygon --> return a point

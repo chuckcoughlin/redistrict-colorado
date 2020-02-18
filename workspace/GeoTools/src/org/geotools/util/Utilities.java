@@ -75,6 +75,7 @@ import java.util.stream.StreamSupport;
 public final class Utilities {
 	private final static String CLSS = "Utilities";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
+	public static final double COMPARISON_TOLERANCE = 0.01;
 	
     /**
      * An array of strings containing only white spaces. Strings' lengths are equal to their index
@@ -245,7 +246,7 @@ public final class Utilities {
     public static boolean equals(float o1, float o2) {
         if (Float.floatToIntBits(o1) == Float.floatToIntBits(o2)) return true;
 
-        double tol = getTolerance();
+        double tol = COMPARISON_TOLERANCE;
         final double min = o1 - o1 * tol;
         final double max = o1 + o1 * tol;
         return min <= o2 && o2 <= max;
@@ -263,19 +264,10 @@ public final class Utilities {
     public static boolean equals(double o1, double o2) {
         if (Double.doubleToLongBits(o1) == Double.doubleToLongBits(o2)) return true;
 
-        double tol = getTolerance();
+        double tol = COMPARISON_TOLERANCE;
         final double min = o1 - Math.signum(o1) * o1 * tol;
         final double max = o1 + Math.signum(o1) * o1 * tol;
         return min <= o2 && o2 <= max;
-    }
-
-    /**
-     * Gathers the tolerance for floating point comparisons
-     *
-     * @return The tolerance set in the hints, or its default value if not set
-     */
-    private static double getTolerance() {
-        return Hints.COMPARISON_TOLERANCE;
     }
 
     /**

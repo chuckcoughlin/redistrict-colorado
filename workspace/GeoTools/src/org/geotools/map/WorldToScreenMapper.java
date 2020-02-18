@@ -21,57 +21,12 @@ import java.util.logging.Logger;
 
 import org.geotools.referencing.ReferencedEnvelope;
 import org.geotools.util.RendererUtilities;
-import org.geotools.util.Utilities;
 import org.openjump.coordsys.AxisDirection;
 import org.openjump.coordsys.CoordinateSystem;
 
 /**
  * A helper class for building <var>n</var>-dimensional {@linkplain AffineTransform affine
- * transform} mapping {@linkplain GridEnvelope grid ranges} to {@linkplain Envelope envelopes}. The
- * affine transform will be computed automatically from the information specified by the {@link
- * #setGridRange setGridRange} and {@link #setEnvelope setEnvelope} methods, which are mandatory.
- * All other setter methods are optional hints about the affine transform to be created. This
- * builder is convenient when the following conditions are meet:
- *
- * <p>
- *
- * <ul>
- *   <li>
- *       <p>Pixels coordinates (usually (<var>x</var>,<var>y</var>) integer values inside the
- *       rectangle specified by the grid range) are expressed in some {@linkplain
- *       CoordinateReferenceSystem coordinate reference system} known at compile time. This is often
- *       the case. For example the CRS attached to {@link BufferedImage} has always ({@linkplain
- *       AxisDirection#COLUMN_POSITIVE column}, {@linkplain AxisDirection#ROW_POSITIVE row}) axis,
- *       with the origin (0,0) in the upper left corner, and row values increasing down.
- *   <li>
- *       <p>"Real world" coordinates (inside the envelope) are expressed in arbitrary
- *       <em>horizontal</em> coordinate reference system. Axis directions may be ({@linkplain
- *       AxisDirection#NORTH North}, {@linkplain AxisDirection#WEST West}), or ({@linkplain
- *       AxisDirection#EAST East}, {@linkplain AxisDirection#NORTH North}), <cite>etc.</cite>.
- * </ul>
- *
- * <p>In such case (and assuming that the image's CRS has the same characteristics than the {@link
- * BufferedImage}'s CRS described above):
- *
- * <p>
- *
- * <ul>
- *   <li>
- *       <p>{@link #setSwapXY swapXY} shall be set to {@code true} if the "real world" axis order is
- *       ({@linkplain AxisDirection#NORTH North}, {@linkplain AxisDirection#EAST East}) instead of
- *       ({@linkplain AxisDirection#EAST East}, {@linkplain AxisDirection#NORTH North}). This axis
- *       swapping is necessary for mapping the ({@linkplain AxisDirection#COLUMN_POSITIVE column},
- *       {@linkplain AxisDirection#ROW_POSITIVE row}) axis order associated to the image CRS.
- *   <li>
- *       <p>In addition, the "real world" axis directions shall be reversed (by invoking <code>
- *       {@linkplain #reverseAxis reverseAxis}(dimension)</code>) if their direction is {@link
- *       AxisDirection#WEST WEST} (<var>x</var> axis) or {@link AxisDirection#NORTH NORTH}
- *       (<var>y</var> axis), in order to get them oriented toward the {@link AxisDirection#EAST
- *       EAST} or {@link AxisDirection#SOUTH SOUTH} direction respectively. The later may seems
- *       unatural, but it reflects the fact that row values are increasing down in an {@link
- *       BufferedImage}'s CRS.
- * </ul>
- *
+ * transform} mapping {@linkplain WorldEnvelope coordinates} to {@linkplain screen coordinates}.
  * @since 2.3
  * @version $Id$
  * @author Martin Desruisseaux (IRD)
@@ -97,17 +52,16 @@ public class WorldToScreenMapper {
     /**
      * Creates a new instance for the specified world and screen envelopes.
      *
-     * @param gridRange The valid coordinate range of a grid coverage.
-     * @param userRange The corresponding coordinate range in user coordinate. This envelope must
+     * @param world an envelope surrounding the physical features
+     * @param screen an envelope that describes screen coordinate. This envelope must
      *     contains entirely all pixels, i.e. the envelope's upper left corner must coincide with
      *     the upper left corner of the first pixel and the envelope's lower right corner must
      *     coincide with the lower right corner of the last pixel.
-     * @throws MismatchedDimensionException if the grid range and the envelope doesn't have
-     *     consistent dimensions.
      */
     public WorldToScreenMapper(final ReferencedEnvelope world, final ReferencedEnvelope screen) {
         this.worldEnvelope = world;
         this.screenEnvelope = screen;
+        this.transform = null;
     }
 
     /**
@@ -177,30 +131,26 @@ public class WorldToScreenMapper {
         return false;
     }
     /**
-     * Creates a affine transform using the information provided by setter methods.
-     * This assumes no reversing
+     * Creates an affine transform from physical to screen coordinates where the source maps
+     * completely to the destination.
      *
      * @return the transform.
      */
     public AffineTransform createTransform()  {
         if (transform == null) {
-            final boolean swapXY = swapXY(screenEnvelope.getCoordinateSystem());
-            final int gridType = getPixelAnchor();
-            final int dimension = worldEnvelope.getDimension();
-            
             /*
              * Setup the multi-dimensional affine transform for use with OpenGIS.
              * According OpenGIS specification, transforms must map pixel center.
              * This is done by adding 0.5 to grid coordinates.
              */
             double translate = 0.0;   // ANCHOR_CELL_CORNER
-            if(gridType==ANCHOR_CELL_CENTER) {
+            if(getPixelAnchor()==ANCHOR_CELL_CENTER) {
                 translate = 0.5;
             } 
 
-            if( dimension>1 ){
-                double scalex = screenEnvelope.getWidth() / worldEnvelope.getWidth();
-                double scaley = screenEnvelope.getHeight() / worldEnvelope.getHeight();
+            if( worldEnvelope.getDimension()>1 ){
+                double scalex = RendererUtilities.calculateXScale(worldEnvelope, screenEnvelope);
+                double scaley = RendererUtilities.calculateYScale(worldEnvelope, screenEnvelope);
                 double offsetx = screenEnvelope.getMaximum(0);
                 double offsety = screenEnvelope.getMaximum(1);
                 if (reverseAxis(0)) {
@@ -218,6 +168,7 @@ public class WorldToScreenMapper {
                 offsetx -= scalex * (worldEnvelope.getMinX() - translate);
                 offsety -= scaley * (worldEnvelope.getMinY() - translate);
                 
+                boolean swapXY = swapXY(screenEnvelope.getCoordinateSystem());
                 if( swapXY ) {
                 	double tmp = scalex;
                 	scalex = scaley;
@@ -230,7 +181,7 @@ public class WorldToScreenMapper {
                 double m10 = 0.; 	// y shear
                 double m11 = scaley;  // y scale
                 double m12 = offsety; // dy
-                transform = new AffineTransform(m00,m01,m02,m10,m11,m12); 
+                transform = new AffineTransform(m00,m10,m01,m11,m02,m12); 
             } 
         }
         return transform;

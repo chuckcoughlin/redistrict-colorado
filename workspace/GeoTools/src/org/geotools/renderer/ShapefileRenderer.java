@@ -30,7 +30,6 @@ import org.geotools.map.MapLayer;
 import org.geotools.referencing.ReferencedEnvelope;
 import org.geotools.renderer.style.Style;
 import org.geotools.util.RendererUtilities;
-import org.openjump.coordsys.CoordinateSystem;
 import org.openjump.feature.Feature;
 import org.openjump.feature.FeatureCollection;
 import org.openjump.feature.FeatureFilter;
@@ -104,13 +103,19 @@ public class ShapefileRenderer {
                 }
             }
         }
+        LOGGER.log(Level.WARNING, String.format("%s.fireErrorEvent: Rendering error (%s)",CLSS,e.getLocalizedMessage()),e);
     }
 
+    /**
+     * Paint the map features after transforming to match the target area.
+     * @param mapExtent the envelope surrounding the layer features.
+     * @param paintArea target screen area.
+     * @param filter containing pan or zoom commands.
+     */
     private void paint(ReferencedEnvelope mapExtent,Rectangle paintArea, FeatureFilter filter ) {
     	AffineTransform transform = RendererUtilities.worldToScreenTransform(mapExtent, paintArea);
         /*
-         * If we are rendering to a component which has already set up some form of transformation
-         * then we can concatenate our filter transformation to it. This is used for panning or zooming.
+         * Concatenate a filter transformation to the envelope. This is used for panning or zooming.
          */
         if (filter!=null) {
             AffineTransform atg = filter.getTransform();
@@ -125,7 +130,7 @@ public class ShapefileRenderer {
         			layer.getBounds();
         			Style style = layer.getStyle();
         			FeatureCollection collection = layer.getFeatures();
-        			// Scale the features in the layer individually
+        			// Transform the features in the layer individually
         			for( Feature feature:collection.getFeatures()) {
         				FeatureShape shape = new FeatureShape(feature,transform);
         				painter.paint(graphics, shape, style);

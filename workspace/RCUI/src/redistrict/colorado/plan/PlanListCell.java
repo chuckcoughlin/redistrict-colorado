@@ -43,10 +43,10 @@ public class PlanListCell extends ListCell<PlanModel> implements ChangeListener<
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
 	private final static double COL1_WIDTH = 40.;
 	private final static double COL2_WIDTH = 100.;
-	private final static double COL3_WIDTH = 80.;
+	private final static double COL3_WIDTH = 60.;
 	private final static double COL4_WIDTH = 40.;
-	private final static double COL5_WIDTH = 45.;
-	private final static double COL6_WIDTH = 45.;
+	private final static double COL5_WIDTH = 55.;
+	private final static double COL6_WIDTH = 55.;
 	private final static double ROW1_HEIGHT = 40.;
 	private static final GuiUtil guiu = new GuiUtil();
 	private final static String MAP_DATA = "map";
@@ -116,10 +116,11 @@ public class PlanListCell extends ListCell<PlanModel> implements ChangeListener<
         grid.add(tag, 0, 0);                    
         grid.add(name, 1, 0);        
         grid.add(description, 1,1,2,1);
-        grid.add(active, 2,0);
+        
 
     }
     private void addControlsToGrid() {
+    	grid.add(active, 2,0);
         grid.add(edit, 3, 0);                    
         grid.add(mapButton, 4, 0);        
         grid.add(detailButton, 5, 0);
