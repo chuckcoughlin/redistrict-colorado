@@ -19,12 +19,13 @@ package org.geotools.geometry.jts;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
+import org.geotools.geometry.decimate.Decimator;
 import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.CoordinateSequence;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
@@ -49,9 +50,10 @@ import org.openjump.feature.Feature;
  * @version $Id$
  */
 public final class FeatureShape implements Shape, Cloneable {
-
+	private final static double DECIMATOR_TOLERANCE = 0.8; // Minimum pixel distance tolerated.
     private Geometry geometry;
     private AffineTransform mathTransform; // transform dataspace to screenspace 
+    private final Decimator decimator;
 
     /**
      * Creates a shape from a feature.
@@ -62,29 +64,9 @@ public final class FeatureShape implements Shape, Cloneable {
      * @param decimator -
      * @param generalize - set to true if the geometry need to be generalized during rendering
      * @param maxDistance - distance used in the generalization process
-     * @throws TransformException
-     * @throws FactoryException
      */
     public FeatureShape(Feature feature,AffineTransform transform) {
-    	this.geometry = feature.getGeometry();
-    	this.mathTransform = transform;
-        Decimator decimator = null;
-        // if we have a transform, a decimation span can be created
-        if (mathTransform != null
-                && !mathTransform.isIdentity()
-                && geometry != null) {
-        	Rectangle2D r2d = new Rectangle.Double();
-        	try {
-				XAffineTransform.inverseTransform(mathTransform, getRectangle(this.geometry.getEnvelopeInternal()), r2d);
-				decimator = new Decimator( mathTransform,r2d.getBounds(),0.);
-				decimator.decimate(geometry);
-			} 
-        	catch (NoninvertibleTransformException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-        }
-
+    	this(feature.getGeometry(),transform);
     }
     
     /**
@@ -102,34 +84,10 @@ public final class FeatureShape implements Shape, Cloneable {
     public FeatureShape(Geometry geom,AffineTransform transform) {
     	this.geometry = geom;
     	this.mathTransform = transform;
-        Decimator decimator = null;
-        // if we have a transform, a decimation span can be created
-        if (mathTransform != null
-                && !mathTransform.isIdentity()
-                && geometry != null) {
-        	Rectangle2D r2d = new Rectangle.Double();
-        	try {
-				XAffineTransform.inverseTransform(mathTransform, getRectangle(this.geometry.getEnvelopeInternal()), r2d);
-				decimator = new Decimator( mathTransform,r2d.getBounds(),0.);
-				decimator.decimate(geometry);
-			} 
-        	catch (NoninvertibleTransformException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-        }
-    }
-
-    private Rectangle getRectangle(Envelope envelope) {
-        int minX = (int) Math.floor(envelope.getMinX());
-        int minY = (int) Math.floor(envelope.getMinY());
-        int maxX = (int) Math.floor(envelope.getMaxX());
-        int maxY = (int) Math.floor(envelope.getMaxY());
-        return new Rectangle(minX, minY, maxX - minX, maxY - minY);
+    	this.decimator = new Decimator(DECIMATOR_TOLERANCE);
     }
 
     private void transformGeometry(Geometry geometry)  {
-
         if (mathTransform == null || mathTransform.isIdentity()) return;
 
         if (geometry instanceof GeometryCollection) {
@@ -137,25 +95,38 @@ public final class FeatureShape implements Shape, Cloneable {
             for (int i = 0; i < collection.getNumGeometries(); i++) {
                 transformGeometry(collection.getGeometryN(i));
             }
-        } else if (geometry instanceof Point) {
-            LiteCoordinateSequence seq =
-                    (LiteCoordinateSequence) ((Point) geometry).getCoordinateSequence();
-            double[] coords = seq.getArray();
-            double[] newCoords = new double[coords.length];
-            mathTransform.transform(coords, 0, newCoords, 0, seq.size());
-            seq.setArray(newCoords);
-        } else if (geometry instanceof Polygon) {
+        } 
+        else if (geometry instanceof Point) {
+            CoordinateSequence seq = ((Point) geometry).getCoordinateSequence();
+            Coordinate c = seq.getCoordinate(0);
+            int dimension = seq.getDimension();
+            double[] tmp = new double[dimension];
+            tmp[0] = c.x;
+            tmp[1] = c.y;
+            mathTransform.transform(tmp, 0, tmp, 0, dimension);
+            c.x = tmp[0];
+            c.y = tmp[1];
+        } 
+        else if (geometry instanceof Polygon) {
             Polygon polygon = (Polygon) geometry;
             transformGeometry(polygon.getExteriorRing());
             for (int i = 0; i < polygon.getNumInteriorRing(); i++) {
                 transformGeometry(polygon.getInteriorRingN(i));
             }
-        } else if (geometry instanceof LineString) {
-            LiteCoordinateSequence seq =
-                    (LiteCoordinateSequence) ((LineString) geometry).getCoordinateSequence();
-            double[] coords = seq.getArray();
-            mathTransform.transform(coords, 0, coords, 0, seq.size());
-            seq.setArray(coords);
+        } 
+        else if (geometry instanceof LineString) {  // Includes LinearRing
+            CoordinateSequence seq = ((LineString) geometry).getCoordinateSequence();
+            Coordinate[] coords = seq.toCoordinateArray();
+            int dimension = seq.getDimension();
+            double[] tmp = new double[dimension];
+            for(Coordinate c:coords) {
+            	tmp[0] = c.x;
+                tmp[1] = c.y;
+                mathTransform.transform(tmp, 0, tmp, 0, dimension);
+                c.x = tmp[0];
+                c.y = tmp[1];
+            }
+            decimator.decimate(geometry);
         }
     }
 
@@ -383,10 +354,6 @@ public final class FeatureShape implements Shape, Cloneable {
      * <p>It is recommended, but not guaranteed, that objects implementing the <code>Shape</code>
      * interface isolate iterations that are in process from any changes that might occur to the
      * original object's geometry during such iterations.
-     *
-     * <p>Before using a particular implementation of this interface in more than one thread
-     * simultaneously, refer to its documentation to verify that it guarantees that iterations are
-     * isolated from modifications.
      *
      * @param at an optional <code>AffineTransform</code> to be applied to the coordinates as they
      *     are returned in the iteration, or <code>null</code> if untransformed coordinates are

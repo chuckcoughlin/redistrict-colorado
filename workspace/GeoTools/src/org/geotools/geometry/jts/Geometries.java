@@ -26,22 +26,7 @@ import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 
 /**
- * Constants to identify JTS geometry types, reducing the need for boiler-plate code such as this...
- *
- * <pre><code>
- * if (Polygon.class.isAssignableFrom(myObject.getClass()) ||
- *         MultiPolygon.class.isAssignableFrom(myObject.getClass())) {
- *     // do polygon thing
- *     ...
- * } else if (LineString.class.isAssignableFrom(myObject.getClass()) ||
- *         MultiLineString.class.isAssignableFrom(myObject.getClass())) {
- *     // do line thing
- *     ....
- * } else {
- *     // do point thing
- *     ....
- * }
- * </code></pre>
+ * Constants to identify JTS geometry types, reducing the need for typical boiler-plate code.
  *
  * Instead you can do this...
  *
@@ -67,13 +52,6 @@ import org.locationtech.jts.geom.Polygon;
  *         // e.g. unspecified Geometry, GeometryCollection
  *         break;
  * }
- * </code></pre>
- *
- * You can also work with {@code Class} objects...
- *
- * <pre><code>
- * Class<? extends Geometry> aClass = ...
- * Geometries type = Geometries.getForBinding( aClass );
  * </code></pre>
  *
  * @author Justin Deoliveira, The Open Planning Project

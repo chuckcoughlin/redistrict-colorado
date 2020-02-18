@@ -36,7 +36,6 @@ import java.util.logging.Logger;
 
 import javax.swing.Icon;
 
-import org.geotools.geometry.jts.Decimator;
 import org.geotools.geometry.jts.FeatureShape;
 import org.geotools.renderer.style.GraphicStyle;
 import org.geotools.renderer.style.IconStyle;
@@ -860,16 +859,12 @@ public class StyledShapePainter {
         // rendering
         int fromX = 0;
         if (boundsClip.getMinX() > boundsShape.getMinX()) {
-            fromX =
-                    (int)
-                            Math.floor(
+            fromX =(int)Math.floor(
                                     (boundsClip.getMinX() - boundsShape.getMinX())
                                             / stippleSize.getWidth());
         }
         if (boundsClip.getMaxX() < boundsShape.getMaxX()) {
-            toX -=
-                    (int)
-                            Math.floor(
+            toX -=(int)Math.floor(
                                     (boundsShape.getMaxX() - boundsClip.getMaxX())
                                             / stippleSize.getWidth());
         }
@@ -878,16 +873,12 @@ public class StyledShapePainter {
         // rendering
         int fromY = 0;
         if (boundsClip.getMinY() > boundsShape.getMinY()) {
-            fromY =
-                    (int)
-                            Math.floor(
+            fromY = (int)Math.floor(
                                     (boundsClip.getMinY() - boundsShape.getMinY())
                                             / stippleSize.getHeight());
         }
         if (boundsClip.getMaxY() < boundsShape.getMaxY()) {
-            toY -=
-                    (int)
-                            Math.floor(
+            toY -=(int)Math.floor(
                                     (boundsShape.getMaxY() - boundsClip.getMaxY())
                                             / stippleSize.getHeight());
         }
@@ -898,9 +889,7 @@ public class StyledShapePainter {
                 new Coordinate(stippleSize.getCenterX(), stippleSize.getCenterY());
         Geometry stipplePoint = geomFactory.createPoint(stippleCoord);
 
-        // builds a LiteShape2 object from the JTS geometry
-        Decimator nullDecimator = new Decimator(-1, -1);
-
+        // builds a FeatureShape object from the JTS geometry
         // paints graphic fill as a stipple
         for (int i = fromX; i <= toX; i++) {
             for (int j = fromY; j <= toY; j++) {

@@ -43,7 +43,7 @@ public class PlanListCell extends ListCell<PlanModel> implements ChangeListener<
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
 	private final static double COL1_WIDTH = 40.;
 	private final static double COL2_WIDTH = 100.;
-	private final static double COL3_WIDTH = 60.;
+	private final static double COL3_WIDTH = 65.;
 	private final static double COL4_WIDTH = 40.;
 	private final static double COL5_WIDTH = 55.;
 	private final static double COL6_WIDTH = 55.;
@@ -94,7 +94,7 @@ public class PlanListCell extends ListCell<PlanModel> implements ChangeListener<
 	private void configureGrid() {
         grid.setHgap(0);
         grid.setVgap(4);
-        grid.setPadding(new Insets(10, 10, 10, 10));
+        grid.setPadding(new Insets(10, 0, 10, 0));  // top, left, bottom,right
         grid.getColumnConstraints().add(new ColumnConstraints(COL1_WIDTH)); 					// tag
         ColumnConstraints col2 = new ColumnConstraints(COL2_WIDTH,COL2_WIDTH,Double.MAX_VALUE); // name
         col2.setHgrow(Priority.ALWAYS);

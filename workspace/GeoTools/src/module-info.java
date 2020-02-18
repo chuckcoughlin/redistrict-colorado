@@ -11,6 +11,7 @@ module org.geotools {
 	
 	exports org.geotools.data.dbf;
 	exports org.geotools.data.shapefile;
+	exports org.geotools.geometry.jts;
 	exports org.geotools.map;
 	exports org.geotools.renderer;
 	exports org.geotools.renderer.style;
