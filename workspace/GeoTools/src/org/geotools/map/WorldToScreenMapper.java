@@ -17,14 +17,11 @@
 package org.geotools.map;
 
 import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
 import java.util.logging.Logger;
 
 import org.geotools.referencing.ReferencedEnvelope;
 import org.geotools.util.RendererUtilities;
 import org.geotools.util.Utilities;
-import org.locationtech.jts.geom.Envelope;
-import org.opengis.geometry.MismatchedDimensionException;
 import org.openjump.coordsys.AxisDirection;
 import org.openjump.coordsys.CoordinateSystem;
 
@@ -79,17 +76,17 @@ import org.openjump.coordsys.CoordinateSystem;
  * @version $Id$
  * @author Martin Desruisseaux (IRD)
  */
-public class GridToEnvelopeMapper {
-	private final static String CLSS = "GridToEnvelopeMapper";
+public class WorldToScreenMapper {
+	private final static String CLSS = "WorldToScreenMapper";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	public static final int ANCHOR_CELL_CENTER = 1;
 	public static final int ANCHOR_CELL_CORNER = 2;
 
     /** The grid range, or {@code null} if not yet specified. */
-    private ReferencedEnvelope gridRange = null;
+    private ReferencedEnvelope worldEnvelope = null;
 
     /** The envelope, or {@code null} if not yet specified. */
-    private ReferencedEnvelope userRange = null;
+    private ReferencedEnvelope screenEnvelope = null;
 
     /**
      * Whatever the {@code gridToCRS} transform will maps pixel center or corner. The default value
@@ -100,11 +97,11 @@ public class GridToEnvelopeMapper {
     /** The math transform, or {@code null} if not yet computed. */
     private AffineTransform transform;
 
-    /** Creates a new instance of {@code GridToEnvelopeMapper}. */
-    public GridToEnvelopeMapper() {}
+    /** Creates a new instance of {@code WorldToScreenMapper}. */
+    public WorldToScreenMapper() {}
 
     /**
-     * Creates a new instance for the specified grid range and envelope.
+     * Creates a new instance for the specified world and screen envelopes.
      *
      * @param gridRange The valid coordinate range of a grid coverage.
      * @param userRange The corresponding coordinate range in user coordinate. This envelope must
@@ -114,9 +111,9 @@ public class GridToEnvelopeMapper {
      * @throws MismatchedDimensionException if the grid range and the envelope doesn't have
      *     consistent dimensions.
      */
-    public GridToEnvelopeMapper(final ReferencedEnvelope gridRange, final ReferencedEnvelope userRange) {
-        this.gridRange = gridRange;
-        this.userRange = userRange;
+    public WorldToScreenMapper(final ReferencedEnvelope world, final ReferencedEnvelope screen) {
+        this.worldEnvelope = world;
+        this.screenEnvelope = screen;
     }
 
     /**
@@ -146,16 +143,16 @@ public class GridToEnvelopeMapper {
     }
 
     /**
-     * Returns the grid range.
+     * Returns the world coordinates.
      *
-     * @return The grid range.
+     * @return the world dimensions.
      * @throws IllegalStateException if the grid range has not yet been defined.
      */
-    public ReferencedEnvelope getGridRange() throws IllegalStateException {
-        if (gridRange == null) {
-            throw new IllegalStateException(String.format("%s.getGridRange: Grid range never set", CLSS));
+    public ReferencedEnvelope getWorldEnvelope() throws IllegalStateException {
+        if (worldEnvelope == null) {
+            throw new IllegalStateException(String.format("%s.getWorldEnvelope: envelope never set", CLSS));
         }
-        return gridRange;
+        return worldEnvelope;
     }
 
     /**
@@ -163,9 +160,9 @@ public class GridToEnvelopeMapper {
      *
      * @param gridRange The new grid range.
      */
-    public void setGridRange(final ReferencedEnvelope gridRange) {
-        if (!Utilities.equals(this.gridRange, gridRange)) {
-            this.gridRange = gridRange;
+    public void setWorldEnvelope(final ReferencedEnvelope envelope) {
+        if (!Utilities.equals(this.worldEnvelope, envelope)) {
+            this.worldEnvelope = envelope;
         }
     }
 
@@ -176,11 +173,11 @@ public class GridToEnvelopeMapper {
      * @return The envelope.
      * @throws IllegalStateException if the envelope has not yet been defined.
      */
-    public ReferencedEnvelope getEnvelope() throws IllegalStateException {
-        if (userRange == null) {
-        	throw new IllegalStateException(String.format("%s.getEnvelope: envelope never set", CLSS));
+    public ReferencedEnvelope getScreenEnvelope() throws IllegalStateException {
+        if (screenEnvelope == null) {
+        	throw new IllegalStateException(String.format("%s.getScreenEnvelope: envelope never set", CLSS));
         }
-        return userRange;
+        return screenEnvelope;
     }
 
     /**
@@ -189,9 +186,9 @@ public class GridToEnvelopeMapper {
      *
      * @param envelope The new envelope.
      */
-    public void setEnvelope(final ReferencedEnvelope envelope) {
-        if (!Utilities.equals(this.userRange, envelope)) {
-            this.userRange = envelope;
+    public void setScreenEnvelope(final ReferencedEnvelope envelope) {
+        if (!Utilities.equals(this.screenEnvelope, envelope)) {
+            this.screenEnvelope = envelope;
         }
     }
 
@@ -211,10 +208,10 @@ public class GridToEnvelopeMapper {
      * @return The reversal state of each axis, or {@code null} if unspecified.
      */
     public boolean reverseAxis(int i) {
-    	AxisDirection grid = gridRange.getCoordinateSystem().getAxis(i).getDirection();
-    	AxisDirection user = userRange.getCoordinateSystem().getAxis(i).getDirection();
-    	boolean result = !grid.equals(user);
-        if( swapXY(userRange.getCoordinateSystem()) ) result = !result;
+    	AxisDirection world = worldEnvelope.getCoordinateSystem().getAxis(i).getDirection();
+    	AxisDirection user = screenEnvelope.getCoordinateSystem().getAxis(i).getDirection();
+    	boolean result = !world.equals(user);
+        if( swapXY(screenEnvelope.getCoordinateSystem()) ) result = !result;
        
         return result;
     }
@@ -238,9 +235,9 @@ public class GridToEnvelopeMapper {
      */
     public AffineTransform createTransform() throws IllegalStateException {
         if (transform == null) {
-            final boolean swapXY = swapXY(userRange.getCoordinateSystem());
+            final boolean swapXY = swapXY(screenEnvelope.getCoordinateSystem());
             final int gridType = getPixelAnchor();
-            final int dimension = gridRange.getDimension();
+            final int dimension = worldEnvelope.getDimension();
             
             /*
              * Setup the multi-dimensional affine transform for use with OpenGIS.
@@ -261,24 +258,24 @@ public class GridToEnvelopeMapper {
             if( dimension>1 ){
 
                 
-                double scalex = userRange.getSpan(0) / gridRange.getSpan(0);
-                double scaley = userRange.getSpan(1) / gridRange.getSpan(1);
-                double offsetx = userRange.getMaximum(0);
-                double offsety = userRange.getMaximum(1);
+                double scalex = screenEnvelope.getWidth() / worldEnvelope.getWidth();
+                double scaley = screenEnvelope.getHeight() / worldEnvelope.getHeight();
+                double offsetx = screenEnvelope.getMaximum(0);
+                double offsety = screenEnvelope.getMaximum(1);
                 if (reverseAxis(0)) {
-                    offsetx = userRange.getMinimum(0);
+                    offsetx = screenEnvelope.getMinimum(0);
                 } 
                 else {
                     scalex = -scalex;
                 }
                 if (reverseAxis(1)) {
-                    offsety = userRange.getMinimum(1);
+                    offsety = screenEnvelope.getMinimum(1);
                 } 
                 else {
                     scaley = -scaley;
                 }
-                offsetx -= scalex * (gridRange.getMinX() - translate);
-                offsety -= scaley * (gridRange.getMinY() - translate);
+                offsetx -= scalex * (worldEnvelope.getMinX() - translate);
+                offsety -= scaley * (worldEnvelope.getMinY() - translate);
                 
                 if( swapXY ) {
                 	double tmp = scalex;
@@ -292,8 +289,8 @@ public class GridToEnvelopeMapper {
                 double m10 = 0.; 	// y shear
                 double m11 = scaley;  // y scale
                 double m12 = offsety; // dy
-                LOGGER.info(String.format("%s.createTransform: %2.1f,%2.1f,%2.1f,%2.1f",CLSS,gridRange.getWidth(),gridRange.getHeight(),userRange.getWidth(),userRange.getHeight()));
-                LOGGER.info(String.format("%s.createTransform: grid:%s, user:%s", CLSS,RendererUtilities.toText("",gridRange),RendererUtilities.toText("",userRange)));
+                LOGGER.info(String.format("%s.createTransform: %2.1f,%2.1f,%2.1f,%2.1f",CLSS,worldEnvelope.getWidth(),worldEnvelope.getHeight(),screenEnvelope.getWidth(),screenEnvelope.getHeight()));
+                LOGGER.info(String.format("%s.createTransform: grid:%s, user:%s", CLSS,RendererUtilities.toText("",worldEnvelope),RendererUtilities.toText("",screenEnvelope)));
                 LOGGER.info(String.format("%s.createTransform: %2.1f,%2.1f,%2.1f,%2.1f,%2.1f,%2.1f",CLSS,m00,m01,m02,m10,m11,m12));
                 transform = new AffineTransform(m00,m01,m02,m10,m11,m12); 
             } 

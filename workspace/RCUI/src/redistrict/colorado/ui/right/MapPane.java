@@ -7,7 +7,7 @@
 package redistrict.colorado.ui.right;
 import java.util.logging.Logger;
 
-import org.openjump.io.ShapefileReader;
+import org.geotools.data.shapefile.ShapefileReader;
 
 import javafx.scene.Node;
 import javafx.scene.control.Label;

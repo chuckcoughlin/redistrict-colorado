@@ -27,121 +27,48 @@ import java.util.logging.Logger;
 import org.geotools.geometry.jts.FeatureShape;
 import org.geotools.map.MapContent;
 import org.geotools.map.MapLayer;
-import org.geotools.map.MapLayerListEvent;
-import org.geotools.map.MapLayerListListener;
 import org.geotools.referencing.ReferencedEnvelope;
 import org.geotools.renderer.lite.StyledShapePainter;
 import org.geotools.renderer.style.Style;
 import org.geotools.util.RendererUtilities;
-import org.locationtech.jts.geom.Coordinate;
 import org.openjump.coordsys.CoordinateSystem;
 import org.openjump.feature.Feature;
 import org.openjump.feature.FeatureCollection;
+import org.openjump.feature.FeatureFilter;
 
 /**
- * A LiteRenderer Implementations that is optimized for shapefiles. We have removed 
- * the IndexInfo features and label caching.
+ * A renderer designed specifically for shapefiles. There is no label caching.
  * 
  * @author jeichar
  * @since 2.1.x
  *
  * @source $URL$
  */
-public class ShapefileRenderer implements GTRenderer {
+public class ShapefileRenderer {
 	private final static String CLSS = "ShapefileRenderer";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private Graphics2D graphics = null;
-    private boolean concatTransforms;
     private List<RenderListener> renderListeners = new CopyOnWriteArrayList<RenderListener>();
     private MapContent content = null;
-
-    private static final Coordinate[] 	COORDS;
-    
-    /**
-     * Computes the scale as the ratio between map distances and real world distances,
-     * assuming 90dpi and taking into consideration projection deformations and actual
-     * earth shape. <br>
-     * Use this method only when in need of accurate computation. Will break if the
-     * data extent is outside of the currenct projection definition area. 
-     */
-    public static final String SCALE_ACCURATE = "ACCURATE";
-    
-    /**
-     * Very simple and lenient scale computation method that conforms to the OGC SLD 
-     * specification 1.0, page 26. <br>This method is quite approximative, but should
-     * never break and ensure constant scale even on lat/lon unprojected maps (because
-     * in that case scale is computed as if the area was along the equator no matter
-     * what the real position is).
-     */
-    public static final String SCALE_OGC = "OGC";
-    
-    private String scaleComputationMethodDEFAULT = SCALE_ACCURATE;
-    static {
-        COORDS = new Coordinate[5];
-        COORDS[0] = new Coordinate(0.0, 0.0);
-        COORDS[1] = new Coordinate(5.0, 0.0);
-        COORDS[2] = new Coordinate(5.0, 5.0);
-        COORDS[3] = new Coordinate(0.0, 5.0);
-        COORDS[4] = new Coordinate(0.0, 0.0);
-    }
-
-
-    static int NUM_SAMPLES = 200;
-
-    private double scaleDenominator = 1.0;
-
-
-    /**
-     * Maps between the AttributeType index of the new generated FeatureType and the real
-     * attributeType
-     */
-    int[] attributeIndexing;
-
+   
     /** The painter class we use to depict shapes onto the screen */
     private final StyledShapePainter painter = new StyledShapePainter();
+   
     
-    /**
-     * Text will be rendered using the usual calls gc.drawString/drawGlyphVector.
-     * This is a little faster, and more consistent with how the platform renders
-     * the text in other applications. The downside is that on most platform the label
-     * and its eventual halo are not properly centered.
-     */
-    public static final String TEXT_RENDERING_STRING = "STRING";
-    
-    /**
-     * Text will be rendered using the associated {@link GlyphVector} outline, that is, a {@link Shape}.
-     * This ensures perfect centering between the text and the halo, but introduces more text aliasing.
-     */
-    public static final String TEXT_RENDERING_OUTLINE = "OUTLINE";
-    
-    /**
-     * The text rendering method, either TEXT_RENDERING_OUTLINE or TEXT_RENDERING_STRING
-     */
-    public static final String TEXT_RENDERING_KEY = "textRenderingMethod";
-    
-	public static final String FORCE_CRS_KEY = "forceCRS";
-	public static final String DPI_KEY = "dpi";
-	public static final String DECLARED_SCALE_DENOM_KEY = "declaredScaleDenominator";
-	public static final String MEMORY_PRE_LOADING_KEY = "memoryPreloadingEnabled";
-	public static final String OPTIMIZED_DATA_LOADING_KEY = "optimizedDataLoadingEnabled";
-	public static final String SCALE_COMPUTATION_METHOD_KEY = "scaleComputationMethod";
-    
-
-
     public ShapefileRenderer() {
     }
 
     /**
      * This is the paint method used to actually draw the map. We always go from geodesic coordinates
-     * to view coordinates.
+     * to screen coordinates.
      */
-    public void paint( Graphics2D graphics, Rectangle paintArea, ReferencedEnvelope mapArea ) {
+    public void paint( Graphics2D graphics, ReferencedEnvelope mapArea,Rectangle paintArea  ) {
         if (mapArea == null || paintArea == null) {
             LOGGER.info(String.format("%s.paint: paint or mapping area is null",CLSS));
             return;
         } 
         this.graphics = graphics;
-        paint(paintArea, mapArea, RendererUtilities.worldToScreenTransform(mapArea,paintArea));
+        paint(mapArea,paintArea, null);
     }
 
     /**
@@ -180,57 +107,26 @@ public class ShapefileRenderer implements GTRenderer {
         }
     }
 
-    /**
-     * Setter for property scaleDenominator.
-     * 
-     * @param scaleDenominator New value of property scaleDenominator.
-     */
-    protected void setScaleDenominator( double scaleDenominator ) {
-        this.scaleDenominator = scaleDenominator;
-    }
 
 
-    public boolean isConcatTransforms() {
-        return concatTransforms;
-    }
-
-    public void setConcatTransforms( boolean concatTransforms ) {
-        this.concatTransforms = concatTransforms;
-    }
-
-
-    private void paint(Rectangle paintArea, ReferencedEnvelope envelope,AffineTransform transform ) {
-        if( transform == null ){
-            throw new NullPointerException("Transform is required");
-        }
-
-        if (LOGGER.isLoggable(Level.FINE)) {
-            LOGGER.fine("Affine Transform is " + transform);
-        }
+    private void paint(ReferencedEnvelope mapExtent,Rectangle paintArea, FeatureFilter filter ) {
+    	AffineTransform transform = RendererUtilities.worldToScreenTransform(mapExtent, paintArea);
 
         /*
          * If we are rendering to a component which has already set up some form of transformation
-         * then we can concatenate our transformation to it. An example of this is the ZoomPane
-         * component of the swinggui module.
+         * then we can concatenate our filter transformation to it. This is used for panning or zooming.
          */
-        if (concatTransforms) {
-            AffineTransform atg = graphics.getTransform();
+        if (filter!=null) {
+            AffineTransform atg = filter.getTransform();
             atg.concatenate(transform);
             transform = atg;
         }
 
-        try {
-            setScaleDenominator(  
-                    computeScale(
-                            envelope,
-                            content.getCoordinateSystem(),     // Coordinate system
-                            paintArea, 
-                            transform));
-        } 
-        catch (Exception e)  {  // probably either (1) no CRS (2) error xforming
-            LOGGER.throwing("RendererUtilities", "calculateScale(envelope, coordinateReferenceSystem, imageWidth, imageHeight, hints)", e);
-            setScaleDenominator(1 / transform.getScaleX()); // DJB old method - the best we can do            
-        }
+        /*
+         * Do not consider rotation, scale is simply the minimum of the horizontal and vertical scales.
+         */
+        double scale = RendererUtilities.calculateScale(mapExtent, paintArea.getWidth(), paintArea.getHeight());
+
 
         List<MapLayer> layers = content.layers();
         for( MapLayer layer:layers ) {
@@ -241,7 +137,7 @@ public class ShapefileRenderer implements GTRenderer {
         			FeatureCollection collection = layer.getFeatures();
         			for( Feature feature:collection.getFeatures()) {
         				FeatureShape shape = new FeatureShape(feature,transform);
-        				painter.paint(graphics, shape, style, scaleDenominator);
+        				painter.paint(graphics, shape, style, scale);
         			}
         		} 
         		catch (Exception exception) {
@@ -251,35 +147,8 @@ public class ShapefileRenderer implements GTRenderer {
         	}
         }
     }
-    /**
-     * <p>
-     * Returns scale computation algorithm to be used. 
-     * </p>
-     */
-    private String getScaleComputationMethod() {
-        return scaleComputationMethodDEFAULT;
-    }
-    
-    // Does not consider rotation
-    private double computeScale(ReferencedEnvelope envelope, CoordinateSystem crs, Rectangle paintArea,
-            AffineTransform worldToScreen) {
-        if(getScaleComputationMethod().equals(SCALE_ACCURATE)) {
-            try {
-               return RendererUtilities.calculateScale(envelope, paintArea.width, paintArea.height);
-            } 
-            catch (Exception e) { // probably either (1) no CRS (2) error xforming
-                LOGGER.log(Level.WARNING, e.getLocalizedMessage(), e);
-            }
-        } 
-        return RendererUtilities.calculateOGCScale(envelope, paintArea.width,null);
-    }
 
-
-	@Override
 	public void setMapContent(MapContent mapContent) {
 		this.content = mapContent;
 	}
-
-	@Override
-	public MapContent getMapContent() {return this.content;}
 }

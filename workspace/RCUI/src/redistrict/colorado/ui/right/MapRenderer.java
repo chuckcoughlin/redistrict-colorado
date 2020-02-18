@@ -9,13 +9,13 @@ import java.awt.Color;
 import java.awt.Rectangle;
 import java.util.logging.Logger;
 
+import org.geotools.data.shapefile.ShapefileReader;
 import org.geotools.map.MapContent;
 import org.geotools.map.MapLayer;
 import org.geotools.renderer.ShapefileRenderer;
 import org.geotools.renderer.style.SLD;
 import org.geotools.renderer.style.Style;
 import org.jfree.fx.FXGraphics2D;
-import org.openjump.io.ShapefileReader;
 
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
@@ -84,6 +84,6 @@ import redistrict.colorado.db.Database;
 			renderer.setMapContent(content);
 			FXGraphics2D graphics = new FXGraphics2D(gc);
 			graphics.setBackground(java.awt.Color.WHITE);
-			renderer.paint(graphics, content.getViewport().getScreenArea(), content.getViewport().getBounds());
+			renderer.paint(graphics, content.getViewport().getBounds(),content.getViewport().getScreenArea());
 		}
 }

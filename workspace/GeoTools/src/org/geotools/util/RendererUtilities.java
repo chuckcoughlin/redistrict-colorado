@@ -22,14 +22,13 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.Icon;
 
 import org.geotools.geometry.DirectPosition;
-import org.geotools.map.GridToEnvelopeMapper;
+import org.geotools.map.WorldToScreenMapper;
 import org.geotools.referencing.GeodeticCalculator;
 import org.geotools.referencing.ReferencedEnvelope;
 import org.geotools.renderer.style.GraphicStyle;
@@ -72,21 +71,17 @@ public final class RendererUtilities {
      * Sets up the affine transform for projecting a GEODESIC coordinate system to a flat view coordinate
      * system.
      *
-     * <p>NOTE It is worth to note that here we do not take into account the half a pixel
-     * translation stated by ogc for coverage bounds. One reason is that WMS 1.1.1 does not follow
-     * it!!!
-     *
-     * @param mapExtent the map extent
-     * @param paintArea the size of the rendering output area
+     * @param mapExtent the geodesic map coordinates
+     * @param paintArea the target screen area
      * @return a transform that maps from real world coordinates to the screen
      */
     public static AffineTransform worldToScreenTransform(ReferencedEnvelope mapExtent, Rectangle paintArea) {
         final ReferencedEnvelope genvelope = new ReferencedEnvelope(mapExtent);
-        final GridToEnvelopeMapper mapper = new GridToEnvelopeMapper();
+        final WorldToScreenMapper mapper = new WorldToScreenMapper();
         try {
-        	mapper.setGridRange(new ReferencedEnvelope(paintArea,null));
-            mapper.setEnvelope(genvelope);
-            mapper.setPixelAnchor(GridToEnvelopeMapper.ANCHOR_CELL_CORNER);
+        	mapper.setWorldEnvelope(new ReferencedEnvelope(paintArea,null));
+            mapper.setScreenEnvelope(genvelope);
+            mapper.setPixelAnchor(WorldToScreenMapper.ANCHOR_CELL_CORNER);
             LOGGER.info(String.format("%s.worldToScreen: %s %s",CLSS,RendererUtilities.toText("mapExtent",mapExtent),RendererUtilities.toText("paintArea",paintArea)));
             AffineTransform at = mapper.createAffineTransform();
             AffineTransform inverse = at.createInverse();
@@ -147,51 +142,7 @@ public final class RendererUtilities {
      * @param worldToScreen a transform which converts World coordinates to screen pixel
      *     coordinates.
      * @param paintArea the size of the rendering output area
-     */
-    public static ReferencedEnvelope createMapEnvelope(
-            Rectangle paintArea, AffineTransform worldToScreen, final CoordinateSystem crs)
-            throws NoninvertibleTransformException {
-
-        Envelope env = createMapEnvelope(paintArea, worldToScreen);
-        return new ReferencedEnvelope(env,crs);
-    }
-
-    static final double OGC_DEGREE_TO_METERS = 6378137.0 * 2.0 * Math.PI / 360;
-
-    /**
-     * Calculates the pixels per meter ratio based on a scale denominator.
-     *
-     * @param scaleDenominator The scale denominator value.
-     * @param hints The hints used in calculation. if "dpi" key is present, it uses it's Integer
-     *     value as the dpi of the current device. if not it uses 90 that is the OGC default value.
-     * @return The pixels per meter ratio for the given scale denominator.
-     */
-    public static double calculatePixelsPerMeterRatio(double scaleDenominator, Map hints) {
-        if (scaleDenominator <= 0.0)
-            throw new IllegalArgumentException("The scale denominator must be positive.");
-        double scale = 1.0 / scaleDenominator;
-        return scale * (getDpi() / 0.0254);
-    }
-
-    /**
-     * This method performs the computation using the methods suggested by the OGC SLD
-     * specification, page 26.
-     *
-     * <p>In GeoTools 12 this method started to take into account units of measure, if this is not
-     * desirable in your application you can set the system variable
-     * "org.geotoools.render.lite.scale.unitCompensation" to false.
-     *
-     * @param envelope
-     * @param imageWidth
-     * @return
-     */
-    public static double calculateOGCScale(ReferencedEnvelope envelope, int imageWidth, Map hints) {
-        // if it's geodetic, we're dealing with lat/lon unit measures
-        CoordinateSystem crs = envelope.getCoordinateSystem();
-        double width = envelope.getWidth();
-        double widthMeters = toMeters(width, crs);
-        return widthMeters / (imageWidth / getDpi() * 0.0254);
-    }
+  
 
     /**
      * Method used by the OGC scale calculation to turn a given length in the specified CRS towards
@@ -233,7 +184,7 @@ public final class RendererUtilities {
      * #calculateScale(org.geotools.util.SoftValueHashMap.Reference, int, int, double)}. If the
      * hints contains a DPI then that DPI is used otherwise 90 is used (the OGS default).
      */
-    public static double calculateScale(ReferencedEnvelope envelope, int imageWidth, int imageHeight) {
+    public static double calculateScale(ReferencedEnvelope envelope, double imageWidth, double imageHeight) {
         Double scale = (Double) getDpi();
         return scale.doubleValue();
     }
@@ -324,24 +275,16 @@ public final class RendererUtilities {
             // we must consider at least a pair of quadrants in each direction other wise lines
             // which don't cross both the equator and prime meridian are
             // measured as 0 length. But for some cases we need to consider still more hemispheres.
-            qMinX =
-                    Math.min(
-                            qMinX,
+            qMinX = Math.min(qMinX,
                             (int)(Math.signum(env.getMinX())
                                             * Math.ceil(Math.abs(env.getMinX() / 180.0))));
-            qMaxX =
-                    Math.max(
-                            qMaxX,
+            qMaxX = Math.max(qMaxX,
                             (int)(Math.signum(env.getMaxX())
                                             * Math.ceil(Math.abs(env.getMaxX() / 180.0))));
-            qMinY =
-                    Math.min(
-                            qMinY,
+            qMinY = Math.min(qMinY,
                             (int) (Math.signum(env.getMinY())
                                             * Math.ceil(Math.abs((env.getMinY() + 90) / 180.0))));
-            qMaxY =
-                    Math.max(
-                            qMaxY,
+            qMaxY = Math.max(qMaxY,
                             (int) (Math.signum(env.getMaxY())
                                             * Math.ceil(Math.abs((env.getMaxY() + 90) / 180.0))));
             for (int i = qMinX; i < qMaxX; i++) {
@@ -446,9 +389,9 @@ public final class RendererUtilities {
         // is a hashtable lookup. The benefit is reusing the last
         // transform (instead of creating a new one) if the grid
         // and envelope are the same one than during last invocation.
-        final GridToEnvelopeMapper m = new GridToEnvelopeMapper();
-        m.setGridRange(new ReferencedEnvelope(paintArea));
-        m.setEnvelope(newEnvelope);
+        final WorldToScreenMapper m = new WorldToScreenMapper();
+        m.setWorldEnvelope(new ReferencedEnvelope(paintArea));
+        m.setScreenEnvelope(newEnvelope);
         AffineTransform result = null;
         try {
 			result = m.createTransform().createInverse();

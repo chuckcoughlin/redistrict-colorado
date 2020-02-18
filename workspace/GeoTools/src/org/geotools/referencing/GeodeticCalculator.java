@@ -29,7 +29,6 @@ import java.util.List;
 
 import org.geotools.geometry.DirectPosition;
 import org.geotools.measure.Latitude;
-import org.locationtech.jts.geomgraph.Position;
 import org.openjump.coordsys.CoordinateSystem;
 
 import net.sf.geographiclib.Geodesic;

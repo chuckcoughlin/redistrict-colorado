@@ -12,7 +12,7 @@
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
  */
-package org.openjump.io;
+package org.geotools.data.shapefile;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,8 +23,6 @@ import java.util.logging.Logger;
 
 import org.geotools.data.dbf.CodePage;
 import org.geotools.data.dbf.DbaseFile;
-import org.geotools.data.shapefile.ShapeIndexFile;
-import org.geotools.data.shapefile.Shapefile;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
 import org.openjump.feature.AttributeType;
@@ -33,6 +31,8 @@ import org.openjump.feature.Feature;
 import org.openjump.feature.FeatureCollection;
 import org.openjump.feature.FeatureDataset;
 import org.openjump.feature.FeatureSchema;
+import org.openjump.io.CompressedFile;
+import org.openjump.io.EndianAwareInputStream;
 
 /**
  * ShapefileReader contains static methods for handling Shapefiles. is specialized to read Shapefiles. 

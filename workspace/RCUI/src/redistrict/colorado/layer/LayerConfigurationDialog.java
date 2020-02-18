@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-import org.openjump.io.ShapefileReader;
+import org.geotools.data.shapefile.ShapefileReader;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;

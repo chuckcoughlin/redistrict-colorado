@@ -53,7 +53,6 @@ public class FeatureDataset implements FeatureCollection, Serializable {
     private static final long serialVersionUID = 5573446944516446540L;
     private FeatureSchema featureSchema;
 
-    //<<TODO>> Possibly use hashtable to do spatial indexing [Jon Aquino]
     private List<Feature> features;
     private Envelope envelope = null;
 
@@ -117,17 +116,12 @@ public class FeatureDataset implements FeatureCollection, Serializable {
     /**
      * @return a List containing the features whose envelopes intersect the given envelope
      */
-
-    //<<TODO:DESIGN>> Perhaps return value should be a Set, not a List, because order
-    //doesn't matter. [Jon Aquino]
     @Override
     public List<Feature> query(Envelope envelope) {
         if (!envelope.intersects(getEnvelope())) {
             return new ArrayList<>();
         }
 
-        //<<TODO:NAMING>> Rename this method to getFeatures(Envelope), to parallel
-        //getFeatures() [Jon Aquino]
         List<Feature> queryResult = new ArrayList<>();
 
         for (Feature feature : features) {
