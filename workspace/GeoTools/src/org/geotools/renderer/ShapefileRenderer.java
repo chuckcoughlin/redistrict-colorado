@@ -28,7 +28,6 @@ import org.geotools.geometry.jts.FeatureShape;
 import org.geotools.map.MapContent;
 import org.geotools.map.MapLayer;
 import org.geotools.referencing.ReferencedEnvelope;
-import org.geotools.renderer.lite.StyledShapePainter;
 import org.geotools.renderer.style.Style;
 import org.geotools.util.RendererUtilities;
 import org.openjump.coordsys.CoordinateSystem;
@@ -107,11 +106,8 @@ public class ShapefileRenderer {
         }
     }
 
-
-
     private void paint(ReferencedEnvelope mapExtent,Rectangle paintArea, FeatureFilter filter ) {
     	AffineTransform transform = RendererUtilities.worldToScreenTransform(mapExtent, paintArea);
-
         /*
          * If we are rendering to a component which has already set up some form of transformation
          * then we can concatenate our filter transformation to it. This is used for panning or zooming.
@@ -122,22 +118,17 @@ public class ShapefileRenderer {
             transform = atg;
         }
 
-        /*
-         * Do not consider rotation, scale is simply the minimum of the horizontal and vertical scales.
-         */
-        double scale = RendererUtilities.calculateScale(mapExtent, paintArea.getWidth(), paintArea.getHeight());
-
-
         List<MapLayer> layers = content.layers();
         for( MapLayer layer:layers ) {
-        	if (layer.isVisible()) {
+        	if( layer.isVisible() ) {
         		try {
         			layer.getBounds();
         			Style style = layer.getStyle();
         			FeatureCollection collection = layer.getFeatures();
+        			// Scale the features in the layer individually
         			for( Feature feature:collection.getFeatures()) {
         				FeatureShape shape = new FeatureShape(feature,transform);
-        				painter.paint(graphics, shape, style, scale);
+        				painter.paint(graphics, shape, style);
         			}
         		} 
         		catch (Exception exception) {

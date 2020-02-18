@@ -14,7 +14,7 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.renderer.lite;
+package org.geotools.renderer;
 
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
@@ -79,9 +79,8 @@ public class StyledShapePainter {
     public void paint(
             final Graphics2D graphics,
             final FeatureShape shape,
-            final Style style,
-            final double scale) {
-        paint(graphics, shape, style, scale, false);
+            final Style style) {
+        paint(graphics, shape, style, false);
     }
 
     /**
@@ -99,17 +98,10 @@ public class StyledShapePainter {
             final Graphics2D graphics,
             final FeatureShape shape,
             final Style style,
-            final double scale,
             boolean isLabelObstacle) {
         if (style == null) {
             // TODO: what's going on? Should not be reached...
             LOGGER.severe("ShapePainter has been asked to paint a null style!!");
-            return;
-        }
-
-        // Is the current scale within the style scale range?
-        if (!style.isScaleInRange(scale)) {
-            LOGGER.fine("Out of scale");
             return;
         }
 
@@ -248,7 +240,7 @@ public class StyledShapePainter {
                 if (ps2d.getGraphicFill() != null) {
                     Shape oldClip = graphics.getClip();
                     try {
-                        paintGraphicFill(graphics, shape, ps2d.getGraphicFill(), scale);
+                        paintGraphicFill(graphics, shape, ps2d.getGraphicFill());
                     } finally {
                         graphics.setClip(oldClip);
                     }
@@ -816,7 +808,7 @@ public class StyledShapePainter {
      * @throws FactoryException
      */
     protected void paintGraphicFill(
-            Graphics2D graphics, Shape shape, Style graphicFill, double scale) {
+            Graphics2D graphics, Shape shape, Style graphicFill) {
         // retrieves the bounds of the provided shape
         Rectangle2D boundsShape = shape.getBounds2D();
 
@@ -927,7 +919,7 @@ public class StyledShapePainter {
                 } catch (Exception e) {
                     throw new RuntimeException("Unxpected exception building lite shape", e);
                 }
-                paint(g, stippleShape, graphicFill, scale);
+                paint(g, stippleShape, graphicFill);
             }
         }
     }

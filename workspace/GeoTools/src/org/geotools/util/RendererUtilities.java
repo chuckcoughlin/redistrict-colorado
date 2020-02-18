@@ -27,9 +27,7 @@ import java.util.logging.Logger;
 
 import javax.swing.Icon;
 
-import org.geotools.geometry.DirectPosition;
 import org.geotools.map.WorldToScreenMapper;
-import org.geotools.referencing.GeodeticCalculator;
 import org.geotools.referencing.ReferencedEnvelope;
 import org.geotools.renderer.style.GraphicStyle;
 import org.geotools.renderer.style.IconStyle;
@@ -41,8 +39,6 @@ import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.LinearRing;
 import org.locationtech.jts.geom.MultiPoint;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
@@ -71,114 +67,39 @@ public final class RendererUtilities {
      * Sets up the affine transform for projecting a GEODESIC coordinate system to a flat view coordinate
      * system.
      *
-     * @param mapExtent the geodesic map coordinates
+     * @param geoEnvelope the geodesic map coordinates
      * @param paintArea the target screen area
      * @return a transform that maps from real world coordinates to the screen
      */
-    public static AffineTransform worldToScreenTransform(ReferencedEnvelope mapExtent, Rectangle paintArea) {
-        final ReferencedEnvelope genvelope = new ReferencedEnvelope(mapExtent);
-        final WorldToScreenMapper mapper = new WorldToScreenMapper();
+    public static AffineTransform worldToScreenTransform(ReferencedEnvelope geoEnvelope, Rectangle paintArea) {
+        final WorldToScreenMapper mapper = new WorldToScreenMapper( geoEnvelope,new ReferencedEnvelope(paintArea));
         try {
-        	mapper.setWorldEnvelope(new ReferencedEnvelope(paintArea,null));
-            mapper.setScreenEnvelope(genvelope);
             mapper.setPixelAnchor(WorldToScreenMapper.ANCHOR_CELL_CORNER);
-            LOGGER.info(String.format("%s.worldToScreen: %s %s",CLSS,RendererUtilities.toText("mapExtent",mapExtent),RendererUtilities.toText("paintArea",paintArea)));
             AffineTransform at = mapper.createAffineTransform();
-            AffineTransform inverse = at.createInverse();
-            return inverse;
+            return at;
         } 
         catch (MismatchedDimensionException e) {
         	LOGGER.log(Level.WARNING, String.format("%s.worldtoScreenTransform (%s)",CLSS,e.getLocalizedMessage()),e);
             return null;
         } 
-        catch (NoninvertibleTransformException e) {
-            LOGGER.log(Level.WARNING, String.format("%s.worldtoScreenTransform (%s)",CLSS,e.getLocalizedMessage()), e);
-            return null;
-        }
     }
-
-    /**
-     * Creates the map's bounding box in real world coordinates.
-     *
-     * @param worldToScreen a transform which converts World coordinates to screen pixel
-     *     coordinates. No assumptions are done on axis order as this is assumed to be
-     *     pre-calculated. The affine transform may specify an rotation, in case the envelope will
-     *     encompass the complete (rotated) world polygon.
-     * @param paintArea the size of the rendering output area
-     * @return the envelope in world coordinates corresponding to the screen rectangle.
-     */
-    public static Envelope createMapEnvelope(Rectangle paintArea, AffineTransform worldToScreen)
-            throws NoninvertibleTransformException {
-        double[] pts = new double[8];
-        pts[0] = paintArea.getMinX();
-        pts[1] = paintArea.getMinY();
-        pts[2] = paintArea.getMaxX();
-        pts[3] = paintArea.getMinY();
-        pts[4] = paintArea.getMaxX();
-        pts[5] = paintArea.getMaxY();
-        pts[6] = paintArea.getMinX();
-        pts[7] = paintArea.getMaxY();
-        worldToScreen.inverseTransform(pts, 0, pts, 0, 4);
-        double xMin = Double.MAX_VALUE;
-        double yMin = Double.MAX_VALUE;
-        double xMax = -Double.MAX_VALUE;
-        double yMax = -Double.MAX_VALUE;
-        for (int i = 0; i < 4; i++) {
-            xMin = Math.min(xMin, pts[2 * i]);
-            yMin = Math.min(yMin, pts[2 * i + 1]);
-            xMax = Math.max(xMax, pts[2 * i]);
-            yMax = Math.max(yMax, pts[2 * i + 1]);
-        }
-        return new Envelope(xMin, xMax, yMin, yMax);
-    }
-
-    /**
-     * Creates the map's bounding box in real world coordinates
-     *
-     * <p>NOTE It is worth to note that here we do not take into account the half a pixel
-     * translation stated by ogc for coverages bounds. One reason is that WMS 1.1.1 does not follow
-     * it!!!
-     *
-     * @param worldToScreen a transform which converts World coordinates to screen pixel
-     *     coordinates.
-     * @param paintArea the size of the rendering output area
   
-
     /**
-     * Method used by the OGC scale calculation to turn a given length in the specified CRS towards
-     * meters.
+     * @see https://www.nhc.noaa.gov/gccalc.shtml
      *
-     * <p>GeographicCRS uses {@link #OGC_DEGREE_TO_METERS} for conversion of lat/lon measures
+     * Convert degrees of latitude to meters. Conversion made at 45 deg (which is appropriate
+     * for Colorado.
      *
-     * <p>Otherwise the horizontal component of the CRS is assumed to have a uniform axis unit of
-     * measure providing the Unit used for conversion. To ignore unit disable {@link
-     * #SCALE_UNIT_COMPENSATION} to for the unaltered size.
-     *
-     * @param size
-     * @param crs
-     * @return size adjusted for GeographicCRS or CRS units
+     * @param deg degrees of latitude
+     * @return degrees adjusted to meters
      */
-    private static double toMeters(double size, CoordinateSystem cs) {
-        if (cs == null) {
-            LOGGER.finer("toMeters: assuming the original size is in meters already, as crs is null");
-            return size;
-        }
-        return size;
+    public static double latitudeToMeters(double degrees) {
+        return degrees * 111131.777652;
     }
-
-    public static String toText(String label,Rectangle rect) {
-		String text = String.format("%s (%2.1f-%2.1f,%2.1f-%2.1f)",label,rect.getMinX(),rect.getMaxX(),rect.getMinY(),rect.getMaxY()); 
-		return text;
-	}
-    public static String toText(String label,Rectangle2D rect) {
-		String text = String.format("%s (%2.1f-%2.1f,%2.1f-%2.1f)",label,rect.getMinX(),rect.getMaxX(),rect.getMinY(),rect.getMaxY()); 
-		return text;
-	}
-    public static String toText(String label,Envelope rect) {
-		String text = String.format("%s (%2.1f-%2.1f,%2.1f-%2.1f)",label,rect.getMinX(),rect.getMaxX(),rect.getMinY(),rect.getMaxY()); 
-		return text;
-	}
-
+    public static double longitudeToMeters(double degrees) {
+        return degrees * 788463.3470959268;
+    }
+    
     /**
      * First searches the hints for the scale denominator hint otherwise calls {@link
      * #calculateScale(org.geotools.util.SoftValueHashMap.Reference, int, int, double)}. If the
@@ -197,212 +118,6 @@ public final class RendererUtilities {
      */
     public static double getDpi() {
         return 25.4 / 0.28; // 90 = OGC standard
-    }
-
-    /**
-     * Find the scale denominator of the map. Method: 1. find the diagonal distance (meters) 2. find
-     * the diagonal distance (pixels) 3. find the diagonal distance (meters) -- use DPI 4. calculate
-     * scale (#1/#2)
-     *
-     * <p>NOTE: return the scale denominator not the actual scale (1/scale = denominator)
-     *
-     * <p>TODO: (SLD spec page 28): Since it is common to integrate the output of multiple servers
-     * into a single displayed result in the web-mapping environment, it is important that different
-     * map servers have consistent behaviour with respect to processing scales, so that all of the
-     * independent servers will select or deselect rules at the same scales. To insure consistent
-     * behaviour, scales relative to coordinate spaces must be handled consistently between map
-     * servers. For geographic coordinate systems, which use angular units, the angular coverage of
-     * a map should be converted to linear units for computation of scale by using the circumference
-     * of the Earth at the equator and by assuming perfectly square linear units. For linear
-     * coordinate systems, the size of the coordinate space should be used directly without
-     * compensating for distortions in it with respect to the shape of the real Earth.
-     *
-     * <p>NOTE: we are actually doing a a much more exact calculation, and accounting for non-square
-     * pixels (which are allowed in WMS) ADDITIONAL NOTE from simboss: I added soe minor fixes. See
-     * below.
-     *
-     * @param envelope
-     * @param imageWidth
-     * @param imageHeight
-     * @param DPI screen dots per inch (OGC standard is 90)
-     *     <p>TODO should I take into account also the destination CRS? Otherwise I am just assuming
-     *     that the final crs is lon,lat that is it maps lon to x (n raster space) and lat to y (in
-     *     raster space).
-     */
-    public static double calculateScale(ReferencedEnvelope envelope, int imageWidth, int imageHeight, double DPI) {
-
-    	final double diagonalGroundDistance;
-
-    	DirectPosition uc = envelope.getUpperCorner();
-    	DirectPosition lc = envelope.getLowerCorner();
-    	diagonalGroundDistance = Math.sqrt((uc.x-lc.x)*(uc.x-lc.x)+(uc.y-lc.y)*(uc.y-lc.y));
-
-
-    	// //
-        //
-        // Compute the distances on the requested image using the provided DPI.
-        //
-        // //
-        // pythagorian theorm
-        double diagonalPixelDistancePixels =
-                Math.sqrt(imageWidth * imageWidth + imageHeight * imageHeight);
-        double diagonalPixelDistanceMeters =
-                diagonalPixelDistancePixels / DPI * 2.54 / 100; // 2.54 = cm/inch, 100= cm/m
-        return diagonalGroundDistance / diagonalPixelDistanceMeters;
-    }
-
-    private static double geodeticDiagonalDistance(Envelope env) {
-        if (env.getWidth() < 180 && env.getHeight() < 180) {
-            return getGeodeticSegmentLength(
-                    env.getMinX(), env.getMinY(), env.getMaxX(), env.getMaxY());
-        } else {
-            // we cannot compute geodetic distance for distances longer than a hemisphere,
-            // we have to build a set of lines connecting the two points that are smaller to
-            // get a value that makes any sense rendering wise by crossing the original line with
-            // a set of quadrants that are 180x180
-            double distance = 0;
-            GeometryFactory gf = new GeometryFactory();
-            LineString ls =
-                    gf.createLineString(
-                            new Coordinate[] {
-                                new Coordinate(env.getMinX(), env.getMinY()),
-                                new Coordinate(env.getMaxX(), env.getMaxY())
-                            });
-            int qMinX = -1;
-            int qMaxX = 1;
-            int qMinY = -1;
-            int qMaxY = 1;
-            // we must consider at least a pair of quadrants in each direction other wise lines
-            // which don't cross both the equator and prime meridian are
-            // measured as 0 length. But for some cases we need to consider still more hemispheres.
-            qMinX = Math.min(qMinX,
-                            (int)(Math.signum(env.getMinX())
-                                            * Math.ceil(Math.abs(env.getMinX() / 180.0))));
-            qMaxX = Math.max(qMaxX,
-                            (int)(Math.signum(env.getMaxX())
-                                            * Math.ceil(Math.abs(env.getMaxX() / 180.0))));
-            qMinY = Math.min(qMinY,
-                            (int) (Math.signum(env.getMinY())
-                                            * Math.ceil(Math.abs((env.getMinY() + 90) / 180.0))));
-            qMaxY = Math.max(qMaxY,
-                            (int) (Math.signum(env.getMaxY())
-                                            * Math.ceil(Math.abs((env.getMaxY() + 90) / 180.0))));
-            for (int i = qMinX; i < qMaxX; i++) {
-                for (int j = qMinY; j < qMaxY; j++) {
-                    double minX = i * 180.0;
-                    double minY = j * 180.0 - 90;
-                    double maxX = minX + 180;
-                    double maxY = minY + 180;
-                    LinearRing ring =
-                            gf.createLinearRing(
-                                    new Coordinate[] {
-                                        new Coordinate(minX, minY),
-                                        new Coordinate(minX, maxY),
-                                        new Coordinate(maxX, maxY),
-                                        new Coordinate(maxX, minY),
-                                        new Coordinate(minX, minY)
-                                    });
-                    Polygon p = gf.createPolygon(ring, null);
-                    Geometry intersection = p.intersection(ls);
-                    if (!intersection.isEmpty()) {
-                        if (intersection instanceof LineString) {
-                            LineString ils = ((LineString) intersection);
-                            double d = getGeodeticSegmentLength(ils);
-                            distance += d;
-                        } else if (intersection instanceof GeometryCollection) {
-                            GeometryCollection igc = ((GeometryCollection) intersection);
-                            for (int k = 0; k < igc.getNumGeometries(); k++) {
-                                Geometry child = igc.getGeometryN(k);
-                                if (child instanceof LineString) {
-                                    double d = getGeodeticSegmentLength((LineString) child);
-                                    distance += d;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            return distance;
-        }
-    }
-
-    private static double getGeodeticSegmentLength(LineString ls) {
-        Coordinate start = ls.getCoordinateN(0);
-        Coordinate end = ls.getCoordinateN(1);
-        return getGeodeticSegmentLength(start.x, start.y, end.x, end.y);
-    }
-
-    private static double getGeodeticSegmentLength(
-            double minx, double miny, double maxx, double maxy) {
-        final GeodeticCalculator calculator = new GeodeticCalculator();  // Use default calculator
-        double rminx = rollLongitude(minx);
-        double rminy = rollLatitude(miny);
-        double rmaxx = rollLongitude(maxx);
-        double rmaxy = rollLatitude(maxy);
-        calculator.setStartingGeographicPoint(rminx, rminy);
-        calculator.setDestinationGeographicPoint(rmaxx, rmaxy);
-        return calculator.getOrthodromicDistance();
-    }
-
-    protected static double rollLongitude(final double x) {
-        double rolled = x - (((int) (x + Math.signum(x) * 180)) / 360) * 360.0;
-        return rolled;
-    }
-
-    protected static double rollLatitude(final double x) {
-        double rolled = x - (((int) (x + Math.signum(x) * 90)) / 180) * 180.0;
-        return rolled;
-    }
-
-    /**
-     * This worldToScreenTransform method makes the assumption that the crs is in Lon,Lat or
-     * Lat,Lon. If the provided envelope does not carry along a crs the assumption that the map
-     * extent is in the classic Lon,Lat form. In case the provided envelope is of type.
-     *
-     * <p>Note that this method takes into account also the OGC standard with respect to the
-     * relation between pixels and sample.
-     *
-     * @param mapExtent The envelope of the map in lon,lat
-     * @param paintArea The area to paint as a rectangle
-     * @param destinationCrs
-     * @todo add georeferenced envelope check when merge with trunk will be performed
-     */
-    public static AffineTransform worldToScreenTransform(
-            Envelope mapExtent, Rectangle paintArea, CoordinateSystem destinationCrs) {
-
-        final boolean lonFirst =
-        		destinationCrs
-                        .getAxis(0)
-                        .getDirection()
-                        .equals(AxisDirection.EAST);
-        final ReferencedEnvelope newEnvelope =
-                lonFirst? new ReferencedEnvelope(mapExtent.getMinX(), mapExtent.getMinY(),
-                                mapExtent.getMaxX(), mapExtent.getMaxY(),destinationCrs)
-                        : new ReferencedEnvelope(
-                                mapExtent.getMinY(), mapExtent.getMinX(),
-                                mapExtent.getMaxY(), mapExtent.getMaxX(),destinationCrs);
-
-        //
-        // with this method I can build a world to grid transform
-        // without adding half of a pixel translations. The cost
-        // is a hashtable lookup. The benefit is reusing the last
-        // transform (instead of creating a new one) if the grid
-        // and envelope are the same one than during last invocation.
-        final WorldToScreenMapper m = new WorldToScreenMapper();
-        m.setWorldEnvelope(new ReferencedEnvelope(paintArea));
-        m.setScreenEnvelope(newEnvelope);
-        AffineTransform result = null;
-        try {
-			result = m.createTransform().createInverse();
-		} 
-        catch (IllegalStateException e) {
-			e.printStackTrace();
-		} 
-        catch (NoninvertibleTransformException e) {
-			e.printStackTrace();
-		}
-        return result;
     }
 
     /**

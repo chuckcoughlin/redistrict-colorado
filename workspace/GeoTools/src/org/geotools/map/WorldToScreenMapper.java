@@ -82,11 +82,8 @@ public class WorldToScreenMapper {
 	public static final int ANCHOR_CELL_CENTER = 1;
 	public static final int ANCHOR_CELL_CORNER = 2;
 
-    /** The grid range, or {@code null} if not yet specified. */
-    private ReferencedEnvelope worldEnvelope = null;
-
-    /** The envelope, or {@code null} if not yet specified. */
-    private ReferencedEnvelope screenEnvelope = null;
+    private final ReferencedEnvelope worldEnvelope;
+    private final ReferencedEnvelope screenEnvelope;
 
     /**
      * Whatever the {@code gridToCRS} transform will maps pixel center or corner. The default value
@@ -96,9 +93,6 @@ public class WorldToScreenMapper {
 
     /** The math transform, or {@code null} if not yet computed. */
     private AffineTransform transform;
-
-    /** Creates a new instance of {@code WorldToScreenMapper}. */
-    public WorldToScreenMapper() {}
 
     /**
      * Creates a new instance for the specified world and screen envelopes.
@@ -136,61 +130,17 @@ public class WorldToScreenMapper {
      * @param anchor Whatever the grid range maps pixel center or corner.
      * @since 2.5
      */
-    public void setPixelAnchor(final int anchor) {
-        if(this.anchor!=anchor ) {
-            this.anchor = anchor;
-        }
-    }
+    public void setPixelAnchor(final int anchor) {this.anchor = anchor;}
 
     /**
-     * Returns the world coordinates.
-     *
-     * @return the world dimensions.
-     * @throws IllegalStateException if the grid range has not yet been defined.
+     * @return the world coordinates.
      */
-    public ReferencedEnvelope getWorldEnvelope() throws IllegalStateException {
-        if (worldEnvelope == null) {
-            throw new IllegalStateException(String.format("%s.getWorldEnvelope: envelope never set", CLSS));
-        }
-        return worldEnvelope;
-    }
+    public ReferencedEnvelope getWorldEnvelope()  { return worldEnvelope; }
 
     /**
-     * Sets the grid range.
-     *
-     * @param gridRange The new grid range.
-     */
-    public void setWorldEnvelope(final ReferencedEnvelope envelope) {
-        if (!Utilities.equals(this.worldEnvelope, envelope)) {
-            this.worldEnvelope = envelope;
-        }
-    }
-
-    /**
-     * Returns the envelope. For performance reason, this method do not clone the envelope. So the
-     * returned object should not be modified.
-     *
      * @return The envelope.
-     * @throws IllegalStateException if the envelope has not yet been defined.
      */
-    public ReferencedEnvelope getScreenEnvelope() throws IllegalStateException {
-        if (screenEnvelope == null) {
-        	throw new IllegalStateException(String.format("%s.getScreenEnvelope: envelope never set", CLSS));
-        }
-        return screenEnvelope;
-    }
-
-    /**
-     * Sets the envelope. This method do not clone the specified envelope, so it should not be
-     * modified after this method has been invoked.
-     *
-     * @param envelope The new envelope.
-     */
-    public void setScreenEnvelope(final ReferencedEnvelope envelope) {
-        if (!Utilities.equals(this.screenEnvelope, envelope)) {
-            this.screenEnvelope = envelope;
-        }
-    }
+    public ReferencedEnvelope getScreenEnvelope() { return screenEnvelope; }
 
     /**
      * Returns true if the axis in <cite>user</cite> space (not grid space) should have their
@@ -231,9 +181,8 @@ public class WorldToScreenMapper {
      * This assumes no reversing
      *
      * @return the transform.
-     * @throws IllegalStateException if the grid range or the envelope were not set.
      */
-    public AffineTransform createTransform() throws IllegalStateException {
+    public AffineTransform createTransform()  {
         if (transform == null) {
             final boolean swapXY = swapXY(screenEnvelope.getCoordinateSystem());
             final int gridType = getPixelAnchor();
@@ -244,20 +193,12 @@ public class WorldToScreenMapper {
              * According OpenGIS specification, transforms must map pixel center.
              * This is done by adding 0.5 to grid coordinates.
              */
-            final double translate;
+            double translate = 0.0;   // ANCHOR_CELL_CORNER
             if(gridType==ANCHOR_CELL_CENTER) {
                 translate = 0.5;
             } 
-            else if (gridType==ANCHOR_CELL_CORNER) {
-                translate = 0.0;
-            } 
-            else {
-            	throw new IllegalStateException(String.format("%s.createTransform: Illegal grid type (%d)", CLSS,gridType));
-            }
 
             if( dimension>1 ){
-
-                
                 double scalex = screenEnvelope.getWidth() / worldEnvelope.getWidth();
                 double scaley = screenEnvelope.getHeight() / worldEnvelope.getHeight();
                 double offsetx = screenEnvelope.getMaximum(0);
@@ -289,9 +230,6 @@ public class WorldToScreenMapper {
                 double m10 = 0.; 	// y shear
                 double m11 = scaley;  // y scale
                 double m12 = offsety; // dy
-                LOGGER.info(String.format("%s.createTransform: %2.1f,%2.1f,%2.1f,%2.1f",CLSS,worldEnvelope.getWidth(),worldEnvelope.getHeight(),screenEnvelope.getWidth(),screenEnvelope.getHeight()));
-                LOGGER.info(String.format("%s.createTransform: grid:%s, user:%s", CLSS,RendererUtilities.toText("",worldEnvelope),RendererUtilities.toText("",screenEnvelope)));
-                LOGGER.info(String.format("%s.createTransform: %2.1f,%2.1f,%2.1f,%2.1f,%2.1f,%2.1f",CLSS,m00,m01,m02,m10,m11,m12));
                 transform = new AffineTransform(m00,m01,m02,m10,m11,m12); 
             } 
         }
