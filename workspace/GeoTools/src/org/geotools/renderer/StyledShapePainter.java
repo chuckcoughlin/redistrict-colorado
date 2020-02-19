@@ -37,13 +37,13 @@ import java.util.logging.Logger;
 import javax.swing.Icon;
 
 import org.geotools.geometry.jts.FeatureShape;
-import org.geotools.renderer.style.GraphicStyle;
-import org.geotools.renderer.style.IconStyle;
-import org.geotools.renderer.style.LineStyle;
-import org.geotools.renderer.style.MarkStyle;
-import org.geotools.renderer.style.PointStyle;
-import org.geotools.renderer.style.PolygonStyle;
-import org.geotools.renderer.style.Style;
+import org.geotools.style.GraphicStyle;
+import org.geotools.style.IconStyle;
+import org.geotools.style.LineStyle;
+import org.geotools.style.MarkStyle;
+import org.geotools.style.PointStyle;
+import org.geotools.style.PolygonStyle;
+import org.geotools.style.Style;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -53,8 +53,8 @@ import org.locationtech.jts.geom.Polygon;
 
 
 /**
- * A simple class that knows how to paint a Shape object onto a Graphic given a Style2D. It's the
- * last step of the rendering engine, and has been factored out since both renderers do use the same
+ * A simple class that knows how to paint a Shape object onto a Graphic given a Style. It's the
+ * last step of the rendering engine, and had been factored out since both renderers use the same
  * painting logic.
  *
  * @author Andrea Aime
@@ -66,19 +66,14 @@ public class StyledShapePainter {
     public static final Key TEXTURE_ANCHOR_HINT_KEY = new TextureAnchorKey();
     private static final AffineTransform IDENTITY_TRANSFORM = new AffineTransform();
     /** Whether icon centers should be matched to a pixel center, or not */
-    public static boolean ROUND_ICON_COORDS =
-            Boolean.parseBoolean(
-                    System.getProperty("org.geotools.renderer.lite.roundIconCoords", "true"));
+    public static boolean ROUND_ICON_COORDS = true;
 
 
     public StyledShapePainter() {
         // nothing do do, just needs to exist
     }
 
-    public void paint(
-            final Graphics2D graphics,
-            final FeatureShape shape,
-            final Style style) {
+    public void paint( Graphics2D graphics,FeatureShape shape,Style style) {
         paint(graphics, shape, style, false);
     }
 
@@ -93,164 +88,158 @@ public class StyledShapePainter {
      * @throws FactoryException
      * @throws TransformException
      */
-    public void paint(
-            final Graphics2D graphics,
-            final FeatureShape shape,
-            final Style style,
-            boolean isLabelObstacle) {
-        if (style == null) {
-            // TODO: what's going on? Should not be reached...
-            LOGGER.severe("ShapePainter has been asked to paint a null style!!");
-            return;
-        }
+    public void paint(Graphics2D graphics,FeatureShape shape,Style style,boolean isLabelObstacle) {
+    	if (style == null) {
+    		// TODO: what's going on? Should not be reached...
+    		LOGGER.severe("ShapePainter has been asked to paint a null style!!");
+    		return;
+    	}
 
-        if (style instanceof IconStyle) {
-            AffineTransform temp = graphics.getTransform();
-            try {
-                IconStyle icoStyle = (IconStyle) style;
-                Icon icon = icoStyle.getIcon();
-                graphics.setComposite(icoStyle.getComposite());
+    	if (style instanceof IconStyle) {
+    		AffineTransform temp = graphics.getTransform();
+    		try {
+    			IconStyle icoStyle = (IconStyle) style;
+    			Icon icon = icoStyle.getIcon();
+    			graphics.setComposite(icoStyle.getComposite());
 
-                // the displacement to be applied to all points, centers the icon and applies the
-                // Graphic displacement as well
-                float dx = icoStyle.getDisplacementX();
-                float dy = icoStyle.getDisplacementY();
+    			// the displacement to be applied to all points, centers the icon and applies the
+    			// Graphic displacement as well
+    			float dx = icoStyle.getDisplacementX();
+    			float dy = icoStyle.getDisplacementY();
 
-                // iterate over all points
-                float[] coords = new float[2];
-                PathIterator citer = getPathIterator(shape);
-                AffineTransform at = new AffineTransform(temp);
-                while (!(citer.isDone())) {
-                    if (citer.currentSegment(coords) != PathIterator.SEG_MOVETO) {
-                        at.setTransform(temp);
+    			// iterate over all points
+    			float[] coords = new float[2];
+    			PathIterator citer = getPathIterator(shape);
+    			AffineTransform at = new AffineTransform(temp);
+    			while (!(citer.isDone())) {
+    				if (citer.currentSegment(coords) != PathIterator.SEG_MOVETO) {
+    					at.setTransform(temp);
 
-                        double x = coords[0] + dx;
-                        double y = coords[1] + dy;
-                        at.translate(x, y);
-                        at.rotate(icoStyle.getRotation());
-                        at.translate(
-                                -(icon.getIconWidth() * icoStyle.getAnchorPointX()),
-                                (icon.getIconHeight() * (icoStyle.getAnchorPointY() - 1)));
-                        graphics.setTransform(at);
+    					double x = coords[0] + dx;
+    					double y = coords[1] + dy;
+    					at.translate(x, y);
+    					at.rotate(icoStyle.getRotation());
+    					at.translate(
+    							-(icon.getIconWidth() * icoStyle.getAnchorPointX()),
+    							(icon.getIconHeight() * (icoStyle.getAnchorPointY() - 1)));
+    					graphics.setTransform(at);
 
-                        icon.paintIcon(null, graphics, 0, 0);
+    					icon.paintIcon(null, graphics, 0, 0);
 
-                    }
-                    citer.next();
-                }
-            } finally {
-                graphics.setTransform(temp);
-            }
-        } else if (style instanceof MarkStyle) {
-            PathIterator citer = getPathIterator(shape);
+    				}
+    				citer.next();
+    			}
+    		} finally {
+    			graphics.setTransform(temp);
+    		}
+    	}
+    	else if (style instanceof MarkStyle) {
+    		PathIterator citer = getPathIterator(shape);
 
-            // get the point onto the shape has to be painted
-            float[] coords = new float[2];
-            MarkStyle ms2d = (MarkStyle) style;
+    		// get the point onto the shape has to be painted
+    		float[] coords = new float[2];
+    		MarkStyle ms2d = (MarkStyle) style;
 
-            Shape transformedShape;
-            while (!(citer.isDone())) {
-                if (citer.currentSegment(coords) != PathIterator.SEG_MOVETO) {
-                    transformedShape = ms2d.getTransformedShape(coords[0], coords[1]);
-                    if (transformedShape != null) {
-                        if (ms2d.getFill() != null) {
-                            graphics.setPaint(ms2d.getFill());
-                            graphics.setComposite(ms2d.getFillComposite());
-                            graphics.fill(transformedShape);
-                        }
+    		Shape transformedShape;
+    		while (!(citer.isDone())) {
+    			if (citer.currentSegment(coords) != PathIterator.SEG_MOVETO) {
+    				transformedShape = ms2d.getTransformedShape(coords[0], coords[1]);
+    				if (transformedShape != null) {
+    					if (ms2d.getFill() != null) {
+    						graphics.setPaint(ms2d.getFill());
+    						graphics.setComposite(ms2d.getFillComposite());
+    						graphics.fill(transformedShape);
+    					}
 
-                        if (ms2d.getContour() != null) {
-                            graphics.setPaint(ms2d.getContour());
-                            graphics.setStroke(ms2d.getStroke());
-                            graphics.setComposite(ms2d.getContourComposite());
-                            graphics.draw(transformedShape);
-                        }
-                    }
-                }
-                citer.next();
-            }
-        } 
-        else if (style instanceof GraphicStyle) {
-            float[] coords = new float[2];
-            PathIterator iter = getPathIterator(shape);
-            iter.currentSegment(coords);
+    					if (ms2d.getContour() != null) {
+    						graphics.setPaint(ms2d.getContour());
+    						graphics.setStroke(ms2d.getStroke());
+    						graphics.setComposite(ms2d.getContourComposite());
+    						graphics.draw(transformedShape);
+    					}
+    				}
+    			}
+    			citer.next();
+    		}
+    	} 
+    	else if (style instanceof GraphicStyle) {
+    		float[] coords = new float[2];
+    		PathIterator iter = getPathIterator(shape);
+    		iter.currentSegment(coords);
 
-            GraphicStyle gs2d = (GraphicStyle) style;
+    		GraphicStyle gs2d = (GraphicStyle) style;
 
-            BufferedImage image = gs2d.getImage();
-            double dx = gs2d.getDisplacementX() - gs2d.getAnchorPointX() * image.getWidth();
-            double dy =
-                    gs2d.getDisplacementY() - ((1 - gs2d.getAnchorPointY()) * image.getHeight());
-            while (!(iter.isDone())) {
-                if (iter.currentSegment(coords) != PathIterator.SEG_MOVETO) {
-                    renderImage(
-                            graphics,
-                            coords[0],
-                            coords[1],
-                            dx,
-                            dy,
-                            image,
-                            gs2d.getRotation(),
-                            gs2d.getComposite(),
-                            isLabelObstacle);
-                }
-                iter.next();
-            }
-        } 
-        else {
-            // if the style is a polygon one, process it even if the polyline is
-            // not closed (by SLD specification)
-            if (style instanceof PolygonStyle
-                    && !optimizeOutFill((PolygonStyle) style, shape)) {
-                PolygonStyle ps2d = (PolygonStyle) style;
+    		BufferedImage image = gs2d.getImage();
+    		double dx = gs2d.getDisplacementX() - gs2d.getAnchorPointX() * image.getWidth();
+    		double dy =
+    				gs2d.getDisplacementY() - ((1 - gs2d.getAnchorPointY()) * image.getHeight());
+    		while (!(iter.isDone())) {
+    			if (iter.currentSegment(coords) != PathIterator.SEG_MOVETO) {
+    				renderImage(
+    						graphics,
+    						coords[0],
+    						coords[1],
+    						dx,
+    						dy,
+    						image,
+    						gs2d.getRotation(),
+    						gs2d.getComposite(),
+    						isLabelObstacle);
+    			}
+    			iter.next();
+    		}
+    	}
+    	else if (style instanceof LineStyle) {
+    		LineStyle ls2d = (LineStyle) style;
+    		paintLineStyle(graphics, shape, ls2d, isLabelObstacle, 0.5f);
+    	}
+    	// For a PolygonStyle, process it even if the polyline is
+    	// not closed (by SLD specification)
+    	else if (style instanceof PolygonStyle
+    			&& !optimizeOutFill((PolygonStyle) style, shape)) {
+    		PolygonStyle ps2d = (PolygonStyle) style;
 
-                if (ps2d.getFill() != null) {
-                    Paint paint = ps2d.getFill();
+    		if (ps2d.getFill() != null) {
+    			Paint paint = ps2d.getFill();
 
-                    if (paint instanceof TexturePaint) {
-                        TexturePaint tp = (TexturePaint) paint;
-                        BufferedImage image = tp.getImage();
-                        Rectangle2D cornerRect = tp.getAnchorRect();
-                        Point2D anchorPoint =
-                                (Point2D) graphics.getRenderingHint(TEXTURE_ANCHOR_HINT_KEY);
-                        Rectangle2D alignedRect = null;
-                        if (anchorPoint != null) {
-                            alignedRect =
-                                    new Rectangle2D.Double(
-                                            Math.round(anchorPoint.getX()),
-                                            Math.round(anchorPoint.getY()),
-                                            cornerRect.getWidth(),
-                                            cornerRect.getHeight());
-                        } else {
-                            alignedRect =
-                                    new Rectangle2D.Double(
-                                            0.0,
-                                            0.0,
-                                            cornerRect.getWidth(),
-                                            cornerRect.getHeight());
-                        }
-                        paint = new TexturePaint(image, alignedRect);
-                    }
+    			if (paint instanceof TexturePaint) {
+    				TexturePaint tp = (TexturePaint) paint;
+    				BufferedImage image = tp.getImage();
+    				Rectangle2D cornerRect = tp.getAnchorRect();
+    				Point2D anchorPoint = (Point2D) graphics.getRenderingHint(TEXTURE_ANCHOR_HINT_KEY);
+    				Rectangle2D alignedRect = null;
+    				if (anchorPoint != null) {
+    					alignedRect =
+    							new Rectangle2D.Double(
+    									Math.round(anchorPoint.getX()),
+    									Math.round(anchorPoint.getY()),
+    									cornerRect.getWidth(),
+    									cornerRect.getHeight());
+    				} 
+    				else {
+    					alignedRect = new Rectangle2D.Double(
+    									0.0,
+    									0.0,
+    									cornerRect.getWidth(),
+    									cornerRect.getHeight());
+    				}
+    				paint = new TexturePaint(image, alignedRect);
+    			}
 
-                    graphics.setPaint(paint);
-                    graphics.setComposite(ps2d.getFillComposite());
-                    fillLiteShape(graphics, shape);
-                }
-                if (ps2d.getGraphicFill() != null) {
-                    Shape oldClip = graphics.getClip();
-                    try {
-                        paintGraphicFill(graphics, shape, ps2d.getGraphicFill());
-                    } finally {
-                        graphics.setClip(oldClip);
-                    }
-                }
-            }
-
-            if (style instanceof LineStyle) {
-                LineStyle ls2d = (LineStyle) style;
-                paintLineStyle(graphics, shape, ls2d, isLabelObstacle, 0.5f);
-            }
-        }
+    			graphics.setPaint(paint);
+    			graphics.setComposite(ps2d.getFillComposite());
+    			fillLiteShape(graphics, shape);
+    		}
+    		if (ps2d.getGraphicFill() != null) {
+    			Shape oldClip = graphics.getClip();
+    			try {
+    				paintGraphicFill(graphics, shape, ps2d.getGraphicFill());
+    			} 
+    			finally {
+    				graphics.setClip(oldClip);
+    			}
+    		}
+    	}
     }
 
     /**

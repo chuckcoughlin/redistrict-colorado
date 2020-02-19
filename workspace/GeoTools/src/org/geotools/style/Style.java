@@ -14,13 +14,13 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.renderer.style;
+package org.geotools.style;
 
 /**
  * Base class for resolved styles. Styles are resolved according a particular rendering context. The
  * base class make no assumption about the output device (AWT, SWT, <i>etc.</i>). However, a
  * particular output device may need to be choosen for concrete subclasses, for example {@link
- * Style2D} for targeting <A HREF="http://java.sun.com/products/java-media/2D/">Java2D</A>.
+ * Style} for targeting <A HREF="http://java.sun.com/products/java-media/2D/">Java2D</A>.
  *
  * @version $Id$
  */
@@ -28,11 +28,11 @@ public class Style implements Cloneable {
     protected double maxScale = Double.POSITIVE_INFINITY;
     protected double minScale = 0;
     private String description = "";
-    private String name = "Default Styler";
+    private String name = "DefaultStyle";
     
     /** Creates a new instance of Style */
-    protected Style() {}
-    protected Style(String nam,String desc) {
+    public Style() {}
+    public Style(String nam,String desc) {
     	this.name = nam;
     	this.description=desc;
     }

@@ -16,7 +16,7 @@
  */
 package org.geotools.styling;
 
-import org.geotools.renderer.style.Style;
+import org.geotools.style.Style;
 
 /**
  * An interface for classes that want to perform operations on a Style hierarchy. It forms part of a

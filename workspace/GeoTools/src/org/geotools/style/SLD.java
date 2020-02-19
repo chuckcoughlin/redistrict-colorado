@@ -14,7 +14,7 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.renderer.style;
+package org.geotools.style;
 
 import java.awt.Color;
 import java.util.logging.Logger;
@@ -102,17 +102,17 @@ public class SLD {
      * @param opacity proportional opacity (0 to 1)
      * @return a new Style instance
      */
-    public static Style createPolygonStyle(Color outlineColor, Color fillColor, float opacity) {
+    public static PolygonStyle createPolygonStyle(Color outlineColor, Color fillColor, float opacity) {
         Stroke stroke = new Stroke(outlineColor,1.0f);
         Fill fill = new Fill();
         if (fillColor != null) {
             fill.setColor(fillColor);
             fill.setOpacity(opacity);
         }
-        PolygonSymbolizer psym = new PolygonSymbolizer();
-        psym.setFill(fill);
-        psym.setStroke(stroke);
-        return wrapSymbolizers(psym);
+        PolygonStyle style = new PolygonStyle();
+        //style.setGraphicFill(graphicFill);
+        //psym.setStroke(stroke);
+        return style;
     }
 
   

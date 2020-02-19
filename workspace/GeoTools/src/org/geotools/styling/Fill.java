@@ -121,11 +121,6 @@ public class Fill implements  Cloneable {
         this.graphicFill = graphic;
     }
 
-
-    public void accept(StyleVisitor visitor) {
-        visitor.visit(this);
-    }
-
     /**
      * Returns a clone of the FillImpl.
      *

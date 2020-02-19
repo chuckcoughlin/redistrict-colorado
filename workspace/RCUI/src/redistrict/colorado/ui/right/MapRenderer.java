@@ -13,8 +13,8 @@ import org.geotools.data.shapefile.ShapefileReader;
 import org.geotools.map.MapContent;
 import org.geotools.map.MapLayer;
 import org.geotools.renderer.ShapefileRenderer;
-import org.geotools.renderer.style.SLD;
-import org.geotools.renderer.style.Style;
+import org.geotools.style.SLD;
+import org.geotools.style.Style;
 import org.jfree.fx.FXGraphics2D;
 
 import javafx.scene.Node;

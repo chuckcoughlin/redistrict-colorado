@@ -14,12 +14,16 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.renderer.style;
+package org.geotools.style;
 
 // J2SE dependencies
 
 import java.awt.Composite;
 import java.awt.Paint;
+
+import org.geotools.styling.Displacement;
+import org.geotools.styling.Fill;
+import org.geotools.styling.Stroke;
 
 /**
  * A style that contains the specification to renderer both the contour and the interior of a shape
@@ -31,9 +35,13 @@ public class PolygonStyle extends LineStyle {
     protected Paint fill;
     protected Style graphicFill;
     protected Composite fillComposite;
+    private double offset;
+    private Displacement disp;
+    //private Fill fill = new Fill();
+    private Stroke stroke = new Stroke();
 
     /**
-     * Returns a Style2D used for filling the {@linkplain org.geotools.renderer.geom.Polygon
+     * Returns a Style used for filling the {@linkplain org.geotools.renderer.geom.Polygon
      * polygon} to be rendered, or <code>null</code> if none.
      *
      * @return the current fill or null if none

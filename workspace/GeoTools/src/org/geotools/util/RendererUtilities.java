@@ -27,11 +27,11 @@ import javax.swing.Icon;
 
 import org.geotools.map.WorldToScreenMapper;
 import org.geotools.referencing.ReferencedEnvelope;
-import org.geotools.renderer.style.GraphicStyle;
-import org.geotools.renderer.style.IconStyle;
-import org.geotools.renderer.style.LineStyle;
-import org.geotools.renderer.style.MarkStyle;
-import org.geotools.renderer.style.Style;
+import org.geotools.style.GraphicStyle;
+import org.geotools.style.IconStyle;
+import org.geotools.style.LineStyle;
+import org.geotools.style.MarkStyle;
+import org.geotools.style.Style;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;

@@ -19,7 +19,7 @@ package org.geotools.map;
 import java.util.logging.Logger;
 
 import org.geotools.referencing.ReferencedEnvelope;
-import org.geotools.renderer.style.Style;
+import org.geotools.style.Style;
 import org.locationtech.jts.geom.Envelope;
 import org.openjump.coordsys.CoordinateSystem;
 import org.openjump.feature.FeatureCollection;

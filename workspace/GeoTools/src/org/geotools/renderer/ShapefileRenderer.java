@@ -28,7 +28,7 @@ import org.geotools.geometry.jts.FeatureShape;
 import org.geotools.map.MapContent;
 import org.geotools.map.MapLayer;
 import org.geotools.referencing.ReferencedEnvelope;
-import org.geotools.renderer.style.Style;
+import org.geotools.style.Style;
 import org.geotools.util.RendererUtilities;
 import org.openjump.feature.Feature;
 import org.openjump.feature.FeatureCollection;
