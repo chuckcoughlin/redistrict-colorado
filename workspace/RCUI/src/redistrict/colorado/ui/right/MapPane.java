@@ -9,7 +9,6 @@ import java.util.logging.Logger;
 
 import org.geotools.data.shapefile.ShapefileReader;
 
-import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Label;
 import redistrict.colorado.bind.EventBindingHub;
@@ -36,8 +35,7 @@ import redistrict.colorado.ui.navigation.LayerNavigationPane;
 			headerLabel.getStyleClass().add("list-header-label");
 			getChildren().add(headerLabel);
 			
-			Canvas canvas = new Canvas(UIConstants.SCENE_WIDTH, UIConstants.SCENE_HEIGHT);
-			getChildren().add(canvas);
+
 
 			getChildren().add(navPane);
 			setTopAnchor(headerLabel,0.);
@@ -48,10 +46,13 @@ import redistrict.colorado.ui.navigation.LayerNavigationPane;
 			setLeftAnchor(navPane,UIConstants.LIST_PANEL_LEFT_MARGIN);
 			setRightAnchor(navPane,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 			
-			setTopAnchor(canvas,headerLabel.getHeight());
+			Canvas canvas = new Canvas(UIConstants.SCENE_WIDTH-UIConstants.LIST_PANEL_LEFT_MARGIN-UIConstants.LIST_PANEL_RIGHT_MARGIN, 
+					                   UIConstants.SCENE_HEIGHT-2*UIConstants.BUTTON_PANEL_HEIGHT);
+			getChildren().add(canvas);
+			setTopAnchor(canvas,UIConstants.BUTTON_PANEL_HEIGHT);
 			setLeftAnchor(canvas,UIConstants.LIST_PANEL_LEFT_MARGIN);
 			setRightAnchor(canvas,UIConstants.LIST_PANEL_RIGHT_MARGIN);
-			setBottomAnchor(canvas,navPane.getHeight());
+			setBottomAnchor(canvas,UIConstants.BUTTON_PANEL_HEIGHT);
 			
 			map = new MapRenderer(canvas);
 			updateModel();

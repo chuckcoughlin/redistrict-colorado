@@ -44,7 +44,7 @@ import javafx.scene.shape.StrokeLineJoin;
 public class StyledShapePainter {
 	private final static String CLSS = "StyledShapePainter";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
-	private static final double DECIMATOR_TOLERANCE = 2.0;
+	private static final double DECIMATOR_TOLERANCE = 0.0001; // ~degrees latitue or longitude
 	private static final double POINT_HEIGHT = 2.0;
 	private static final double POINT_WIDTH = 2.0;
 	private final Decimator decimator;
@@ -138,9 +138,11 @@ public class StyledShapePainter {
 		double[] y = new double[size];
 		int n = decimator.decimatePolygon(geom,x,y);
 		LOGGER.info(String.format("%s.drawPolygon: %d of %d points",CLSS,n,size));
+		/*
 		for(int index=0;index<n&&index<10;index++) {
 			LOGGER.info(String.format("     %2.1f\t%2.1f",x[index],y[index]));
 		}
+		*/
 		graphics.setStroke(style.getLineColor());
 		graphics.setLineWidth(style.getLineWidth());
 		graphics.setLineCap(StrokeLineCap.ROUND);

@@ -68,7 +68,9 @@ public final class RendererUtilities {
      * @param to the destination envelope in screen coordinates
      */
     public static double calculateXScale(Envelope from, Rectangle to) {
-    	double scale = to.getWidth()/from.getWidth();
+    	double fromWidth = from.getWidth();
+    	double toWidth   = to.getWidth();
+    	double scale = toWidth/fromWidth;
         return scale;
     }
     
@@ -78,7 +80,9 @@ public final class RendererUtilities {
      * @param to the destination envelope in screen coordinates
      */
     public static double calculateYScale(Envelope from, Rectangle to) {
-    	double scale = to.getHeight()/from.getHeight();
+    	double fromHeight = from.getHeight();
+    	double toHeight   = to.getHeight();
+    	double scale = toHeight/fromHeight;
         return scale;
     }
 

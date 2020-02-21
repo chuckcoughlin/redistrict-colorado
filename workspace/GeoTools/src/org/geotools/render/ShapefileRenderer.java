@@ -26,6 +26,7 @@ import org.openjump.feature.Feature;
 import org.openjump.feature.FeatureCollection;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
@@ -72,16 +73,24 @@ public class ShapefileRenderer {
     	FeatureCollection collection = layer.getFeatures();
     	Envelope enclosure = collection.getEnvelope();
     	graphics.save();
+    	graphics.setFill(Color.AQUA);
+    	graphics.fillOval(200.,300., 250.,150.);
    
     	double minx = enclosure.getMinX();
     	double miny = enclosure.getMinY();
     	graphics.translate(-minx,-miny);  // Align origins
     	LOGGER.info(String.format("%s.paint: translate %2.1fx, %2.1fy",CLSS,-minx,-miny));
+    	graphics.setFill(Color.RED);
+    	graphics.fillOval(200.,300., 250.,150.);
     	
     	double scalex = RendererUtilities.calculateXScale(mapExtent, paintArea);
     	double scaley = RendererUtilities.calculateYScale(mapExtent, paintArea);
-    	graphics.scale(scalex, scaley);
+    	graphics.scale(1./scalex, 1./scaley);
     	LOGGER.info(String.format("%s.paint: scale %2.1fx, %2.1fy",CLSS,scalex,scaley));
+    	graphics.setFill(Color.CORAL);
+    	graphics.fillOval(200.,300., 250.,150.);
+    	graphics.setFill(Color.DARKGREEN);
+    	graphics.fillOval(20000.,30000., 25000.,15000.);
     	
     	Translate trans = filter.getTranslation();
     	if( trans!=null ) {
