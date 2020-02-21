@@ -19,7 +19,7 @@
 		<mkdir dir="${install.dir}/bin"/>
 	</target>
 	
-	<target name="build" depends="version,jsr-275,geolib,geotools,fxgraphics,rc-core,rc-ui,rc-analyzer" />
+	<target name="build" depends="version,jsr-275,geolib,geotools,rc-core,rc-ui,rc-analyzer" />
 	<target name="version" description="Copy VERSION file for building">
 		<copy todir="${basedir}/../RCAnalyzer/src/redistrict/colorado/common/">
 			<fileset dir="${install.dir}/../release/">
@@ -58,21 +58,6 @@
 		/>
 		<jar destfile="${lib.dir}/${geolib-jar}" includes="**/*.class,**/*.png,**/*.css" basedir="${temp.dir}">
 		</jar>
-	</target>
-	<target name="fxgraphics" description="Build FXGraphics jar">
-			<echo message="Compile FXGraphics" />
-			<delete dir="${temp.dir}" />
-			<mkdir dir="${temp.dir}"/>
-			<javac	srcdir="../FXGraphics/src"
-			       	destdir="${temp.dir}"
-					compiler="javac10+"
-					source="13" target="13"
-					debug="true"
-					modulepathref="common-modulepath"
-					includeantruntime="false"
-			/>
-			<jar destfile="${lib.dir}/${fxgraphics-jar}" includes="**/*.class,**/*.png,**/*.css" basedir="${temp.dir}">
-			</jar>
 	</target>
 	<target name="geotools" description="Build GeoTools jar">
 			<echo message="Compile GeoTools" />

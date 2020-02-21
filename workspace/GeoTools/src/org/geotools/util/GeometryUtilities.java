@@ -16,7 +16,7 @@
  */
 package org.geotools.util;
 
-import org.geotools.geometry.jts.Geometries;
+import org.geotools.geometry.Geometries;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygon;
 

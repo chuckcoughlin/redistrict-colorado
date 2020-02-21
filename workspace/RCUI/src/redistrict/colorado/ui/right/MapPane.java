@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import org.geotools.data.shapefile.ShapefileReader;
 
 import javafx.scene.Node;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Label;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.LayerModel;
@@ -27,7 +28,7 @@ import redistrict.colorado.ui.navigation.LayerNavigationPane;
 		private LayerNavigationPane navPane = new LayerNavigationPane();
 		private Label headerLabel = new Label("Map Canvas");
 		private LayerModel model;
-		private MapRenderer map;
+		private final MapRenderer map;
 		
 		public MapPane() {
 			super(ViewMode.LAYER,DisplayOption.MAP);
@@ -35,8 +36,7 @@ import redistrict.colorado.ui.navigation.LayerNavigationPane;
 			headerLabel.getStyleClass().add("list-header-label");
 			getChildren().add(headerLabel);
 			
-			map = new MapRenderer(UIConstants.SCENE_WIDTH, UIConstants.SCENE_HEIGHT);
-			Node canvas = map.getCanvas();
+			Canvas canvas = new Canvas(UIConstants.SCENE_WIDTH, UIConstants.SCENE_HEIGHT);
 			getChildren().add(canvas);
 
 			getChildren().add(navPane);
@@ -44,12 +44,16 @@ import redistrict.colorado.ui.navigation.LayerNavigationPane;
 			setLeftAnchor(headerLabel,UIConstants.LIST_PANEL_LEFT_MARGIN);
 			setRightAnchor(headerLabel,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 			
-			setLeftAnchor(canvas,UIConstants.LIST_PANEL_LEFT_MARGIN);
-			setRightAnchor(canvas,UIConstants.LIST_PANEL_RIGHT_MARGIN);
-			
 			setBottomAnchor(navPane,0.);
 			setLeftAnchor(navPane,UIConstants.LIST_PANEL_LEFT_MARGIN);
 			setRightAnchor(navPane,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+			
+			setTopAnchor(canvas,headerLabel.getHeight());
+			setLeftAnchor(canvas,UIConstants.LIST_PANEL_LEFT_MARGIN);
+			setRightAnchor(canvas,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+			setBottomAnchor(canvas,navPane.getHeight());
+			
+			map = new MapRenderer(canvas);
 			updateModel();
 		}
 		

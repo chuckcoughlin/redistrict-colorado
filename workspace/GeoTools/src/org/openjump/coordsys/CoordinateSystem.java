@@ -20,7 +20,7 @@
 package org.openjump.coordsys;
 
 
-import org.opengis.geometry.MismatchedDimensionException;
+import org.opengis.MismatchedDimensionException;
 
 
 

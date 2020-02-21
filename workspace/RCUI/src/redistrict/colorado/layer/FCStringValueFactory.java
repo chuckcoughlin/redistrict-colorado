@@ -6,7 +6,6 @@
  */
 package redistrict.colorado.layer;
 
-import java.awt.Color;
 import java.util.logging.Logger;
 
 import javafx.beans.property.SimpleStringProperty;

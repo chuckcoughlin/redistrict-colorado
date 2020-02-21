@@ -16,22 +16,8 @@
  */
 package org.geotools.util;
 
-import java.awt.BasicStroke;
-import java.awt.Rectangle;
-import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.swing.Icon;
-
-import org.geotools.map.WorldToScreenMapper;
-import org.geotools.referencing.ReferencedEnvelope;
-import org.geotools.style.GraphicStyle;
-import org.geotools.style.IconStyle;
-import org.geotools.style.LineStyle;
-import org.geotools.style.MarkStyle;
-import org.geotools.style.Style;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
@@ -43,11 +29,12 @@ import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.geom.impl.CoordinateArraySequence;
 import org.locationtech.jts.geom.prep.PreparedGeometry;
 import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
-import org.opengis.geometry.MismatchedDimensionException;
+
+import javafx.scene.shape.Rectangle;
 
 /**
  * Class for holding static utility functions that are common tasks for people using the
- * "StreamingRenderer/Renderer".
+ * ShapefileRenderer.
  *
  * @author dblasby
  * @author Simone Giannecchini
@@ -59,27 +46,6 @@ public final class RendererUtilities {
     /** Utilities classes should not be instantiated. */
     private RendererUtilities() {};
 
-    /**
-     * Sets up the affine transform for projecting a GEODESIC coordinate system to a flat view coordinate
-     * system.
-     *
-     * @param geoEnvelope the geodesic map coordinates
-     * @param paintArea the target screen area
-     * @return a transform that maps from real world coordinates to the screen
-     */
-    public static AffineTransform worldToScreenTransform(ReferencedEnvelope geoEnvelope, Rectangle paintArea) {
-        final WorldToScreenMapper mapper = new WorldToScreenMapper( geoEnvelope,new ReferencedEnvelope(paintArea));
-        try {
-            mapper.setPixelAnchor(WorldToScreenMapper.ANCHOR_CELL_CORNER);
-            AffineTransform at = mapper.createAffineTransform();
-            return at;
-        } 
-        catch (MismatchedDimensionException e) {
-        	LOGGER.log(Level.WARNING, String.format("%s.worldtoScreenTransform (%s)",CLSS,e.getLocalizedMessage()),e);
-            return null;
-        } 
-    }
-  
     /**
      * @see https://www.nhc.noaa.gov/gccalc.shtml
      *
@@ -101,7 +67,7 @@ public final class RendererUtilities {
      * @param from the source coordinates in degrees lat/lon. 
      * @param to the destination envelope in screen coordinates
      */
-    public static double calculateXScale(ReferencedEnvelope from, ReferencedEnvelope to) {
+    public static double calculateXScale(Envelope from, Rectangle to) {
     	double scale = to.getWidth()/from.getWidth();
         return scale;
     }
@@ -111,7 +77,7 @@ public final class RendererUtilities {
      * @param from the source coordinates in degrees lat/lon. 
      * @param to the destination envelope in screen coordinates
      */
-    public static double calculateYScale(ReferencedEnvelope from, ReferencedEnvelope to) {
+    public static double calculateYScale(Envelope from, Rectangle to) {
     	double scale = to.getHeight()/from.getHeight();
         return scale;
     }
@@ -166,46 +132,7 @@ public final class RendererUtilities {
         return p;
     }
 
-    public static double getStyleSize(Style style) {
-        if (style instanceof GraphicStyle) {
-            final BufferedImage image = ((GraphicStyle) style).getImage();
-            return maxSize(image.getWidth(), image.getHeight());
-        } 
-        else if (style instanceof IconStyle) {
-            final Icon icon = ((IconStyle) style).getIcon();
-            return maxSize(icon.getIconWidth(), icon.getIconHeight());
-        } 
-        else if (style instanceof LineStyle) {
-            LineStyle ls = ((LineStyle) style);
-            double gsSize = getStyleSize(ls.getGraphicStroke());
-            double strokeSize = 0;
-            if (ls.getStroke() instanceof BasicStroke) {
-                strokeSize = ((BasicStroke) ls.getStroke()).getLineWidth();
-            }
-            double offset = ls.getPerpendicularOffset();
-            double lineSize = maxSize(maxSize(gsSize, strokeSize), offset);
-            // a MarkStyle2D is also a LineStyle2D, but we have to account for the symbol size
-            if (style instanceof MarkStyle) {
-                MarkStyle mark = (MarkStyle) style;
-                return mark.getSize() + lineSize;
-            } else {
-                return lineSize;
-            }
-        } else {
-            return 0;
-        }
-    }
-
-    private static double maxSize(double d1, double d2) {
-        if (Double.isNaN(d1)) {
-            d1 = 0;
-        }
-        if (Double.isNaN(d2)) {
-            d2 = 0;
-        }
-        return Math.max(d1, d2);
-    }
-
+  
     /**
      * Finds a centroid for a polygon catching any exceptions resulting from generalization or other
      * polygon irregularities.
