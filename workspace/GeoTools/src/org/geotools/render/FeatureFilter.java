@@ -56,6 +56,8 @@ public class FeatureFilter  {
     
     public void setScale(Scale trans) { this.scale = trans; }
     public void setTranslation(Translate trans) { this.translate = trans; }
+    public Scale getScale() { return this.scale; }
+    public Translate getTranslation() { return this.translate; }
     /**
      * First apply the translation, then the scale.
      * @param shape

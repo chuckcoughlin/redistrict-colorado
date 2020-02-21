@@ -26,8 +26,11 @@ import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
+import org.openjump.feature.Feature;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.shape.StrokeLineCap;
+import javafx.scene.shape.StrokeLineJoin;
 
 
 
@@ -41,13 +44,13 @@ import javafx.scene.canvas.GraphicsContext;
 public class StyledShapePainter {
 	private final static String CLSS = "StyledShapePainter";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
-
-	/** Whether icon centers should be matched to a pixel center, or not */
-	public static boolean ROUND_ICON_COORDS = true;
-
+	private static final double DECIMATOR_TOLERANCE = 2.0;
+	private static final double POINT_HEIGHT = 2.0;
+	private static final double POINT_WIDTH = 2.0;
+	private final Decimator decimator;
 
 	public StyledShapePainter() {
-		// nothing do do, just needs to exist
+		this.decimator = new Decimator(DECIMATOR_TOLERANCE);
 	}
 
 	/**
@@ -55,20 +58,20 @@ public class StyledShapePainter {
 	 * scaled and positioned.
 	 *
 	 * @param graphics The graphics in which to draw.
-	 * @param shape The polygon to draw.
+	 * @param feature the feature to draw.
 	 * @param style The style to apply, or <code>null</code> if none.
 	 */
-	public void paint(GraphicsContext graphics,FeatureShape shape,Style style) {
+	public void paint(GraphicsContext graphics,Feature feature,Style style) {
 		GeometryCollection collection = null;
-		Geometry geom = shape.getGeometry();
+		Geometry geom = feature.getGeometry();
 		switch (Geometries.get(geom)) {
 		case POINT:
-			drawPoint(graphics,(Point)geom,style);
+			drawPoint(graphics,feature,(Point)geom,style);
 			break;
 		case MULTIPOINT:
 			collection = (GeometryCollection)geom;
 			for(int index=0;index<collection.getNumGeometries();index++) {
-				drawPoint(graphics,(Point)collection.getGeometryN(index),style);
+				drawPoint(graphics,feature,(Point)collection.getGeometryN(index),style);
 			}
 			break;
 		case LINESTRING:
@@ -104,22 +107,47 @@ public class StyledShapePainter {
 	 * @param shape
 	 * @return true if rendering a fill can be skipped.
 	 */
-	private boolean ignoreFill(FeatureShape shape, Style style) {
+	private boolean ignoreFill(Geometry geom, Style style) {
 		// if we have a graphic stroke the outline might not be solid, so, not covering
-		if(style.getLineWidth() >= shape.getBounds().getHeight() ||
-				style.getLineWidth() >= shape.getBounds().getWidth()	 ) {
+		if( style.getLineWidth() >= geom.getEnvelopeInternal().getHeight() ||
+			style.getLineWidth() >= geom.getEnvelopeInternal().getWidth()	 ) {
 			return true; 
 		}
 		return false;
 	}
 
-	public void drawLine(GraphicsContext graphics, LineString geom, Style style) {
-
+	private void drawLine(GraphicsContext graphics, LineString geom, Style style) {
+		int size = geom.getNumPoints();  // Max points (there may be fewer)
+		double[] x = new double[size];
+		double[] y = new double[size];
+		int n = decimator.decimateLine(geom,x,y);
+		graphics.setStroke(style.getLineColor());
+		graphics.setLineWidth(style.getLineWidth());
+		graphics.setLineCap(StrokeLineCap.ROUND);
+		graphics.setLineJoin(StrokeLineJoin.MITER);
+		graphics.strokePolyline(x, y, n);
 	}
-	public void drawPoint(GraphicsContext graphics, Point geom, Style style) {
-
+	// Plot a 2-pixel wide point, no border.
+	private void drawPoint(GraphicsContext graphics, Feature feature, Point geom, Style style) {
+		graphics.setFill(style.getFillColor(feature));
+		graphics.fillOval(geom.getX(), geom.getY(), POINT_HEIGHT, POINT_WIDTH);
 	}
-	public void drawPolygon(GraphicsContext graphics, Polygon geom, Style style) {
-
+	private void drawPolygon(GraphicsContext graphics, Polygon geom, Style style) {
+		int size = geom.getNumPoints();  // Max points (there may be fewer)
+		double[] x = new double[size];
+		double[] y = new double[size];
+		int n = decimator.decimatePolygon(geom,x,y);
+		LOGGER.info(String.format("%s.drawPolygon: %d of %d points",CLSS,n,size));
+		for(int index=0;index<n&&index<10;index++) {
+			LOGGER.info(String.format("     %2.1f\t%2.1f",x[index],y[index]));
+		}
+		graphics.setStroke(style.getLineColor());
+		graphics.setLineWidth(style.getLineWidth());
+		graphics.setLineCap(StrokeLineCap.ROUND);
+		graphics.setLineJoin(StrokeLineJoin.MITER);
+		if( !ignoreFill(geom,style) ) {
+			graphics.fillPolygon(x,y,n);
+		}
+		graphics.strokePolygon(x, y, n);
 	}
 }

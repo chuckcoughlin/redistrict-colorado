@@ -39,9 +39,7 @@ import org.locationtech.jts.geom.Polygon;
 public final class Decimator {
 	private final static String CLSS = "Decimator";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
-
     private static final double DP_THRESHOLD = 3;
-    private static final double EPS = 1e-9;
 
     private final double pixelDistance;
 
@@ -54,84 +52,48 @@ public final class Decimator {
     public Decimator(double pd) {
        this.pixelDistance = pd;
     }
-
     
-
-    /** Decimates JTS geometries returning a "Decimated" version. */
-    public final Geometry decimate(Geometry geom) {
-        if (pixelDistance <= 0.) return geom;
-        
-        if (geom instanceof MultiPoint) {
-            // TODO If bounding box is too small turn it into a single point
-            return geom;
-        }
-        if (geom instanceof GeometryCollection) {
-            GeometryCollection current = (GeometryCollection) geom;
-            int count = current.getNumGeometries();
-            MutableGeometryCollection collection = new MutableGeometryCollection(new Geometry[count],current.getFactory());
-            final int numGeometries = current.getNumGeometries();
-            for (int i = 0; i < numGeometries; i++) {
-                Geometry geo = decimate(current.getGeometryN(i));
-                collection.setGeometryN(geo, i);
-            }
-            geom = collection;
-        } 
-        else if (geom instanceof LineString) {
-            LineString line = (LineString) geom;
-            CoordinateSequence seq = line.getCoordinateSequence();
-            geom = decimate(line, seq);
-        } 
-        else if (geom instanceof Polygon) {
-            Polygon line = (Polygon) geom;
-            final int numRings = line.getNumInteriorRing();  // holes
-            LinearRing[] holes = new LinearRing[numRings];
-            int index = 0;
-            while(index<numRings) {
-            	
-            }
-            MutablePolygon poly = new MutablePolygon((LinearRing)(line.getExteriorRing()),holes,line.getFactory());
-            Geometry geo = decimate(line.getExteriorRing());
-            poly.setShell((LinearRing)geo);
-            
-            for (int i = 0; i < numRings; i++) {
-                geo = decimate(line.getInteriorRingN(i));
-                poly.setHoleN((LinearRing)geo,i);
-            }
-            geom = poly;
-        }
-        return geom;
-    }
-    
-    private LineString decimate(LineString g,CoordinateSequence seq) {
-        Coordinate[] coords = seq.toCoordinateArray();
+    public int decimateLine(LineString g,double[] x, double[] y) {
+    	Coordinate[] coords = g.getCoordinates();
         if (g instanceof LinearRing && coords.length<4 ) {
-            return decimateRingFully(seq,g.getFactory());
+            return decimateRingFully((LinearRing)g, x,y);
         } 
         
-        List<Coordinate> newcoords = new ArrayList<>();
+        int n = 0;
         Coordinate prior = null;
         for(Coordinate c:coords) {
             if(prior==null) {
-            	newcoords.add(c);
+            	x[n] = c.x;
+            	y[n] = c.y;
+            	n++;
             }
             else if(	Math.abs(c.x-prior.x)>pixelDistance ||
                 		Math.abs(c.y-prior.y)>pixelDistance   ) {
-                	newcoords.add(c);
+            	x[n] = c.x;
+            	y[n] = c.y;
+            	n++;
             }
             prior = c;
         }
-        if( !newcoords.get(newcoords.size()-1).equals(prior) ) newcoords.add(prior);  // Make sure the last point is included
+        if( x[n]!=prior.x || y[n]!=prior.y ) {
+        	x[n] = prior.x;
+        	y[n] = prior.y;
+        	n++;
+        };  // Make sure the last point is included
 
-        Coordinate[] carray = newcoords.stream().toArray(Coordinate[]::new);
-        @SuppressWarnings("deprecation")
-		CoordinateSequenceFactory csfact = new DefaultCoordinateSequenceFactory();
-        CoordinateSequence cs = csfact.create(carray);
-        if (g instanceof LinearRing) {
-        	return new LinearRing(cs,g.getFactory());
-        }
-        else {
-        	return new LineString(cs,g.getFactory());
-        } 
+        return n;
+    }
+    
+    /**
+     * Decimate the outer shell of a polygon
+     * @param g
+     * @param x
+     * @param y
+     * @return
+     */
+    public int decimatePolygon(Polygon g,double[] x, double[] y) {
+    	LineString ls = g.getExteriorRing();
+        return decimateLine(ls,x,y);
     }
 
     /**
@@ -139,18 +101,19 @@ public final class Decimator {
      * Use the first, second and last 2 points.
      * @param seq
      */
-    private LinearRing decimateRingFully(CoordinateSequence seq,GeometryFactory fact) {
+    public int decimateRingFully(LinearRing g,double[] x, double[] y) {
+    	Coordinate[] coords = g.getCoordinates();
         // degenerate, not enough points to decimate
-        if (seq.size() <= 4) return new LinearRing(seq,fact) ;
+        if( x.length <= 4 || x.length<=4) return 0 ;
 
-        Coordinate[] newcoords = new Coordinate[4];
-        newcoords[0] = seq.getCoordinate(0);
-        newcoords[1] = seq.getCoordinate(1);
-        newcoords[2] = seq.getCoordinate(seq.size()-2);
-        newcoords[3] = seq.getCoordinate(seq.size()-1);
-        @SuppressWarnings("deprecation")
-		CoordinateSequenceFactory csfact = new DefaultCoordinateSequenceFactory();
-        CoordinateSequence cs = csfact.create(newcoords);
-        return new LinearRing(cs,fact);
+        x[0] = coords[0].x;
+        y[0] = coords[0].y;
+        x[1] = coords[0].x;
+        y[1] = coords[0].y;
+        x[2] = coords[coords.length-2].x;
+        y[2] = coords[coords.length-2].y;
+        x[3] = coords[coords.length-1].x;
+        y[3] = coords[coords.length-1].y;
+        return 4;
     }
 }

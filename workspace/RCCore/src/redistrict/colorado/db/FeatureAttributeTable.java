@@ -163,7 +163,7 @@ public class FeatureAttributeTable {
 				int r = (rgb & 0xFF0000) >> 16;
 	            int g = (rgb & 0xFF00) >> 8;
 	            int b = (rgb & 0xFF);
-	            LOGGER.info(String.format("%s.getFeatureAttributes background = %d (%02x%02x%02x)",CLSS,rgb,r,g,b));
+	            //LOGGER.info(String.format("%s.getFeatureAttributes background = %d (%02x%02x%02x)",CLSS,rgb,r,g,b));
 				configuration.setBackground(Color.rgb(r,g,b));
 				configuration.setRank(rs.getInt("rank"));
 				AttributeType type = AttributeType.DOUBLE;   // Default

@@ -28,6 +28,7 @@ import org.openjump.feature.FeatureCollection;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Scale;
+import javafx.scene.transform.Translate;
 
 /**
  * A renderer designed specifically for shapefiles. There is no label caching.
@@ -61,22 +62,43 @@ public class ShapefileRenderer {
 
     /**
      * Paint the map features after transforming to match the target area.
+     * @param graphics the canvas
      * @param mapExtent the envelope surrounding the layer features.
      * @param paintArea target screen area.
      * @param filter containing pan or zoom commands.
      */
     private void paint(GraphicsContext graphics,Envelope mapExtent,Rectangle paintArea, Style style,FeatureFilter filter ) {
+    	LOGGER.info(String.format("%s.paint: layer %s",CLSS,layer.getTitle()));
+    	FeatureCollection collection = layer.getFeatures();
+    	Envelope enclosure = collection.getEnvelope();
+    	graphics.save();
+   
+    	double minx = enclosure.getMinX();
+    	double miny = enclosure.getMinY();
+    	graphics.translate(-minx,-miny);  // Align origins
+    	LOGGER.info(String.format("%s.paint: translate %2.1fx, %2.1fy",CLSS,-minx,-miny));
+    	
     	double scalex = RendererUtilities.calculateXScale(mapExtent, paintArea);
     	double scaley = RendererUtilities.calculateYScale(mapExtent, paintArea);
-    	Scale scale = new Scale(scalex,scaley);
-    	filter.concatenateTransforms(scale);
+    	graphics.scale(scalex, scaley);
+    	LOGGER.info(String.format("%s.paint: scale %2.1fx, %2.1fy",CLSS,scalex,scaley));
+    	
+    	Translate trans = filter.getTranslation();
+    	if( trans!=null ) {
+    		graphics.translate(trans.getX(), trans.getY());
+    	}
+    	Scale scale = filter.getScale();
+    	if( scale!=null ) {
+    		graphics.scale(scale.getX(), scale.getY());
+    	}
 
-    	// Transform and draw features in the layer individually
-        FeatureCollection collection = layer.getFeatures();
+    	// We've already transformed the graphics context
+    	// Now draw features in the layer individually
         for( Feature feature:collection.getFeatures()) {
-        	FeatureShape shape = new FeatureShape(feature);
-        	painter.paint(graphics, shape, style);
+        	LOGGER.info(String.format("%s.paint: feature %s",CLSS,feature.getID()));
+        	painter.paint(graphics, feature, style);
         }
+        graphics.restore();
     }
 
 }
