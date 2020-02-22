@@ -40,13 +40,13 @@ import javafx.scene.transform.Translate;
 
 
 /**
- * A feature filter holds a transform to be applied when panning or zooming a feature
- * collection. By default the filter does nothing.
+ * A feature filter holds parameters  By default the filter does nothing.
  */
 public class FeatureFilter  {
     private static final long serialVersionUID = 2273446944516446540L;
-    private Translate translate = null;
-    private Scale scale = null;
+    private double panx = 0.;
+    private double pany = 0.;
+    private double zoom = 1.0;
 
     /**
      * Creates a FeatureFilter that has no effect, an identity matrix.
@@ -54,24 +54,10 @@ public class FeatureFilter  {
     public FeatureFilter() {}
     
     
-    public void setScale(Scale trans) { this.scale = trans; }
-    public void setTranslation(Translate trans) { this.translate = trans; }
-    public Scale getScale() { return this.scale; }
-    public Translate getTranslation() { return this.translate; }
-    /**
-     * First apply the translation, then the scale.
-     * @param shape
-     */
-    public void applyTransforms(Shape shape) { 
-    	if(translate!=null) shape.getTransforms().add(translate);
-    	if(scale!=null) shape.getTransforms().add(scale);
-    }
-    /**
-     * Concatenate filter transformations to an existing transform
-     * @param shape
-     */
-    public void concatenateTransforms(Transform trans) { 
-    	if(translate!=null) trans.createConcatenation(translate);
-    	if(scale!=null) trans.createConcatenation(scale);
-    }
+    public void setZoom(double z) { this.zoom=z; }
+    public void setPanX(double pan) { this.panx = pan; }
+    public void setPanY(double pan) { this.pany = pan; }
+    public double getZoom() { return this.zoom; }
+    public double getPanX() { return this.panx; }
+    public double getPanY() { return this.pany; }
 }

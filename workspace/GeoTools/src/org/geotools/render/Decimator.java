@@ -11,46 +11,30 @@
  */
 package org.geotools.render;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Logger;
 
-import org.geotools.geometry.MutableGeometryCollection;
-import org.geotools.geometry.MutablePolygon;
 import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.CoordinateSequence;
-import org.locationtech.jts.geom.CoordinateSequenceFactory;
-import org.locationtech.jts.geom.DefaultCoordinateSequenceFactory;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryCollection;
-import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.LinearRing;
-import org.locationtech.jts.geom.MultiPoint;
 import org.locationtech.jts.geom.Polygon;
 
 /**
  * Accepts geometries and collapses all the vertices that will be rendered to the same pixel. 
- * We focus soley on a shape already transformed to screen coordinates.
- *
- * @author jeichar
- * @since 2.1.x
+ * The shape dimensions are lat/long.
  */
 public final class Decimator {
 	private final static String CLSS = "Decimator";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
-    private static final double DP_THRESHOLD = 3;
-
-    private final double pixelDistance;
+    private final double minimumSpacing;
 
     /**
      * Builds a decimator that will simplify geometries so that two subsequent points will be at
-     * least pixelDistance away from each other when painted on the screen. Set pixelDistance to 0
+     * least minimumSpacing away from each other when painted on the screen. Set minimumSpacing to 0
      * if you don't want any generalization.
      *ce
      */
     public Decimator(double pd) {
-       this.pixelDistance = pd;
+       this.minimumSpacing = pd;
     }
     
     public int decimateLine(LineString g,double[] x, double[] y) {
@@ -67,15 +51,15 @@ public final class Decimator {
             	y[n] = c.y;
             	n++;
             }
-            else if(	Math.abs(c.x-prior.x)>pixelDistance ||
-                		Math.abs(c.y-prior.y)>pixelDistance   ) {
+            else if(	Math.abs(c.x-prior.x)>minimumSpacing ||
+                		Math.abs(c.y-prior.y)>minimumSpacing   ) {
             	x[n] = c.x;
             	y[n] = c.y;
             	n++;
             }
             prior = c;
         }
-        if( x[n]!=prior.x || y[n]!=prior.y ) {
+        if( n<x.length && (x[n]!=prior.x || y[n]!=prior.y )) {
         	x[n] = prior.x;
         	y[n] = prior.y;
         	n++;

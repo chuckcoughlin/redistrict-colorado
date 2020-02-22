@@ -29,6 +29,7 @@ import org.locationtech.jts.geom.Polygon;
 import org.openjump.feature.Feature;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
 
@@ -48,11 +49,18 @@ public class StyledShapePainter {
 	private static final double POINT_HEIGHT = 2.0;
 	private static final double POINT_WIDTH = 2.0;
 	private final Decimator decimator;
+	private boolean reverseX = false;
+	private boolean reverseY = true;
+	private double offsetX = 0.;
+	private double offsetY = 0;
 
 	public StyledShapePainter() {
 		this.decimator = new Decimator(DECIMATOR_TOLERANCE);
 	}
-
+	public void setReverseX(boolean flag) {this.reverseX=flag;}
+	public void setReverseY(boolean flag) {this.reverseY=flag;}
+	public void setOffsetX(double offset) {this.offsetX=offset;}
+	public void setOffsetY(double offset) {this.offsetY=offset;}
 	/**
 	 * Apply the specified style and draw the shape. The shapes are already properly
 	 * scaled and positioned.
@@ -75,21 +83,21 @@ public class StyledShapePainter {
 			}
 			break;
 		case LINESTRING:
-			drawLine(graphics,(LineString)geom,style);
+			drawLine(graphics,feature,(LineString)geom,style);
 			break;
 		case MULTILINESTRING:
 			collection = (GeometryCollection)geom;
 			for(int index=0;index<collection.getNumGeometries();index++) {
-				drawLine(graphics,(LineString)collection.getGeometryN(index),style);
+				drawLine(graphics,feature,(LineString)collection.getGeometryN(index),style);
 			}
 			break;
 		case POLYGON:
-			drawPolygon(graphics,(Polygon)geom,style);
+			drawPolygon(graphics,feature,(Polygon)geom,style);
 			break;
 		case MULTIPOLYGON:
 			collection = (GeometryCollection)geom;
 			for(int index=0;index<collection.getNumGeometries();index++) {
-				drawPolygon(graphics,(Polygon)collection.getGeometryN(index),style);
+				drawPolygon(graphics,feature,(Polygon)collection.getGeometryN(index),style);
 			}
 			break;
 		case GEOMETRYCOLLECTION:
@@ -116,7 +124,7 @@ public class StyledShapePainter {
 		return false;
 	}
 
-	private void drawLine(GraphicsContext graphics, LineString geom, Style style) {
+	private void drawLine(GraphicsContext graphics, Feature feature, LineString geom, Style style) {
 		int size = geom.getNumPoints();  // Max points (there may be fewer)
 		double[] x = new double[size];
 		double[] y = new double[size];
@@ -125,31 +133,52 @@ public class StyledShapePainter {
 		graphics.setLineWidth(style.getLineWidth());
 		graphics.setLineCap(StrokeLineCap.ROUND);
 		graphics.setLineJoin(StrokeLineJoin.MITER);
+		postProcess(x,y,n);
 		graphics.strokePolyline(x, y, n);
 	}
 	// Plot a 2-pixel wide point, no border.
 	private void drawPoint(GraphicsContext graphics, Feature feature, Point geom, Style style) {
 		graphics.setFill(style.getFillColor(feature));
-		graphics.fillOval(geom.getX(), geom.getY(), POINT_HEIGHT, POINT_WIDTH);
+		double x = postProcessX(geom.getX());
+		double y = postProcessY(geom.getY());
+		graphics.fillOval(x,y, POINT_HEIGHT, POINT_WIDTH);
 	}
-	private void drawPolygon(GraphicsContext graphics, Polygon geom, Style style) {
+	private void drawPolygon(GraphicsContext graphics,Feature feature,Polygon geom, Style style) {
 		int size = geom.getNumPoints();  // Max points (there may be fewer)
 		double[] x = new double[size];
 		double[] y = new double[size];
 		int n = decimator.decimatePolygon(geom,x,y);
 		LOGGER.info(String.format("%s.drawPolygon: %d of %d points",CLSS,n,size));
-		/*
-		for(int index=0;index<n&&index<10;index++) {
-			LOGGER.info(String.format("     %2.1f\t%2.1f",x[index],y[index]));
-		}
-		*/
+		
 		graphics.setStroke(style.getLineColor());
 		graphics.setLineWidth(style.getLineWidth());
-		graphics.setLineCap(StrokeLineCap.ROUND);
-		graphics.setLineJoin(StrokeLineJoin.MITER);
+		graphics.setLineJoin(StrokeLineJoin.ROUND);
+		postProcess(x,y,n);
 		if( !ignoreFill(geom,style) ) {
+			graphics.setFill(style.getFillColor(feature));
 			graphics.fillPolygon(x,y,n);
 		}
 		graphics.strokePolygon(x, y, n);
+		
+	}
+	
+	private void postProcess(double[] x, double[] y, int n) {
+		for(int i=0;i<n;i++) {
+			if( reverseX ) x[i] = offsetX - x[i];
+			else x[i] = x[i] - offsetX;
+			if( reverseY ) y[i] = offsetY - y[i];
+			else y[i] = y[i] - offsetY;
+		}
+	}
+	
+	private double postProcessX(double x) {
+		if( reverseX ) x = offsetX - x;
+		else x = x - offsetX;
+		return x;
+	}
+	private double postProcessY(double y) {
+		if( reverseY ) y = offsetY - y;
+		else y = y - offsetY;
+		return y;
 	}
 }

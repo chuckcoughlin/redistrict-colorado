@@ -35,8 +35,6 @@ import redistrict.colorado.ui.navigation.LayerNavigationPane;
 			headerLabel.getStyleClass().add("list-header-label");
 			getChildren().add(headerLabel);
 			
-
-
 			getChildren().add(navPane);
 			setTopAnchor(headerLabel,0.);
 			setLeftAnchor(headerLabel,UIConstants.LIST_PANEL_LEFT_MARGIN);
@@ -47,7 +45,7 @@ import redistrict.colorado.ui.navigation.LayerNavigationPane;
 			setRightAnchor(navPane,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 			
 			Canvas canvas = new Canvas(UIConstants.SCENE_WIDTH-UIConstants.LIST_PANEL_LEFT_MARGIN-UIConstants.LIST_PANEL_RIGHT_MARGIN, 
-					                   UIConstants.SCENE_HEIGHT-2*UIConstants.BUTTON_PANEL_HEIGHT);
+					                   UIConstants.SCENE_HEIGHT-3*UIConstants.BUTTON_PANEL_HEIGHT);
 			getChildren().add(canvas);
 			setTopAnchor(canvas,UIConstants.BUTTON_PANEL_HEIGHT);
 			setLeftAnchor(canvas,UIConstants.LIST_PANEL_LEFT_MARGIN);

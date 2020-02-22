@@ -39,11 +39,14 @@ public class ShapefileRenderer {
 	private final static String CLSS = "ShapefileRenderer";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
     private final MapLayer layer;
-    private final StyledShapePainter painter = new StyledShapePainter();
+    private final StyledShapePainter painter;
    
     
     public ShapefileRenderer(MapLayer ml) {
     	this.layer = ml;
+    	this.painter = new StyledShapePainter();
+    	this.painter.setReverseX(false);
+    	this.painter.setReverseY(true);
     }
 
     /**
@@ -63,6 +66,9 @@ public class ShapefileRenderer {
 
     /**
      * Paint the map features after transforming to match the target area.
+     * Longitude increases to the EAST
+     * Latitude  increases to the NORTH
+     * For screen coordinates, 0,0 is the upper left-hand corner. Y increases DOWN.
      * @param graphics the canvas
      * @param mapExtent the envelope surrounding the layer features.
      * @param paintArea target screen area.
@@ -73,38 +79,31 @@ public class ShapefileRenderer {
     	FeatureCollection collection = layer.getFeatures();
     	Envelope enclosure = collection.getEnvelope();
     	graphics.save();
-    	graphics.setFill(Color.AQUA);
-    	graphics.fillOval(200.,300., 250.,150.);
+    	//graphics.setFill(Color.AQUA);
+    	//graphics.fillOval(200.,300., 250.,150.);
    
-    	double minx = enclosure.getMinX();
-    	double miny = enclosure.getMinY();
-    	graphics.translate(-minx,-miny);  // Align origins
-    	LOGGER.info(String.format("%s.paint: translate %2.1fx, %2.1fy",CLSS,-minx,-miny));
-    	graphics.setFill(Color.RED);
-    	graphics.fillOval(200.,300., 250.,150.);
-    	
+    	// First scale, so units of graphic context become lat/lon
+    	// Next add zoom
     	double scalex = RendererUtilities.calculateXScale(mapExtent, paintArea);
     	double scaley = RendererUtilities.calculateYScale(mapExtent, paintArea);
-    	graphics.scale(1./scalex, 1./scaley);
+    	graphics.scale(scalex, scaley);
     	LOGGER.info(String.format("%s.paint: scale %2.1fx, %2.1fy",CLSS,scalex,scaley));
-    	graphics.setFill(Color.CORAL);
-    	graphics.fillOval(200.,300., 250.,150.);
-    	graphics.setFill(Color.DARKGREEN);
-    	graphics.fillOval(20000.,30000., 25000.,15000.);
+    	//graphics.setFill(Color.RED);
+    	//graphics.fillOval(4.0,1.1,.3,.3);    // south east
     	
-    	Translate trans = filter.getTranslation();
-    	if( trans!=null ) {
-    		graphics.translate(trans.getX(), trans.getY());
-    	}
-    	Scale scale = filter.getScale();
-    	if( scale!=null ) {
-    		graphics.scale(scale.getX(), scale.getY());
-    	}
-
+    	// Modify for pan
+    	double minx = enclosure.getMinX();
+    	double maxy = enclosure.getMaxY();
+    	painter.setOffsetX(minx);
+    	painter.setOffsetY(maxy);
+    	
+    	LOGGER.info(String.format("%s.paint: translate (%2.1f,%2.1f) (%2.1f, %2.1f)",CLSS,
+    			enclosure.getMinX(),enclosure.getMinY(),enclosure.getMaxX(),enclosure.getMaxY()));
+    	
     	// We've already transformed the graphics context
     	// Now draw features in the layer individually
         for( Feature feature:collection.getFeatures()) {
-        	LOGGER.info(String.format("%s.paint: feature %s",CLSS,feature.getID()));
+        	//LOGGER.info(String.format("%s.paint: feature %s",CLSS,feature.getID()));
         	painter.paint(graphics, feature, style);
         }
         graphics.restore();

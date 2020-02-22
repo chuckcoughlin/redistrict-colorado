@@ -37,7 +37,7 @@ import redistrict.colorado.db.Database;
 			this.renderer = null;
 			
 			// LineColor, LineWidth, FillColor
-			this.style = new Style(Color.BLACK,2.0,Color.AQUAMARINE);  // Initially
+			this.style = new Style(Color.BLACK,0.01,Color.BLANCHEDALMOND);  // Initially
 			this.filter = new FeatureFilter();
 		}
 
