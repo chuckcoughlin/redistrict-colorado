@@ -19,6 +19,7 @@ import javafx.scene.layout.FlowPane;
 
 /**
  * Hold a label and status field. Subscribe to the generic application-wide status message.
+ * 
  */
 public class StatusPane extends FlowPane {
 	private static final String CLSS = "StatusPane";

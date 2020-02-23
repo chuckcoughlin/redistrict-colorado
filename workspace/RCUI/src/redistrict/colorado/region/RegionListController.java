@@ -22,7 +22,6 @@ public class RegionListController extends AnchorPane implements EventReceiver<Ac
 	private final static String CLSS = "RegionListController";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private Label headerLabel = new Label("Regions");
-	private ButtonPane buttons = new ButtonPane();
 	private ListView<String> regionList;
 	private final BasicEventDispatcher<ActionEvent> auxEventDispatcher;
 	private final EventHandler<ActionEvent> auxEventHandler;
@@ -33,21 +32,14 @@ public class RegionListController extends AnchorPane implements EventReceiver<Ac
 		regionList = new ListView<String>();
 		headerLabel.getStyleClass().add("list-header-label");
 		getChildren().add(headerLabel);
-		getChildren().add(buttons);
 		getChildren().add(regionList);
 		setTopAnchor(headerLabel,0.);
 		setTopAnchor(regionList,UIConstants.BUTTON_PANEL_HEIGHT);
-		setBottomAnchor(regionList,UIConstants.BUTTON_PANEL_HEIGHT);
-		setBottomAnchor(buttons,0.);
+		setBottomAnchor(regionList,0.);
 		setLeftAnchor(headerLabel,UIConstants.LIST_PANEL_LEFT_MARGIN);
 		setRightAnchor(headerLabel,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 		setLeftAnchor(regionList,UIConstants.LIST_PANEL_LEFT_MARGIN);
 		setRightAnchor(regionList,UIConstants.LIST_PANEL_RIGHT_MARGIN);
-		setLeftAnchor(buttons,UIConstants.LIST_PANEL_LEFT_MARGIN);
-		setRightAnchor(buttons,UIConstants.LIST_PANEL_RIGHT_MARGIN);
-		
-		buttons.setDeleteDisabled(true);
-		buttons.registerEventReceiver(this.auxEventDispatcher);
 	}
 	
 	@Override

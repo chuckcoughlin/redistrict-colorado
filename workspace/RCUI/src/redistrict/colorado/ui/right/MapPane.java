@@ -25,7 +25,7 @@ import redistrict.colorado.ui.navigation.LayerNavigationPane;
 		private final static String CLSS = "MapPane";
 		private static Logger LOGGER = Logger.getLogger(CLSS);
 		private LayerNavigationPane navPane = new LayerNavigationPane();
-		private Label headerLabel = new Label("Map Canvas");
+		private Label headerLabel = new Label("Map");
 		private LayerModel model;
 		private final MapRenderer map;
 		
