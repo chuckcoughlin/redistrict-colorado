@@ -21,11 +21,16 @@ The list below describes some publicly-available data-sets that are compatible w
     FUNCSTAT - Functional status
     VTD - Voting district
  ```
+ 
+* [Colorado Department of Local Affairs](https://demography.dola.colorado.gov/gis/gis-data/#census-and-acs) 2010 US Census results by block groups and 2017
+ American Community Survey. Both have demographic features.
 
 Other resources:
 * [Colorado Redistricting Data Used](https://www.colorado.gov/pacific/cga-redistrict/data-used). This page documents the resources used in the state of Colorado for the 2010 redistricting effort.
  * HouseFinalPlan2010.zip - Colorado House district boundaries 2010.
  * SenateFinalPlan2010.zip - Colorado Senate district boundaries 2010.
+
+ * [Moreno/South Map](https://redistricting.colorado.gov/proposed-congressional-maps) - Final congressional redistricting plan 2011.
 
 * [DRA 2020](http://gardow.com/davebradlee/redistricting/default.html) - Dave's Redistricting, an interactive tool that lets you draw your own boundaries. Unfortunately the application does not export shapefiles.
 
