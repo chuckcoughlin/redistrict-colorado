@@ -20,7 +20,7 @@ public abstract class BasicRightSideNode extends AnchorPane {
 	public ViewMode getMode() { return this.mode; }
 	public DisplayOption getOption() { return this.option; }
 	/**
-	 * Query the hub for the current model of the appropriate type.
+	 * Query the hub for the current model and/or feature of the appropriate type.
 	 */
 	public abstract void updateModel();
 }

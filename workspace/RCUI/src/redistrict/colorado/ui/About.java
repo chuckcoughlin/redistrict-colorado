@@ -23,7 +23,7 @@ public class About{
 	{
 		Stage stage=new Stage();
 		stage.initModality(Modality.APPLICATION_MODAL);
-		stage.setTitle("About: MapAnalyzeer");
+		stage.setTitle("About: MapAnalyzer");
 
 
 		Label label1= new Label("Pop up window now displayed");

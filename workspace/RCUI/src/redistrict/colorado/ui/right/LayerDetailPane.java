@@ -45,7 +45,7 @@ public class LayerDetailPane extends BasicRightSideNode {
 	private final EventHandler<ActionEvent> eventHandler;
 
 	public LayerDetailPane() {
-		super(ViewMode.LAYER,DisplayOption.DETAIL);
+		super(ViewMode.LAYER,DisplayOption.MODEL_DETAIL);
 		this.model = hub.getSelectedLayer();
 		this.items = FXCollections.observableArrayList();
 		this.showAllColumns = new CheckBox("Show All");

@@ -4,7 +4,7 @@
  * This program is free software; you may redistribute it and/or
  * modify it under the terms of the GNU General Public License.
  */
-package redistrict.colorado.layer;
+package redistrict.colorado.plan;
 
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -15,6 +15,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -27,7 +28,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.bind.LeftSelectionEvent;
-import redistrict.colorado.core.LayerModel;
+import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.GuiUtil;
@@ -35,16 +36,17 @@ import redistrict.colorado.ui.UIConstants;
 import redistrict.colorado.ui.ViewMode;
 
 /**
- * This is the UI element for a list view that represents a layer.
+ * This is the UI element for a list view that represents a Plan.
  */
-public class LayerListCell extends ListCell<LayerModel> implements ChangeListener<Toggle> {
-	private static final String CLSS = "LayerListCell";
+public class PlanRow extends ListCell<PlanModel> implements ChangeListener<Toggle> {
+	private static final String CLSS = "PlanRow";
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
 	private final static double COL1_WIDTH = 40.;
 	private final static double COL2_WIDTH = 100.;
-	private final static double COL3_WIDTH = 40.;
-	private final static double COL4_WIDTH = 45.;
-	private final static double COL5_WIDTH = 45.;
+	private final static double COL3_WIDTH = 65.;
+	private final static double COL4_WIDTH = 40.;
+	private final static double COL5_WIDTH = 55.;
+	private final static double COL6_WIDTH = 55.;
 	private final static double ROW1_HEIGHT = 40.;
 	private static final GuiUtil guiu = new GuiUtil();
 	private final static String MAP_DATA = "map";
@@ -53,22 +55,20 @@ public class LayerListCell extends ListCell<LayerModel> implements ChangeListene
     private final Label tag;   // Identifies the pane class
     private final Label name;
     private final Label description;
-    private final Label shapefilePath;
-    private final Label role;
+    private final CheckBox active;
     private final Button edit;
     private final ToggleButton mapButton;
     private final ToggleButton detailButton;
     private final ToggleGroup toggleGroup;
     private final EditEventHandler cellHandler;
     
-	public LayerListCell() {
+	public PlanRow() {
 		cellHandler = new EditEventHandler();
 		setPrefWidth(UIConstants.LIST_PANEL_WIDTH);
-		tag = new Label("",guiu.loadImage("images/layers.png"));
+		tag = new Label("",guiu.loadImage("images/plans.png"));
 		name = new Label();
 	    description = new Label();
-	    shapefilePath = new Label();
-	    role = new Label();
+	    active = new CheckBox("Active:");
 	    edit = new Button("",guiu.loadImage("images/edit.png"));
 	    toggleGroup = new ToggleGroup();
 	    mapButton =new ToggleButton("Map");
@@ -85,6 +85,7 @@ public class LayerListCell extends ListCell<LayerModel> implements ChangeListene
         configureControls();
         addControlsToGrid(); 
         
+        active.setOnAction(cellHandler);
         edit.setOnAction(cellHandler);
         toggleGroup.selectedToggleProperty().addListener(this);
     } 
@@ -94,14 +95,15 @@ public class LayerListCell extends ListCell<LayerModel> implements ChangeListene
 	private void configureGrid() {
         grid.setHgap(0);
         grid.setVgap(4);
-        grid.setPadding(new Insets(10, 10, 10, 10));
+        grid.setPadding(new Insets(10, 0, 10, 0));  // top, left, bottom,right
         grid.getColumnConstraints().add(new ColumnConstraints(COL1_WIDTH)); 					// tag
         ColumnConstraints col2 = new ColumnConstraints(COL2_WIDTH,COL2_WIDTH,Double.MAX_VALUE); // name
         col2.setHgrow(Priority.ALWAYS);
         grid.getColumnConstraints().add(col2);
-        grid.getColumnConstraints().add(new ColumnConstraints(COL3_WIDTH)); 					// edit
-        grid.getColumnConstraints().add(new ColumnConstraints(COL4_WIDTH)); 					// map
-        grid.getColumnConstraints().add(new ColumnConstraints(COL5_WIDTH)); 					// detail
+        grid.getColumnConstraints().add(new ColumnConstraints(COL3_WIDTH)); 					// active
+        grid.getColumnConstraints().add(new ColumnConstraints(COL4_WIDTH)); 					// edit
+        grid.getColumnConstraints().add(new ColumnConstraints(COL5_WIDTH)); 					// map
+        grid.getColumnConstraints().add(new ColumnConstraints(COL6_WIDTH)); 					// detail
         grid.getRowConstraints().add(new RowConstraints(ROW1_HEIGHT)); // column 0 is 40 wide
     }
 	
@@ -109,25 +111,24 @@ public class LayerListCell extends ListCell<LayerModel> implements ChangeListene
 		tag.getStyleClass().add(UIConstants.LIST_CELL_ICON_CLASS);
         name.getStyleClass().add(UIConstants.LIST_CELL_NAME_CLASS);
         description.getStyleClass().add(UIConstants.LIST_CELL_FIELD_CLASS);
-        shapefilePath.getStyleClass().add(UIConstants.LIST_CELL_FIELD_CLASS);
-        role.getStyleClass().add(UIConstants.LIST_CELL_FIELD_CLASS_SMALL);
     }
 	
     private void addLabelsToGrid() {
         grid.add(tag, 0, 0);                    
         grid.add(name, 1, 0);        
         grid.add(description, 1,1,2,1);
-        grid.add(shapefilePath, 1,2,3,1);
-        grid.add(role, 4,1,2,1);
+        
+
     }
     private void addControlsToGrid() {
+    	grid.add(active, 2,0);
         grid.add(edit, 3, 0);                    
         grid.add(mapButton, 4, 0);        
         grid.add(detailButton, 5, 0);
     }
 	
     @Override
-    public void updateItem(LayerModel model, boolean empty) {
+    public void updateItem(PlanModel model, boolean empty) {
         super.updateItem(model, empty);
         if (empty) {
             clearContent();
@@ -135,18 +136,17 @@ public class LayerListCell extends ListCell<LayerModel> implements ChangeListene
             setContent(model); 
         }
     }
-    // Empty cells have no corresponding LayerModel
+    // Empty cells have no corresponding PlanModel
     private void clearContent() {
         setText(null);
         setGraphic(null);
     }
  
-    private void setContent(LayerModel model) {
+    private void setContent(PlanModel model) {
         setText(null);
         name.setText(model.getName());
         description.setText(model.getDescription());
-        shapefilePath.setText(model.getShapefilePath());
-        role.setText(model.getRole().name());      
+        active.setSelected(model.isActive());      
         setGraphic(grid);
     }
 
@@ -156,13 +156,13 @@ public class LayerListCell extends ListCell<LayerModel> implements ChangeListene
      */
     public class EditEventHandler implements EventHandler<ActionEvent> {
     	@Override public void handle(ActionEvent e) {
-            //LOGGER.info(String.format("%s.handle: processing edit event", CLSS));
-            LayerModel model = getItem();
-            Dialog<LayerModel> dialog = new LayerConfigurationDialog(model);
-            Optional<LayerModel> result = dialog.showAndWait();
+            LOGGER.info(String.format("%s.handle: processing %s event", CLSS,e.getSource()));
+            PlanModel model = getItem();
+            Dialog<PlanModel> dialog = new PlanConfigurationDialog(model);
+            Optional<PlanModel> result = dialog.showAndWait();
             if (result.isPresent()) {
             	setContent(model);
-            	boolean success = Database.getInstance().getLayerTable().updateLayer(model);
+            	boolean success = Database.getInstance().getPlanTable().updatePlan(model);
             	LOGGER.info(String.format("%s.EditEventHandler: returned from dialog %s", CLSS,(success?"successfully":"with error")));
             }
         }
@@ -181,14 +181,14 @@ public class LayerListCell extends ListCell<LayerModel> implements ChangeListene
 			LOGGER.info(String.format("%s.changed: toggle button no new value", CLSS));
 		}
 		else {
-			EventBindingHub.getInstance().setSelectedLayer(getItem());
+			EventBindingHub.getInstance().setSelectedPlan(getItem());
 			Object data = newValue.getUserData();
 			if( data==null ) data = "null";
 			if( data.toString().equalsIgnoreCase(MAP_DATA)) {
-				EventBindingHub.getInstance().setLeftSideSelection(new LeftSelectionEvent(ViewMode.LAYER,DisplayOption.MAP));
+				EventBindingHub.getInstance().setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.MAP));
 			}
 			else if(data.toString().equalsIgnoreCase(DETAIL_DATA)) {
-				EventBindingHub.getInstance().setLeftSideSelection(new LeftSelectionEvent(ViewMode.LAYER,DisplayOption.DETAIL));
+				EventBindingHub.getInstance().setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.DETAIL));
 			}
 			//LOGGER.info(String.format("%s.changed: toggle button = %s", CLSS,data.toString()));
 		}

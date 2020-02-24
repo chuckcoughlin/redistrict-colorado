@@ -6,12 +6,12 @@ import javafx.util.Callback;
 import redistrict.colorado.core.LayerModel;
 
 /**
- * Render a cell in the LayerList.
+ * Render a row in the LayerList.
  */
-public class LayerCellFactory implements Callback<ListView<LayerModel>, ListCell<LayerModel>> { 
+public class LayerRowFactory implements Callback<ListView<LayerModel>, ListCell<LayerModel>> { 
 	 
 	    @Override public ListCell<LayerModel> call(ListView<LayerModel> listView) {
-	        ListCell<LayerModel> cell = new LayerListCell();
+	        ListCell<LayerModel> cell = new LayerRow();
 	        return cell;
 	    }
 

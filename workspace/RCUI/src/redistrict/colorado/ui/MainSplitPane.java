@@ -21,7 +21,7 @@ import redistrict.colorado.plan.PlanListController;
 import redistrict.colorado.region.RegionListController;
 import redistrict.colorado.ui.right.BasicRightSideNode;
 import redistrict.colorado.ui.right.LayerDetailPane;
-import redistrict.colorado.ui.right.MapPane;
+import redistrict.colorado.ui.right.ModelMapPane;
 import redistrict.colorado.ui.right.RightSideController;
 import redistrict.colorado.ui.right.SplashScreen;
 
@@ -32,7 +32,7 @@ import redistrict.colorado.ui.right.SplashScreen;
 public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode> {
 	private static final String CLSS = "MainSplitPane";
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
-	private final static int N_CHILDREN_RIGHT = 3;
+	private final static int N_CHILDREN_RIGHT = 7;
 	private final static int N_CHILDREN_LEFT = 3;
 	private final EventHandler<ActionEvent> eventHandler;
 	private final StackPane left;
@@ -53,8 +53,12 @@ public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode>
 		
 		rightChildren = new BasicRightSideNode[N_CHILDREN_RIGHT];
 		rightChildren[0] = new SplashScreen();
-		rightChildren[1] = new MapPane();
+		rightChildren[1] = new ModelMapPane();
 		rightChildren[2] = new LayerDetailPane();
+		rightChildren[3] = new LayerConfigurationPane();
+		rightChildren[4] = new FeatureMapPane();
+		rightChildren[5] = new PlanConfigurationPane();
+		rightChildren[6] = new PlanComparisonPane();
 		
 		this.rightController = new RightSideController(rightChildren);
 		this.init();

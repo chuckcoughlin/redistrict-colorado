@@ -19,18 +19,18 @@ import redistrict.colorado.ui.ViewMode;
 import redistrict.colorado.ui.navigation.LayerNavigationPane;
 
 /**
- * Plot a single layer graphically. Parent is an AnchorPane.
+ * Plot a single feature graphically. Parent is an AnchorPane.
  */
-	public class MapPane extends BasicRightSideNode {
+	public class FeatureMapPane extends BasicRightSideNode {
 		private final static String CLSS = "MapPane";
 		private static Logger LOGGER = Logger.getLogger(CLSS);
 		private LayerNavigationPane navPane = new LayerNavigationPane();
 		private Label headerLabel = new Label("Map");
 		private LayerModel model;
-		private final MapRenderer map;
+		private final FeatureMapRenderer map;
 		
-		public MapPane() {
-			super(ViewMode.LAYER,DisplayOption.MAP);
+		public FeatureMapPane() {
+			super(ViewMode.LAYER,DisplayOption.FEATURE_MAP);
 			this.model = hub.getSelectedLayer();
 			headerLabel.getStyleClass().add("list-header-label");
 			getChildren().add(headerLabel);
@@ -52,7 +52,7 @@ import redistrict.colorado.ui.navigation.LayerNavigationPane;
 			setRightAnchor(canvas,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 			setBottomAnchor(canvas,UIConstants.BUTTON_PANEL_HEIGHT);
 			
-			map = new MapRenderer(canvas);
+			map = new FeatureMapRenderer(canvas);
 			updateModel();
 		}
 		

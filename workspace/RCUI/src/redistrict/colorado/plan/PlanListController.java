@@ -5,6 +5,7 @@
  * modify it under the terms of the GNU General Public License.
  */
 package redistrict.colorado.plan;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -12,7 +13,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.AnchorPane;
@@ -21,8 +21,6 @@ import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.bind.EventReceiver;
 import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.db.Database;
-import redistrict.colorado.layer.LayerCellFactory;
-import redistrict.colorado.ui.ButtonPane;
 import redistrict.colorado.ui.ComponentIds;
 import redistrict.colorado.ui.GuiUtil;
 import redistrict.colorado.ui.UIConstants;
@@ -32,7 +30,7 @@ public class PlanListController extends AnchorPane
 	private final static String CLSS = "PlanListController";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private Label headerLabel = new Label("Plans");
-	private ButtonPane buttons = new ButtonPane();
+	private PlanButtonPane buttons = new PlanButtonPane();
 	private ListView<PlanModel> planList;
 	private final BasicEventDispatcher<ActionEvent> auxEventDispatcher;
 	private final EventHandler<ActionEvent> auxEventHandler;
@@ -43,7 +41,7 @@ public class PlanListController extends AnchorPane
 		this.auxEventDispatcher = new BasicEventDispatcher<ActionEvent>(auxEventHandler);
 		this.hub = EventBindingHub.getInstance();
 		planList = new ListView<PlanModel>();
-		planList.setCellFactory(new PlanCellFactory());
+		planList.setCellFactory(new PlanRowFactory());
 		planList.getSelectionModel().selectedItemProperty().addListener(this);
 		planList.setMinWidth(UIConstants.LIST_PANEL_WIDTH);
 		headerLabel.getStyleClass().add("list-header-label");
@@ -80,7 +78,7 @@ public class PlanListController extends AnchorPane
 			String id = GuiUtil.idFromSource(event.getSource());
 			LOGGER.info(String.format("%s.handle: Action event: source = %s", CLSS,id));
 			if( id.equalsIgnoreCase(ComponentIds.BUTTON_ADD))       {
-				PlanModel model = Database.getInstance().getPlanTable().createPlan();
+				Database.getInstance().getPlanTable().createPlan();
 				updateUIFromDatabase();
 			}
 			// Delete the selected layer, then refresh
@@ -91,6 +89,14 @@ public class PlanListController extends AnchorPane
 					planList.getItems().remove(selectedModel);
 					updateUIFromDatabase();
 				}
+			}
+			// Compare the selected models for fairness
+			else if( id.equalsIgnoreCase(ComponentIds.BUTTON_ANALYZE)) {
+				List<PlanModel> plans = new ArrayList<>();
+				for(PlanModel model:planList.getItems()) {
+					if(model.isActive()) plans.add(model);
+				}
+				// TODO: Trigger panel
 			}
 		}
 	}

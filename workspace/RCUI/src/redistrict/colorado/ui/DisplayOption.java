@@ -14,8 +14,12 @@ import java.util.List;
  */
 public enum DisplayOption
 {
-	DETAIL,
-	MAP,
+	FEATURE_MAP,
+	LAYER_CONFIGURATION,
+	MODEL_DETAIL,
+	MODEL_MAP,
+	PLAN_COMPARISON,
+	PLAN_CONFIGURATION,
 	NONE
 	;
 

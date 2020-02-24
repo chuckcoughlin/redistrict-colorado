@@ -35,7 +35,7 @@ public class EventBindingHub {
 	private final SimpleObjectProperty<ViewMode> mode;
 	private final SimpleStringProperty message;
 	private final SimpleObjectProperty<LayerModel> selectedLayer;
-	private final SimpleObjectProperty<PlanModel> selectedPlan;
+	private final SimpleObjectProperty<List<PlanModel>> selectedPlans;
 	private final SimpleObjectProperty<RegionModel> selectedRegion;
 	/**
 	 * Constructor is private per Singleton pattern.
@@ -45,7 +45,7 @@ public class EventBindingHub {
 		this.message = new SimpleStringProperty();
 		this.leftSideSelection = new SimpleObjectProperty<LeftSelectionEvent>();
 		this.selectedLayer = new SimpleObjectProperty<LayerModel>();
-		this.selectedPlan = new SimpleObjectProperty<PlanModel>();
+		this.selectedPlans = new SimpleObjectProperty<List<PlanModel>>();
 		this.selectedRegion = new SimpleObjectProperty<RegionModel>();
 	}
 	/**
@@ -78,7 +78,7 @@ public class EventBindingHub {
 	public SimpleStringProperty messageProperty(){return message;}
 	// Left-side Selection
 	public LeftSelectionEvent getSelection() { return leftSideSelection.get(); }
-	public boolean isLeftSideSelected() { return (leftSideSelection.get()!=null); }
+	public boolean issetLeftSideSelectionLeftSideSelected() { return (leftSideSelection.get()!=null); }
 	public void setLeftSideSelection(LeftSelectionEvent event) { leftSideSelection.set(event); }
 	public void unselectLeftSide() { leftSideSelection.set(null); }
 	public void addLeftSideSelectionListener(ChangeListener<LeftSelectionEvent> listener) {leftSideSelection.addListener(listener);}
@@ -90,8 +90,8 @@ public class EventBindingHub {
 	public void unselectLayer() { selectedLayer.set(null); }
 	public void addLayerListener(ChangeListener<LayerModel> listener) {selectedLayer.addListener(listener);}
 	public SimpleObjectProperty<LayerModel> selectedLayerProperty(){return selectedLayer;}
-	// Selected Plan
-	public PlanModel getSelectedPlan() { return selectedPlan.get(); }
+	// Selected Plans
+	public List<PlanModel> getSelectedPlans() { return selectedPlan.get(); }
 	public boolean isPlanSelected() { return (selectedPlan.get()!=null); }
 	public void setSelectedPlan(PlanModel model) { selectedPlan.set(model); }
 	public void unselectPlan() { selectedPlan.set(null); }
