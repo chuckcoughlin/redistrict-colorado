@@ -28,7 +28,7 @@ public class MainMenuBar extends MenuBar  {
 	
 	private MenuItem plans;
 	private MenuItem layers;
-	private MenuItem regions;
+	private MenuItem districts;
 	
 	public MainMenuBar() {
 		this.eventHandler = new MenuBarEventHandler();
@@ -56,11 +56,11 @@ public class MainMenuBar extends MenuBar  {
 		layers.setId(ComponentIds.MENU_LAYER);
 		layers.setOnAction(eventHandler);
 		layers.setDisable(false);
-		regions  = new MenuItem("Regions");
-		regions.setId(ComponentIds.MENU_REGION);
-		regions.setOnAction(eventHandler);
-		regions.setDisable(false);
-		menu.getItems().addAll(plans,layers,regions);
+		districts  = new MenuItem("Districts");
+		districts.setId(ComponentIds.MENU_DISTRICT);
+		districts.setOnAction(eventHandler);
+		districts.setDisable(false);
+		menu.getItems().addAll(plans,layers,districts);
 		return menu;
 	}
 	
@@ -77,11 +77,11 @@ public class MainMenuBar extends MenuBar  {
 			LOGGER.info(String.format("%s.handle: ActionEvent source = %s",CLSS,src));
 			layers.setDisable(src.equalsIgnoreCase(ComponentIds.MENU_LAYER));
 			plans.setDisable(src.equalsIgnoreCase(ComponentIds.MENU_PLAN));
-			regions.setDisable(src.equalsIgnoreCase(ComponentIds.MENU_REGION));
+			districts.setDisable(src.equalsIgnoreCase(ComponentIds.MENU_DISTRICT));
 
 			if( layers.isDisable() ) hub.setMode(ViewMode.LAYER);
 			else if( plans.isDisable() ) hub.setMode(ViewMode.PLAN);
-			else if( regions.isDisable() ) hub.setMode(ViewMode.REGION);
+			else if( districts.isDisable() ) hub.setMode(ViewMode.DISTRICT);
 		}
 	}
 }

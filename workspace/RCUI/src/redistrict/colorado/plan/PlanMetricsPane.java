@@ -4,14 +4,13 @@
  * This program is free software; you may redistribute it and/or
  * modify it under the terms of the GNU General Public License.
  */
-package redistrict.colorado.ui.right;
+package redistrict.colorado.plan;
 import java.util.logging.Logger;
 
 import javafx.geometry.HPos;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -25,14 +24,10 @@ import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.GuiUtil;
 import redistrict.colorado.ui.UIConstants;
 import redistrict.colorado.ui.ViewMode;
+import redistrict.colorado.ui.right.BasicRightSideNode;
 
-/**
- * Show an array of Gates with results of plan comparison analysis.
- * @author chuckc
- *
- */
-public class PlanComparisonPane extends BasicRightSideNode {
-	private final static String CLSS = "PlanComparisonPane";
+public class PlanMetricsPane extends BasicRightSideNode {
+	private final static String CLSS = "PlanConfigurationDialog";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private final static double COL0_WIDTH = 100.;    // margin
 	private final static double COL1_WIDTH = 300.;
@@ -51,11 +46,10 @@ public class PlanComparisonPane extends BasicRightSideNode {
 	private final ComboBox<String> roleChooser;
 
 
-	public PlanComparisonPane() {
-		super(ViewMode.PLAN,DisplayOption.PLAN_COMPARISON);
+	public PlanMetricsPane(PlanModel m) {
+		super(ViewMode.PLAN,DisplayOption.PLAN_CONFIGURATION);
 		this.model = m;
         setHeaderText(String.format("Define Plan: %s.",m.getName()));
-
         
         nameField = new TextField(model.getName());
         descriptionField = new TextField(model.getDescription());
@@ -97,5 +91,23 @@ public class PlanComparisonPane extends BasicRightSideNode {
 		grid.add(nameField, 1, 0);
 		grid.add(descriptionLabel, 0, 1);
 		grid.add(descriptionField, 0, 2, 2, 1);
+
+		DialogPane dialog = this.getDialogPane();
+		dialog.setContent(grid);
+		dialog.getButtonTypes().add(buttonCancel);
+		dialog.getButtonTypes().add(buttonOK);
+		dialog.getStyleClass().add(UIConstants.LAYER_EDITOR_CLASS);
+
+		setResultConverter(new Callback<ButtonType, PlanModel>() {
+			@Override
+			public PlanModel call(ButtonType b) {
+				if (b == buttonOK) {
+					model.setName(nameField.getText());
+					model.setDescription(descriptionField.getText());
+					return model;
+				}
+				return null;
+			}
+		});
 	}
 }

@@ -181,11 +181,11 @@ public class PlanRow extends ListCell<PlanModel> implements ChangeListener<Toggl
 			LOGGER.info(String.format("%s.changed: toggle button no new value", CLSS));
 		}
 		else {
-			EventBindingHub.getInstance().setSelectedPlan(getItem());
+			EventBindingHub.getInstance().setActivePlans(getItem());
 			Object data = newValue.getUserData();
 			if( data==null ) data = "null";
 			if( data.toString().equalsIgnoreCase(MAP_DATA)) {
-				EventBindingHub.getInstance().setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.MAP));
+				EventBindingHub.getInstance().setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.PLAN_CONFIGURATION));
 			}
 			else if(data.toString().equalsIgnoreCase(DETAIL_DATA)) {
 				EventBindingHub.getInstance().setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.DETAIL));

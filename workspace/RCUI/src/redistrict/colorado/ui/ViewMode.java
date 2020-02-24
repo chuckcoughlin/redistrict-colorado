@@ -1,5 +1,5 @@
 /**  
- * Copyright (C) 2019 Charles Coughlin
+ * Copyright (C) 2019-2020 Charles Coughlin
  * 
  * This program is free software; you may redistribute it and/or
  * modify it under the terms of the GNU General Public License.
@@ -16,7 +16,7 @@ public enum ViewMode
 {
 	PLAN,
 	LAYER,
-	REGION,
+	DISTRICT,
 	UNSELECTED
 	;
 

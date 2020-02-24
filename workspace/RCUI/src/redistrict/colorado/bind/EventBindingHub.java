@@ -6,6 +6,7 @@
  */
 package redistrict.colorado.bind;
 
+import java.util.List;
 import java.util.logging.Logger;
 
 import javafx.beans.property.SimpleObjectProperty;
@@ -35,7 +36,7 @@ public class EventBindingHub {
 	private final SimpleObjectProperty<ViewMode> mode;
 	private final SimpleStringProperty message;
 	private final SimpleObjectProperty<LayerModel> selectedLayer;
-	private final SimpleObjectProperty<List<PlanModel>> selectedPlans;
+	private final SimpleObjectProperty<List<PlanModel>> activePlans;
 	private final SimpleObjectProperty<RegionModel> selectedRegion;
 	/**
 	 * Constructor is private per Singleton pattern.
@@ -45,7 +46,7 @@ public class EventBindingHub {
 		this.message = new SimpleStringProperty();
 		this.leftSideSelection = new SimpleObjectProperty<LeftSelectionEvent>();
 		this.selectedLayer = new SimpleObjectProperty<LayerModel>();
-		this.selectedPlans = new SimpleObjectProperty<List<PlanModel>>();
+		this.activePlans = new SimpleObjectProperty<List<PlanModel>>();
 		this.selectedRegion = new SimpleObjectProperty<RegionModel>();
 	}
 	/**
@@ -91,12 +92,8 @@ public class EventBindingHub {
 	public void addLayerListener(ChangeListener<LayerModel> listener) {selectedLayer.addListener(listener);}
 	public SimpleObjectProperty<LayerModel> selectedLayerProperty(){return selectedLayer;}
 	// Selected Plans
-	public List<PlanModel> getSelectedPlans() { return selectedPlan.get(); }
-	public boolean isPlanSelected() { return (selectedPlan.get()!=null); }
-	public void setSelectedPlan(PlanModel model) { selectedPlan.set(model); }
-	public void unselectPlan() { selectedPlan.set(null); }
-	public void addPlanListener(ChangeListener<PlanModel> listener) {selectedPlan.addListener(listener);}
-	public SimpleObjectProperty<PlanModel> selectedPlanProperty(){return selectedPlan;}
+	public List<PlanModel> getActivePlans() { return activePlans.get(); }
+	public void setActivePlans(List<PlanModel> models) { activePlans.set(models); }
 	// Selected Region
 	public RegionModel getSelectedRegion() { return selectedRegion.get(); }
 	public boolean isRegionSelected() { return (selectedRegion.get()!=null); }

@@ -65,8 +65,8 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 
 	public LayerConfigurationPane() {
 		super(ViewMode.LAYER,DisplayOption.LAYER_CONFIGURATION);
-		this.model = m;
-        setHeaderText(String.format("Define layer: %s.",m.getName()));
+		this.model = EventBindingHub.getInstance().getSelectedLayer();
+        setHeaderText(String.format("Define layer: %s.",model.getName()));
         
         nameField = new TextField(model.getName());
         descriptionField = new TextField(model.getDescription());
@@ -125,12 +125,6 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 		grid.add(roleChooser, 1, 3);
 		grid.add(indicator, 2, 3);
 		grid.add(fieldButton, 0, 4);
-		
-		DialogPane dialog = this.getDialogPane();
-		dialog.setContent(grid);
-		dialog.getButtonTypes().add(buttonCancel);
-		dialog.getButtonTypes().add(buttonOK);
-		dialog.getStyleClass().add(UIConstants.LAYER_EDITOR_CLASS);
 
 		setResultConverter(new Callback<ButtonType, LayerModel>() {
 			@Override
@@ -186,5 +180,10 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
             }
 		}
 
+	}
+	@Override
+	public void updateModel() {
+		this.model = EventBindingHub.getInstance().getSelectedLayer();
+		
 	}
 }

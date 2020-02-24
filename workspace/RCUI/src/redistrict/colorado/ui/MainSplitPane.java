@@ -16,9 +16,9 @@ import javafx.scene.Node;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.StackPane;
 import redistrict.colorado.bind.EventBindingHub;
+import redistrict.colorado.district.DistrictListController;
 import redistrict.colorado.layer.LayerListController;
 import redistrict.colorado.plan.PlanListController;
-import redistrict.colorado.region.RegionListController;
 import redistrict.colorado.ui.right.BasicRightSideNode;
 import redistrict.colorado.ui.right.LayerDetailPane;
 import redistrict.colorado.ui.right.ModelMapPane;
@@ -49,7 +49,7 @@ public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode>
 		leftChildren = new Node[N_CHILDREN_LEFT];
 		leftChildren[0] = new PlanListController();
 		leftChildren[1] = new LayerListController();
-		leftChildren[2] = new RegionListController();
+		leftChildren[2] = new DistrictListController();
 		
 		rightChildren = new BasicRightSideNode[N_CHILDREN_RIGHT];
 		rightChildren[0] = new SplashScreen();
@@ -59,6 +59,7 @@ public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode>
 		rightChildren[4] = new FeatureMapPane();
 		rightChildren[5] = new PlanConfigurationPane();
 		rightChildren[6] = new PlanComparisonPane();
+		rightChildren[5] = new PlanMetricsPane();
 		
 		this.rightController = new RightSideController(rightChildren);
 		this.init();
@@ -100,8 +101,8 @@ public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode>
 			String id = GuiUtil.idFromSource(event.getSource());
 			LOGGER.info(String.format("%s.handle: ActionEvent source = %s",CLSS,id));
 			ViewMode mode = ViewMode.PLAN;
-			if( id.equalsIgnoreCase(ComponentIds.MENU_LAYER))      mode = ViewMode.LAYER;
-			else if( id.equalsIgnoreCase(ComponentIds.MENU_REGION))mode = ViewMode.REGION;
+			if( id.equalsIgnoreCase(ComponentIds.MENU_LAYER))         mode = ViewMode.LAYER;
+			else if( id.equalsIgnoreCase(ComponentIds.MENU_DISTRICT)) mode = ViewMode.DISTRICT;
 			updateUIForViewMode(mode);
 		}
 	}
@@ -124,7 +125,7 @@ public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode>
 		currentViewMode = mode;
 		int pane = 0;
 		if( mode.equals(ViewMode.LAYER))pane = 1;
-		else if( mode.equals(ViewMode.REGION))pane = 2;
+		else if( mode.equals(ViewMode.DISTRICT))pane = 2;
 		int index = 0;
 		while(index<leftChildren.length){
 			if( index==pane) {

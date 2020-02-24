@@ -15,6 +15,6 @@ module rc.ui {
 	
 	exports redistrict.colorado.ui;
 	exports redistrict.colorado.layer;
-	exports redistrict.colorado.region;
+	exports redistrict.colorado.district;
 	
 }

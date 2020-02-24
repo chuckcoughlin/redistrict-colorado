@@ -4,7 +4,7 @@
  * This program is free software; you may redistribute it and/or
  * modify it under the terms of the GNU General Public License.
  */
-package redistrict.colorado.region;
+package redistrict.colorado.district;
 import java.util.logging.Logger;
 
 import javafx.event.ActionEvent;
@@ -18,15 +18,15 @@ import redistrict.colorado.bind.EventReceiver;
 import redistrict.colorado.ui.ButtonPane;
 import redistrict.colorado.ui.UIConstants;
 
-public class RegionListController extends AnchorPane implements EventReceiver<ActionEvent> {
-	private final static String CLSS = "RegionListController";
+public class DistrictListController extends AnchorPane implements EventReceiver<ActionEvent> {
+	private final static String CLSS = "DistrictListController";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
-	private Label headerLabel = new Label("Regions");
+	private Label headerLabel = new Label("Districts");
 	private ListView<String> regionList;
 	private final BasicEventDispatcher<ActionEvent> auxEventDispatcher;
 	private final EventHandler<ActionEvent> auxEventHandler;
 	
-	public RegionListController() {
+	public DistrictListController() {
 		this.auxEventHandler = new RegionListHolderEventHandler();
 		this.auxEventDispatcher = new BasicEventDispatcher<ActionEvent>(auxEventHandler);
 		regionList = new ListView<String>();

@@ -6,7 +6,6 @@
  */
 package redistrict.colorado.ui.navigation;
 
-
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import redistrict.colorado.core.RegionModel;
@@ -16,10 +15,10 @@ import redistrict.colorado.core.RegionModel;
  * This navigation pane is shown on the right-side of the split under panes dealing with regions.
  * It listens for left-side selections and identifies the current region.
  */
-public class RegionNavigationPane extends AbstractNavigationPane implements ChangeListener<RegionModel> {
+public class DistrictNavigationPane extends AbstractNavigationPane implements ChangeListener<RegionModel> {
 
 	
-	public RegionNavigationPane() {
+	public DistrictNavigationPane() {
 		hub.addRegionListener(this);
 	}
 
@@ -35,6 +34,6 @@ public class RegionNavigationPane extends AbstractNavigationPane implements Chan
 	
 	@Override
 	public void updateTextForModel() {
-		navigationLabel.setText(String.format("Plan: %s",hub.getSelectedPlan().getName()));	
+		navigationLabel.setText(String.format("District: %s",hub.getSelectedRegion().getName()));	
 	}
 }
