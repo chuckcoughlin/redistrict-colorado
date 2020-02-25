@@ -12,9 +12,9 @@ import java.util.logging.Logger;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
+import redistrict.colorado.core.DistrictModel;
 import redistrict.colorado.core.LayerModel;
 import redistrict.colorado.core.PlanModel;
-import redistrict.colorado.core.RegionModel;
 import redistrict.colorado.ui.ViewMode;
 
 /**
@@ -37,7 +37,7 @@ public class EventBindingHub {
 	private final SimpleStringProperty message;
 	private final SimpleObjectProperty<LayerModel> selectedLayer;
 	private final SimpleObjectProperty<List<PlanModel>> activePlans;
-	private final SimpleObjectProperty<RegionModel> selectedRegion;
+	private final SimpleObjectProperty<DistrictModel> selectedDistrict;
 	/**
 	 * Constructor is private per Singleton pattern.
 	 */
@@ -47,7 +47,7 @@ public class EventBindingHub {
 		this.leftSideSelection = new SimpleObjectProperty<LeftSelectionEvent>();
 		this.selectedLayer = new SimpleObjectProperty<LayerModel>();
 		this.activePlans = new SimpleObjectProperty<List<PlanModel>>();
-		this.selectedRegion = new SimpleObjectProperty<RegionModel>();
+		this.selectedDistrict = new SimpleObjectProperty<DistrictModel>();
 	}
 	/**
 	 * Static method to create and/or fetch the single instance.
@@ -94,11 +94,11 @@ public class EventBindingHub {
 	// Selected Plans
 	public List<PlanModel> getActivePlans() { return activePlans.get(); }
 	public void setActivePlans(List<PlanModel> models) { activePlans.set(models); }
-	// Selected Region
-	public RegionModel getSelectedRegion() { return selectedRegion.get(); }
-	public boolean isRegionSelected() { return (selectedRegion.get()!=null); }
-	public void setSelectedRegion(RegionModel model) { selectedRegion.set(model); }
-	public void unselectRegion() { selectedRegion.set(null); }
-	public void addRegionListener(ChangeListener<RegionModel> listener) {selectedRegion.addListener(listener);}
-	public SimpleObjectProperty<RegionModel> selectedRegionProperty(){return selectedRegion;}
+	// Selected District
+	public DistrictModel getSelectedDistrict() { return selectedDistrict.get(); }
+	public boolean isDistrictSelected() { return (selectedDistrict.get()!=null); }
+	public void setSelectedDistrict(DistrictModel model) { selectedDistrict.set(model); }
+	public void unselectDistrict() { selectedDistrict.set(null); }
+	public void addDistrictListener(ChangeListener<DistrictModel> listener) {selectedDistrict.addListener(listener);}
+	public SimpleObjectProperty<DistrictModel> selectedDistrictProperty(){return selectedDistrict;}
 }

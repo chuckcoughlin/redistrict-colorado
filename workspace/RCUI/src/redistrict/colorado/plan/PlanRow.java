@@ -6,6 +6,7 @@
  */
 package redistrict.colorado.plan;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -29,7 +30,6 @@ import javafx.scene.layout.RowConstraints;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.bind.LeftSelectionEvent;
 import redistrict.colorado.core.PlanModel;
-import redistrict.colorado.db.Database;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.GuiUtil;
 import redistrict.colorado.ui.UIConstants;
@@ -158,13 +158,15 @@ public class PlanRow extends ListCell<PlanModel> implements ChangeListener<Toggl
     	@Override public void handle(ActionEvent e) {
             LOGGER.info(String.format("%s.handle: processing %s event", CLSS,e.getSource()));
             PlanModel model = getItem();
-            Dialog<PlanModel> dialog = new PlanConfigurationDialog(model);
+
+            /*
             Optional<PlanModel> result = dialog.showAndWait();
             if (result.isPresent()) {
-            	setContent(model);
+            	setContent(modesl);
             	boolean success = Database.getInstance().getPlanTable().updatePlan(model);
             	LOGGER.info(String.format("%s.EditEventHandler: returned from dialog %s", CLSS,(success?"successfully":"with error")));
             }
+            */
         }
     }
 
@@ -181,14 +183,14 @@ public class PlanRow extends ListCell<PlanModel> implements ChangeListener<Toggl
 			LOGGER.info(String.format("%s.changed: toggle button no new value", CLSS));
 		}
 		else {
-			EventBindingHub.getInstance().setActivePlans(getItem());
+			//EventBindingHub.getInstance().setActivePlans(getItem());
 			Object data = newValue.getUserData();
 			if( data==null ) data = "null";
 			if( data.toString().equalsIgnoreCase(MAP_DATA)) {
 				EventBindingHub.getInstance().setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.PLAN_CONFIGURATION));
 			}
 			else if(data.toString().equalsIgnoreCase(DETAIL_DATA)) {
-				EventBindingHub.getInstance().setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.DETAIL));
+				EventBindingHub.getInstance().setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.PLAN_COMPARISON));
 			}
 			//LOGGER.info(String.format("%s.changed: toggle button = %s", CLSS,data.toString()));
 		}

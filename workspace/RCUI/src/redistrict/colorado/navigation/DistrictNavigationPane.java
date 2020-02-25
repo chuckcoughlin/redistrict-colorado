@@ -1,25 +1,25 @@
 /**  
- * Copyright (C) 2019 Charles Coughlin
+ * Copyright (C) 2020 Charles Coughlin
  * 
  * This program is free software; you may redistribute it and/or
  * modify it under the terms of the GNU General Public License.
  */
-package redistrict.colorado.ui.navigation;
+package redistrict.colorado.navigation;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import redistrict.colorado.core.RegionModel;
+import redistrict.colorado.core.DistrictModel;
 
 /**
 /**
  * This navigation pane is shown on the right-side of the split under panes dealing with regions.
  * It listens for left-side selections and identifies the current region.
  */
-public class DistrictNavigationPane extends AbstractNavigationPane implements ChangeListener<RegionModel> {
+public class DistrictNavigationPane extends AbstractNavigationPane implements ChangeListener<DistrictModel> {
 
 	
 	public DistrictNavigationPane() {
-		hub.addRegionListener(this);
+		hub.addDistrictListener(this);
 	}
 
 	/**
@@ -27,13 +27,13 @@ public class DistrictNavigationPane extends AbstractNavigationPane implements Ch
 	 * region is edited.
 	 */
 	@Override
-	public void changed(ObservableValue<? extends RegionModel> source, RegionModel oldValue, RegionModel newValue) {
+	public void changed(ObservableValue<? extends DistrictModel> source, DistrictModel oldValue, DistrictModel newValue) {
 		LOGGER.info(String.format("%s.changed: got %s", CLSS,newValue.getName()));
 		updateTextForModel();
 	}
 	
 	@Override
 	public void updateTextForModel() {
-		navigationLabel.setText(String.format("District: %s",hub.getSelectedRegion().getName()));	
+		navigationLabel.setText(String.format("District: %s",hub.getSelectedDistrict().getName()));	
 	}
 }

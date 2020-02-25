@@ -4,7 +4,7 @@
  * This program is free software; you may redistribute it and/or
  * modify it under the terms of the GNU General Public License.
  */
-package redistrict.colorado.ui.right;
+package redistrict.colorado.navigation;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import redistrict.colorado.ui.DisplayOption;

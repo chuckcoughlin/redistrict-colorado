@@ -129,12 +129,6 @@ public class FAConfigurationDialog extends Dialog<List<FeatureConfiguration>> im
 		});
 	}
 
-	// ======================================== Event Handler ========================================
-
-	/**
-	 * The event source is a table column ... A cell edit requires a <ENTER> to complete.
-	 * Loss of focus is not enough.
-	 */
 	@Override
 	public void handle(CellEditEvent<FeatureConfiguration, String> event) {
 		int row = event.getTablePosition().getRow();
@@ -165,7 +159,7 @@ public class FAConfigurationDialog extends Dialog<List<FeatureConfiguration>> im
 			}
 			catch(NumberFormatException nfe) {}
 		}
-		
+
 	}
 	
 

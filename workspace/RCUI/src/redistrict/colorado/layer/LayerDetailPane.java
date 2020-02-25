@@ -4,7 +4,7 @@
  * This program is free software; you may redistribute it and/or
  * modify it under the terms of the GNU General Public License.
  */
-package redistrict.colorado.ui.right;
+package redistrict.colorado.layer;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -24,11 +24,11 @@ import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.FeatureConfiguration;
 import redistrict.colorado.core.LayerModel;
 import redistrict.colorado.db.Database;
-import redistrict.colorado.layer.FeatureDataFactory;
+import redistrict.colorado.navigation.BasicRightSideNode;
+import redistrict.colorado.navigation.LayerNavigationPane;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.UIConstants;
 import redistrict.colorado.ui.ViewMode;
-import redistrict.colorado.ui.navigation.LayerNavigationPane;
 
 /**
  * Display the shapefile demographic information in table form.

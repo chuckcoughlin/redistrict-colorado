@@ -4,7 +4,7 @@
  * This program is free software; you may redistribute it and/or
  * modify it under the terms of the GNU General Public License.
  */
-package redistrict.colorado.ui;
+package redistrict.colorado.navigation;
 import java.util.logging.Logger;
 
 import javafx.beans.value.ChangeListener;
@@ -17,13 +17,19 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.layout.StackPane;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.district.DistrictListController;
+import redistrict.colorado.district.FeatureMapPane;
+import redistrict.colorado.layer.LayerConfigurationPane;
+import redistrict.colorado.layer.LayerDetailPane;
 import redistrict.colorado.layer.LayerListController;
+import redistrict.colorado.layer.ModelMapPane;
+import redistrict.colorado.plan.PlanComparisonPane;
+import redistrict.colorado.plan.PlanConfigurationPane;
 import redistrict.colorado.plan.PlanListController;
-import redistrict.colorado.ui.right.BasicRightSideNode;
-import redistrict.colorado.ui.right.LayerDetailPane;
-import redistrict.colorado.ui.right.ModelMapPane;
-import redistrict.colorado.ui.right.RightSideController;
-import redistrict.colorado.ui.right.SplashScreen;
+import redistrict.colorado.plan.PlanMetricsPane;
+import redistrict.colorado.ui.ComponentIds;
+import redistrict.colorado.ui.GuiUtil;
+import redistrict.colorado.ui.UIConstants;
+import redistrict.colorado.ui.ViewMode;
 
 /**
  * Create the main split panel. The left side is a stack of three options. The right side
@@ -32,7 +38,7 @@ import redistrict.colorado.ui.right.SplashScreen;
 public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode> {
 	private static final String CLSS = "MainSplitPane";
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
-	private final static int N_CHILDREN_RIGHT = 7;
+	private final static int N_CHILDREN_RIGHT = 8;
 	private final static int N_CHILDREN_LEFT = 3;
 	private final EventHandler<ActionEvent> eventHandler;
 	private final StackPane left;
@@ -59,7 +65,7 @@ public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode>
 		rightChildren[4] = new FeatureMapPane();
 		rightChildren[5] = new PlanConfigurationPane();
 		rightChildren[6] = new PlanComparisonPane();
-		rightChildren[5] = new PlanMetricsPane();
+		rightChildren[7] = new PlanMetricsPane();
 		
 		this.rightController = new RightSideController(rightChildren);
 		this.init();

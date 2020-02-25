@@ -185,10 +185,10 @@ public class LayerRow extends ListCell<LayerModel> implements ChangeListener<Tog
 			Object data = newValue.getUserData();
 			if( data==null ) data = "null";
 			if( data.toString().equalsIgnoreCase(MAP_DATA)) {
-				EventBindingHub.getInstance().setLeftSideSelection(new LeftSelectionEvent(ViewMode.LAYER,DisplayOption.MAP));
+				EventBindingHub.getInstance().setLeftSideSelection(new LeftSelectionEvent(ViewMode.LAYER,DisplayOption.MODEL_MAP));
 			}
 			else if(data.toString().equalsIgnoreCase(DETAIL_DATA)) {
-				EventBindingHub.getInstance().setLeftSideSelection(new LeftSelectionEvent(ViewMode.LAYER,DisplayOption.DETAIL));
+				EventBindingHub.getInstance().setLeftSideSelection(new LeftSelectionEvent(ViewMode.LAYER,DisplayOption.MODEL_DETAIL));
 			}
 			//LOGGER.info(String.format("%s.changed: toggle button = %s", CLSS,data.toString()));
 		}

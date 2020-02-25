@@ -4,7 +4,7 @@
  * This program is free software; you may redistribute it and/or
  * modify it under the terms of the GNU General Public License.
  */
-package redistrict.colorado.ui.right;
+package redistrict.colorado.district;
 import java.util.logging.Logger;
 
 import org.geotools.data.shapefile.ShapefileReader;
@@ -21,9 +21,9 @@ import redistrict.colorado.core.LayerModel;
 import redistrict.colorado.db.Database;
 
 /**
- * Render shapes as referenced by a single layer model in a panel on the screen.
+ * Render shape as referenced by a single feature of a model.
  */
-	public class ModelMapRenderer  {
+	public class FeatureMapRenderer  {
 		private final static String CLSS = "MapRenderer";
 		private static Logger LOGGER = Logger.getLogger(CLSS);
 		private LayerModel model = null;
@@ -32,7 +32,7 @@ import redistrict.colorado.db.Database;
 		private FeatureFilter filter;
 		private Style style;
 
-		public ModelMapRenderer(Canvas cnvs) {
+		public FeatureMapRenderer(Canvas cnvs) {
 			this.canvas = cnvs;
 			this.renderer = null;
 			

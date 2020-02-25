@@ -23,8 +23,8 @@ import javafx.stage.Stage;
 import redistrict.colorado.core.LoggerUtility;
 import redistrict.colorado.core.PathConstants;
 import redistrict.colorado.db.Database;
+import redistrict.colorado.navigation.MainSplitPane;
 import redistrict.colorado.ui.MainMenuBar;
-import redistrict.colorado.ui.MainSplitPane;
 import redistrict.colorado.ui.StatusPane;
 import redistrict.colorado.ui.UIConstants;
 

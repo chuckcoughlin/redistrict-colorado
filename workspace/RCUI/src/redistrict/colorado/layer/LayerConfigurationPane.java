@@ -11,17 +11,20 @@ import java.util.Optional;
 import java.util.logging.Logger;
 
 import org.geotools.data.shapefile.ShapefileReader;
+import org.openjump.feature.AttributeType;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -35,11 +38,11 @@ import redistrict.colorado.core.FeatureConfiguration;
 import redistrict.colorado.core.LayerModel;
 import redistrict.colorado.core.LayerRole;
 import redistrict.colorado.db.Database;
+import redistrict.colorado.navigation.BasicRightSideNode;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.GuiUtil;
 import redistrict.colorado.ui.UIConstants;
 import redistrict.colorado.ui.ViewMode;
-import redistrict.colorado.ui.right.BasicRightSideNode;
 
 public class LayerConfigurationPane extends BasicRightSideNode implements EventHandler<ActionEvent>{
 	private final static String CLSS = "LayerConfigurationPane";
@@ -48,62 +51,31 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 	private final static double COL1_WIDTH = 300.;
 	private final static double COL2_WIDTH = 40.;
 	private static final GuiUtil guiu = new GuiUtil();
-	private final LayerModel model;
-	private ButtonType buttonCancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
-	private ButtonType buttonOK = new ButtonType("Save", ButtonData.OK_DONE);
 	private final GridPane grid;
 	private final Label nameLabel = new Label("Name: ");
 	private final Label descriptionLabel = new Label("Description: ");
 	private final Button fileButton = new Button("Shapefile: ");
-	private final Button fieldButton = new Button("Configure: ");
 	private final Label roleLabel = new Label("Role: ");
 	private final TextField nameField;
 	private final TextField descriptionField;
 	private final TextField pathField;
 	private final ComboBox<String> roleChooser;
-	private final Label indicator;
+	private Label indicator;
+	private LayerModel model;
 
 	public LayerConfigurationPane() {
 		super(ViewMode.LAYER,DisplayOption.LAYER_CONFIGURATION);
 		this.model = EventBindingHub.getInstance().getSelectedLayer();
-        setHeaderText(String.format("Define layer: %s.",model.getName()));
-        
-        nameField = new TextField(model.getName());
-        descriptionField = new TextField(model.getDescription());
+		this.nameField = new TextField();
+		nameField.setOnAction(this);
+        this.descriptionField = new TextField();
         fileButton.setOnAction(this);
-        pathField = new TextField(model.getShapefilePath());
-        roleChooser = new ComboBox<>();
+        this.pathField = new TextField();
+        pathField.setEditable(false);
+        this.roleChooser = new ComboBox<>();
         roleChooser.getItems().addAll(LayerRole.names());
-        roleChooser.getSelectionModel().select(model.getRole().name());
-        if( model.getShapefilePath()==null || model.getShapefilePath().isEmpty() ) {
-        	indicator = new Label("",guiu.loadImage("images/ball_gray.png"));
-        }
-        else {
-        	if( model.getFeatures()==null){
-        		try {
-					model.setFeatures(ShapefileReader.read(model.getShapefilePath()));
-					LOGGER.info(String.format("%s.onInit: Shapefile has %d records, %d attributes", CLSS,model.getFeatures().getFeatures().size(),model.getFeatures().getFeatureSchema().getAttributeCount()));
-					Database.getInstance().getFeatureAttributeTable().synchronizeFeatureAttributes(model.getId(), model.getFeatures().getFeatureSchema().getAttributeNames());
-				}
-				catch( Exception ex) {
-					model.setFeatures(null);
-					String msg = String.format("%s.onInit: Failed to parse shapefile %s (%s)",CLSS,model.getShapefilePath(),ex.getLocalizedMessage());
-					LOGGER.warning(msg);
-					ex.printStackTrace();
-					EventBindingHub.getInstance().setMessage(msg);
-				}
-        	}
-        	if( model.getFeatures()==null){
-        		indicator = new Label("",guiu.loadImage("images/ball_red.png"));
-        	}
-        	else {
-        		indicator = new Label("",guiu.loadImage("images/ball_green.png"));
-        	}
-        }
-        fieldButton.setDisable(model.getFeatures()==null);
-        fieldButton.setOnAction(this);
-        
-        grid = new GridPane();
+        this.indicator = new Label("",guiu.loadImage("images/ball_gray.png"));
+        this.grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(4);
 		grid.getColumnConstraints().clear();
@@ -124,8 +96,12 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 		grid.add(roleLabel, 0, 3);
 		grid.add(roleChooser, 1, 3);
 		grid.add(indicator, 2, 3);
-		grid.add(fieldButton, 0, 4);
-
+		
+		configureDefinition();
+		configureTable();
+       
+        
+/*
 		setResultConverter(new Callback<ButtonType, LayerModel>() {
 			@Override
 			public LayerModel call(ButtonType b) {
@@ -153,6 +129,44 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 				return null;
 			}
 		});
+		*/
+	}
+	
+	private void configureDefinition() {
+		// If the model is non-null, fill in all the fields.
+		if( model!=null ) {
+			nameField.setText(model.getName());
+			descriptionField.setText(model.getDescription());
+			pathField.setText(model.getShapefilePath());
+	        roleChooser.getSelectionModel().select(model.getRole().name());
+			if( model.getShapefilePath()!=null && !model.getShapefilePath().isEmpty() ) {
+	        	if( model.getFeatures()==null){
+	        		try {
+						model.setFeatures(ShapefileReader.read(model.getShapefilePath()));
+						LOGGER.info(String.format("%s.onInit: Shapefile has %d records, %d attributes", CLSS,model.getFeatures().getFeatures().size(),model.getFeatures().getFeatureSchema().getAttributeCount()));
+						Database.getInstance().getFeatureAttributeTable().synchronizeFeatureAttributes(model.getId(), model.getFeatures().getFeatureSchema().getAttributeNames());
+					}
+					catch( Exception ex) {
+						model.setFeatures(null);
+						String msg = String.format("%s.onInit: Failed to parse shapefile %s (%s)",CLSS,model.getShapefilePath(),ex.getLocalizedMessage());
+						LOGGER.warning(msg);
+						ex.printStackTrace();
+						EventBindingHub.getInstance().setMessage(msg);
+					}
+	        	}
+	        	if( model.getFeatures()==null){
+	        		indicator = new Label("",guiu.loadImage("images/ball_red.png"));
+	        	}
+	        	else {
+	        		indicator = new Label("",guiu.loadImage("images/ball_green.png"));
+	        	}
+	        }
+		}
+	}
+	
+	private void configureTable() {
+;
+		
 	}
 	/**
 	 * Respond to button presses
@@ -170,7 +184,7 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 			} 
 		}
 		// Configure field headers in the detail table
-		else if( event.getSource().equals(fieldButton)) {
+		//else if( event.getSource().equals(fieldButton)) {
 			List<FeatureConfiguration> configs = Database.getInstance().getFeatureAttributeTable().getFeatureAttributes(model.getId());
 			Dialog<List<FeatureConfiguration>> dialog = new FAConfigurationDialog(configs);
             Optional<List<FeatureConfiguration>> result = dialog.showAndWait();
@@ -178,12 +192,56 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
             	boolean success = Database.getInstance().getFeatureAttributeTable().updateFeatureAttributes(configs);
             	LOGGER.info(String.format("%s.handle: returned from dialog %s", CLSS,(success?"successfully":"with error")));
             }
-		}
+		//}
 
 	}
+	// ====================================== BasicRightSideNode =====================================
 	@Override
 	public void updateModel() {
 		this.model = EventBindingHub.getInstance().getSelectedLayer();
+		configureDefinition();
+		configureTable();
 		
 	}
+	
+	// ======================================== Event Handler ========================================
+	public class TableEventHandler implements EventHandler<TableColumn.CellEditEvent<FeatureConfiguration,String>>  {
+		/**
+		 * The event source is a table column ... A cell edit requires a <ENTER> to complete.
+		 * Loss of focus is not enough.
+		 */
+		@Override
+		public void handle(CellEditEvent<FeatureConfiguration, String> event) {
+			int row = event.getTablePosition().getRow();
+			String column = event.getTableColumn().getText();
+			String newValue = event.getNewValue();
+			List<FeatureConfiguration> items = event.getTableView().getItems();
+			LOGGER.info(String.format("%s.handle %s: row %d = %s",CLSS,column,row,newValue));
+			FeatureConfiguration item = items.get(row);
+			if( column.equalsIgnoreCase("Alias") ) {
+				item.setAlias(newValue);
+			}
+			else if( column.equalsIgnoreCase("Type") ) {
+				try {
+					item.setAttributeType(AttributeType.valueOf(newValue));
+				}
+				catch(IllegalArgumentException iae) {
+					LOGGER.warning(String.format("%s.handle %s: Bad value for AttributeType - %s (%s)",CLSS,newValue,iae.getLocalizedMessage()));
+				}
+			}
+			else if( column.equalsIgnoreCase("Visible") ) {  // Handled by listener
+			}
+			else if( column.equalsIgnoreCase("Color") ) {	 // Handled by listener
+			}
+			else if( column.equalsIgnoreCase("Rank") ) {
+				try {
+					int rank = Integer.parseInt(newValue);
+					item.setRank(rank);
+				}
+				catch(NumberFormatException nfe) {}
+			}
+
+		}
+	}
+
 }

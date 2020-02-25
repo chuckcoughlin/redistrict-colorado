@@ -5,109 +5,130 @@
  * modify it under the terms of the GNU General Public License.
  */
 package redistrict.colorado.plan;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
-import javafx.geometry.HPos;
-import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.DialogPane;
+import org.geotools.data.shapefile.ShapefileReader;
+import org.openjump.feature.Feature;
+
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
-import javafx.util.Callback;
-import redistrict.colorado.core.LayerRole;
-import redistrict.colorado.core.PlanModel;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import redistrict.colorado.bind.EventBindingHub;
+import redistrict.colorado.core.FeatureConfiguration;
+import redistrict.colorado.core.LayerModel;
+import redistrict.colorado.db.Database;
+import redistrict.colorado.layer.FeatureDataFactory;
+import redistrict.colorado.navigation.BasicRightSideNode;
+import redistrict.colorado.navigation.LayerNavigationPane;
 import redistrict.colorado.ui.DisplayOption;
-import redistrict.colorado.ui.GuiUtil;
 import redistrict.colorado.ui.UIConstants;
 import redistrict.colorado.ui.ViewMode;
-import redistrict.colorado.ui.right.BasicRightSideNode;
 
+/**
+ * Display the shapefile demographic information in table form.
+ */
 public class PlanMetricsPane extends BasicRightSideNode {
-	private final static String CLSS = "PlanConfigurationDialog";
+	private final static String CLSS = "LayerDetailPane";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
-	private final static double COL0_WIDTH = 100.;    // margin
-	private final static double COL1_WIDTH = 300.;
-	private final static double COL2_WIDTH = 40.;
-	private static final GuiUtil guiu = new GuiUtil();
-	private final PlanModel model;
-	private ButtonType buttonCancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
-	private ButtonType buttonOK = new ButtonType("Save", ButtonData.OK_DONE);
-	private final GridPane grid;
-	private final Label nameLabel = new Label("Name: ");
-	private final Label descriptionLabel = new Label("Description: ");
+	private LayerModel model;
+	private final ObservableList<Feature> items;
+	private LayerNavigationPane navPane = new LayerNavigationPane();
+	private final Label headerLabel = new Label("Layer Details");
+	private final TableView<Feature> table;
+	private final CheckBox showAllColumns;  // Including the hidden ones
+	private final EventHandler<ActionEvent> eventHandler;
 
-	private final Label roleLabel = new Label("Role: ");
-	private final TextField nameField;
-	private final TextField descriptionField;
-	private final ComboBox<String> roleChooser;
+	public PlanMetricsPane() {
+		super(ViewMode.LAYER,DisplayOption.MODEL_DETAIL);
+		this.model = hub.getSelectedLayer();
+		this.items = FXCollections.observableArrayList();
+		this.showAllColumns = new CheckBox("Show All");
+		this.table = new TableView<Feature>();
+		this.eventHandler = new ActionEventHandler();
+		table.setPrefSize(UIConstants.FEATURE_TABLE_WIDTH, UIConstants.FEATURE_TABLE_HEIGHT);
+		table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
 
-
-	public PlanMetricsPane(PlanModel m) {
-		super(ViewMode.PLAN,DisplayOption.PLAN_CONFIGURATION);
-		this.model = m;
-        setHeaderText(String.format("Define Plan: %s.",m.getName()));
-        
-        nameField = new TextField(model.getName());
-        descriptionField = new TextField(model.getDescription());
-        //this.table = new TableView<PlanLayer>();
-        
-        roleChooser = new ComboBox<>();
-        roleChooser.getItems().addAll(LayerRole.names());
-        //roleChooser.getSelectionModel().select(model.getRole().name());
-        /*
-        if( model.getLayers()==null){
-        	try {
-        		model.setFeatures(ShapefileReader.read(model.getShapefilePath()));
-        		LOGGER.info(String.format("%s.onInit: Shapefile has %d records, %d attributes", CLSS,model.getFeatures().getFeatures().size(),model.getFeatures().getFeatureSchema().getAttributeCount()));
-        		Database.getInstance().getFeatureAttributeTable().synchronizeFeatureAttributes(model.getId(), model.getFeatures().getFeatureSchema().getAttributeNames());
-        	}
-        	catch( Exception ex) {
-        		model.setFeatures(null);
-        		String msg = String.format("%s.onInit: Failed to parse shapefile %s (%s)",CLSS,model.getShapefilePath(),ex.getLocalizedMessage());
-        		LOGGER.warning(msg);
-        		ex.printStackTrace();
-        		EventBindingHub.getInstance().setMessage(msg);
-        	}
-        }
-        */
-        
-        grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(4);
-		grid.getColumnConstraints().clear();
-		ColumnConstraints col0 = new ColumnConstraints(COL0_WIDTH);
-		col0.setHalignment(HPos.LEFT);
-		ColumnConstraints col1 = new ColumnConstraints(COL1_WIDTH,COL1_WIDTH,Double.MAX_VALUE);
-		col1.setHalignment(HPos.LEFT);
-		col1.setHgrow(Priority.ALWAYS);
-		ColumnConstraints col2 = new ColumnConstraints(COL2_WIDTH);
-		col2.setHalignment(HPos.CENTER);
-		grid.getColumnConstraints().addAll(col0,col1,col2); 
-		grid.add(nameLabel,0, 0);
-		grid.add(nameField, 1, 0);
-		grid.add(descriptionLabel, 0, 1);
-		grid.add(descriptionField, 0, 2, 2, 1);
-
-		DialogPane dialog = this.getDialogPane();
-		dialog.setContent(grid);
-		dialog.getButtonTypes().add(buttonCancel);
-		dialog.getButtonTypes().add(buttonOK);
-		dialog.getStyleClass().add(UIConstants.LAYER_EDITOR_CLASS);
-
-		setResultConverter(new Callback<ButtonType, PlanModel>() {
-			@Override
-			public PlanModel call(ButtonType b) {
-				if (b == buttonOK) {
-					model.setName(nameField.getText());
-					model.setDescription(descriptionField.getText());
-					return model;
-				}
-				return null;
-			}
-		});
+		showAllColumns.setIndeterminate(false);
+		showAllColumns.setOnAction(eventHandler);
+		headerLabel.getStyleClass().add("list-header-label");
+		getChildren().add(headerLabel);
+		getChildren().add(showAllColumns);
+		getChildren().add(table);
+		getChildren().add(navPane);
+		setTopAnchor(headerLabel,0.);
+		setTopAnchor(showAllColumns,UIConstants.BUTTON_PANEL_HEIGHT/5);
+		setTopAnchor(table,UIConstants.BUTTON_PANEL_HEIGHT);
+		setLeftAnchor(showAllColumns,UIConstants.BUTTON_PANEL_HEIGHT/5);
+		setLeftAnchor(headerLabel,UIConstants.LIST_PANEL_LEFT_MARGIN);
+		setRightAnchor(headerLabel,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+		setLeftAnchor(table,UIConstants.LIST_PANEL_LEFT_MARGIN);
+		setRightAnchor(table,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+		setBottomAnchor(table,UIConstants.BUTTON_PANEL_HEIGHT);
+		setBottomAnchor(navPane,0.);
+		setLeftAnchor(navPane,UIConstants.LIST_PANEL_LEFT_MARGIN);
+		setRightAnchor(navPane,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+		updateModel();
 	}
+
+	@Override
+	public void updateModel() {
+		LayerModel selectedModel = hub.getSelectedLayer();
+		if( selectedModel!=null) {
+			this.model = selectedModel;
+			LOGGER.info(String.format("%s.updateModel: Model is %s", CLSS,model.getName()));
+			if( model.getFeatures()==null ) {
+				try {
+					model.setFeatures(ShapefileReader.read(model.getShapefilePath()));
+				}
+				catch( Exception ex) {
+					model.setFeatures(null);
+					String msg = String.format("%s: Failed to parse shapefile %s (%s)",CLSS,model.getShapefilePath(),ex.getLocalizedMessage());
+					LOGGER.warning(msg);
+					EventBindingHub.getInstance().setMessage(msg);
+				}
+				Database.getInstance().getFeatureAttributeTable().synchronizeFeatureAttributes(model.getId(), model.getFeatures().getFeatureSchema().getAttributeNames());
+			}
+			navPane.updateTextForModel();
+			table.getColumns().clear();
+			items.clear();
+			for(Feature feat:model.getFeatures().getFeatures()) {
+				items.add(feat);
+			}
+
+			TableColumn<Feature,String> column;
+			Map<String,String> aliasMap = Database.getInstance().getFeatureAttributeTable().getNamesForFeatureAliases(model.getId());
+			FeatureDataFactory factory = new FeatureDataFactory(aliasMap);
+			List<FeatureConfiguration> configurations = Database.getInstance().getFeatureAttributeTable().getFeatureAttributes(model.getId());
+			boolean showAll = showAllColumns.isSelected();
+
+			for(FeatureConfiguration fc:configurations) {
+				if(fc.isVisible()||showAll ) {
+					column = new TableColumn<>(fc.getAlias());
+					column.setCellValueFactory(factory);
+					//LOGGER.info(String.format("%s.updateModel: Added column %s", CLSS,fc.getAlias()));
+					table.getColumns().add(column);
+				}
+			}
+			LOGGER.info(String.format("%s.updateModel: Table has %d rows", CLSS,items.size()));
+			table.setItems(items);
+		}
+	}
+	
+	/**
+	 * The checkbox has been selected. Update the model
+	 */
+	public class ActionEventHandler implements EventHandler<ActionEvent> {
+		@Override
+		public void handle(ActionEvent event) {
+			updateModel();
+		}
+	}
+
 }
