@@ -29,11 +29,5 @@ public class DistrictNavigationPane extends AbstractNavigationPane implements Ch
 	@Override
 	public void changed(ObservableValue<? extends DistrictModel> source, DistrictModel oldValue, DistrictModel newValue) {
 		LOGGER.info(String.format("%s.changed: got %s", CLSS,newValue.getName()));
-		updateTextForModel();
-	}
-	
-	@Override
-	public void updateTextForModel() {
-		navigationLabel.setText(String.format("District: %s",hub.getSelectedDistrict().getName()));	
 	}
 }

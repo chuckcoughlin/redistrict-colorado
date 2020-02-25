@@ -59,10 +59,10 @@ public class LayerRow extends ListCell<LayerModel> implements ChangeListener<Tog
     private final ToggleButton mapButton;
     private final ToggleButton detailButton;
     private final ToggleGroup toggleGroup;
-    private final EditEventHandler cellHandler;
+    private final EditEventHandler handler;
     
 	public LayerRow() {
-		cellHandler = new EditEventHandler();
+		handler = new EditEventHandler();
 		setPrefWidth(UIConstants.LIST_PANEL_WIDTH);
 		tag = new Label("",guiu.loadImage("images/layers.png"));
 		name = new Label();
@@ -85,7 +85,7 @@ public class LayerRow extends ListCell<LayerModel> implements ChangeListener<Tog
         configureControls();
         addControlsToGrid(); 
         
-        edit.setOnAction(cellHandler);
+        edit.setOnAction(handler);
         toggleGroup.selectedToggleProperty().addListener(this);
     } 
 	private void configureControls() {
@@ -152,19 +152,13 @@ public class LayerRow extends ListCell<LayerModel> implements ChangeListener<Tog
 
     
     /**
-     * Handle an event from the "edit" button. Display a popup edit window.
+     * Handle an event from the "edit" button. Display the edit pane on the right.
      */
     public class EditEventHandler implements EventHandler<ActionEvent> {
     	@Override public void handle(ActionEvent e) {
-            //LOGGER.info(String.format("%s.handle: processing edit event", CLSS));
+            LOGGER.info(String.format("%s.handle: processing edit event", CLSS));
             LayerModel model = getItem();
-            Dialog<LayerModel> dialog = new LayerConfigurationDialog(model);
-            Optional<LayerModel> result = dialog.showAndWait();
-            if (result.isPresent()) {
-            	setContent(model);
-            	boolean success = Database.getInstance().getLayerTable().updateLayer(model);
-            	LOGGER.info(String.format("%s.EditEventHandler: returned from dialog %s", CLSS,(success?"successfully":"with error")));
-            }
+            EventBindingHub.getInstance().setLeftSideSelection(new LeftSelectionEvent(ViewMode.LAYER,DisplayOption.LAYER_CONFIGURATION));
         }
     }
 

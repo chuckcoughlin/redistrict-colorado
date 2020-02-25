@@ -38,8 +38,7 @@ public class LayerDetailPane extends BasicRightSideNode {
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private LayerModel model;
 	private final ObservableList<Feature> items;
-	private LayerNavigationPane navPane = new LayerNavigationPane();
-	private final Label headerLabel = new Label("Layer Details");
+	private final Label headerLabel = new Label("Liar Details");
 	private final TableView<Feature> table;
 	private final CheckBox showAllColumns;  // Including the hidden ones
 	private final EventHandler<ActionEvent> eventHandler;
@@ -60,19 +59,15 @@ public class LayerDetailPane extends BasicRightSideNode {
 		getChildren().add(headerLabel);
 		getChildren().add(showAllColumns);
 		getChildren().add(table);
-		getChildren().add(navPane);
 		setTopAnchor(headerLabel,0.);
 		setTopAnchor(showAllColumns,UIConstants.BUTTON_PANEL_HEIGHT/5);
-		setTopAnchor(table,UIConstants.BUTTON_PANEL_HEIGHT);
 		setLeftAnchor(showAllColumns,UIConstants.BUTTON_PANEL_HEIGHT/5);
 		setLeftAnchor(headerLabel,UIConstants.LIST_PANEL_LEFT_MARGIN);
 		setRightAnchor(headerLabel,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+		setTopAnchor(table,UIConstants.BUTTON_PANEL_HEIGHT);
 		setLeftAnchor(table,UIConstants.LIST_PANEL_LEFT_MARGIN);
 		setRightAnchor(table,UIConstants.LIST_PANEL_RIGHT_MARGIN);
-		setBottomAnchor(table,UIConstants.BUTTON_PANEL_HEIGHT);
-		setBottomAnchor(navPane,0.);
-		setLeftAnchor(navPane,UIConstants.LIST_PANEL_LEFT_MARGIN);
-		setRightAnchor(navPane,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+		setBottomAnchor(table,0.);
 		updateModel();
 	}
 
@@ -81,6 +76,7 @@ public class LayerDetailPane extends BasicRightSideNode {
 		LayerModel selectedModel = hub.getSelectedLayer();
 		if( selectedModel!=null) {
 			this.model = selectedModel;
+			headerLabel.setText(model.getName());
 			LOGGER.info(String.format("%s.updateModel: Model is %s", CLSS,model.getName()));
 			if( model.getFeatures()==null ) {
 				try {
@@ -94,7 +90,6 @@ public class LayerDetailPane extends BasicRightSideNode {
 				}
 				Database.getInstance().getFeatureAttributeTable().synchronizeFeatureAttributes(model.getId(), model.getFeatures().getFeatureSchema().getAttributeNames());
 			}
-			navPane.updateTextForModel();
 			table.getColumns().clear();
 			items.clear();
 			for(Feature feat:model.getFeatures().getFeatures()) {

@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.layout.FlowPane;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.ui.GuiUtil;
@@ -19,7 +19,7 @@ import redistrict.colorado.ui.UIConstants;
 
 /**
  * A navigation pane is shown under the panes on the right-side of the split.
- * This abstract base class sets a common size.
+ * This abstract base class sets a common size. It has 
  */
 public abstract class AbstractNavigationPane extends FlowPane {
 	protected static final String CLSS = "NavigationPane";
@@ -28,18 +28,16 @@ public abstract class AbstractNavigationPane extends FlowPane {
 	private static final double HGAP = 8.;
 	private static final double VGAP = 8.;
 	private static final double LMARGIN = 32.;
-	protected final Label navigationLabel;
+	protected final Slider zoomSlider;
 	protected final GuiUtil guiu = new GuiUtil();
 	
 	public AbstractNavigationPane() {
 		super(Orientation.HORIZONTAL,HGAP,VGAP);
 		this.hub = EventBindingHub.getInstance();
 		this.setPrefHeight(UIConstants.BUTTON_PANEL_HEIGHT);
-		this.navigationLabel = new Label("");
-		this.getChildren().add(navigationLabel);
+		this.zoomSlider = new Slider();
+		this.getChildren().add(zoomSlider);
 		
-		setMargin(navigationLabel,new Insets(VGAP,HGAP,VGAP,LMARGIN));
+		//setMargin(navigationLabel,new Insets(VGAP,HGAP,VGAP,LMARGIN));
 	}
-	
-	public abstract void updateTextForModel();
 }

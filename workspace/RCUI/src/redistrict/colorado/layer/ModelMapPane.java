@@ -1,5 +1,5 @@
 /**  
- * Copyright (C) 2019 Charles Coughlin
+ * Copyright (C) 2020 Charles Coughlin
  * 
  * This program is free software; you may redistribute it and/or
  * modify it under the terms of the GNU General Public License.
@@ -23,7 +23,7 @@ import redistrict.colorado.ui.ViewMode;
  * Plot a single layer graphically. Parent is an AnchorPane.
  */
 	public class ModelMapPane extends BasicRightSideNode {
-		private final static String CLSS = "MapPane";
+		private final static String CLSS = "ModelMapPane";
 		private static Logger LOGGER = Logger.getLogger(CLSS);
 		private LayerNavigationPane navPane = new LayerNavigationPane();
 		private Label headerLabel = new Label("Map");
@@ -63,7 +63,6 @@ import redistrict.colorado.ui.ViewMode;
 			if( selectedModel!=null) {
 				model = selectedModel;;
 				LOGGER.info(String.format("%s.updateModel: selected = %s", CLSS,model.getName()));
-				navPane.updateTextForModel();
 				if( model.getFeatures()==null ) {
 					try {
 						model.setFeatures(ShapefileReader.read(model.getShapefilePath()));

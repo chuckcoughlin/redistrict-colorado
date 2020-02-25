@@ -14,7 +14,7 @@ import javafx.scene.control.Label;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.LayerModel;
 import redistrict.colorado.navigation.BasicRightSideNode;
-import redistrict.colorado.navigation.LayerNavigationPane;
+import redistrict.colorado.navigation.DistrictNavigationPane;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.UIConstants;
 import redistrict.colorado.ui.ViewMode;
@@ -23,9 +23,9 @@ import redistrict.colorado.ui.ViewMode;
  * Plot a single feature graphically. Parent is an AnchorPane.
  */
 	public class FeatureMapPane extends BasicRightSideNode {
-		private final static String CLSS = "MapPane";
+		private final static String CLSS = "FeatureMapPane";
 		private static Logger LOGGER = Logger.getLogger(CLSS);
-		private LayerNavigationPane navPane = new LayerNavigationPane();
+		private DistrictNavigationPane navPane = new DistrictNavigationPane();
 		private Label headerLabel = new Label("Map");
 		private LayerModel model;
 		private final FeatureMapRenderer map;
@@ -61,9 +61,9 @@ import redistrict.colorado.ui.ViewMode;
 		public void updateModel() {
 			LayerModel selectedModel = hub.getSelectedLayer();
 			if( selectedModel!=null) {
-				model = selectedModel;;
+				model = selectedModel;
+				headerLabel.setText(model.getName());
 				LOGGER.info(String.format("%s.updateModel: selected = %s", CLSS,model.getName()));
-				navPane.updateTextForModel();
 				if( model.getFeatures()==null ) {
 					try {
 						model.setFeatures(ShapefileReader.read(model.getShapefilePath()));

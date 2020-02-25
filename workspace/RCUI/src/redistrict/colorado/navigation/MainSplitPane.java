@@ -125,21 +125,46 @@ public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode>
 	
 	/**
 	 * Display the panes in the stack that correspond to the selected ViewMode and screen option.
+	 * If the hub has an appropriate value, then display the proper right-side also. If there is
+	 * no appropriate value, then display the splash screen. See constructor for index values.
 	 * NOTE: We do not iterate over left.getChildren() due to ConcurrentModification exceptions.
 	 */
 	private synchronized void updateUIForViewMode(ViewMode mode) {
 		currentViewMode = mode;
-		int pane = 0;
-		if( mode.equals(ViewMode.LAYER))pane = 1;
-		else if( mode.equals(ViewMode.DISTRICT))pane = 2;
+		EventBindingHub hub = EventBindingHub.getInstance();
+		int leftPane = 0; //
+		int rightPane = 0;  // Splash screen
+		if( mode.equals(ViewMode.PLAN)) {
+			leftPane = 0;
+			if(hub.isPlanSelected()) rightPane = 7; // Plan metrics
+		}
+		if( mode.equals(ViewMode.LAYER)) {
+			leftPane = 1;
+			if(hub.isLayerSelected()) rightPane = 1; // Layer map
+		}
+		else if( mode.equals(ViewMode.DISTRICT)) {
+			leftPane = 2;
+			if(hub.isDistrictSelected()) rightPane = 4; // Feature map
+		}
 		int index = 0;
 		while(index<leftChildren.length){
-			if( index==pane) {
+			if( index==leftPane) {
 				leftChildren[index].toFront();
 				leftChildren[index].setVisible(true);
 			}
 			else {
 				leftChildren[index].setVisible(false);
+			}
+			index++;
+		}
+		index = 0;
+		while(index<rightChildren.length){
+			if( index==rightPane) {
+				rightChildren[index].toFront();
+				rightChildren[index].setVisible(true);
+			}
+			else {
+				rightChildren[index].setVisible(false);
 			}
 			index++;
 		}

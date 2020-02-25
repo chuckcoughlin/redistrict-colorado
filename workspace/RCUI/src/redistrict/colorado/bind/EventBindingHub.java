@@ -37,6 +37,7 @@ public class EventBindingHub {
 	private final SimpleStringProperty message;
 	private final SimpleObjectProperty<LayerModel> selectedLayer;
 	private final SimpleObjectProperty<List<PlanModel>> activePlans;
+	private final SimpleObjectProperty<PlanModel> selectedPlan;
 	private final SimpleObjectProperty<DistrictModel> selectedDistrict;
 	/**
 	 * Constructor is private per Singleton pattern.
@@ -46,6 +47,7 @@ public class EventBindingHub {
 		this.message = new SimpleStringProperty();
 		this.leftSideSelection = new SimpleObjectProperty<LeftSelectionEvent>();
 		this.selectedLayer = new SimpleObjectProperty<LayerModel>();
+		this.selectedPlan = new SimpleObjectProperty<PlanModel>();
 		this.activePlans = new SimpleObjectProperty<List<PlanModel>>();
 		this.selectedDistrict = new SimpleObjectProperty<DistrictModel>();
 	}
@@ -91,9 +93,15 @@ public class EventBindingHub {
 	public void unselectLayer() { selectedLayer.set(null); }
 	public void addLayerListener(ChangeListener<LayerModel> listener) {selectedLayer.addListener(listener);}
 	public SimpleObjectProperty<LayerModel> selectedLayerProperty(){return selectedLayer;}
-	// Selected Plans
+	// Selected Plan(s)
 	public List<PlanModel> getActivePlans() { return activePlans.get(); }
 	public void setActivePlans(List<PlanModel> models) { activePlans.set(models); }
+	public PlanModel getSelectedPlan() { return selectedPlan.get(); }
+	public boolean isPlanSelected() { return (selectedPlan.get()!=null); }
+	public void setSelectedPlan(PlanModel model) { selectedPlan.set(model); }
+	public void unselectPlan() { selectedPlan.set(null); }
+	public void addPlanListener(ChangeListener<PlanModel> listener) {selectedPlan.addListener(listener);}
+	public SimpleObjectProperty<PlanModel> selectedPlanProperty(){return selectedPlan;}
 	// Selected District
 	public DistrictModel getSelectedDistrict() { return selectedDistrict.get(); }
 	public boolean isDistrictSelected() { return (selectedDistrict.get()!=null); }

@@ -35,18 +35,17 @@ import redistrict.colorado.ui.ViewMode;
  * Display the shapefile demographic information in table form.
  */
 public class PlanMetricsPane extends BasicRightSideNode {
-	private final static String CLSS = "LayerDetailPane";
+	private final static String CLSS = "PlanMetricsPane";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private LayerModel model;
 	private final ObservableList<Feature> items;
-	private LayerNavigationPane navPane = new LayerNavigationPane();
-	private final Label headerLabel = new Label("Layer Details");
+	private final Label headerLabel = new Label("Plan Metrics");
 	private final TableView<Feature> table;
 	private final CheckBox showAllColumns;  // Including the hidden ones
 	private final EventHandler<ActionEvent> eventHandler;
 
 	public PlanMetricsPane() {
-		super(ViewMode.LAYER,DisplayOption.MODEL_DETAIL);
+		super(ViewMode.PLAN,DisplayOption.PLAN_METRICS);
 		this.model = hub.getSelectedLayer();
 		this.items = FXCollections.observableArrayList();
 		this.showAllColumns = new CheckBox("Show All");
@@ -61,7 +60,6 @@ public class PlanMetricsPane extends BasicRightSideNode {
 		getChildren().add(headerLabel);
 		getChildren().add(showAllColumns);
 		getChildren().add(table);
-		getChildren().add(navPane);
 		setTopAnchor(headerLabel,0.);
 		setTopAnchor(showAllColumns,UIConstants.BUTTON_PANEL_HEIGHT/5);
 		setTopAnchor(table,UIConstants.BUTTON_PANEL_HEIGHT);
@@ -70,10 +68,7 @@ public class PlanMetricsPane extends BasicRightSideNode {
 		setRightAnchor(headerLabel,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 		setLeftAnchor(table,UIConstants.LIST_PANEL_LEFT_MARGIN);
 		setRightAnchor(table,UIConstants.LIST_PANEL_RIGHT_MARGIN);
-		setBottomAnchor(table,UIConstants.BUTTON_PANEL_HEIGHT);
-		setBottomAnchor(navPane,0.);
-		setLeftAnchor(navPane,UIConstants.LIST_PANEL_LEFT_MARGIN);
-		setRightAnchor(navPane,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+		setBottomAnchor(table,0.);
 		updateModel();
 	}
 
@@ -95,7 +90,6 @@ public class PlanMetricsPane extends BasicRightSideNode {
 				}
 				Database.getInstance().getFeatureAttributeTable().synchronizeFeatureAttributes(model.getId(), model.getFeatures().getFeatureSchema().getAttributeNames());
 			}
-			navPane.updateTextForModel();
 			table.getColumns().clear();
 			items.clear();
 			for(Feature feat:model.getFeatures().getFeatures()) {

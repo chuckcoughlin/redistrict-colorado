@@ -29,7 +29,9 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.bind.LeftSelectionEvent;
+import redistrict.colorado.core.LayerModel;
 import redistrict.colorado.core.PlanModel;
+import redistrict.colorado.layer.LayerRow.EditEventHandler;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.GuiUtil;
 import redistrict.colorado.ui.UIConstants;
@@ -60,10 +62,10 @@ public class PlanRow extends ListCell<PlanModel> implements ChangeListener<Toggl
     private final ToggleButton mapButton;
     private final ToggleButton detailButton;
     private final ToggleGroup toggleGroup;
-    private final EditEventHandler cellHandler;
+    private final EditEventHandler handler;
     
 	public PlanRow() {
-		cellHandler = new EditEventHandler();
+		handler = new EditEventHandler();
 		setPrefWidth(UIConstants.LIST_PANEL_WIDTH);
 		tag = new Label("",guiu.loadImage("images/plans.png"));
 		name = new Label();
@@ -85,8 +87,8 @@ public class PlanRow extends ListCell<PlanModel> implements ChangeListener<Toggl
         configureControls();
         addControlsToGrid(); 
         
-        active.setOnAction(cellHandler);
-        edit.setOnAction(cellHandler);
+        active.setOnAction(handler);
+        edit.setOnAction(handler);
         toggleGroup.selectedToggleProperty().addListener(this);
     } 
 	private void configureControls() {
@@ -156,18 +158,10 @@ public class PlanRow extends ListCell<PlanModel> implements ChangeListener<Toggl
      */
     public class EditEventHandler implements EventHandler<ActionEvent> {
     	@Override public void handle(ActionEvent e) {
-            LOGGER.info(String.format("%s.handle: processing %s event", CLSS,e.getSource()));
-            PlanModel model = getItem();
-
-            /*
-            Optional<PlanModel> result = dialog.showAndWait();
-            if (result.isPresent()) {
-            	setContent(modesl);
-            	boolean success = Database.getInstance().getPlanTable().updatePlan(model);
-            	LOGGER.info(String.format("%s.EditEventHandler: returned from dialog %s", CLSS,(success?"successfully":"with error")));
-            }
-            */
-        }
+    		LOGGER.info(String.format("%s.handle: processing %s event", CLSS,e.getSource()));
+    		PlanModel model = getItem();
+    		EventBindingHub.getInstance().setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.PLAN_CONFIGURATION));
+    	}
     }
 
     /**
