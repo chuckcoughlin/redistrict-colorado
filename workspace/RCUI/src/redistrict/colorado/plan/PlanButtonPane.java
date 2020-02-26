@@ -63,11 +63,12 @@ public class PlanButtonPane extends FlowPane implements EventSource<ActionEvent>
 		analyzeButton.setAlignment(Pos.CENTER_RIGHT);
 		analyzeButton.setDisable(true);
 		analyzeButton.setOnAction(eventHandler);
+		analyzeButton.setId(ComponentIds.BUTTON_ANALYZE);
 
 		this.getChildren().add(addButton);
 		this.getChildren().add(deleteButton);
 		final Pane spacer = new Pane();
-	    spacer.setMinSize(200, 1);
+	    spacer.setMinSize(400, 1);
 	    this.getChildren().add(spacer);
 		this.getChildren().add(analyzeButton);
 		

@@ -40,28 +40,24 @@ import redistrict.colorado.ui.ViewMode;
 /**
  * This is the UI element for a list view that represents a Plan.
  */
-public class PlanRow extends ListCell<PlanModel> implements ChangeListener<Toggle> {
+public class PlanRow extends ListCell<PlanModel>  {
 	private static final String CLSS = "PlanRow";
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
 	private final static double COL1_WIDTH = 40.;
-	private final static double COL2_WIDTH = 100.;
+	private final static double COL2_WIDTH = 120.;
 	private final static double COL3_WIDTH = 65.;
 	private final static double COL4_WIDTH = 40.;
-	private final static double COL5_WIDTH = 55.;
-	private final static double COL6_WIDTH = 55.;
+	private final static double COL5_WIDTH = 70.;
 	private final static double ROW1_HEIGHT = 40.;
 	private static final GuiUtil guiu = new GuiUtil();
-	private final static String MAP_DATA = "map";
-	private final static String DETAIL_DATA = "detail";
+	private final static String METRICS = "metrics";
 	private GridPane grid = new GridPane();
     private final Label tag;   // Identifies the pane class
     private final Label name;
     private final Label description;
     private final CheckBox active;
     private final Button edit;
-    private final ToggleButton mapButton;
-    private final ToggleButton detailButton;
-    private final ToggleGroup toggleGroup;
+    private final Button metrics;
     private final EditEventHandler handler;
     
 	public PlanRow() {
@@ -72,15 +68,9 @@ public class PlanRow extends ListCell<PlanModel> implements ChangeListener<Toggl
 	    description = new Label();
 	    active = new CheckBox("Active:");
 	    edit = new Button("",guiu.loadImage("images/edit.png"));
-	    toggleGroup = new ToggleGroup();
-	    mapButton =new ToggleButton("Map");
-	    //mapButton.setGraphic(guiu.loadImage("images/earth.png"));
-	    mapButton.setUserData(MAP_DATA);
-	    mapButton.setToggleGroup(toggleGroup);
-	    detailButton = new ToggleButton("Detail");
-	    //detailButton.setGraphic(guiu.loadImage("images/table.png"));
-	    detailButton.setUserData(DETAIL_DATA);
-	    detailButton.setToggleGroup(toggleGroup);
+	    metrics =new Button("Metrics");
+	    metrics.setUserData(METRICS);
+
         configureGrid();        
         configureLabels();
         addLabelsToGrid();
@@ -89,7 +79,7 @@ public class PlanRow extends ListCell<PlanModel> implements ChangeListener<Toggl
         
         active.setOnAction(handler);
         edit.setOnAction(handler);
-        toggleGroup.selectedToggleProperty().addListener(this);
+        metrics.setOnAction(handler);
     } 
 	private void configureControls() {
 		edit.getStyleClass().add(UIConstants.LIST_CELL_BUTTON_CLASS);
@@ -104,8 +94,7 @@ public class PlanRow extends ListCell<PlanModel> implements ChangeListener<Toggl
         grid.getColumnConstraints().add(col2);
         grid.getColumnConstraints().add(new ColumnConstraints(COL3_WIDTH)); 					// active
         grid.getColumnConstraints().add(new ColumnConstraints(COL4_WIDTH)); 					// edit
-        grid.getColumnConstraints().add(new ColumnConstraints(COL5_WIDTH)); 					// map
-        grid.getColumnConstraints().add(new ColumnConstraints(COL6_WIDTH)); 					// detail
+        grid.getColumnConstraints().add(new ColumnConstraints(COL5_WIDTH)); 					// metrics
         grid.getRowConstraints().add(new RowConstraints(ROW1_HEIGHT)); // column 0 is 40 wide
     }
 	
@@ -125,8 +114,7 @@ public class PlanRow extends ListCell<PlanModel> implements ChangeListener<Toggl
     private void addControlsToGrid() {
     	grid.add(active, 2,0);
         grid.add(edit, 3, 0);                    
-        grid.add(mapButton, 4, 0);        
-        grid.add(detailButton, 5, 0);
+        grid.add(metrics, 4, 0);        
     }
 	
     @Override
@@ -154,39 +142,15 @@ public class PlanRow extends ListCell<PlanModel> implements ChangeListener<Toggl
 
     
     /**
-     * Handle an event from the "edit" button. Display a popup edit window.
+     * Handle an event from the "edit" button. Display an edit pane in the right-side.
      */
     public class EditEventHandler implements EventHandler<ActionEvent> {
     	@Override public void handle(ActionEvent e) {
-    		LOGGER.info(String.format("%s.handle: processing %s event", CLSS,e.getSource()));
+    		LOGGER.info(String.format("%s.handle: processing event from %s", CLSS,e.getSource()));
+    		EventBindingHub hub = EventBindingHub.getInstance();
     		PlanModel model = getItem();
-    		EventBindingHub.getInstance().setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.PLAN_CONFIGURATION));
+            hub.setSelectedPlan(model);
+    		hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.PLAN_CONFIGURATION));
     	}
     }
-
-    /**
-     * The toggle group has changed. Inform the binding hub. If the user clicks on a button in a non-selected row,
-     * the model will have changed also.
-     * @param source
-     * @param oldValue
-     * @param newValue
-     */
-	@Override
-	public void changed(ObservableValue<? extends Toggle> source, Toggle oldValue, Toggle newValue) {
-		if( newValue==null ) {
-			LOGGER.info(String.format("%s.changed: toggle button no new value", CLSS));
-		}
-		else {
-			//EventBindingHub.getInstance().setActivePlans(getItem());
-			Object data = newValue.getUserData();
-			if( data==null ) data = "null";
-			if( data.toString().equalsIgnoreCase(MAP_DATA)) {
-				EventBindingHub.getInstance().setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.PLAN_CONFIGURATION));
-			}
-			else if(data.toString().equalsIgnoreCase(DETAIL_DATA)) {
-				EventBindingHub.getInstance().setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.PLAN_COMPARISON));
-			}
-			//LOGGER.info(String.format("%s.changed: toggle button = %s", CLSS,data.toString()));
-		}
-	}
 }

@@ -7,13 +7,16 @@
 package redistrict.colorado.ui;
 
 /**
- * Define IDs that allow us to differentiate various event sources.
+ * Define IDs that allow us to differentiate various event sources. These Ids are also
+ * used to lookup specific style features in style.css
  */
 public interface ComponentIds {
 	
 	public final static String BUTTON_ADD 		= "ButtonAdd";
 	public final static String BUTTON_ANALYZE   = "ButtonAnalyze";
 	public final static String BUTTON_DELETE 	= "ButtonDelete";
+	public final static String BUTTON_SAVE  	= "ButtonSave";
+	public final static String BUTTON_SHAPEFILE = "ButtonShapefile";
 	public final static String MENU_DISTRICT 	= "MenuDistrict";
 	public final static String MENU_LAYER 	    = "MenuLayer";
 	public final static String MENU_PLAN	    = "MenuPlan";	

@@ -1,4 +1,4 @@
-package redistrict.colorado.navigation;
+package redistrict.colorado.pane;
 
 import javafx.scene.layout.AnchorPane;
 import redistrict.colorado.bind.EventBindingHub;

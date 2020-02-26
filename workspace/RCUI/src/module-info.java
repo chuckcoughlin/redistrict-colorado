@@ -13,9 +13,10 @@ module rc.ui {
 	requires org.geotools;
 	requires org.locationtech.jts;
 	
+	exports redistrict.colorado.bind;
 	exports redistrict.colorado.district;
 	exports redistrict.colorado.layer;
-	exports redistrict.colorado.navigation;
+	exports redistrict.colorado.pane;
 	exports redistrict.colorado.plan;
 	exports redistrict.colorado.ui;
 }

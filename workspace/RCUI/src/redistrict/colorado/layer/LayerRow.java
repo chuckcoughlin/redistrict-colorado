@@ -157,8 +157,10 @@ public class LayerRow extends ListCell<LayerModel> implements ChangeListener<Tog
     public class EditEventHandler implements EventHandler<ActionEvent> {
     	@Override public void handle(ActionEvent e) {
             LOGGER.info(String.format("%s.handle: processing edit event", CLSS));
+            EventBindingHub hub = EventBindingHub.getInstance();
             LayerModel model = getItem();
-            EventBindingHub.getInstance().setLeftSideSelection(new LeftSelectionEvent(ViewMode.LAYER,DisplayOption.LAYER_CONFIGURATION));
+            hub.setSelectedLayer(model);
+            hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.LAYER,DisplayOption.LAYER_CONFIGURATION));
         }
     }
 

@@ -24,8 +24,8 @@ import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.FeatureConfiguration;
 import redistrict.colorado.core.LayerModel;
 import redistrict.colorado.db.Database;
-import redistrict.colorado.navigation.BasicRightSideNode;
-import redistrict.colorado.navigation.LayerNavigationPane;
+import redistrict.colorado.pane.BasicRightSideNode;
+import redistrict.colorado.pane.LayerNavigationPane;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.UIConstants;
 import redistrict.colorado.ui.ViewMode;
@@ -38,7 +38,7 @@ public class LayerDetailPane extends BasicRightSideNode {
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private LayerModel model;
 	private final ObservableList<Feature> items;
-	private final Label headerLabel = new Label("Liar Details");
+	private final Label headerLabel = new Label("Layer Details");
 	private final TableView<Feature> table;
 	private final CheckBox showAllColumns;  // Including the hidden ones
 	private final EventHandler<ActionEvent> eventHandler;

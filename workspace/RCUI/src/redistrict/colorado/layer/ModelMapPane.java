@@ -13,8 +13,8 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Label;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.LayerModel;
-import redistrict.colorado.navigation.BasicRightSideNode;
-import redistrict.colorado.navigation.LayerNavigationPane;
+import redistrict.colorado.pane.BasicRightSideNode;
+import redistrict.colorado.pane.LayerNavigationPane;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.UIConstants;
 import redistrict.colorado.ui.ViewMode;
@@ -25,10 +25,11 @@ import redistrict.colorado.ui.ViewMode;
 	public class ModelMapPane extends BasicRightSideNode {
 		private final static String CLSS = "ModelMapPane";
 		private static Logger LOGGER = Logger.getLogger(CLSS);
-		private LayerNavigationPane navPane = new LayerNavigationPane();
-		private Label headerLabel = new Label("Map");
-		private LayerModel model;
+		private final LayerNavigationPane navPane = new LayerNavigationPane();
+		private final Label headerLabel = new Label("Map");
 		private final ModelMapRenderer map;
+		private LayerModel model;
+		
 		
 		public ModelMapPane() {
 			super(ViewMode.LAYER,DisplayOption.MODEL_MAP);

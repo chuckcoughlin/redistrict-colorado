@@ -17,14 +17,11 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.scene.control.TableColumn.CellEditEvent;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
-import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -32,13 +29,14 @@ import javafx.scene.layout.Priority;
 import javafx.stage.FileChooser;
 import javafx.stage.Popup;
 import javafx.stage.Window;
-import javafx.util.Callback;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.FeatureConfiguration;
 import redistrict.colorado.core.LayerModel;
 import redistrict.colorado.core.LayerRole;
 import redistrict.colorado.db.Database;
-import redistrict.colorado.navigation.BasicRightSideNode;
+import redistrict.colorado.pane.BasicRightSideNode;
+import redistrict.colorado.pane.LayerSavePane;
+import redistrict.colorado.ui.ComponentIds;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.GuiUtil;
 import redistrict.colorado.ui.UIConstants;
@@ -52,6 +50,8 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 	private final static double COL2_WIDTH = 40.;
 	private static final GuiUtil guiu = new GuiUtil();
 	private final GridPane grid;
+	private Label headerLabel = new Label("Layer Configuration");
+	private final LayerSavePane savePane = new LayerSavePane();
 	private final Label nameLabel = new Label("Name: ");
 	private final Label descriptionLabel = new Label("Description: ");
 	private final Button fileButton = new Button("Shapefile: ");
@@ -66,10 +66,18 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 	public LayerConfigurationPane() {
 		super(ViewMode.LAYER,DisplayOption.LAYER_CONFIGURATION);
 		this.model = EventBindingHub.getInstance().getSelectedLayer();
+		LOGGER.info(String.format("%s.CONSTRUCTOR:", CLSS));
+		headerLabel.getStyleClass().add("list-header-label");
+		getChildren().add(headerLabel);
+		setTopAnchor(headerLabel,0.);
+		setLeftAnchor(headerLabel,UIConstants.LIST_PANEL_LEFT_MARGIN);
+		setRightAnchor(headerLabel,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+		
 		this.nameField = new TextField();
 		nameField.setOnAction(this);
         this.descriptionField = new TextField();
         fileButton.setOnAction(this);
+        fileButton.setId(ComponentIds.BUTTON_SHAPEFILE);
         this.pathField = new TextField();
         pathField.setEditable(false);
         this.roleChooser = new ComboBox<>();
@@ -90,12 +98,22 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 		grid.add(nameLabel,0, 0);
 		grid.add(nameField, 1, 0);
 		grid.add(descriptionLabel, 0, 1);
-		grid.add(descriptionField, 1, 1, 2, 1);
+		grid.add(descriptionField, 1, 0);
 		grid.add(fileButton, 0, 2);
-		grid.add(pathField, 1, 2,  2, 1);
+		grid.add(pathField, 1, 0);
 		grid.add(roleLabel, 0, 3);
 		grid.add(roleChooser, 1, 3);
 		grid.add(indicator, 2, 3);
+		
+		getChildren().add(grid);
+		setTopAnchor(grid,UIConstants.BUTTON_PANEL_HEIGHT);
+		setLeftAnchor(grid,UIConstants.LIST_PANEL_LEFT_MARGIN);
+		setRightAnchor(grid,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+		
+		getChildren().add(savePane);
+		setLeftAnchor(savePane,UIConstants.LIST_PANEL_LEFT_MARGIN);
+		setRightAnchor(savePane,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+		setBottomAnchor(savePane,0.);
 		
 		configureDefinition();
 		configureTable();
@@ -133,8 +151,9 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 	}
 	
 	private void configureDefinition() {
-		// If the model is non-null, fill in all the fields.
+		// If the model is non-null, fill in all the fields
 		if( model!=null ) {
+			LOGGER.info(String.format("%s.configureDefinition: model is %s", CLSS,model.getName()));
 			nameField.setText(model.getName());
 			descriptionField.setText(model.getDescription());
 			pathField.setText(model.getShapefilePath());
@@ -143,12 +162,12 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 	        	if( model.getFeatures()==null){
 	        		try {
 						model.setFeatures(ShapefileReader.read(model.getShapefilePath()));
-						LOGGER.info(String.format("%s.onInit: Shapefile has %d records, %d attributes", CLSS,model.getFeatures().getFeatures().size(),model.getFeatures().getFeatureSchema().getAttributeCount()));
+						LOGGER.info(String.format("%s.configureDefinition: Shapefile has %d records, %d attributes", CLSS,model.getFeatures().getFeatures().size(),model.getFeatures().getFeatureSchema().getAttributeCount()));
 						Database.getInstance().getFeatureAttributeTable().synchronizeFeatureAttributes(model.getId(), model.getFeatures().getFeatureSchema().getAttributeNames());
 					}
 					catch( Exception ex) {
 						model.setFeatures(null);
-						String msg = String.format("%s.onInit: Failed to parse shapefile %s (%s)",CLSS,model.getShapefilePath(),ex.getLocalizedMessage());
+						String msg = String.format("%s.configureDefinition: Failed to parse shapefile %s (%s)",CLSS,model.getShapefilePath(),ex.getLocalizedMessage());
 						LOGGER.warning(msg);
 						ex.printStackTrace();
 						EventBindingHub.getInstance().setMessage(msg);
@@ -164,9 +183,7 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 		}
 	}
 	
-	private void configureTable() {
-;
-		
+	private void configureTable() {	
 	}
 	/**
 	 * Respond to button presses

@@ -49,11 +49,13 @@ public class PlanListController extends AnchorPane
 		getChildren().add(buttons);
 		getChildren().add(planList);
 		setTopAnchor(headerLabel,0.);
+		setLeftAnchor(headerLabel,UIConstants.LIST_PANEL_LEFT_MARGIN);
+		setRightAnchor(headerLabel,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+		
 		setTopAnchor(planList,UIConstants.BUTTON_PANEL_HEIGHT);
 		setBottomAnchor(planList,UIConstants.BUTTON_PANEL_HEIGHT);
 		setBottomAnchor(buttons,0.);
-		setLeftAnchor(headerLabel,UIConstants.LIST_PANEL_LEFT_MARGIN);
-		setRightAnchor(headerLabel,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+
 		setLeftAnchor(planList,UIConstants.LIST_PANEL_LEFT_MARGIN);
 		setRightAnchor(planList,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 		setLeftAnchor(buttons,UIConstants.LIST_PANEL_LEFT_MARGIN);

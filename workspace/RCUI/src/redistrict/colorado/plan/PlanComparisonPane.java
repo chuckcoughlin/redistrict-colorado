@@ -20,7 +20,7 @@ import javafx.scene.layout.Priority;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.LayerRole;
 import redistrict.colorado.core.PlanModel;
-import redistrict.colorado.navigation.BasicRightSideNode;
+import redistrict.colorado.pane.BasicRightSideNode;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.GuiUtil;
 import redistrict.colorado.ui.ViewMode;

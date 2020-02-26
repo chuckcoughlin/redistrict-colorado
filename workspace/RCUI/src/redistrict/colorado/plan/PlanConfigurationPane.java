@@ -8,20 +8,15 @@ package redistrict.colorado.plan;
 import java.util.logging.Logger;
 
 import javafx.geometry.HPos;
-import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import javafx.util.Callback;
 import redistrict.colorado.bind.EventBindingHub;
-import redistrict.colorado.core.LayerRole;
 import redistrict.colorado.core.PlanModel;
-import redistrict.colorado.navigation.BasicRightSideNode;
+import redistrict.colorado.pane.BasicRightSideNode;
+import redistrict.colorado.pane.PlanSavePane;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.GuiUtil;
 import redistrict.colorado.ui.UIConstants;
@@ -34,6 +29,8 @@ public class PlanConfigurationPane extends BasicRightSideNode {
 	private final static double COL1_WIDTH = 300.;
 	private final static double COL2_WIDTH = 40.;
 	private static final GuiUtil guiu = new GuiUtil();
+	private Label headerLabel = new Label("Plan Configuration");
+	private final PlanSavePane savePane = new PlanSavePane();
 	private PlanModel model;
 	private final GridPane grid;
 	private final Label nameLabel = new Label("Name: ");
@@ -46,8 +43,14 @@ public class PlanConfigurationPane extends BasicRightSideNode {
 
 	public PlanConfigurationPane() {
 		super(ViewMode.PLAN,DisplayOption.PLAN_CONFIGURATION);
-		//this.model = EventBindingHub.getInstance().getActivePlans();
-        
+		this.model = EventBindingHub.getInstance().getSelectedPlan();
+		
+		headerLabel.getStyleClass().add("list-header-label");
+		getChildren().add(headerLabel);
+		setTopAnchor(headerLabel,0.);
+		setLeftAnchor(headerLabel,UIConstants.LIST_PANEL_LEFT_MARGIN);
+		setRightAnchor(headerLabel,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+		
         nameField = new TextField();
         descriptionField = new TextField();
         //this.table = new TableView<PlanLayer>();
@@ -84,7 +87,17 @@ public class PlanConfigurationPane extends BasicRightSideNode {
 		grid.add(nameLabel,0, 0);
 		grid.add(nameField, 1, 0);
 		grid.add(descriptionLabel, 0, 1);
-		grid.add(descriptionField, 0, 2, 2, 1);
+		grid.add(descriptionField, 1, 1);
+		
+		getChildren().add(grid);
+		setTopAnchor(grid,UIConstants.BUTTON_PANEL_HEIGHT);
+		setLeftAnchor(grid,UIConstants.LIST_PANEL_LEFT_MARGIN);
+		setRightAnchor(grid,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+		
+		getChildren().add(savePane);
+		setLeftAnchor(savePane,UIConstants.LIST_PANEL_LEFT_MARGIN);
+		setRightAnchor(savePane,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+		setBottomAnchor(savePane,0.);
 
 /*
 		setResultConverter(new Callback<ButtonType, PlanModel>() {

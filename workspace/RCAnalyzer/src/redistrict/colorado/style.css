@@ -1,6 +1,7 @@
 /* Stylesheet for MapAnalyzer */
 /* ======== Variables ======= */
 * {
+	-ma-dark-blue:        #2E40CD;
 	-ma-light-background: #FAFAFA;
 }
 /* ======== Core Classes ======= */
@@ -82,7 +83,39 @@
 	-fx-background-color:-ma-light-background;
 	-fx-border-radius: 3;
 }
+#ButtonAnalyze {
+	-fx-background-color: -ma-dark-blue;
+	-fx-font-size: 12pt;
+	-fx-text-fill: white;
+	-fx-font-weight: bold;
+	-fx-alignment: center;
+	-fx-text-alignment: center;
+	-fx-border-radius: 4;
+	-fx-pref-height: 32;
+	-fx-max-height:32;
+}
 #ButtonDelete {
 	 -fx-border-radius: 3;
-	
+}
+#ButtonSave {
+	-fx-background-color: -ma-dark-blue;
+	-fx-font-size: 12pt;
+	-fx-text-fill: white;
+	-fx-font-weight: bold;
+	-fx-alignment: center;
+	-fx-text-alignment: center;
+	-fx-border-radius: 4;
+	-fx-pref-height: 32;
+	-fx-max-height:32;
+}
+#ButtonShapefile {
+	-fx-background-color: darkslategray;
+	-fx-font-size: 12pt;
+	-fx-text-fill: white;
+	-fx-font-weight: bold;
+	-fx-alignment: center;
+	-fx-text-alignment: center;
+	-fx-border-radius: 4;
+	-fx-pref-height: 32;
+	-fx-max-height:32;
 }
