@@ -7,27 +7,28 @@
 package redistrict.colorado.layer;
 import java.io.File;
 import java.util.List;
-import java.util.Optional;
 import java.util.logging.Logger;
 
 import org.geotools.data.shapefile.ShapefileReader;
 import org.openjump.feature.AttributeType;
 
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
 import javafx.scene.control.TableColumn.CellEditEvent;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Popup;
 import javafx.stage.Window;
@@ -41,16 +42,17 @@ import redistrict.colorado.pane.SavePane;
 import redistrict.colorado.ui.ComponentIds;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.GuiUtil;
+import redistrict.colorado.ui.TableCellCallback;
 import redistrict.colorado.ui.UIConstants;
 import redistrict.colorado.ui.ViewMode;
 
-public class LayerConfigurationPane extends BasicRightSideNode implements EventHandler<ActionEvent>{
+public class LayerConfigurationPane extends BasicRightSideNode implements EventHandler<ActionEvent> {
 	private final static String CLSS = "LayerConfigurationPane";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private final static double COL0_WIDTH = 100.;    // margin
 	private final static double COL1_WIDTH = 300.;
 	private final static double COL2_WIDTH = 40.;
-	private final static double 
+	private final static double TABLE_OFFSET_TOP = 200.;
 	private static final GuiUtil guiu = new GuiUtil();
 	private final GridPane grid;
 	private Label headerLabel = new Label("Layer Configuration");
@@ -67,10 +69,16 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 	private LayerModel model;
 	private final ObservableList<FeatureConfiguration> items;
 	private final TableView<FeatureConfiguration> table;
+	private final TableEventHandler cellHandler;
+	
 
 	public LayerConfigurationPane() {
 		super(ViewMode.LAYER,DisplayOption.LAYER_CONFIGURATION);
 		this.model = EventBindingHub.getInstance().getSelectedLayer();
+		this.items = FXCollections.observableArrayList();
+		this.cellHandler = new TableEventHandler();
+
+		
 		LOGGER.info(String.format("%s.CONSTRUCTOR:", CLSS));
 		headerLabel.getStyleClass().add("list-header-label");
 		getChildren().add(headerLabel);
@@ -115,53 +123,73 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 		setLeftAnchor(grid,UIConstants.LIST_PANEL_LEFT_MARGIN);
 		setRightAnchor(grid,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 		
+		table = new TableView<FeatureConfiguration>();
+		table.setEditable(true);
+		table.setPrefSize(UIConstants.FEATURE_TABLE_WIDTH, UIConstants.FEATURE_TABLE_HEIGHT);
+		table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+		TableColumn<FeatureConfiguration,String> column;
+		FCStringValueFactory valueFactory = new FCStringValueFactory();
+		FCStringCellFactory cellFactory = new FCStringCellFactory();
+
+		column = new TableColumn<>("Name");
+		column.setEditable(false);
+		column.setCellValueFactory(valueFactory);
+		table.getColumns().add(column);
+
+		column = new TableColumn<>("Alias");
+		column.setEditable(true);
+		column.setCellFactory(cellFactory);
+		column.setCellValueFactory(valueFactory);
+		column.setOnEditCommit(cellHandler);
+		table.getColumns().add(column);
+
+		column = new TableColumn<>("Type");
+		column.setEditable(true);
+		column.setCellFactory(cellFactory);
+		column.setCellValueFactory(valueFactory);
+		column.setOnEditCommit(cellHandler);
+		table.getColumns().add(column);
+
+		TableColumn<FeatureConfiguration,Boolean> bcol;
+		bcol = new TableColumn<>("Visible");
+		bcol.setEditable(true);
+		bcol.setCellValueFactory(new FCBooleanValueFactory());
+		bcol.setCellFactory(new FCBooleanCellFactory(new BooleanCommitHandler()));
+		table.getColumns().add(bcol);
+
+		TableColumn<FeatureConfiguration,Color> ccol;
+		ccol = new TableColumn<>("Background");
+		ccol.setEditable(true);
+		ccol.setCellFactory(new FCColorCellFactory());
+		ccol.setCellValueFactory(new FCColorValueFactory());
+		ccol.setOnEditCommit(new ColorCommitHandler());
+		table.getColumns().add(ccol);
+
+		column = new TableColumn<>("Rank");
+		column.setEditable(true);
+		column.setCellFactory(cellFactory);
+		column.setCellValueFactory(valueFactory);
+		column.setOnEditCommit(cellHandler);
+		table.getColumns().add(column);
+
+		ScrollPane sp = new ScrollPane(table);
+		sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+		sp.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+
+		getChildren().add(sp);
+		setTopAnchor(sp,TABLE_OFFSET_TOP);
+		setLeftAnchor(sp,UIConstants.LIST_PANEL_LEFT_MARGIN);
+		setRightAnchor(sp,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+		setBottomAnchor(sp,UIConstants.BUTTON_PANEL_HEIGHT);
+		
 		getChildren().add(savePane);
 		setLeftAnchor(savePane,UIConstants.LIST_PANEL_LEFT_MARGIN);
 		setRightAnchor(savePane,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 		setBottomAnchor(savePane,0.);
 		
-		table = new TableView<FeatureConfiguration>();
-		table.setEditable(true);
-		table.setPrefSize(UIConstants.FEATURE_TABLE_WIDTH, UIConstants.FEATURE_TABLE_HEIGHT);
-		table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
-		
-		getChildren().add(table);
-		setTopAnchor(grid,UIConstants.DETAIL_HEADER_SPACING);
-		setLeftAnchor(grid,UIConstants.LIST_PANEL_LEFT_MARGIN);
-		setRightAnchor(grid,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 		configureDefinition();
+		updateFeatures();
 		configureTable();
-       
-        
-/*
-		setResultConverter(new Callback<ButtonType, LayerModel>() {
-			@Override
-			public LayerModel call(ButtonType b) {
-				if (b == buttonOK) {
-					model.setName(nameField.getText());
-					model.setDescription(descriptionField.getText());
-					model.setRole(LayerRole.valueOf(roleChooser.getValue()));
-					// If path changes, re-analyze file
-					if( !model.getShapefilePath().equalsIgnoreCase(pathField.getText())) {
-						model.setShapefilePath(pathField.getText());
-						try {
-							model.setFeatures(ShapefileReader.read(pathField.getText()));
-							LOGGER.info(String.format("%s.onSave: Shapefile has %d records, %d attributes", CLSS,model.getFeatures().getFeatures().size(),model.getFeatures().getFeatureSchema().getAttributeCount()));
-						}
-						catch( Exception ex) {
-							model.setFeatures(null);
-							String msg = String.format("%s.onSave: Failed to parse shapefile %s (%s)",CLSS,model.getShapefilePath(),ex.getLocalizedMessage());
-							LOGGER.warning(msg);
-							EventBindingHub.getInstance().setMessage(msg);
-						}
-						Database.getInstance().getFeatureAttributeTable().synchronizeFeatureAttributes(model.getId(), model.getFeatures().getFeatureSchema().getAttributeNames());
-					}
-					return model;
-				}
-				return null;
-			}
-		});
-		*/
 	}
 	
 	private void configureDefinition() {
@@ -174,20 +202,6 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 	        roleChooser.getSelectionModel().select(model.getRole().name());
 			if( model.getShapefilePath()!=null && !model.getShapefilePath().isEmpty() ) {
 	        	if( model.getFeatures()==null){
-	        		try {
-						model.setFeatures(ShapefileReader.read(model.getShapefilePath()));
-						LOGGER.info(String.format("%s.configureDefinition: Shapefile has %d records, %d attributes", CLSS,model.getFeatures().getFeatures().size(),model.getFeatures().getFeatureSchema().getAttributeCount()));
-						Database.getInstance().getFeatureAttributeTable().synchronizeFeatureAttributes(model.getId(), model.getFeatures().getFeatureSchema().getAttributeNames());
-					}
-					catch( Exception ex) {
-						model.setFeatures(null);
-						String msg = String.format("%s.configureDefinition: Failed to parse shapefile %s (%s)",CLSS,model.getShapefilePath(),ex.getLocalizedMessage());
-						LOGGER.warning(msg);
-						ex.printStackTrace();
-						EventBindingHub.getInstance().setMessage(msg);
-					}
-	        	}
-	        	if( model.getFeatures()==null){
 	        		indicator = new Label("",guiu.loadImage("images/ball_red.png"));
 	        	}
 	        	else {
@@ -198,6 +212,34 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 	}
 	
 	private void configureTable() {	
+        table.setItems(items);
+	}
+
+	/**
+	 * Update the feature list in the model
+	 */
+	private void updateFeatures() {
+		if( model!=null ) {
+			try {
+				model.setFeatures(ShapefileReader.read(model.getShapefilePath()));
+				LOGGER.info(String.format("%s.configureDefinition: Shapefile has %d records, %d attributes", CLSS,model.getFeatures().getFeatures().size(),model.getFeatures().getFeatureSchema().getAttributeCount()));
+			}
+			catch( Exception ex) {
+				model.setFeatures(null);
+				String msg = String.format("%s.configureDefinition: Failed to parse shapefile %s (%s)",CLSS,model.getShapefilePath(),ex.getLocalizedMessage());
+				LOGGER.warning(msg);
+				ex.printStackTrace();
+				EventBindingHub.getInstance().setMessage(msg);
+			}
+
+			if( model.getFeatures()!=null){
+				Database.getInstance().getFeatureAttributeTable().synchronizeFeatureAttributes(model.getId(), model.getFeatures().getFeatureSchema().getAttributeNames());
+				List<FeatureConfiguration> configs = Database.getInstance().getFeatureAttributeTable().getFeatureAttributes(model.getId());
+				for(FeatureConfiguration fc:configs) {
+					items.add(fc);
+				}
+			}
+		}
 	}
 	/**
 	 * Respond to button presses, including "Save"
@@ -214,6 +256,8 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 			if (file != null) {      
 				pathField.setText(file.getAbsolutePath()); 
 			} 
+			updateFeatures();
+			configureTable();
 		}
 		// On a save, update the model object, the database and then the hub.
 		else if( source instanceof Button && ((Button)source).getId().equals(ComponentIds.BUTTON_SAVE)) {
@@ -224,6 +268,9 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 				model.setRole(LayerRole.valueOf(roleChooser.getValue()));
 				Database.getInstance().getLayerTable().updateLayer(model);
 				EventBindingHub.getInstance().setSelectedLayer(model);
+				// Update features in the model
+				Database.getInstance().getFeatureAttributeTable().synchronizeFeatureAttributes(model.getId(), model.getFeatures().getFeatureSchema().getAttributeNames());
+				Database.getInstance().getFeatureAttributeTable().updateFeatureAttributes(items);
 			}
 		}
 
@@ -236,8 +283,8 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 		configureTable();
 		
 	}
-	
-	// ======================================== Event Handler ========================================
+
+	// ================================================= Event Handler ============================================
 	public class TableEventHandler implements EventHandler<TableColumn.CellEditEvent<FeatureConfiguration,String>>  {
 		/**
 		 * The event source is a table column ... A cell edit requires a <ENTER> to complete.
@@ -276,5 +323,29 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 
 		}
 	}
+	public class ColorCommitHandler implements EventHandler<TableColumn.CellEditEvent<FeatureConfiguration,Color>> {
+		@Override
+		public void handle(CellEditEvent<FeatureConfiguration, Color> event) {
+			FeatureConfiguration fc = event.getRowValue();
+			if( event.getTableColumn().getText().equalsIgnoreCase("background")) {
+				LOGGER.info(String.format("%s.handle: color %s",CLSS,event.getNewValue().toString()));
+				fc.setBackground(event.getNewValue());
+			}
+		}
+	}
+	public class BooleanCommitHandler implements TableCellCallback<Boolean> {
+		@Override
+		public void update(String column,int row,Boolean value) {
+			//LOGGER.info(String.format("%s.handle: boolean %s %d = %s",CLSS,column,row,value.toString()));
+			FeatureConfiguration fc = items.get(row);
+			if( column.equalsIgnoreCase("visible")) {
+				fc.setVisible(value.booleanValue());
+			}
+		}
+	}
+
+
+	
+	
 
 }

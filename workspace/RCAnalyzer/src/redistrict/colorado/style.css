@@ -85,21 +85,21 @@
 }
 #ButtonAnalyze {
 	-fx-background-color: -ma-dark-blue;
-	-fx-font-size: 12pt;
+	-fx-font-size: 10pt;
 	-fx-text-fill: white;
 	-fx-font-weight: bold;
 	-fx-alignment: center;
 	-fx-text-alignment: center;
 	-fx-border-radius: 4;
-	-fx-pref-height: 32;
-	-fx-max-height:32;
+	-fx-pref-height: 28;
+	-fx-max-height:28;
 }
 #ButtonDelete {
 	 -fx-border-radius: 3;
 }
 #ButtonSave {
 	-fx-background-color: royalblue;
-	-fx-font-size: 12pt;
+	-fx-font-size: 10pt;
 	-fx-text-fill: white;
 	-fx-font-weight: bold;
 	-fx-alignment: center;

@@ -1,5 +1,5 @@
 /**  
- * Copyright (C) 2019 Charles Coughlin
+ * Copyright (C) 2020 Charles Coughlin
  * 
  * This program is free software; you may redistribute it and/or
  * modify it under the terms of the GNU General Public License.
@@ -30,7 +30,7 @@ public class SavePane extends FlowPane {
 	protected final EventBindingHub hub;
 	private static final double HGAP = 8.;
 	private static final double VGAP = 8.;
-	private static final double LMARGIN = 200.;
+	private static final double LMARGIN = 400.;
 	protected final Button save;
 	protected final GuiUtil guiu = new GuiUtil();
 	

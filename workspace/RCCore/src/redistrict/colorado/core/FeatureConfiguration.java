@@ -78,7 +78,5 @@ public class FeatureConfiguration  {
     public void setBackground(Color color) { this.background= color; }
     public void setVisible(boolean flag) { this.visible.set(flag); }
     public void setRank(int r) { this.rank = r; }
-    
-    //public BooleanProperty visibleProperty() { return visible; }
 
  }
