@@ -9,39 +9,39 @@ package redistrict.colorado.pane;
 
 import java.util.logging.Logger;
 
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.scene.control.Slider;
+import javafx.scene.control.Button;
 import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.Pane;
 import redistrict.colorado.bind.EventBindingHub;
+import redistrict.colorado.ui.ComponentIds;
 import redistrict.colorado.ui.GuiUtil;
 import redistrict.colorado.ui.UIConstants;
 
 /**
- * A navigation pane is shown under the panes on the right-side of the split.
- * This abstract base class sets a common size. It has pan buttons and a zoom
- * slider. 
+ * A save pane is shown under configuration panes on the right-side of the split.
+ * It has a save button.
  */
-public abstract class AbstractNavigationPane extends FlowPane {
-	protected static final String CLSS = "AbstractNavigationPane";
+public class SavePane extends FlowPane {
+	protected static final String CLSS = "SavePane";
 	protected static final Logger LOGGER = Logger.getLogger(CLSS);
 	protected final EventBindingHub hub;
 	private static final double HGAP = 8.;
 	private static final double VGAP = 8.;
-	private static final double LMARGIN = 32.;
-	protected final Slider zoomSlider;
+	private static final double LMARGIN = 200.;
+	protected final Button save;
 	protected final GuiUtil guiu = new GuiUtil();
 	
-	public AbstractNavigationPane() {
+	public SavePane(EventHandler<ActionEvent> handler) {
 		super(Orientation.HORIZONTAL,HGAP,VGAP);
 		this.hub = EventBindingHub.getInstance();
 		this.setPrefHeight(UIConstants.BUTTON_PANEL_HEIGHT);
-		final Pane spacer = new Pane();
-	    spacer.setMinSize(100, 1);
-	    this.getChildren().add(spacer);
-		this.zoomSlider = new Slider();
-		this.getChildren().add(zoomSlider);
-		
-		//setMargin(navigationLabel,new Insets(VGAP,HGAP,VGAP,LMARGIN));
+		this.save = new Button("Save");
+		save.setId(ComponentIds.BUTTON_SAVE);
+		save.setOnAction(handler);
+		this.getChildren().add(save);
+		setMargin(save,new Insets(VGAP,HGAP,VGAP,LMARGIN));
 	}
 }

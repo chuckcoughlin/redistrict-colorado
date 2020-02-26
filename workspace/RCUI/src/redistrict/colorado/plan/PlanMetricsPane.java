@@ -26,7 +26,6 @@ import redistrict.colorado.core.LayerModel;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.layer.FeatureDataFactory;
 import redistrict.colorado.pane.BasicRightSideNode;
-import redistrict.colorado.pane.LayerNavigationPane;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.UIConstants;
 import redistrict.colorado.ui.ViewMode;
@@ -34,7 +33,7 @@ import redistrict.colorado.ui.ViewMode;
 /**
  * Display the shapefile demographic information in table form.
  */
-public class PlanMetricsPane extends BasicRightSideNode {
+public class PlanMetricsPane extends BasicRightSideNode{
 	private final static String CLSS = "PlanMetricsPane";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private LayerModel model;

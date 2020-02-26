@@ -9,12 +9,16 @@ import java.util.logging.Logger;
 
 import org.geotools.data.shapefile.ShapefileReader;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Label;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.LayerModel;
 import redistrict.colorado.pane.BasicRightSideNode;
-import redistrict.colorado.pane.LayerNavigationPane;
+import redistrict.colorado.pane.NavigationPane;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.UIConstants;
 import redistrict.colorado.ui.ViewMode;
@@ -22,10 +26,10 @@ import redistrict.colorado.ui.ViewMode;
 /**
  * Plot a single layer graphically. Parent is an AnchorPane.
  */
-	public class ModelMapPane extends BasicRightSideNode {
+	public class ModelMapPane extends BasicRightSideNode implements EventHandler<ActionEvent>,ChangeListener<Number> {
 		private final static String CLSS = "ModelMapPane";
 		private static Logger LOGGER = Logger.getLogger(CLSS);
-		private final LayerNavigationPane navPane = new LayerNavigationPane();
+		private final NavigationPane navPane = new NavigationPane(this,this);
 		private final Label headerLabel = new Label("Map");
 		private final ModelMapRenderer map;
 		private LayerModel model;
@@ -78,5 +82,23 @@ import redistrict.colorado.ui.ViewMode;
 				}
 				map.updateModel(model);
 			}
+		}
+
+		/**
+		 * The zoom slider has been moved on the navigation pane.
+		 */
+		@Override
+		public void changed(ObservableValue<? extends Number> arg0, Number arg1, Number arg2) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		/**
+		 * An arrow was selected on the navigation pane
+		 */
+		@Override
+		public void handle(ActionEvent arg0) {
+			// TODO Auto-generated method stub
+			
 		}
 }

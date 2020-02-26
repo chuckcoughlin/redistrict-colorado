@@ -98,24 +98,24 @@
 	 -fx-border-radius: 3;
 }
 #ButtonSave {
-	-fx-background-color: -ma-dark-blue;
+	-fx-background-color: royalblue;
 	-fx-font-size: 12pt;
 	-fx-text-fill: white;
 	-fx-font-weight: bold;
 	-fx-alignment: center;
 	-fx-text-alignment: center;
 	-fx-border-radius: 4;
-	-fx-pref-height: 32;
-	-fx-max-height:32;
+	-fx-pref-height: 28;
+	-fx-max-height:28;
 }
 #ButtonShapefile {
-	-fx-background-color: darkslategray;
-	-fx-font-size: 12pt;
+	-fx-background-color: lightslategrey;
+	-fx-font-size: 9pt;
 	-fx-text-fill: white;
 	-fx-font-weight: bold;
 	-fx-alignment: center;
 	-fx-text-alignment: center;
 	-fx-border-radius: 4;
-	-fx-pref-height: 32;
-	-fx-max-height:32;
+	-fx-pref-height: 24;
+	-fx-max-height:24;
 }

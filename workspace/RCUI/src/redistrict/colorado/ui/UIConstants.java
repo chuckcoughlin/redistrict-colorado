@@ -11,6 +11,7 @@ package redistrict.colorado.ui;
  */
 public interface UIConstants {
 	public final static double BUTTON_PANEL_HEIGHT  = 40.;
+	public final static double DETAIL_HEADER_SPACING= 60.;
 	public static final double FEATURE_TABLE_HEIGHT = 600; // Preferred
 	public static final double FEATURE_TABLE_WIDTH  = 600; 
 	public static final double FRAME_HEIGHT = 600; 

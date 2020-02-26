@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 import org.geotools.data.shapefile.ShapefileReader;
 import org.openjump.feature.AttributeType;
 
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
@@ -21,6 +22,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.ColumnConstraints;
@@ -35,7 +37,7 @@ import redistrict.colorado.core.LayerModel;
 import redistrict.colorado.core.LayerRole;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.pane.BasicRightSideNode;
-import redistrict.colorado.pane.LayerSavePane;
+import redistrict.colorado.pane.SavePane;
 import redistrict.colorado.ui.ComponentIds;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.GuiUtil;
@@ -48,10 +50,11 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 	private final static double COL0_WIDTH = 100.;    // margin
 	private final static double COL1_WIDTH = 300.;
 	private final static double COL2_WIDTH = 40.;
+	private final static double 
 	private static final GuiUtil guiu = new GuiUtil();
 	private final GridPane grid;
 	private Label headerLabel = new Label("Layer Configuration");
-	private final LayerSavePane savePane = new LayerSavePane();
+	private final SavePane savePane = new SavePane(this);
 	private final Label nameLabel = new Label("Name: ");
 	private final Label descriptionLabel = new Label("Description: ");
 	private final Button fileButton = new Button("Shapefile: ");
@@ -62,6 +65,8 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 	private final ComboBox<String> roleChooser;
 	private Label indicator;
 	private LayerModel model;
+	private final ObservableList<FeatureConfiguration> items;
+	private final TableView<FeatureConfiguration> table;
 
 	public LayerConfigurationPane() {
 		super(ViewMode.LAYER,DisplayOption.LAYER_CONFIGURATION);
@@ -98,15 +103,15 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 		grid.add(nameLabel,0, 0);
 		grid.add(nameField, 1, 0);
 		grid.add(descriptionLabel, 0, 1);
-		grid.add(descriptionField, 1, 0);
+		grid.add(descriptionField, 1, 1);
 		grid.add(fileButton, 0, 2);
-		grid.add(pathField, 1, 0);
+		grid.add(pathField, 1, 2);
 		grid.add(roleLabel, 0, 3);
 		grid.add(roleChooser, 1, 3);
 		grid.add(indicator, 2, 3);
 		
 		getChildren().add(grid);
-		setTopAnchor(grid,UIConstants.BUTTON_PANEL_HEIGHT);
+		setTopAnchor(grid,UIConstants.DETAIL_HEADER_SPACING);
 		setLeftAnchor(grid,UIConstants.LIST_PANEL_LEFT_MARGIN);
 		setRightAnchor(grid,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 		
@@ -115,6 +120,15 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 		setRightAnchor(savePane,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 		setBottomAnchor(savePane,0.);
 		
+		table = new TableView<FeatureConfiguration>();
+		table.setEditable(true);
+		table.setPrefSize(UIConstants.FEATURE_TABLE_WIDTH, UIConstants.FEATURE_TABLE_HEIGHT);
+		table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+		
+		getChildren().add(table);
+		setTopAnchor(grid,UIConstants.DETAIL_HEADER_SPACING);
+		setLeftAnchor(grid,UIConstants.LIST_PANEL_LEFT_MARGIN);
+		setRightAnchor(grid,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 		configureDefinition();
 		configureTable();
        
@@ -186,12 +200,13 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 	private void configureTable() {	
 	}
 	/**
-	 * Respond to button presses
+	 * Respond to button presses, including "Save"
 	 */
 	@Override
 	public void handle(ActionEvent event) {
 		// Find the file
-		if( event.getSource().equals(fileButton)) {
+		Object source = event.getSource();
+		if( source.equals(fileButton)) {
 			FileChooser fc = new FileChooser();
 			Window window = new Popup();
 			File file = fc.showOpenDialog(window); 
@@ -200,16 +215,17 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 				pathField.setText(file.getAbsolutePath()); 
 			} 
 		}
-		// Configure field headers in the detail table
-		//else if( event.getSource().equals(fieldButton)) {
-			List<FeatureConfiguration> configs = Database.getInstance().getFeatureAttributeTable().getFeatureAttributes(model.getId());
-			Dialog<List<FeatureConfiguration>> dialog = new FAConfigurationDialog(configs);
-            Optional<List<FeatureConfiguration>> result = dialog.showAndWait();
-            if (result.isPresent()) {
-            	boolean success = Database.getInstance().getFeatureAttributeTable().updateFeatureAttributes(configs);
-            	LOGGER.info(String.format("%s.handle: returned from dialog %s", CLSS,(success?"successfully":"with error")));
-            }
-		//}
+		// On a save, update the model object, the database and then the hub.
+		else if( source instanceof Button && ((Button)source).getId().equals(ComponentIds.BUTTON_SAVE)) {
+			if(model!=null) {
+				model.setName(nameField.getText());
+				model.setDescription(descriptionField.getText());
+				model.setShapefilePath(pathField.getText());
+				model.setRole(LayerRole.valueOf(roleChooser.getValue()));
+				Database.getInstance().getLayerTable().updateLayer(model);
+				EventBindingHub.getInstance().setSelectedLayer(model);
+			}
+		}
 
 	}
 	// ====================================== BasicRightSideNode =====================================

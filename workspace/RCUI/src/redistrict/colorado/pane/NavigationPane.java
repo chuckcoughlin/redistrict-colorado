@@ -9,39 +9,42 @@ package redistrict.colorado.pane;
 
 import java.util.logging.Logger;
 
+import javafx.beans.value.ChangeListener;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.scene.control.Button;
+import javafx.scene.control.Slider;
 import javafx.scene.layout.FlowPane;
 import redistrict.colorado.bind.EventBindingHub;
-import redistrict.colorado.ui.ComponentIds;
 import redistrict.colorado.ui.GuiUtil;
 import redistrict.colorado.ui.UIConstants;
 
 /**
- * A save pane is shown under configuration panes on the right-side of the split.
- * This abstract base class sets a common size. It has a save button.
+ * A navigation pane is shown under the panes on the right-side of the split.
+ * This abstract base class sets a common size. It has pan buttons and a zoom
+ * slider. 
  */
-public abstract class AbstractSavePane extends FlowPane {
-	protected static final String CLSS = "AbstractSavePane";
+public class NavigationPane extends FlowPane {
+	protected static final String CLSS = "NavigationPane";
 	protected static final Logger LOGGER = Logger.getLogger(CLSS);
 	protected final EventBindingHub hub;
 	private static final double HGAP = 8.;
 	private static final double VGAP = 8.;
-	private static final double LMARGIN = 32.;
-	protected final Button save;
+	private static final double LMARGIN = 200.;
+	protected final Slider zoomSlider;
 	protected final GuiUtil guiu = new GuiUtil();
 	
-	public AbstractSavePane() {
+	public NavigationPane(EventHandler<ActionEvent> handler,ChangeListener<Number> listener) {
 		super(Orientation.HORIZONTAL,HGAP,VGAP);
 		this.hub = EventBindingHub.getInstance();
 		this.setPrefHeight(UIConstants.BUTTON_PANEL_HEIGHT);
-		//final Pane spacer = new Pane();
-	    //spacer.setMinSize(200, 1);
-	    //this.getChildren().add(spacer);
-		this.save = new Button("Save");
-		save.setId(ComponentIds.BUTTON_SAVE);
-		this.getChildren().add(save);
-		setMargin(save,new Insets(VGAP,HGAP,VGAP,LMARGIN));
+		this.zoomSlider = new Slider();
+		zoomSlider.setMin(0.8);
+		zoomSlider.setMax(10.);
+		zoomSlider.valueProperty().addListener(listener);  // Scale
+		this.getChildren().add(zoomSlider);
+		
+		setMargin(zoomSlider,new Insets(VGAP,HGAP,VGAP,LMARGIN));
 	}
 }

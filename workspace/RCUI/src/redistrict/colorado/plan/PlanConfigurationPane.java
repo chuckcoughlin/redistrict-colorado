@@ -7,6 +7,8 @@
 package redistrict.colorado.plan;
 import java.util.logging.Logger;
 
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -16,13 +18,13 @@ import javafx.scene.layout.Priority;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.pane.BasicRightSideNode;
-import redistrict.colorado.pane.PlanSavePane;
+import redistrict.colorado.pane.SavePane;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.GuiUtil;
 import redistrict.colorado.ui.UIConstants;
 import redistrict.colorado.ui.ViewMode;
 
-public class PlanConfigurationPane extends BasicRightSideNode {
+public class PlanConfigurationPane extends BasicRightSideNode implements EventHandler<ActionEvent> {
 	private final static String CLSS = "PlanConfigurationDialog";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private final static double COL0_WIDTH = 100.;    // margin
@@ -30,7 +32,7 @@ public class PlanConfigurationPane extends BasicRightSideNode {
 	private final static double COL2_WIDTH = 40.;
 	private static final GuiUtil guiu = new GuiUtil();
 	private Label headerLabel = new Label("Plan Configuration");
-	private final PlanSavePane savePane = new PlanSavePane();
+	private final SavePane savePane = new SavePane(this);
 	private PlanModel model;
 	private final GridPane grid;
 	private final Label nameLabel = new Label("Name: ");
@@ -53,24 +55,6 @@ public class PlanConfigurationPane extends BasicRightSideNode {
 		
         nameField = new TextField();
         descriptionField = new TextField();
-        //this.table = new TableView<PlanLayer>();
-
-        /*
-        if( model.getLayers()==null){
-        	try {
-        		model.setFeatures(ShapefileReader.read(model.getShapefilePath()));
-        		LOGGER.info(String.format("%s.onInit: Shapefile has %d records, %d attributes", CLSS,model.getFeatures().getFeatures().size(),model.getFeatures().getFeatureSchema().getAttributeCount()));
-        		Database.getInstance().getFeatureAttributeTable().synchronizeFeatureAttributes(model.getId(), model.getFeatures().getFeatureSchema().getAttributeNames());
-        	}
-        	catch( Exception ex) {
-        		model.setFeatures(null);
-        		String msg = String.format("%s.onInit: Failed to parse shapefile %s (%s)",CLSS,model.getShapefilePath(),ex.getLocalizedMessage());
-        		LOGGER.warning(msg);
-        		ex.printStackTrace();
-        		EventBindingHub.getInstance().setMessage(msg);
-        	}
-        }
-        */
         
         grid = new GridPane();
         grid.setHgap(10);
@@ -90,7 +74,7 @@ public class PlanConfigurationPane extends BasicRightSideNode {
 		grid.add(descriptionField, 1, 1);
 		
 		getChildren().add(grid);
-		setTopAnchor(grid,UIConstants.BUTTON_PANEL_HEIGHT);
+		setTopAnchor(grid,UIConstants.DETAIL_HEADER_SPACING);
 		setLeftAnchor(grid,UIConstants.LIST_PANEL_LEFT_MARGIN);
 		setRightAnchor(grid,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 		
@@ -99,6 +83,22 @@ public class PlanConfigurationPane extends BasicRightSideNode {
 		setRightAnchor(savePane,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 		setBottomAnchor(savePane,0.);
 
+        /*
+        if( model.getLayers()==null){
+        	try {
+        		model.setFeatures(ShapefileReader.read(model.getShapefilePath()));
+        		LOGGER.info(String.format("%s.onInit: Shapefile has %d records, %d attributes", CLSS,model.getFeatures().getFeatures().size(),model.getFeatures().getFeatureSchema().getAttributeCount()));
+        		Database.getInstance().getFeatureAttributeTable().synchronizeFeatureAttributes(model.getId(), model.getFeatures().getFeatureSchema().getAttributeNames());
+        	}
+        	catch( Exception ex) {
+        		model.setFeatures(null);
+        		String msg = String.format("%s.onInit: Failed to parse shapefile %s (%s)",CLSS,model.getShapefilePath(),ex.getLocalizedMessage());
+        		LOGGER.warning(msg);
+        		ex.printStackTrace();
+        		EventBindingHub.getInstance().setMessage(msg);
+        	}
+        }
+        */
 /*
 		setResultConverter(new Callback<ButtonType, PlanModel>() {
 			@Override
@@ -128,4 +128,14 @@ public class PlanConfigurationPane extends BasicRightSideNode {
 		// TODO Auto-generated method stub
 		
 	}
+
+	/**
+	 * "Save" on the embedded pane.
+	 */
+	@Override
+	public void handle(ActionEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+	
 }

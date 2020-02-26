@@ -25,7 +25,6 @@ import redistrict.colorado.core.FeatureConfiguration;
 import redistrict.colorado.core.LayerModel;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.pane.BasicRightSideNode;
-import redistrict.colorado.pane.LayerNavigationPane;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.UIConstants;
 import redistrict.colorado.ui.ViewMode;
