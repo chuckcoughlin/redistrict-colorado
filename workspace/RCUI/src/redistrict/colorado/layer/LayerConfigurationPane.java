@@ -49,9 +49,13 @@ import redistrict.colorado.ui.ViewMode;
 public class LayerConfigurationPane extends BasicRightSideNode implements EventHandler<ActionEvent> {
 	private final static String CLSS = "LayerConfigurationPane";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
-	private final static double COL0_WIDTH = 100.;    // margin
-	private final static double COL1_WIDTH = 300.;
-	private final static double COL2_WIDTH = 40.;
+	private final static double GRID0_WIDTH = 100.;    // Grid widths
+	private final static double GRID1_WIDTH = 300.;
+	private final static double GRID2_WIDTH = 40.;
+	private final static double COL_BOOLEAN_WIDTH = 40.;
+	private final static double COL_COLOR_WIDTH = 100.;
+	private final static double COL_INDEX_WIDTH = 40.;
+	private final static double COL_TEXT_WIDTH = 100.;
 	private final static double TABLE_OFFSET_TOP = 200.;
 	private static final GuiUtil guiu = new GuiUtil();
 	private final GridPane grid;
@@ -100,12 +104,12 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
         grid.setHgap(10);
         grid.setVgap(4);
 		grid.getColumnConstraints().clear();
-		ColumnConstraints col0 = new ColumnConstraints(COL0_WIDTH);
+		ColumnConstraints col0 = new ColumnConstraints(GRID0_WIDTH);
 		col0.setHalignment(HPos.LEFT);
-		ColumnConstraints col1 = new ColumnConstraints(COL1_WIDTH,COL1_WIDTH,Double.MAX_VALUE);
+		ColumnConstraints col1 = new ColumnConstraints(GRID1_WIDTH,GRID1_WIDTH,Double.MAX_VALUE);
 		col1.setHalignment(HPos.LEFT);
 		col1.setHgrow(Priority.ALWAYS);
-		ColumnConstraints col2 = new ColumnConstraints(COL2_WIDTH);
+		ColumnConstraints col2 = new ColumnConstraints(GRID2_WIDTH);
 		col2.setHalignment(HPos.CENTER);
 		grid.getColumnConstraints().addAll(col0,col1,col2); 
 		grid.add(nameLabel,0, 0);
@@ -132,11 +136,13 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 		FCStringCellFactory cellFactory = new FCStringCellFactory();
 
 		column = new TableColumn<>("Name");
+		column.setMinWidth(COL_TEXT_WIDTH);
 		column.setEditable(false);
 		column.setCellValueFactory(valueFactory);
 		table.getColumns().add(column);
 
 		column = new TableColumn<>("Alias");
+		column.setMinWidth(COL_TEXT_WIDTH);
 		column.setEditable(true);
 		column.setCellFactory(cellFactory);
 		column.setCellValueFactory(valueFactory);
@@ -144,6 +150,7 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 		table.getColumns().add(column);
 
 		column = new TableColumn<>("Type");
+		column.setMinWidth(COL_TEXT_WIDTH);
 		column.setEditable(true);
 		column.setCellFactory(cellFactory);
 		column.setCellValueFactory(valueFactory);
@@ -152,6 +159,7 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 
 		TableColumn<FeatureConfiguration,Boolean> bcol;
 		bcol = new TableColumn<>("Visible");
+		bcol.setMinWidth(COL_BOOLEAN_WIDTH);
 		bcol.setEditable(true);
 		bcol.setCellValueFactory(new FCBooleanValueFactory());
 		bcol.setCellFactory(new FCBooleanCellFactory(new BooleanCommitHandler()));
@@ -159,6 +167,7 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 
 		TableColumn<FeatureConfiguration,Color> ccol;
 		ccol = new TableColumn<>("Background");
+		ccol.setMinWidth(COL_COLOR_WIDTH);
 		ccol.setEditable(true);
 		ccol.setCellFactory(new FCColorCellFactory());
 		ccol.setCellValueFactory(new FCColorValueFactory());
@@ -166,21 +175,24 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 		table.getColumns().add(ccol);
 
 		column = new TableColumn<>("Rank");
+		column.setMinWidth(COL_INDEX_WIDTH);
 		column.setEditable(true);
 		column.setCellFactory(cellFactory);
 		column.setCellValueFactory(valueFactory);
 		column.setOnEditCommit(cellHandler);
 		table.getColumns().add(column);
 
+		/*
 		ScrollPane sp = new ScrollPane(table);
 		sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 		sp.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+		*/
 
-		getChildren().add(sp);
-		setTopAnchor(sp,TABLE_OFFSET_TOP);
-		setLeftAnchor(sp,UIConstants.LIST_PANEL_LEFT_MARGIN);
-		setRightAnchor(sp,UIConstants.LIST_PANEL_RIGHT_MARGIN);
-		setBottomAnchor(sp,UIConstants.BUTTON_PANEL_HEIGHT);
+		getChildren().add(table);
+		setTopAnchor(table,TABLE_OFFSET_TOP);
+		setLeftAnchor(table,UIConstants.LIST_PANEL_LEFT_MARGIN);
+		setRightAnchor(table,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+		setBottomAnchor(table,UIConstants.BUTTON_PANEL_HEIGHT);
 		
 		getChildren().add(savePane);
 		setLeftAnchor(savePane,UIConstants.LIST_PANEL_LEFT_MARGIN);
@@ -280,6 +292,7 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 	public void updateModel() {
 		this.model = EventBindingHub.getInstance().getSelectedLayer();
 		configureDefinition();
+		updateFeatures();
 		configureTable();
 		
 	}

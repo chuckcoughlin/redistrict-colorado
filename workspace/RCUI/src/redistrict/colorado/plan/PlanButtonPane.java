@@ -68,7 +68,7 @@ public class PlanButtonPane extends FlowPane implements EventSource<ActionEvent>
 		this.getChildren().add(addButton);
 		this.getChildren().add(deleteButton);
 		final Pane spacer = new Pane();
-	    spacer.setMinSize(400, 1);
+	    spacer.setMinSize(300, 1);
 	    this.getChildren().add(spacer);
 		this.getChildren().add(analyzeButton);
 		
