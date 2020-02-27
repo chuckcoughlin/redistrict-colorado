@@ -97,6 +97,9 @@
 #ButtonDelete {
 	 -fx-border-radius: 3;
 }
+#ButtonDown {
+	 fx-background-color:-ma-light-background;
+}
 #ButtonSave {
 	-fx-background-color: royalblue;
 	-fx-font-size: 10pt;

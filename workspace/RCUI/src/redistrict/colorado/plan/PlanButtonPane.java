@@ -16,7 +16,7 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import redistrict.colorado.bind.BasicEventDispatchChain;
 import redistrict.colorado.bind.BasicEventDispatcher;
@@ -30,13 +30,10 @@ import redistrict.colorado.ui.UIConstants;
  * 
  * We provide a method to enable/disable the delete button.
  */
-public class PlanButtonPane extends FlowPane implements EventSource<ActionEvent> {
+public class PlanButtonPane extends AnchorPane implements EventSource<ActionEvent> {
 	private static final String CLSS = "ButtonPane";
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
-	
-	private static final double HGAP = 8.;
-	private static final double VGAP = 8.;
-	private static final double LMARGIN = 32.;
+	private static final double HGAP = 6.;
 	private final Button addButton;
 	private final Button analyzeButton;
 	private final Button deleteButton;
@@ -45,7 +42,6 @@ public class PlanButtonPane extends FlowPane implements EventSource<ActionEvent>
 	private final BasicEventDispatchChain<ActionEvent> eventChain;
 	
 	public PlanButtonPane() {
-		super(Orientation.HORIZONTAL,HGAP,VGAP);
 		this.setPrefHeight(UIConstants.BUTTON_PANEL_HEIGHT);
 		this.eventHandler = new ButtonPaneEventHandler();
 		this.eventChain   = new BasicEventDispatchChain<ActionEvent>();
@@ -67,12 +63,14 @@ public class PlanButtonPane extends FlowPane implements EventSource<ActionEvent>
 
 		this.getChildren().add(addButton);
 		this.getChildren().add(deleteButton);
-		final Pane spacer = new Pane();
-	    spacer.setMinSize(300, 1);
-	    this.getChildren().add(spacer);
 		this.getChildren().add(analyzeButton);
 		
-		setMargin(addButton,new Insets(VGAP,HGAP,VGAP,LMARGIN));
+		setTopAnchor(addButton,HGAP);
+		setTopAnchor(deleteButton,HGAP);
+		setTopAnchor(analyzeButton,HGAP);
+		setLeftAnchor(addButton,UIConstants.BUTTON_PANEL_HEIGHT);
+		setLeftAnchor(deleteButton,2*UIConstants.BUTTON_PANEL_HEIGHT);
+		setRightAnchor(analyzeButton,UIConstants.BUTTON_PANEL_HEIGHT);
 	}
 	
 	public void setAnalyzeDisabled(boolean flag) { analyzeButton.setDisable(flag); }

@@ -1,12 +1,11 @@
 /**  
- * Copyright (C) 2019 Charles Coughlin
+ * Copyright (C) 2019 Charles CoayerModelughlin
  * 
  * This program is free software; you may redistribute it and/or
  * modify it under the terms of the GNU General Public License.
  */
 package redistrict.colorado.layer;
 
-import java.util.Optional;
 import java.util.logging.Logger;
 
 import javafx.beans.value.ChangeListener;
@@ -15,7 +14,6 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.Toggle;
@@ -28,7 +26,6 @@ import javafx.scene.layout.RowConstraints;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.bind.LeftSelectionEvent;
 import redistrict.colorado.core.LayerModel;
-import redistrict.colorado.db.Database;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.GuiUtil;
 import redistrict.colorado.ui.UIConstants;
@@ -50,6 +47,7 @@ public class LayerRow extends ListCell<LayerModel> implements ChangeListener<Tog
 	private final static String MAP_DATA = "map";
 	private final static String DETAIL_DATA = "detail";
 	private GridPane grid = new GridPane();
+	private long id = -1;      // model identifier
     private final Label tag;   // Identifies the pane class
     private final Label name;
     private final Label description;
@@ -60,9 +58,12 @@ public class LayerRow extends ListCell<LayerModel> implements ChangeListener<Tog
     private final ToggleButton detailButton;
     private final ToggleGroup toggleGroup;
     private final EditEventHandler handler;
+    private final LayerChangeListener listener;
     
 	public LayerRow() {
 		handler = new EditEventHandler();
+		listener= new LayerChangeListener();
+		EventBindingHub.getInstance().addLayerListener(listener);
 		setPrefWidth(UIConstants.LIST_PANEL_WIDTH);
 		tag = new Label("",guiu.loadImage("images/layers.png"));
 		name = new Label();
@@ -143,6 +144,7 @@ public class LayerRow extends ListCell<LayerModel> implements ChangeListener<Tog
  
     private void setContent(LayerModel model) {
         setText(null);
+        id = model.getId();
         name.setText(model.getName());
         description.setText(model.getDescription());
         shapefilePath.setText(model.getShapefilePath());
@@ -187,6 +189,20 @@ public class LayerRow extends ListCell<LayerModel> implements ChangeListener<Tog
 				EventBindingHub.getInstance().setLeftSideSelection(new LeftSelectionEvent(ViewMode.LAYER,DisplayOption.MODEL_DETAIL));
 			}
 			//LOGGER.info(String.format("%s.changed: toggle button = %s", CLSS,data.toString()));
+		}
+	}
+	
+	public class LayerChangeListener implements ChangeListener<LayerModel> {
+
+		@Override
+		public void changed(ObservableValue<? extends LayerModel> value, LayerModel oldModel, LayerModel newModel) {
+			LOGGER.info(String.format("%s.changed: layer %s", CLSS,newModel.getName()));
+			if(newModel.getId()==id) {
+				name.setText(name.getText());
+				description.setText(newModel.getDescription());
+				shapefilePath.setText(newModel.getShapefilePath());
+				role.setText(newModel.getRole().name());
+			}
 		}
 	}
 }

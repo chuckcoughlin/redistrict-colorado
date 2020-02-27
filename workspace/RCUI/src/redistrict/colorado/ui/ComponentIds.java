@@ -15,8 +15,12 @@ public interface ComponentIds {
 	public final static String BUTTON_ADD 		= "ButtonAdd";
 	public final static String BUTTON_ANALYZE   = "ButtonAnalyze";
 	public final static String BUTTON_DELETE 	= "ButtonDelete";
+	public final static String BUTTON_DOWN	 	= "ButtonDown";
+	public final static String BUTTON_LEFT	 	= "ButtonLeft";
+	public final static String BUTTON_RIGHT 	= "ButtonRight";
 	public final static String BUTTON_SAVE  	= "ButtonSave";
 	public final static String BUTTON_SHAPEFILE = "ButtonShapefile";
+	public final static String BUTTON_UP 		= "ButtonUp";
 	public final static String MENU_DISTRICT 	= "MenuDistrict";
 	public final static String MENU_LAYER 	    = "MenuLayer";
 	public final static String MENU_PLAN	    = "MenuPlan";	

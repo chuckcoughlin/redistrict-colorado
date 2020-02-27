@@ -66,7 +66,8 @@ import redistrict.colorado.ui.ViewMode;
 		public void updateModel() {
 			LayerModel selectedModel = hub.getSelectedLayer();
 			if( selectedModel!=null) {
-				model = selectedModel;;
+				model = selectedModel;
+				headerLabel.setText(model.getName());
 				LOGGER.info(String.format("%s.updateModel: selected = %s", CLSS,model.getName()));
 				if( model.getFeatures()==null ) {
 					try {
