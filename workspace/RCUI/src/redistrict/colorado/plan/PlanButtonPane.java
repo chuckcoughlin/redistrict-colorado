@@ -11,13 +11,10 @@ import java.util.logging.Logger;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Pane;
 import redistrict.colorado.bind.BasicEventDispatchChain;
 import redistrict.colorado.bind.BasicEventDispatcher;
 import redistrict.colorado.bind.EventSource;

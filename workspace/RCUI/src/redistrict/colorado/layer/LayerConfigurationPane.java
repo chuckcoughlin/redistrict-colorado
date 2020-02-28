@@ -20,7 +20,6 @@ import javafx.geometry.HPos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
@@ -82,8 +81,6 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 		this.items = FXCollections.observableArrayList();
 		this.cellHandler = new TableEventHandler();
 
-		
-		LOGGER.info(String.format("%s.CONSTRUCTOR:", CLSS));
 		headerLabel.getStyleClass().add("list-header-label");
 		getChildren().add(headerLabel);
 		setTopAnchor(headerLabel,0.);
@@ -182,12 +179,6 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 		column.setOnEditCommit(cellHandler);
 		table.getColumns().add(column);
 
-		/*
-		ScrollPane sp = new ScrollPane(table);
-		sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-		sp.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-		*/
-
 		getChildren().add(table);
 		setTopAnchor(table,TABLE_OFFSET_TOP);
 		setLeftAnchor(table,UIConstants.LIST_PANEL_LEFT_MARGIN);
@@ -279,10 +270,12 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 				model.setShapefilePath(pathField.getText());
 				model.setRole(LayerRole.valueOf(roleChooser.getValue()));
 				Database.getInstance().getLayerTable().updateLayer(model);
-				EventBindingHub.getInstance().setSelectedLayer(model);
+				
 				// Update features in the model
 				Database.getInstance().getFeatureAttributeTable().synchronizeFeatureAttributes(model.getId(), model.getFeatures().getFeatureSchema().getAttributeNames());
 				Database.getInstance().getFeatureAttributeTable().updateFeatureAttributes(items);
+				EventBindingHub.getInstance().unselectLayer();     // Force fire
+				EventBindingHub.getInstance().setSelectedLayer(model);
 			}
 		}
 

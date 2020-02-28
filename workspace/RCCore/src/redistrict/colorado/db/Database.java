@@ -33,6 +33,7 @@ public class Database {
 	private static Database instance = null;
 	private final AttributeAliasTable attributeAliasTable;
 	private final FeatureAttributeTable featureAttributeTable;
+	private final PlanLayerTable planLayerTable;
 	private final LayerTable layerTable;
 	private final PlanTable planTable;
 
@@ -42,6 +43,7 @@ public class Database {
 	private Database() {
 		this.attributeAliasTable = new AttributeAliasTable();
 		this.featureAttributeTable = new FeatureAttributeTable();
+		this.planLayerTable = new PlanLayerTable();
 		this.layerTable = new LayerTable();
 		this.planTable = new PlanTable();
 	}
@@ -59,6 +61,7 @@ public class Database {
 	public boolean isConnected() { return connection!=null; }
 	public AttributeAliasTable getAttributeAliasTable() { return this.attributeAliasTable; }
 	public FeatureAttributeTable getFeatureAttributeTable() { return this.featureAttributeTable; }
+	public PlanLayerTable getPlanLayerTable() { return this.planLayerTable; }
 	public LayerTable getLayerTable() { return this.layerTable; }
 	public PlanTable getPlanTable() { return this.planTable; }
 	
@@ -78,6 +81,7 @@ public class Database {
 			connection = DriverManager.getConnection(connectPath);
 			attributeAliasTable.setConnection(connection);
 			featureAttributeTable.setConnection(connection);
+			planLayerTable.setConnection(connection);
 			layerTable.setConnection(connection);
 			planTable.setConnection(connection);
 			

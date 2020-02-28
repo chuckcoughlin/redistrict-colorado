@@ -45,7 +45,7 @@ public class BooleanTableCell<T> extends TableCell<T, Boolean> {
 	public class BooleanListener implements ChangeListener<Boolean>  {
 		@Override
 		public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-			LOGGER.info(String.format("%s.changed: %s", CLSS,newValue.toString()));
+			//LOGGER.info(String.format("%s.changed: %s", CLSS,newValue.toString()));
 			commitEdit(newValue);
 			int row = getTableRow().getIndex();
 			callback.update(name, row, newValue);

@@ -40,6 +40,7 @@ public class PlanLayer  {
     private static final long serialVersionUID = -871137208054228529L;
     private final long layerId; // Layer ID
     private final long planId; // Layer ID
+    private String name;       // Layer name
     private LayerRole role;  // Role of layer within the plan
 
     /**
@@ -50,14 +51,17 @@ public class PlanLayer  {
     public PlanLayer(long pid,long lid) {
     	this.planId = pid;
         this.layerId = lid;
+        this.name = "";
         this.role = LayerRole.BOUNDARIES;
     }
     
 
     public long getLayerId() { return this.layerId; }
     public long getPlanId() { return this.planId; }
+    public String getName()  { return this.name; }
     public LayerRole getRole()  { return this.role; }
 
+    public void setName(String nam) { this.name = nam; }
     public void setRole(LayerRole r) { this.role = r; }
 
  }

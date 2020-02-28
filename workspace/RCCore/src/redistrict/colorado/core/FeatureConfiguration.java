@@ -40,7 +40,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.paint.Color;
 
 /**
- *  Hold attributes for display corresponding to a layer Feature. 
+ *  Hold attributes for display of feature attributes. 
  */
 public class FeatureConfiguration  {
     private static final long serialVersionUID = -871137208054228529L;
@@ -53,7 +53,8 @@ public class FeatureConfiguration  {
     private int rank;
 
     /**
-     * Constructs a feature configuration that determines how to illustrate a layer feature.
+     * Constructs a configuration that determines how to illustrate 
+     * attributes of a layer feature.
      */
     public FeatureConfiguration(long id,String nm) {
         this.layerId = id;
