@@ -133,13 +133,15 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 		FCStringCellFactory cellFactory = new FCStringCellFactory();
 
 		column = new TableColumn<>("Name");
-		column.setMinWidth(COL_TEXT_WIDTH);
+		column.prefWidthProperty().bind(table.widthProperty().multiply(0.2));
+        column.setResizable(true);
 		column.setEditable(false);
 		column.setCellValueFactory(valueFactory);
 		table.getColumns().add(column);
 
 		column = new TableColumn<>("Alias");
-		column.setMinWidth(COL_TEXT_WIDTH);
+		column.prefWidthProperty().bind(table.widthProperty().multiply(0.2));
+        column.setResizable(true);
 		column.setEditable(true);
 		column.setCellFactory(cellFactory);
 		column.setCellValueFactory(valueFactory);
@@ -147,7 +149,8 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 		table.getColumns().add(column);
 
 		column = new TableColumn<>("Type");
-		column.setMinWidth(COL_TEXT_WIDTH);
+		column.prefWidthProperty().bind(table.widthProperty().multiply(0.2));
+        column.setResizable(true);
 		column.setEditable(true);
 		column.setCellFactory(cellFactory);
 		column.setCellValueFactory(valueFactory);
@@ -156,7 +159,8 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 
 		TableColumn<FeatureConfiguration,Boolean> bcol;
 		bcol = new TableColumn<>("Visible");
-		bcol.setMinWidth(COL_BOOLEAN_WIDTH);
+		bcol.prefWidthProperty().bind(table.widthProperty().multiply(0.1));
+		bcol.setResizable(true);
 		bcol.setEditable(true);
 		bcol.setCellValueFactory(new FCBooleanValueFactory());
 		bcol.setCellFactory(new FCBooleanCellFactory(new BooleanCommitHandler()));
@@ -164,7 +168,8 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 
 		TableColumn<FeatureConfiguration,Color> ccol;
 		ccol = new TableColumn<>("Background");
-		ccol.setMinWidth(COL_COLOR_WIDTH);
+		ccol.prefWidthProperty().bind(table.widthProperty().multiply(0.2));
+		ccol.setResizable(true);
 		ccol.setEditable(true);
 		ccol.setCellFactory(new FCColorCellFactory());
 		ccol.setCellValueFactory(new FCColorValueFactory());
@@ -172,7 +177,8 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 		table.getColumns().add(ccol);
 
 		column = new TableColumn<>("Rank");
-		column.setMinWidth(COL_INDEX_WIDTH);
+		column.prefWidthProperty().bind(table.widthProperty().multiply(0.1));
+        column.setResizable(true);
 		column.setEditable(true);
 		column.setCellFactory(cellFactory);
 		column.setCellValueFactory(valueFactory);
@@ -219,7 +225,7 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 	}
 
 	/**
-	 * Update the feature list in the model
+	 * Update the table feature list from the model. If the model has no features, read them from the shapefile.
 	 */
 	private void updateFeatures() {
 		if( model!=null ) {

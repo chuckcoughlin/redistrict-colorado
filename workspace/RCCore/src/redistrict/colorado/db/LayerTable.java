@@ -117,7 +117,7 @@ public class LayerTable {
 				catch(IllegalArgumentException ignore) {}
 				model.setRole(role);
 				list.add(model);
-				LOGGER.info(String.format("%s.getLayers %d: %s is %s",CLSS,model.getId(),model.getName(),model.getRole().name()));
+				//LOGGER.info(String.format("%s.getLayers %d: %s is %s",CLSS,model.getId(),model.getName(),model.getRole().name()));
 			}
 			rs.close();
 		}

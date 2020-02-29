@@ -8,6 +8,8 @@ package redistrict.colorado.plan;
 
 import java.util.logging.Logger;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -22,6 +24,7 @@ import javafx.scene.layout.RowConstraints;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.bind.LeftSelectionEvent;
 import redistrict.colorado.core.PlanModel;
+import redistrict.colorado.db.Database;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.GuiUtil;
 import redistrict.colorado.ui.UIConstants;
@@ -44,6 +47,7 @@ public class PlanRow extends ListCell<PlanModel>  {
 	private final static String EDIT = "edit";
 	private final static String ACTIVE = "active";
 	private GridPane grid = new GridPane();
+	private long id = -1;      // model identifier
     private final Label tag;   // Identifies the pane class
     private final Label name;
     private final Label description;
@@ -51,9 +55,12 @@ public class PlanRow extends ListCell<PlanModel>  {
     private final Button edit;
     private final Button metrics;
     private final EditEventHandler handler;
+    private final PlanChangeListener listener;
     
 	public PlanRow() {
 		handler = new EditEventHandler();
+		listener= new PlanChangeListener();
+		EventBindingHub.getInstance().addPlanListener(listener);
 		setPrefWidth(UIConstants.LIST_PANEL_WIDTH);
 		tag = new Label("",guiu.loadImage("images/plans.png"));
 		name = new Label();
@@ -128,6 +135,7 @@ public class PlanRow extends ListCell<PlanModel>  {
  
     private void setContent(PlanModel model) {
         setText(null);
+        id = model.getId();
         name.setText(model.getName());
         description.setText(model.getDescription());
         active.setSelected(model.isActive());      
@@ -145,19 +153,39 @@ public class PlanRow extends ListCell<PlanModel>  {
     			Button source = (Button)e.getSource();
     			data = source.getUserData().toString();
     		}
-    		LOGGER.info(String.format("%s.handle: processing event from %s", CLSS,data));
+
     		EventBindingHub hub = EventBindingHub.getInstance();
     		PlanModel model = getItem();
-            hub.setSelectedPlan(model);
-            if( data.equals(METRICS)) {
-            	hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.PLAN_METRICS));
-            }
-            else if( data.equals(EDIT)) {
-            	hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.PLAN_CONFIGURATION));
-            }
-            else if( data.equals(ACTIVE)) {
-            	model.setActive(active.isSelected());
-            }
+    		hub.setSelectedPlan(model);
+    		LOGGER.info(String.format("%s.handle: processing event from %s (%s)", CLSS,data,model.getName()));
+    		if( data.equals(METRICS)) {
+    			hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.PLAN_METRICS));
+    		}
+    		else if( data.equals(EDIT)) {
+    			if(model!=null ) {
+    				LOGGER.info(String.format("%s.changed: name = %s",CLSS,model.getName()));
+    				name.setText(model.getName());
+    				description.setText(model.getDescription());
+    			}
+    			hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.PLAN_CONFIGURATION));
+    		}
+    		else if( data.equals(ACTIVE)) {
+    			model.setActive(active.isSelected());
+    			Database.getInstance().getPlanTable().updatePlan(model);
+    			hub.unselectPlan();   // Trigger a change for listeners.
+    			hub.setSelectedPlan(model);
+    		}
     	}
     }
+    
+	public class PlanChangeListener implements ChangeListener<PlanModel> {
+		@Override
+		public void changed(ObservableValue<? extends PlanModel> source, PlanModel oldModel, PlanModel newModel) {
+			if(newModel!=null && newModel.getId()==id) {
+				//LOGGER.info(String.format("%s.changed: name = %s",CLSS,newModel.getName()));
+				name.setText(newModel.getName());
+				description.setText(newModel.getDescription());
+			}
+		}
+	}
 }

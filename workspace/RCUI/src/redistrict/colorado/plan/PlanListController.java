@@ -5,7 +5,6 @@
  * modify it under the terms of the GNU General Public License.
  */
 package redistrict.colorado.plan;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -62,7 +61,6 @@ public class PlanListController extends AnchorPane
 		setRightAnchor(buttons,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 		
 		buttons.setDeleteDisabled(true);
-		buttons.setAnalyzeDisabled(true);
 		buttons.registerEventReceiver(this.auxEventDispatcher);
 		updateUIFromDatabase();
 	}
@@ -93,15 +91,6 @@ public class PlanListController extends AnchorPane
 					updateUIFromDatabase();
 				}
 			}
-			// Compare the selected models for fairness
-			else if( id.equalsIgnoreCase(ComponentIds.BUTTON_ANALYZE)) {
-				List<PlanModel> plans = new ArrayList<>();
-				for(PlanModel model:planList.getItems()) {
-					if(model.isActive()) plans.add(model);
-				}
-				hub.setActivePlans(plans);
-				// TODO: Trigger panel
-			}
 		}
 	}
 	/**
@@ -115,18 +104,15 @@ public class PlanListController extends AnchorPane
 		
 		List<PlanModel> plans = Database.getInstance().getPlanTable().getPlans();
 		planList.getItems().clear();
-		boolean hasActive = false;
 		for(PlanModel model:plans) {
 			planList.getItems().add(model);
 			if( model.getId()==selectedId) selectedModel = model;
-			if( model.isActive()) hasActive = true;
 		}
 		buttons.setDeleteDisabled(selectedModel==null);
-		buttons.setAnalyzeDisabled(!hasActive);
 	}
 
 	/**
-	 * Listen for changes to the selected layer based on actions in the list.
+	 * Listen for changes to the selected plan based on actions in the list.
 	 */
 	@Override
 	public void changed(ObservableValue<? extends PlanModel> source, PlanModel oldValue, PlanModel newValue) {

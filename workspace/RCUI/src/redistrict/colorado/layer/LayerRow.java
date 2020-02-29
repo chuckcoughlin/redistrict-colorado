@@ -192,10 +192,9 @@ public class LayerRow extends ListCell<LayerModel> implements ChangeListener<Tog
 		}
 	}
 	
-	// Unfortunately these updates don't refresh the screen. It all happens once the component gains/loses focus.
 	public class LayerChangeListener implements ChangeListener<LayerModel> {
 		@Override
-		public void changed(ObservableValue<? extends LayerModel> value, LayerModel oldModel, LayerModel newModel) {
+		public void changed(ObservableValue<? extends LayerModel> source, LayerModel oldModel, LayerModel newModel) {
 			if(newModel!=null && newModel.getId()==id) {
 				//LOGGER.info(String.format("%s.changed: name = %s",CLSS,newModel.getName()));
 				name.setText(newModel.getName());

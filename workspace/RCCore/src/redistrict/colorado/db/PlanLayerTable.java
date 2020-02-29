@@ -23,6 +23,7 @@ import javafx.scene.paint.Color;
 import redistrict.colorado.core.FeatureConfiguration;
 import redistrict.colorado.core.LayerRole;
 import redistrict.colorado.core.PlanLayer;
+import redistrict.colorado.core.PlanModel;
 
 /**
  * The FeatureAttribute table keeps track of the features associated with a given layer.
@@ -88,6 +89,30 @@ public class PlanLayerTable {
 		return success;
 	}
 	/**
+	 * Delete all layers for a given plan
+	 */
+	public boolean deletePlanLayers(long planId) {
+		PreparedStatement statement = null;
+		String SQL = "DELETE FROM PlanLayer WHERE planId= ?";
+		boolean success = false;
+		try {
+			LOGGER.info(String.format("%s.deletePlanLayer: \n%s",CLSS,SQL));
+			statement = cxn.prepareStatement(SQL);
+			statement.setLong(1, planId);
+			statement.executeUpdate();
+			if( statement.getUpdateCount()>0) success = true;
+		}
+		catch(SQLException e) {
+			LOGGER.severe(String.format("%s.deletePlanLayer: error (%s)",CLSS,e.getMessage()));
+		}
+		finally {
+			if( statement!=null) {
+				try { statement.close(); } catch(SQLException ignore) {}
+			}
+		}
+		return success;
+	}
+	/**
 	 * @return a list of roles for layers used by the specified plan. There may be none.
 	 */
 	public List<PlanLayer> getLayerRoles(long planId) {
@@ -97,7 +122,7 @@ public class PlanLayerTable {
 		ResultSet rs = null;
 		String SQL = "SELECT Layer.id as id,Layer.name as name,PlanLayer.role as role from Layer,PlanLayer "+
 					" WHERE PlanLayer.planId=? "+
-					"   AND PlanLayer.layerId = Layer.layerId ORDER BY name";
+					"   AND PlanLayer.layerId = Layer.id ORDER BY name";
 		try {
 			statement = cxn.prepareStatement(SQL);
 			statement.setLong(1, planId);
@@ -112,6 +137,7 @@ public class PlanLayerTable {
 				}
 				catch(IllegalArgumentException ignore) {}
 				planLayer.setRole(role);
+				LOGGER.info(String.format("%s.getLayerRoles: %d %d %s %s",CLSS,planId,planLayer.getLayerId(),planLayer.getName(),planLayer.getRole().name()));
 				list.add(planLayer);	
 			}
 			rs.close();
@@ -119,7 +145,7 @@ public class PlanLayerTable {
 		catch(SQLException e) {
 			// if the error message is "out of memory", 
 			// it probably means no database file is found
-			LOGGER.severe(String.format("%s.getFeatureAttributes: Error (%s)",CLSS,e.getMessage()));
+			LOGGER.severe(String.format("%s.getLayerRoles: Error %s (%s)",CLSS,SQL,e.getMessage()));
 		}
 		finally {
 			if( rs!=null) {
@@ -172,32 +198,17 @@ public class PlanLayerTable {
 	}
 	
 	/**
-	 * Create or delete layer references as necessary in the plan layer table so that
-	 * the entries accurately reflect the currently defined layers.
+	 * Clear the database of plan layers for the specified model, then re-create.
 	 * @cxn an open database connection
 	 * @param layerId the layer id
 	 */
-	public void synchronizePlanLayers(long planId) {
-		LOGGER.info(String.format("%s.synchronizePlanLayers: plan %d",CLSS,planId));
-		// Make a dictionary of plan layers per database
-		Map<Long,PlanLayer> layerMap = new HashMap<>();
-		List<PlanLayer> list = getLayerRoles(planId);
-		for(PlanLayer planLayer: list) {
-			layerMap.put(planLayer.getLayerId(), planLayer);
-		}
-		// Delete any layers not in the collection
-		for(Long key:layerMap.keySet()) {
-			if(!list.contains(key)) {
-				LOGGER.info(String.format("%s.synchronizePlanLayers: delete layer %d, %s",CLSS,key));
-				deletePlanLayer(planId,key);
-			}
-		}
-		// Create database entries for new layers
-		for(PlanLayer planLayer:list) {
-			if(!layerMap.containsKey(planLayer.getLayerId())) {
-				LOGGER.info(String.format("%s.synchronizeFeatureAttributes: create layer %d, %s",CLSS,planLayer.getLayerId()));
-				createPlanLayer(planId,planLayer.getLayerId(),LayerRole.NONE);
-			}
+	public void synchronizePlanLayers(PlanModel model) {
+		LOGGER.info(String.format("%s.synchronizePlanLayers: plan %d",CLSS,model.getId()));
+		// Delete any layers currently associated with the plan
+		deletePlanLayers(model.getId());
+		// Create database entries for layers in the mpodel's list
+		for(PlanLayer planLayer:model.getLayers()) {
+			createPlanLayer(model.getId(),planLayer.getLayerId(),planLayer.getRole());
 		}
 	}
 	/**

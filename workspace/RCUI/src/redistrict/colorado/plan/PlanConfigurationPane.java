@@ -8,8 +8,6 @@ package redistrict.colorado.plan;
 import java.util.List;
 import java.util.logging.Logger;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -25,7 +23,6 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import redistrict.colorado.bind.EventBindingHub;
-import redistrict.colorado.core.LayerModel;
 import redistrict.colorado.core.LayerRole;
 import redistrict.colorado.core.PlanLayer;
 import redistrict.colorado.core.PlanModel;
@@ -57,7 +54,7 @@ public class PlanConfigurationPane extends BasicRightSideNode
 
 	private final TextField nameField;
 	private final TextField descriptionField;
-	private final ObservableList<PlanLayer> items;
+	private final ObservableList<PlanLayer> items;  // Array displayed in table
 	private final TableView<PlanLayer> table;
 	private final TableEventHandler cellHandler;
 
@@ -108,13 +105,15 @@ public class PlanConfigurationPane extends BasicRightSideNode
 		PLStringCellFactory cellFactory = new PLStringCellFactory();
 
 		column = new TableColumn<>("Name");
-		column.setMinWidth(COL_TEXT_WIDTH);
+		column.prefWidthProperty().bind(table.widthProperty().multiply(0.7));
+        column.setResizable(true);
 		column.setEditable(false);
 		column.setCellValueFactory(valueFactory);
 		table.getColumns().add(column);
 
 		column = new TableColumn<>("Role");
-		column.setMinWidth(COL_TEXT_WIDTH);
+		column.prefWidthProperty().bind(table.widthProperty().multiply(0.3));
+        column.setResizable(true);
 		column.setEditable(true);
 		column.setCellFactory(cellFactory);
 		column.setCellValueFactory(valueFactory);
@@ -130,7 +129,6 @@ public class PlanConfigurationPane extends BasicRightSideNode
 		setLeftAnchor(savePane,UIConstants.LIST_PANEL_LEFT_MARGIN);
 		setRightAnchor(savePane,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 		setBottomAnchor(savePane,0.);
-
        
 		configureDefinition();
 		updateLayers();
@@ -144,13 +142,17 @@ public class PlanConfigurationPane extends BasicRightSideNode
 		}
 	}
 	/**
-	 * The table holds a list of all defined layers.
+	 * Update the table layer list from the model. If the model has no layers, read them from the database.
 	 */
 	private void updateLayers() {
 		if( model!=null ) {
+			items.clear();
 			try {
 				model.setLayers(Database.getInstance().getPlanLayerTable().getLayerRoles(model.getId()));
 				LOGGER.info(String.format("%s.updateLayers: There are %d layer definitions", CLSS,model.getLayers().size()));
+				for(PlanLayer player:model.getLayers()) {
+					items.add(player);
+				}
 			}
 			catch( Exception ex) {
 				model.setLayers(null);
@@ -159,12 +161,10 @@ public class PlanConfigurationPane extends BasicRightSideNode
 				ex.printStackTrace();
 				EventBindingHub.getInstance().setMessage(msg);
 			}
-
-			if( model.getLayers()!=null){
-				List<PlanLayer> configs = Database.getInstance().getPlanLayerTable().getUnusedLayerRoles(model.getId());
-				for(PlanLayer fc:configs) {
-					items.add(fc);
-				}
+			// For purposes of the table, append layers not part of the model.
+			List<PlanLayer> unused = Database.getInstance().getPlanLayerTable().getUnusedLayerRoles(model.getId());
+			for(PlanLayer player:unused) {
+				items.add(player);
 			}
 		}
 	}
@@ -182,20 +182,24 @@ public class PlanConfigurationPane extends BasicRightSideNode
 	}
 
 	/**
-	 * "Save" on the embedded pane.
+	 * On a "save", update the model object, the database and then the hub..
 	 */
 	@Override
 	public void handle(ActionEvent event) {
 		Object source = event.getSource();
-		// On a save, update the model object, the database and then the hub.
 		if( source instanceof Button && ((Button)source).getId().equals(ComponentIds.BUTTON_SAVE)) {
 			if(model!=null) {
 				model.setName(nameField.getText());
 				model.setDescription(descriptionField.getText());
 				Database.getInstance().getPlanTable().updatePlan(model);
 				// Update layer roles in the model
-				Database.getInstance().getPlanLayerTable().synchronizePlanLayers(model.getId());
-				//Database.getInstance().getPlanLayerTable().updatePlanLayers(items);
+				List<PlanLayer> players = model.getLayers();
+				players.clear();
+				for(PlanLayer player:items) {
+					if(!player.getRole().equals(LayerRole.NONE)) players.add(player);
+				}
+				// Update layer roles in the database
+				Database.getInstance().getPlanLayerTable().synchronizePlanLayers(model);
 				EventBindingHub.getInstance().unselectPlan();     // Force fire
 				EventBindingHub.getInstance().setSelectedPlan(model);
 			}
