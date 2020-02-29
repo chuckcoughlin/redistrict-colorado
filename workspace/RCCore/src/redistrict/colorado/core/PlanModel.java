@@ -18,14 +18,14 @@ public class PlanModel {
 	private String name;
 	private String description;
 	private boolean active;
-	private final List<PlanLayer> layers;
+	private List<PlanLayer> layers;
 	
 	public PlanModel(long id,String nam) {
 		this.id = id;
 		this.name = nam;
 		this.description = "";
 		this.active = true;
-		this.layers = new ArrayList<>();
+		this.layers = null;
 	}
 	
 	public long getId() { return this.id; }
@@ -37,5 +37,5 @@ public class PlanModel {
 	public void setActive(boolean flag) { this.active = flag; }
 	public void setName(String nam) { this.name = nam; }
 	public void setDescription(String desc) { this.description = desc; }
-
+	public void setLayers(List<PlanLayer> list) { this.layers = list; }
 }

@@ -6,32 +6,22 @@
  */
 package redistrict.colorado.plan;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.logging.Logger;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
-import javafx.scene.control.Toggle;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.bind.LeftSelectionEvent;
-import redistrict.colorado.core.LayerModel;
 import redistrict.colorado.core.PlanModel;
-import redistrict.colorado.layer.LayerRow.EditEventHandler;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.GuiUtil;
 import redistrict.colorado.ui.UIConstants;
@@ -51,6 +41,8 @@ public class PlanRow extends ListCell<PlanModel>  {
 	private final static double ROW1_HEIGHT = 40.;
 	private static final GuiUtil guiu = new GuiUtil();
 	private final static String METRICS = "metrics";
+	private final static String EDIT = "edit";
+	private final static String ACTIVE = "active";
 	private GridPane grid = new GridPane();
     private final Label tag;   // Identifies the pane class
     private final Label name;
@@ -67,7 +59,9 @@ public class PlanRow extends ListCell<PlanModel>  {
 		name = new Label();
 	    description = new Label();
 	    active = new CheckBox("Active:");
+	    active.setUserData(ACTIVE);
 	    edit = new Button("",guiu.loadImage("images/edit.png"));
+	    edit.setUserData(EDIT);
 	    metrics =new Button("Metrics");
 	    metrics.setUserData(METRICS);
 
@@ -142,15 +136,28 @@ public class PlanRow extends ListCell<PlanModel>  {
 
     
     /**
-     * Handle an event from the "edit" button. Display an edit pane in the right-side.
+     * Handle an event from one of the buttons. Display an edit pane in the right-side.
      */
     public class EditEventHandler implements EventHandler<ActionEvent> {
     	@Override public void handle(ActionEvent e) {
-    		LOGGER.info(String.format("%s.handle: processing event from %s", CLSS,e.getSource()));
+    		String data = ACTIVE;
+    		if( e.getSource() instanceof Button ) {
+    			Button source = (Button)e.getSource();
+    			data = source.getUserData().toString();
+    		}
+    		LOGGER.info(String.format("%s.handle: processing event from %s", CLSS,data));
     		EventBindingHub hub = EventBindingHub.getInstance();
     		PlanModel model = getItem();
             hub.setSelectedPlan(model);
-    		hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.PLAN_CONFIGURATION));
+            if( data.equals(METRICS)) {
+            	hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.PLAN_METRICS));
+            }
+            else if( data.equals(EDIT)) {
+            	hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.PLAN_CONFIGURATION));
+            }
+            else if( data.equals(ACTIVE)) {
+            	model.setActive(active.isSelected());
+            }
     	}
     }
 }

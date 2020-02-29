@@ -14,10 +14,11 @@ import java.util.List;
  */
 public enum LayerRole
 {
+	PRIMARY,
 	BOUNDARIES,
 	DEMOGRAPHICS,
 	AFFILIATIONS,
-	PRIMARY
+	NONE
 	;
 
 	/**

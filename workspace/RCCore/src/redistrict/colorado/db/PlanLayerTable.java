@@ -15,23 +15,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.logging.Logger;
 
 import org.openjump.feature.AttributeType;
 
 import javafx.scene.paint.Color;
 import redistrict.colorado.core.FeatureConfiguration;
+import redistrict.colorado.core.LayerRole;
+import redistrict.colorado.core.PlanLayer;
 
 /**
  * The FeatureAttribute table keeps track of the features associated with a given layer.
  * The Database class sets the connection once it is created.
  */
 public class PlanLayerTable {
-	private static final String CLSS = "FeatureAttributeTable";
+	private static final String CLSS = "PlanLayerTable";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private Connection cxn = null;
-	public static final Map<String,String> fieldAliases = new HashMap<>();
 
 	/** 
 	 * Constructor: 
@@ -43,35 +43,18 @@ public class PlanLayerTable {
 	 * Map a new feature to a layer. The id must be the id of an existing layer. The database
 	 * stores settings for display.
 	 */
-	public void createFeatureAttribute(long id,String name,AttributeType type) {
+	public void createPlanLayer(long planId,long layerId,LayerRole role) {
 		if( cxn==null ) return;
-		// Java 'Color' class takes 3 floats, from 0 to 1.
-		Random rand = new Random();
-		int r = rand.nextInt(255);
-		int g = rand.nextInt(255);
-		int b = rand.nextInt(255);
-		int rgb = 256*256*r+256*g+b;
-		String SQL = String.format("INSERT INTO FeatureAttribute(layerId,name,alias,type,background) values (%d,'%s','%s','%s',%d)",
-															id,name,name,type.name(),rgb);
-		String UPDSQL = String.format("UPDATE FeatureAttribute SET alias = (SELECT alias FROM AttributeAlias WHERE name='%s') WHERE layerId=%d AND name='%s'",
-										name,id,name);
-		
+		String SQL = String.format("INSERT INTO PlanLayer(planId,layerId,role) values (%d,%d,'%s')",
+															planId,layerId,role.name());
 		Statement statement = null;
 		try {
-			//LOGGER.info(String.format("%s.createFeatureAttribute: \n%s",CLSS,SQL));
+			//LOGGER.info(String.format("%s.createPlanLayer: \n%s",CLSS,SQL));
 			statement = cxn.createStatement();
 			statement.executeUpdate(SQL);
-			// This statement attempts to set aliases for common names. It will fail harmlessly if there is no corresponding alias.
-			try {
-				statement.executeUpdate(UPDSQL);
-				LOGGER.info(String.format("%s.createFeatureAttribute: %s updated to alias",CLSS,name));
-			}
-			catch(SQLException ignore) {
-				//LOGGER.info(String.format("%s.createFeatureAttribute: %s has no standard alias",CLSS,name));
-			}
 		}
 		catch(SQLException e) {
-			LOGGER.severe(String.format("%s.createFeatureAttribute: error (%s)",CLSS,e.getMessage()));
+			LOGGER.severe(String.format("%s.createPlanLayer: error (%s)",CLSS,e.getMessage()));
 		}
 		finally {
 			if( statement!=null) {
@@ -80,22 +63,22 @@ public class PlanLayerTable {
 		}
 	}
 	/**
-	 * Delete a row given its layer id.
+	 * Delete a row given its plan and layer ids.
 	 */
-	public boolean deleteFeatureAttribute(long key,String name) {
+	public boolean deletePlanLayer(long planId,long layerId) {
 		PreparedStatement statement = null;
-		String SQL = "DELETE FROM FeatureAttribute WHERE layerId = ? and name = ?";
+		String SQL = "DELETE FROM PlanLayer WHERE planId= ? AND layerId = ?";
 		boolean success = false;
 		try {
-			LOGGER.info(String.format("%s.deleteFeatureAttribute: \n%s",CLSS,SQL));
+			LOGGER.info(String.format("%s.deletePlanLayer: \n%s",CLSS,SQL));
 			statement = cxn.prepareStatement(SQL);
-			statement.setLong(1, key);
-			statement.setString(2, name);
+			statement.setLong(1, planId);
+			statement.setLong(2, layerId);
 			statement.executeUpdate();
 			if( statement.getUpdateCount()>0) success = true;
 		}
 		catch(SQLException e) {
-			LOGGER.severe(String.format("%s.deleteLayerName: error (%s)",CLSS,e.getMessage()));
+			LOGGER.severe(String.format("%s.deletePlanLayer: error (%s)",CLSS,e.getMessage()));
 		}
 		finally {
 			if( statement!=null) {
@@ -105,23 +88,31 @@ public class PlanLayerTable {
 		return success;
 	}
 	/**
-	 * The returned map provides for the lookup of feature names given the alias. For a given
-	 * layer, the aliases should be unique.
-	 * @param key the Id for the relevant layer.
-	 * @return a map of feature names by alias.
+	 * @return a list of roles for layers used by the specified plan. There may be none.
 	 */
-	public Map<String,String> getNamesForFeatureAliases(long key) {
-		Map<String,String> map = new HashMap<>();
+	public List<PlanLayer> getLayerRoles(long planId) {
+		List<PlanLayer> list = new ArrayList<>();
+		PlanLayer planLayer = null;
 		PreparedStatement statement = null;
 		ResultSet rs = null;
-		String SQL = "SELECT name,alias from FeatureAttribute WHERE layerId=?"; 
+		String SQL = "SELECT Layer.id as id,Layer.name as name,PlanLayer.role as role from Layer,PlanLayer "+
+					" WHERE PlanLayer.planId=? "+
+					"   AND PlanLayer.layerId = Layer.layerId ORDER BY name";
 		try {
 			statement = cxn.prepareStatement(SQL);
-			statement.setLong(1, key);
+			statement.setLong(1, planId);
 			statement.setQueryTimeout(10);  // set timeout to 10 sec.
 			rs = statement.executeQuery();
 			while(rs.next()) {
-				map.put(rs.getString("alias"),rs.getString("name"));
+				planLayer = new PlanLayer(planId,rs.getLong("id"));
+				planLayer.setName(rs.getString("name"));
+				LayerRole role = LayerRole.BOUNDARIES;   // Default
+				try {
+					role = LayerRole.valueOf(rs.getString("role").toUpperCase());
+				}
+				catch(IllegalArgumentException ignore) {}
+				planLayer.setRole(role);
+				list.add(planLayer);	
 			}
 			rs.close();
 		}
@@ -138,42 +129,29 @@ public class PlanLayerTable {
 				try { statement.close(); } catch(SQLException ignore) {}
 			}
 		}
-		return map;
+		return list;
 	}
 	/**
-	 * The returned configuration list corresponds to Features associated with the layer.
-	 * @return a list of all configurations defined for the given Layer. There may be none.
+	 * @return a list of roles for layers used by the specified plan. There may be none.
 	 */
-	public List<FeatureConfiguration> getFeatureAttributes(long key) {
-		List<FeatureConfiguration> list = new ArrayList<>();
-		FeatureConfiguration configuration = null;
+	public List<PlanLayer> getUnusedLayerRoles(long planId) {
+		List<PlanLayer> list = new ArrayList<>();
+		PlanLayer planLayer = null;
 		PreparedStatement statement = null;
 		ResultSet rs = null;
-		String SQL = "SELECT name,alias,type,visible,background,rank from FeatureAttribute WHERE layerId=? ORDER BY rank"; 
+		String SQL = "SELECT id,name from Layer "+
+					" WHERE id NOT in (SELECT layerId as id FROM PlanLayer WHERE planId=?)" +
+					" ORDER BY name";
 		try {
 			statement = cxn.prepareStatement(SQL);
-			statement.setLong(1, key);
+			statement.setLong(1, planId);
 			statement.setQueryTimeout(10);  // set timeout to 10 sec.
 			rs = statement.executeQuery();
 			while(rs.next()) {
-				configuration = new FeatureConfiguration(key,rs.getString("name"));
-				configuration.setAlias(rs.getString("alias"));
-				configuration.setVisible((rs.getInt("visible")==1?true:false));
-				int rgb = rs.getInt("background");
-				int r = (rgb & 0xFF0000) >> 16;
-	            int g = (rgb & 0xFF00) >> 8;
-	            int b = (rgb & 0xFF);
-	            //LOGGER.info(String.format("%s.getFeatureAttributes background = %d (%02x%02x%02x)",CLSS,rgb,r,g,b));
-				configuration.setBackground(Color.rgb(r,g,b));
-				configuration.setRank(rs.getInt("rank"));
-				AttributeType type = AttributeType.DOUBLE;   // Default
-				try {
-					type = AttributeType.valueOf(rs.getString("type"));
-				}
-				catch(IllegalArgumentException ignore) {}
-				configuration.setAttributeType(type);
-				list.add(configuration);
-				
+				planLayer = new PlanLayer(planId,rs.getLong("id"));
+				planLayer.setName(rs.getString("name"));
+				planLayer.setRole(LayerRole.NONE);
+				list.add(planLayer);	
 			}
 			rs.close();
 		}
@@ -194,33 +172,31 @@ public class PlanLayerTable {
 	}
 	
 	/**
-	 * Create or delete feature attributes as necessary so that the database accurately reflects
-	 * the schema for the specified layer.
+	 * Create or delete layer references as necessary in the plan layer table so that
+	 * the entries accurately reflect the currently defined layers.
 	 * @cxn an open database connection
 	 * @param layerId the layer id
-	 * @param attributes a list of attribute names recently read from the Shapefile
-	 * 		  for that layer
 	 */
-	public void synchronizeFeatureAttributes(long layerId,List<String> attributes) {
-		LOGGER.info(String.format("%s.synchronizeFeatureAttributes: layer %d, %d attributes",CLSS,layerId,attributes.size()));
-		// Make a dictionary of features per database
-		Map<String,FeatureConfiguration> configMap = new HashMap<>();
-		List<FeatureConfiguration> configList = getFeatureAttributes(layerId);
-		for(FeatureConfiguration config: configList) {
-			configMap.put(config.getName(), config);
+	public void synchronizePlanLayers(long planId) {
+		LOGGER.info(String.format("%s.synchronizePlanLayers: plan %d",CLSS,planId));
+		// Make a dictionary of plan layers per database
+		Map<Long,PlanLayer> layerMap = new HashMap<>();
+		List<PlanLayer> list = getLayerRoles(planId);
+		for(PlanLayer planLayer: list) {
+			layerMap.put(planLayer.getLayerId(), planLayer);
 		}
-		// Delete any features not in the collection
-		for(String key:configMap.keySet()) {
-			if(!attributes.contains(key)) {
-				LOGGER.info(String.format("%s.synchronizeFeatureAttributes: delete layer %d, %s",CLSS,layerId,key));
-				deleteFeatureAttribute(layerId,key);
+		// Delete any layers not in the collection
+		for(Long key:layerMap.keySet()) {
+			if(!list.contains(key)) {
+				LOGGER.info(String.format("%s.synchronizePlanLayers: delete layer %d, %s",CLSS,key));
+				deletePlanLayer(planId,key);
 			}
 		}
-		// Create database entries for new features
-		for(String name:attributes) {
-			if(!configMap.containsKey(name)) {
-				LOGGER.info(String.format("%s.synchronizeFeatureAttributes: create layer %d, %s",CLSS,layerId,name));
-				createFeatureAttribute(layerId,name,AttributeType.DOUBLE);
+		// Create database entries for new layers
+		for(PlanLayer planLayer:list) {
+			if(!layerMap.containsKey(planLayer.getLayerId())) {
+				LOGGER.info(String.format("%s.synchronizeFeatureAttributes: create layer %d, %s",CLSS,planLayer.getLayerId()));
+				createPlanLayer(planId,planLayer.getLayerId(),LayerRole.NONE);
 			}
 		}
 	}
@@ -229,46 +205,25 @@ public class PlanLayerTable {
 	 * @cxn an open database connection
 	 * @param config configuration object
 	 */
-	public boolean updateFeatureAttribute(FeatureConfiguration config) {
+	public boolean updatePlanLayer(long planId,long layerId,LayerRole role) {
 		PreparedStatement statement = null;
-		String SQL = "UPDATE FeatureAttribute SET alias=?,type=?,visible=?,background=?,rank=? WHERE layerId = ? AND name=?";
+		String SQL = "UPDATE PlanLayer SET role=? WHERE planId=? AND layerId=?";
 		boolean success = false;
 		try {
 			statement = cxn.prepareStatement(SQL);
-			statement.setString(1,config.getAlias());
-			statement.setString(2,config.getAttributeType().name());
-			statement.setInt(3,(config.isVisible()?1:0));
-			int r = (int)(config.getBackground().getRed()*255);
-			int g = (int)(config.getBackground().getGreen()*255);
-			int b = (int)(config.getBackground().getBlue()*255);
-			int rgb = b + 256*g + 256*256*r;
-			statement.setInt(4,rgb);
-			LOGGER.info(String.format("%s.updateFeatureAttribute: background = %d (%02x%02x%02x)",CLSS,rgb,r,g,b));
-			statement.setInt(5,config.getRank());
-			statement.setLong(6, config.getLayerId());
-			statement.setString(7,config.getName());
+			statement.setString(1,role.name());
+			statement.setLong(2,planId);
+			statement.setLong(3,planId);
 			statement.executeUpdate();
 			if( statement.getUpdateCount()>0) success = true;
 		}
 		catch(SQLException e) {
-			LOGGER.severe(String.format("%s.updateFeatureAttribute: updateLayerName error (%s)",CLSS,e.getMessage()));
+			LOGGER.severe(String.format("%s.updatePlanLayer: role = %s error (%s)",CLSS,role,e.getMessage()));
 		}
 		finally {
 			if( statement!=null) {
 				try { statement.close(); } catch(SQLException ignore) {}
 			}
-		}
-		return success;
-	}
-	/**
-	 * Update display characteristics for the features in the supplied list.
-	 * @cxn an open database connection
-	 * @param config configuration object
-	 */
-	public boolean updateFeatureAttributes(List<FeatureConfiguration> configs) {
-		boolean success = true;
-		for(FeatureConfiguration config:configs) {
-			success = success && updateFeatureAttribute(config);	
 		}
 		return success;
 	}

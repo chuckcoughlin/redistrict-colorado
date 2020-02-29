@@ -62,6 +62,7 @@ public class PlanListController extends AnchorPane
 		setRightAnchor(buttons,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 		
 		buttons.setDeleteDisabled(true);
+		buttons.setAnalyzeDisabled(true);
 		buttons.registerEventReceiver(this.auxEventDispatcher);
 		updateUIFromDatabase();
 	}
@@ -98,6 +99,7 @@ public class PlanListController extends AnchorPane
 				for(PlanModel model:planList.getItems()) {
 					if(model.isActive()) plans.add(model);
 				}
+				hub.setActivePlans(plans);
 				// TODO: Trigger panel
 			}
 		}
@@ -113,11 +115,14 @@ public class PlanListController extends AnchorPane
 		
 		List<PlanModel> plans = Database.getInstance().getPlanTable().getPlans();
 		planList.getItems().clear();
+		boolean hasActive = false;
 		for(PlanModel model:plans) {
 			planList.getItems().add(model);
 			if( model.getId()==selectedId) selectedModel = model;
+			if( model.isActive()) hasActive = true;
 		}
-		buttons.setDeleteDisabled(selectedModel==null);	
+		buttons.setDeleteDisabled(selectedModel==null);
+		buttons.setAnalyzeDisabled(!hasActive);
 	}
 
 	/**
@@ -127,6 +132,6 @@ public class PlanListController extends AnchorPane
 	public void changed(ObservableValue<? extends PlanModel> source, PlanModel oldValue, PlanModel newValue) {
 		LOGGER.info(String.format("%s.changed: selected = %s", CLSS,(newValue==null?"null":newValue.getName())));
 		buttons.setDeleteDisabled(newValue==null);
-		//hub.setSelectedPlan(newValue);
+		hub.setSelectedPlan(newValue);
 	}
 }

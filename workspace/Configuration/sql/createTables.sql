@@ -59,5 +59,21 @@ CREATE TABLE PlanLayer (
 	FOREIGN KEY (planId) references Plan(id) ON DELETE CASCADE,
 	FOREIGN KEY (layerId) references Layer(id) ON DELETE CASCADE
 );
-
+-- The Metrics table caches statistics by feature for a plan.
+-- A feature corresponds to a geographic area. 
+DROP TABLE IF EXISTS Metrics;
+CREATE TABLE Metrics (
+	planId		INTEGER  NOT NULL,
+	featureId	text NOT NULL,
+	area		real DEFAULT 0.,
+	perimeter	real DEFAULT 0.,
+	population	real DEFAULT 0.,
+	democrat	real DEFAULT 0.,
+	republican	real DEFAULT 0.,
+	black		real DEFAULT 0.,
+	hispanic	real DEFAULT 0.,
+	white		real DEFAULT 0.,
+	PRIMARY KEY(planId,districtId),
+	FOREIGN KEY (planId) references Plan(id)
+);
 

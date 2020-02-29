@@ -16,14 +16,13 @@ import javafx.util.StringConverter;
 import redistrict.colorado.core.FeatureConfiguration;
 
 /**
- * Render a boolean cell in the FeatureConfiguration table
+ * Render a string type cell in the FeatureConfiguration table
  */
 public class FCStringCellFactory implements Callback<TableColumn<FeatureConfiguration, String>, TableCell<FeatureConfiguration, String>>,
 														EventHandler<TableColumn.CellEditEvent<FeatureConfiguration, String>> { 
 	private final static String CLSS = "FCStringCellFactory";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 
-	
 	public FCStringCellFactory() {
 	}
 	

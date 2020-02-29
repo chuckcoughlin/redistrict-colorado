@@ -287,7 +287,6 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 		configureDefinition();
 		updateFeatures();
 		configureTable();
-		
 	}
 
 	// ================================================= Event Handler ============================================

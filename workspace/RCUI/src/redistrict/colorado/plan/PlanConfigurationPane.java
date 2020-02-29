@@ -8,44 +8,39 @@ package redistrict.colorado.plan;
 import java.util.List;
 import java.util.logging.Logger;
 
-import org.openjump.feature.AttributeType;
-
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import javafx.scene.paint.Color;
 import redistrict.colorado.bind.EventBindingHub;
-import redistrict.colorado.core.FeatureConfiguration;
+import redistrict.colorado.core.LayerModel;
+import redistrict.colorado.core.LayerRole;
 import redistrict.colorado.core.PlanLayer;
 import redistrict.colorado.core.PlanModel;
-import redistrict.colorado.layer.FCBooleanCellFactory;
-import redistrict.colorado.layer.FCBooleanValueFactory;
-import redistrict.colorado.layer.FCColorCellFactory;
-import redistrict.colorado.layer.FCColorValueFactory;
-import redistrict.colorado.layer.FCStringCellFactory;
-import redistrict.colorado.layer.FCStringValueFactory;
-import redistrict.colorado.layer.LayerConfigurationPane.BooleanCommitHandler;
-import redistrict.colorado.layer.LayerConfigurationPane.ColorCommitHandler;
-import redistrict.colorado.layer.LayerConfigurationPane.TableEventHandler;
+import redistrict.colorado.db.Database;
 import redistrict.colorado.pane.BasicRightSideNode;
 import redistrict.colorado.pane.SavePane;
+import redistrict.colorado.ui.ComponentIds;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.GuiUtil;
 import redistrict.colorado.ui.UIConstants;
 import redistrict.colorado.ui.ViewMode;
 
-public class PlanConfigurationPane extends BasicRightSideNode implements EventHandler<ActionEvent> {
-	private final static String CLSS = "PlanConfigurationDialog";
+public class PlanConfigurationPane extends BasicRightSideNode 
+									implements EventHandler<ActionEvent> {
+	private final static String CLSS = "PlanConfigurationPane";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private final static double COL0_WIDTH = 100.;    // margin
 	private final static double COL1_WIDTH = 300.;
@@ -149,28 +144,62 @@ public class PlanConfigurationPane extends BasicRightSideNode implements EventHa
 		}
 	}
 	/**
-	 * The table holds a list of all definied layers.
+	 * The table holds a list of all defined layers.
 	 */
 	private void updateLayers() {
-		
+		if( model!=null ) {
+			try {
+				model.setLayers(Database.getInstance().getPlanLayerTable().getLayerRoles(model.getId()));
+				LOGGER.info(String.format("%s.updateLayers: There are %d layer definitions", CLSS,model.getLayers().size()));
+			}
+			catch( Exception ex) {
+				model.setLayers(null);
+				String msg = String.format("%s.updateLayers: Failed to read layer definitions (%s)",CLSS,ex.getLocalizedMessage());
+				LOGGER.warning(msg);
+				ex.printStackTrace();
+				EventBindingHub.getInstance().setMessage(msg);
+			}
+
+			if( model.getLayers()!=null){
+				List<PlanLayer> configs = Database.getInstance().getPlanLayerTable().getUnusedLayerRoles(model.getId());
+				for(PlanLayer fc:configs) {
+					items.add(fc);
+				}
+			}
+		}
 	}
 	private void configureTable() {	
         table.setItems(items);
 	}
 
+	// ====================================== BasicRightSideNode =====================================
 	@Override
 	public void updateModel() {
-		// TODO Auto-generated method stub
-		
+		this.model = EventBindingHub.getInstance().getSelectedPlan();
+		configureDefinition();
+		updateLayers();
+		configureTable();
 	}
 
 	/**
 	 * "Save" on the embedded pane.
 	 */
 	@Override
-	public void handle(ActionEvent arg0) {
-		// TODO Auto-generated method stub
-		
+	public void handle(ActionEvent event) {
+		Object source = event.getSource();
+		// On a save, update the model object, the database and then the hub.
+		if( source instanceof Button && ((Button)source).getId().equals(ComponentIds.BUTTON_SAVE)) {
+			if(model!=null) {
+				model.setName(nameField.getText());
+				model.setDescription(descriptionField.getText());
+				Database.getInstance().getPlanTable().updatePlan(model);
+				// Update layer roles in the model
+				Database.getInstance().getPlanLayerTable().synchronizePlanLayers(model.getId());
+				//Database.getInstance().getPlanLayerTable().updatePlanLayers(items);
+				EventBindingHub.getInstance().unselectPlan();     // Force fire
+				EventBindingHub.getInstance().setSelectedPlan(model);
+			}
+		}
 	}
 	// ================================================= Event Handler ============================================
 	public class TableEventHandler implements EventHandler<TableColumn.CellEditEvent<PlanLayer,String>>  {
@@ -187,11 +216,11 @@ public class PlanConfigurationPane extends BasicRightSideNode implements EventHa
 			LOGGER.info(String.format("%s.handle %s: row %d = %s",CLSS,column,row,newValue));
 			PlanLayer item = items.get(row);
 			if( column.equalsIgnoreCase("Name") ) {
-				item.setAlias(newValue);
+				item.setName(newValue);
 			}
 			else if( column.equalsIgnoreCase("Role") ) {
 				try {
-					item.setAttributeType(AttributeType.valueOf(newValue));
+					item.setRole(LayerRole.valueOf(event.getNewValue()));
 				}
 				catch(IllegalArgumentException iae) {
 					LOGGER.warning(String.format("%s.handle %s: Bad value for AttributeType - %s (%s)",CLSS,newValue,iae.getLocalizedMessage()));

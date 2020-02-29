@@ -17,17 +17,21 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.AnchorPane;
 import redistrict.colorado.bind.BasicEventDispatchChain;
 import redistrict.colorado.bind.BasicEventDispatcher;
+import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.bind.EventSource;
+import redistrict.colorado.bind.LeftSelectionEvent;
 import redistrict.colorado.ui.ComponentIds;
+import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.GuiUtil;
 import redistrict.colorado.ui.UIConstants;
+import redistrict.colorado.ui.ViewMode;
 
 /**
  * The panel contains add and delete buttons plus a button to trigger the analysis.
  * 
  * We provide a method to enable/disable the delete button.
  */
-public class PlanButtonPane extends AnchorPane implements EventSource<ActionEvent> {
+public class PlanButtonPane extends AnchorPane implements EventSource<ActionEvent>, EventHandler<ActionEvent> {
 	private static final String CLSS = "ButtonPane";
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
 	private static final double HGAP = 6.;
@@ -55,7 +59,7 @@ public class PlanButtonPane extends AnchorPane implements EventSource<ActionEven
 		analyzeButton.setId(ComponentIds.BUTTON_ANALYZE);
 		analyzeButton.setAlignment(Pos.CENTER_RIGHT);
 		analyzeButton.setDisable(true);
-		analyzeButton.setOnAction(eventHandler);
+		analyzeButton.setOnAction(this);
 		analyzeButton.setId(ComponentIds.BUTTON_ANALYZE);
 
 		this.getChildren().add(addButton);
@@ -88,6 +92,17 @@ public class PlanButtonPane extends AnchorPane implements EventSource<ActionEven
 	@Override
 	public void registerEventReceiver(BasicEventDispatcher<ActionEvent> bed) {
 		eventChain.append(bed);	
+	}
+
+	/**
+	 * The "analyze" button has been selected
+	 * @param event
+	 */
+	@Override
+	public void handle(ActionEvent event) {
+		EventBindingHub hub = EventBindingHub.getInstance();
+		hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.PLAN_COMPARISON));
+		
 	}
 
 }
