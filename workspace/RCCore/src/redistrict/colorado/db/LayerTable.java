@@ -137,7 +137,53 @@ public class LayerTable {
 		return list;
 	}
 	
-
+	/**
+	 * @return a LayerModel that corresponds to a layer in a plan that 
+	 * has a specified role.
+	 */
+	public LayerModel getPlanLayer(long planId,LayerRole role) {
+		LayerModel model = null;
+		PreparedStatement statement = null;
+		ResultSet rs = null;
+		String SQL = "SELECT id,name,description,shapefilePath,Layer.role from Layer,PlanLayer "+
+		              " WHERE Layer.id = PlanLayer.planId "+
+				      "   AND planLayer.planId = ? " +
+		              "   AND planLayer.role = ?"; 
+		try {
+			statement = cxn.prepareStatement(SQL);
+			statement.setQueryTimeout(10);  // set timeout to 10 sec.
+			statement.setLong(1, planId);
+			statement.setString(2,role.name());
+			rs = statement.executeQuery();
+			// There should only be one result.
+			while(rs.next()) {
+				model = new LayerModel(
+							rs.getLong("id"),
+							rs.getString("name")
+						);
+				model.setDescription(rs.getString("description"));
+				model.setShapefilePath(rs.getString("shapefilePath"));
+				model.setRole(role);
+				//LOGGER.info(String.format("%s.getLayers %d: %s is %s",CLSS,model.getId(),model.getName(),model.getRole().name()));
+				break;
+			}
+			rs.close();
+		}
+		catch(SQLException e) {
+			// if the error message is "out of memory", 
+			// it probably means no database file is found
+			LOGGER.severe(String.format("%s.getPlanLayer: Error (%s)",CLSS,e.getMessage()));
+		}
+		finally {
+			if( rs!=null) {
+				try { rs.close(); } catch(SQLException ignore) {}
+			}
+			if( statement!=null) {
+				try { statement.close(); } catch(SQLException ignore) {}
+			}
+		}
+		return model;
+	}
 	/**
 	 * Associate a layer giving it a new name
 	 * it will be updated.

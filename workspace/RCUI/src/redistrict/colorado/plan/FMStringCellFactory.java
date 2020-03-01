@@ -1,4 +1,4 @@
-package redistrict.colorado.layer;
+package redistrict.colorado.plan;
 
 import java.util.logging.Logger;
 
@@ -13,26 +13,26 @@ import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
-import redistrict.colorado.core.FeatureConfiguration;
+import redistrict.colorado.core.FeatureMetric;
 
 /**
- * Render a string type cell in the FeatureConfiguration table
+ * Render a string type cell in the FeatureMetric table
  */
-public class FCStringCellFactory implements Callback<TableColumn<FeatureConfiguration, String>, TableCell<FeatureConfiguration, String>>,
-														EventHandler<TableColumn.CellEditEvent<FeatureConfiguration, String>> { 
-	private final static String CLSS = "FCStringCellFactory";
+public class FMStringCellFactory implements Callback<TableColumn<FeatureMetric, String>, TableCell<FeatureMetric, String>>,
+														EventHandler<TableColumn.CellEditEvent<FeatureMetric, String>> { 
+	private final static String CLSS = "FMStringCellFactory";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 
-	public FCStringCellFactory() {
+	public FMStringCellFactory() {
 	}
 	
 	@Override
-	public TableCell<FeatureConfiguration, String> call(TableColumn<FeatureConfiguration, String> p) {
+	public TableCell<FeatureMetric, String> call(TableColumn<FeatureMetric, String> p) {
 		//LOGGER.info(String.format("%s:TableCell.call: %s",CLSS,p.getText()));
-		TableCell<FeatureConfiguration, String> cell = null;
+		TableCell<FeatureMetric, String> cell = null;
 		if(p.getText().equalsIgnoreCase("Type")) {
-			ComboBoxTableCell<FeatureConfiguration, String> comboCell = new ComboBoxTableCell<FeatureConfiguration, String>();
-			comboCell.setConverter(new FCStringConverter(AttributeType.ATTRIBUTE_TYPE));
+			ComboBoxTableCell<FeatureMetric, String> comboCell = new ComboBoxTableCell<FeatureMetric, String>();
+			comboCell.setConverter(new FMStringConverter(AttributeType.ATTRIBUTE_TYPE));
 			ObservableList<String> list = comboCell.getItems();
 			list.clear();
 			for( AttributeType type:AttributeType.basicTypes()) {
@@ -41,8 +41,8 @@ public class FCStringCellFactory implements Callback<TableColumn<FeatureConfigur
 			cell = comboCell;
 		}
 		else {
-			TextFieldTableCell<FeatureConfiguration, String> textCell = new TextFieldTableCell<FeatureConfiguration, String>();
-			textCell.setConverter(new FCStringConverter(AttributeType.STRING));
+			TextFieldTableCell<FeatureMetric, String> textCell = new TextFieldTableCell<FeatureMetric, String>();
+			textCell.setConverter(new FMStringConverter(AttributeType.STRING));
 			cell = textCell;
 		}
 		return cell;
@@ -50,14 +50,14 @@ public class FCStringCellFactory implements Callback<TableColumn<FeatureConfigur
 	
 	// ======================================== Event Handler ========================================
 	@Override
-	public void handle(CellEditEvent<FeatureConfiguration, String> text) {
+	public void handle(CellEditEvent<FeatureMetric, String> text) {
 		LOGGER.info(String.format("%s.handle: %s",CLSS,text));
 
 	}
-	public class FCStringConverter extends StringConverter<String> {
+	public class FMStringConverter extends StringConverter<String> {
 		private final AttributeType type;
 		 
-		public FCStringConverter(AttributeType t) {
+		public FMStringConverter(AttributeType t) {
 			this.type = t;
 		}
 

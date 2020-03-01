@@ -5,11 +5,14 @@
 -- The AttributeAlias table provides common names for
 -- Feature attributes. The aliases listed here automatically applied
 -- as appropriate when the attributes are created. Not all features
--- have aliases.
+-- have aliases. Redistricting plans rely on standard aliases to 
+-- access the proper features.
 DROP TABLE IF EXISTS AttributeAlias;
 CREATE TABLE AttributeAlias (
-	name text NOT NULL PRIMARY KEY,
-	alias text NOT NULL
+	layerId  INTEGER NOT NULL,
+	name text NOT NULL,
+	alias text NOT NULL,
+	PRIMARY KEY(layerId,name)
 );
 -- The Layer table holds configuration information for overlay layers. 
 -- The data files must be read each time the application is started
@@ -23,9 +26,8 @@ CREATE TABLE Layer (
 	role text NULL,
 	UNIQUE (name)
 );
--- The LayerFeature table holds the latest known Features for a layer.
+-- The FeatureAttribute table holds the latest known Features for a layer.
 -- An attempt is made to retain existing entries when a layer is refreshed.
-DROP TABLE IF EXISTS LayerFeature;
 DROP TABLE IF EXISTS FeatureAttribute;
 CREATE TABLE FeatureAttribute (
 	layerId	INTEGER  NOT NULL,
@@ -73,7 +75,7 @@ CREATE TABLE Metrics (
 	black		real DEFAULT 0.,
 	hispanic	real DEFAULT 0.,
 	white		real DEFAULT 0.,
-	PRIMARY KEY(planId,districtId),
+	PRIMARY KEY(planId,featureId),
 	FOREIGN KEY (planId) references Plan(id)
 );
 

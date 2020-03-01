@@ -36,10 +36,11 @@ package redistrict.colorado.core;
 /**
  *  Hold statistics for a plan-district. 
  */
-public class Metrics  {
+public class FeatureMetric  {
     private static final long serialVersionUID = -871137208054228529L;
-    private final String featureId; // feature ID
+    private final int featureId; // feature ID
     private final long planId; // Layer ID
+    private String  name = "";
     private double 	area = 0.;
     private double 	perimeter = 0.;
     private double 	population = 0.;
@@ -54,14 +55,15 @@ public class Metrics  {
      * @param pid plan Id
      * @param fid feature Id
      */
-    public Metrics(long pid,String fid) {
+    public FeatureMetric(long pid,int fid) {
     	this.planId = pid;
         this.featureId = fid;
     }
     
 
-    public String getFeatureId() { return this.featureId; }
+    public int getFeatureId() { return this.featureId; }
     public long getPlanId() { return this.planId; }
+    public String getName() { return this.name; }
     public double getArea() { return this.area; }
     public double getPerimeter() { return this.perimeter; }
     public double getPopulation() { return this.	population; }
@@ -78,6 +80,7 @@ public class Metrics  {
     public void incrementHispanic(double val) { this.hispanic += val; }
     public void incrementWhite(double val) { this.white += val; }
     
+    public void setName(String nam) { this.name = nam; }
     public void setArea(double val) { this.area = val; }
     public void setPerimeter(double val) { this.perimeter = val; }
     public void setPopulation(double val) { this.population = val; }

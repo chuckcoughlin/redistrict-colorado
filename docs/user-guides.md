@@ -1,7 +1,20 @@
 ## Redistrict Colorado
 ### User Guide
-This guide walks through the installation and use of the *RCAnalyzer* application. *RCAnalyzer* computes metrics based on a shapefile and other demographic information.
+This guide walks through the installation and use of the *RCAnalyzer* application. *RCAnalyzer* computes metrics for a redistricting plan based on a collection of "layers" that contain
+district geometries, voter
+affiliation and demographic information based on publicly available shapefiles.
 
+#### Feature Attribute Aliases
+Within a shapefile, a feature corresponds to a geographical area and is represented by a polygon in latitude/longitude units. Features have an arbitrary set of attributes depending on the purpose of the file. There is no naming standard for these attributes. In order to correlate features from different layers we have adopted a set of standard names which are assigned by the user of
+ *RCAnalyzer*. These are:
+ * ID - a unique identifier of the feature. This is the value that appears on the tree-view navigation panel in "District" scope.
+ * BLACK - African-American population.
+ * DEMOCRAT - votes cast for Democratic candidates.
+ * GEOMETRY - defines the feature's geographic layout.
+ * HISPANIC - Hispanic population.
+ * POPULATION - total population of the area.
+ * REPUBLICAN - votes cast for Republican candidates.
+ * WHITE - Caucasian population count.
 #### Data
 The location and contents of compatible data files
 is described [here](https://github.com/chuckcoughlin/redistrict-colorado/tree/master/docs/datasets.md)

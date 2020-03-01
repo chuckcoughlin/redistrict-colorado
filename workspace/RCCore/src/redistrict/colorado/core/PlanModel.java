@@ -6,7 +6,6 @@
  */
 package redistrict.colorado.core;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -19,6 +18,7 @@ public class PlanModel {
 	private String description;
 	private boolean active;
 	private List<PlanLayer> layers;
+	private List<FeatureMetric> metrics;
 	
 	public PlanModel(long id,String nam) {
 		this.id = id;
@@ -26,6 +26,7 @@ public class PlanModel {
 		this.description = "";
 		this.active = true;
 		this.layers = null;
+		this.metrics = null;
 	}
 	
 	public long getId() { return this.id; }
@@ -33,9 +34,11 @@ public class PlanModel {
 	public String getDescription() { return this.description; }
 	public boolean isActive() { return this.active; }
 	public List<PlanLayer> getLayers() { return layers; }
+	public List<FeatureMetric> getMetrics() { return metrics; }
 	
 	public void setActive(boolean flag) { this.active = flag; }
 	public void setName(String nam) { this.name = nam; }
 	public void setDescription(String desc) { this.description = desc; }
 	public void setLayers(List<PlanLayer> list) { this.layers = list; }
+	public void setMetrics(List<FeatureMetric> list) { this.metrics = list; }
 }
