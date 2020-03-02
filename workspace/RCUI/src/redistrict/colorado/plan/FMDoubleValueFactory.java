@@ -32,6 +32,27 @@ public class FMDoubleValueFactory implements Callback<TableColumn.CellDataFeatur
 		if( name.equalsIgnoreCase("Area")) {
 			property.setValue(fm.getArea());
 		}
+		else if( name.equalsIgnoreCase("Perimeter")) {
+			property.setValue(fm.getPerimeter());
+		}
+		else if( name.equalsIgnoreCase("Population")) {
+			property.setValue(fm.getPopulation());
+		}
+		else if( name.equalsIgnoreCase("Black")) {
+			property.setValue(fm.getBlack());
+		}
+		else if( name.equalsIgnoreCase("Hispanic")) {
+			property.setValue(fm.getHispanic());
+		}
+		else if( name.equalsIgnoreCase("White")) {
+			property.setValue(fm.getWhite());
+		}
+		else if( name.equalsIgnoreCase("Democrat")) {
+			property.setValue(fm.getDemocrat());
+		}
+		else if( name.equalsIgnoreCase("Republican")) {
+			property.setValue(fm.getRepublican());
+		}
 		return property;
 	}
 }
