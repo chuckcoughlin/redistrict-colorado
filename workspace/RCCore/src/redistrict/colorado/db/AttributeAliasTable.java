@@ -101,7 +101,7 @@ public class AttributeAliasTable {
 		catch(SQLException e) {
 			// if the error message is "out of memory", 
 			// it probably means no database file is found
-			LOGGER.severe(String.format("%s.aliasForName: Error (%s)",CLSS,e.getMessage()));
+			LOGGER.severe(String.format("%s.aliasByName: %s (ERROR: %s)",CLSS,SQL,e.getMessage()));
 		}
 		finally {
 			if( rs!=null) {
@@ -124,9 +124,9 @@ public class AttributeAliasTable {
 		try {
 			statement = cxn.prepareStatement(SQL);
 			statement.setLong(1, id);
-			statement.setString(1, alias.toUpperCase());
+			statement.setString(2, alias.toUpperCase());
 			statement.setQueryTimeout(10);  // set timeout to 10 sec.
-			rs = statement.executeQuery(SQL);
+			rs = statement.executeQuery();
 			while(rs.next()) {
 				name = rs.getString("name");
 				break;
@@ -136,7 +136,7 @@ public class AttributeAliasTable {
 		catch(SQLException e) {
 			// if the error message is "out of memory", 
 			// it probably means no database file is found
-			LOGGER.severe(String.format("%s.aliasForName: Error (%s)",CLSS,e.getMessage()));
+			LOGGER.severe(String.format("%s.nameForAlias: %s (ERROR: %s)",CLSS,SQL,e.getMessage()));
 		}
 		finally {
 			if( rs!=null) {

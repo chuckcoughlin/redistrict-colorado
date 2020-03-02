@@ -25,6 +25,7 @@ import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.bind.LeftSelectionEvent;
 import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.db.Database;
+import redistrict.colorado.ui.ComponentIds;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.GuiUtil;
 import redistrict.colorado.ui.UIConstants;
@@ -70,6 +71,7 @@ public class PlanRow extends ListCell<PlanModel>  {
 	    edit = new Button("",guiu.loadImage("images/edit.png"));
 	    edit.setUserData(EDIT);
 	    metrics =new Button("Metrics");
+	    metrics.setId(ComponentIds.BUTTON_METTRICS);
 	    metrics.setUserData(METRICS);
 
         configureGrid();        

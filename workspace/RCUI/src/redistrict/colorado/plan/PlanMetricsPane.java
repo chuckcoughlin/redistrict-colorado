@@ -92,6 +92,7 @@ public class PlanMetricsPane extends BasicRightSideNode{
 		PlanModel selectedModel = hub.getSelectedPlan();
 		if( selectedModel!=null) {
 			this.model = selectedModel;
+			this.headerLabel.setText(model.getName()+" Metrics");
 			this.primaryLayer = Database.getInstance().getLayerTable().getPlanLayer(model.getId(), LayerRole.PRIMARY);
 			LOGGER.info(String.format("%s.updateModel: Model is %s", CLSS,model.getName()));
 			if( primaryLayer.getFeatures()==null ) {
@@ -106,7 +107,6 @@ public class PlanMetricsPane extends BasicRightSideNode{
 				}
 				Database.getInstance().getFeatureAttributeTable().synchronizeFeatureAttributes(model.getId(), primaryLayer.getFeatures().getFeatureSchema().getAttributeNames());
 			}
-			table.getColumns().clear();
 			items.clear();
 			// Create a metric for each feature
 			String idName = Database.getInstance().getAttributeAliasTable().nameForAlias(primaryLayer.getId(), StandardAttributes.ID.name());
