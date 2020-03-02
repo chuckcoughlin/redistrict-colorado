@@ -176,6 +176,7 @@ public class PlanConfigurationPane extends BasicRightSideNode
 	@Override
 	public void updateModel() {
 		this.model = EventBindingHub.getInstance().getSelectedPlan();
+		this.headerLabel.setText(model.getName()+" Plan");
 		configureDefinition();
 		updateLayers();
 		configureTable();

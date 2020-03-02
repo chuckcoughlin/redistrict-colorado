@@ -51,10 +51,6 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 	private final static double GRID0_WIDTH = 100.;    // Grid widths
 	private final static double GRID1_WIDTH = 300.;
 	private final static double GRID2_WIDTH = 40.;
-	private final static double COL_BOOLEAN_WIDTH = 40.;
-	private final static double COL_COLOR_WIDTH = 100.;
-	private final static double COL_INDEX_WIDTH = 40.;
-	private final static double COL_TEXT_WIDTH = 100.;
 	private final static double TABLE_OFFSET_TOP = 200.;
 	private static final GuiUtil guiu = new GuiUtil();
 	private final GridPane grid;
@@ -280,6 +276,7 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 				// Update features in the model
 				Database.getInstance().getFeatureAttributeTable().synchronizeFeatureAttributes(model.getId(), model.getFeatures().getFeatureSchema().getAttributeNames());
 				Database.getInstance().getFeatureAttributeTable().updateFeatureAttributes(items);
+				Database.getInstance().getAttributeAliasTable().updateAliasTable(model.getId(),items);
 				EventBindingHub.getInstance().unselectLayer();     // Force fire
 				EventBindingHub.getInstance().setSelectedLayer(model);
 			}

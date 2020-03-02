@@ -146,7 +146,7 @@ public class LayerTable {
 		PreparedStatement statement = null;
 		ResultSet rs = null;
 		String SQL = "SELECT id,name,description,shapefilePath,Layer.role from Layer,PlanLayer "+
-		              " WHERE Layer.id = PlanLayer.planId "+
+		              " WHERE Layer.id = PlanLayer.layerId "+
 				      "   AND planLayer.planId = ? " +
 		              "   AND planLayer.role = ?"; 
 		try {

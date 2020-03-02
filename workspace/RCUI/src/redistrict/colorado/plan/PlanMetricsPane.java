@@ -8,7 +8,7 @@ package redistrict.colorado.plan;
 import java.util.logging.Logger;
 
 import org.geotools.data.shapefile.ShapefileReader;
-import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Polygon;
 import org.openjump.feature.Feature;
 
 import javafx.collections.FXCollections;
@@ -76,13 +76,60 @@ public class PlanMetricsPane extends BasicRightSideNode{
 		table.getColumns().add(column);
 		
 		TableColumn<FeatureMetric,Number> dcol = new TableColumn<>("Area");
-		dcol.prefWidthProperty().bind(table.widthProperty().multiply(0.2));
+		dcol.prefWidthProperty().bind(table.widthProperty().multiply(0.1));
 		dcol.setResizable(true);
 		dcol.setEditable(false);
 		dcol.setCellValueFactory(valueFactory);
 		table.getColumns().add(dcol);
 		
+		dcol = new TableColumn<>("Perimeter");
+		dcol.prefWidthProperty().bind(table.widthProperty().multiply(0.1));
+		dcol.setResizable(true);
+		dcol.setEditable(false);
+		dcol.setCellValueFactory(valueFactory);
+		table.getColumns().add(dcol);
 		
+		dcol = new TableColumn<>("Population");
+		dcol.prefWidthProperty().bind(table.widthProperty().multiply(0.1));
+		dcol.setResizable(true);
+		dcol.setEditable(false);
+		dcol.setCellValueFactory(valueFactory);
+		table.getColumns().add(dcol);
+		
+		dcol = new TableColumn<>("Black");
+		dcol.prefWidthProperty().bind(table.widthProperty().multiply(0.1));
+		dcol.setResizable(true);
+		dcol.setEditable(false);
+		dcol.setCellValueFactory(valueFactory);
+		table.getColumns().add(dcol);
+		
+		dcol = new TableColumn<>("Hispanic");
+		dcol.prefWidthProperty().bind(table.widthProperty().multiply(0.1));
+		dcol.setResizable(true);
+		dcol.setEditable(false);
+		dcol.setCellValueFactory(valueFactory);
+		table.getColumns().add(dcol);
+		
+		dcol = new TableColumn<>("White");
+		dcol.prefWidthProperty().bind(table.widthProperty().multiply(0.1));
+		dcol.setResizable(true);
+		dcol.setEditable(false);
+		dcol.setCellValueFactory(valueFactory);
+		table.getColumns().add(dcol);
+		
+		dcol = new TableColumn<>("Democrat");
+		dcol.prefWidthProperty().bind(table.widthProperty().multiply(0.1));
+		dcol.setResizable(true);
+		dcol.setEditable(false);
+		dcol.setCellValueFactory(valueFactory);
+		table.getColumns().add(dcol);
+		
+		dcol = new TableColumn<>("Republican");
+		dcol.prefWidthProperty().bind(table.widthProperty().multiply(0.1));
+		dcol.setResizable(true);
+		dcol.setEditable(false);
+		dcol.setCellValueFactory(valueFactory);
+		table.getColumns().add(dcol);
 		
 		updateModel();
 	}
@@ -95,6 +142,7 @@ public class PlanMetricsPane extends BasicRightSideNode{
 			this.headerLabel.setText(model.getName()+" Metrics");
 			this.primaryLayer = Database.getInstance().getLayerTable().getPlanLayer(model.getId(), LayerRole.PRIMARY);
 			LOGGER.info(String.format("%s.updateModel: Model is %s", CLSS,model.getName()));
+			LOGGER.info(String.format("%s.updateModel: Primary is %s", CLSS,primaryLayer.getName()));
 			if( primaryLayer.getFeatures()==null ) {
 				try {
 					primaryLayer.setFeatures(ShapefileReader.read(primaryLayer.getShapefilePath()));
@@ -116,9 +164,14 @@ public class PlanMetricsPane extends BasicRightSideNode{
 				FeatureMetric metric = new FeatureMetric(model.getId(),feat.getID());
 				if(idName!=null) metric.setName(feat.getString(idName).toString());
 				if(geoName!=null) {
-					Geometry geometry = (Geometry)(feat.getAttribute(geoName));
-					metric.setArea(geometry.getArea());
-					metric.setPerimeter(geometry.getLength());
+					try {
+						Polygon geometry = (Polygon)(feat.getAttribute(geoName));
+						metric.setArea(geometry.getArea());
+						metric.setPerimeter(geometry.getExteriorRing().getLength());
+					}
+					catch(ClassCastException cce) {
+						LOGGER.info(String.format("%s.updateModel: Geometry attribute wa not a polygon (%s)", CLSS,cce.getLocalizedMessage()));
+					}
 				}
 				items.add(metric);
 			}

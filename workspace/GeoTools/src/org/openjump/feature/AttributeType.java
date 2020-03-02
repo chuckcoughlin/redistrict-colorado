@@ -24,7 +24,6 @@ import org.locationtech.jts.geom.Geometry;
  * @since 1.0
  */
 public enum AttributeType  {
-	ATTRIBUTE_TYPE,
 	BOOLEAN,
 	COLOR,
 	DATE,

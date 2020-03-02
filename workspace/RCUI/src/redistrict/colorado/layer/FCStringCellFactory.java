@@ -14,6 +14,7 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 import redistrict.colorado.core.FeatureConfiguration;
+import redistrict.colorado.core.LayerRole;
 
 /**
  * Render a string type cell in the FeatureConfiguration table
@@ -30,9 +31,19 @@ public class FCStringCellFactory implements Callback<TableColumn<FeatureConfigur
 	public TableCell<FeatureConfiguration, String> call(TableColumn<FeatureConfiguration, String> p) {
 		//LOGGER.info(String.format("%s:TableCell.call: %s",CLSS,p.getText()));
 		TableCell<FeatureConfiguration, String> cell = null;
-		if(p.getText().equalsIgnoreCase("Type")) {
+		if(p.getText().equalsIgnoreCase("Alias")) {
 			ComboBoxTableCell<FeatureConfiguration, String> comboCell = new ComboBoxTableCell<FeatureConfiguration, String>();
-			comboCell.setConverter(new FCStringConverter(AttributeType.ATTRIBUTE_TYPE));
+			comboCell.setConverter(new FCStringConverter());
+			ObservableList<String> list = comboCell.getItems();
+			list.clear();
+			for( LayerRole type:LayerRole.values()) {
+				list.add(type.name());
+			}
+			cell = comboCell;
+		}
+		else if(p.getText().equalsIgnoreCase("Type")) {
+			ComboBoxTableCell<FeatureConfiguration, String> comboCell = new ComboBoxTableCell<FeatureConfiguration, String>();
+			comboCell.setConverter(new FCStringConverter());
 			ObservableList<String> list = comboCell.getItems();
 			list.clear();
 			for( AttributeType type:AttributeType.basicTypes()) {
@@ -42,7 +53,7 @@ public class FCStringCellFactory implements Callback<TableColumn<FeatureConfigur
 		}
 		else {
 			TextFieldTableCell<FeatureConfiguration, String> textCell = new TextFieldTableCell<FeatureConfiguration, String>();
-			textCell.setConverter(new FCStringConverter(AttributeType.STRING));
+			textCell.setConverter(new FCStringConverter());
 			cell = textCell;
 		}
 		return cell;
@@ -55,10 +66,8 @@ public class FCStringCellFactory implements Callback<TableColumn<FeatureConfigur
 
 	}
 	public class FCStringConverter extends StringConverter<String> {
-		private final AttributeType type;
 		 
-		public FCStringConverter(AttributeType t) {
-			this.type = t;
+		public FCStringConverter() {
 		}
 
 		@Override

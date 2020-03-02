@@ -12,8 +12,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+
+import redistrict.colorado.core.FeatureConfiguration;
+import redistrict.colorado.core.StandardAttributes;
 
 /**
  * The AttributeAlias table is used for setting default aliases for feature attribute names.
@@ -43,11 +47,11 @@ public class AttributeAliasTable {
 			statement.setLong(1, id);;
 			statement.setString(2, name);
 			statement.setString(3, alias);
-			statement.executeUpdate(SQL); 
+			statement.executeUpdate(); 
 		}
 		catch(SQLException e) {
 			// Presumably the error is a duplicate key 
-			LOGGER.severe(String.format("%s.createLayer: error (%s)",CLSS,e.getMessage()));
+			LOGGER.severe(String.format("%s.createAlias: error (%s)",CLSS,e.getMessage()));
 			updateAlias(id,name,alias);
 		}
 		finally {
@@ -176,5 +180,36 @@ public class AttributeAliasTable {
 			}
 		}
 		return success;
+	}
+	/**
+	 * Update aliases for a layer. We only bother with aliases that in the standard list.
+	 * Clean entries for the layer, then add back in.
+	 * @param id layerId
+	 * @param configs a list of FeatureConfiguration objects
+	 * @return true if the name existed and was re-assigned an alias.
+	 */
+	public void updateAliasTable(long id,List<FeatureConfiguration> configs) {
+		PreparedStatement statement = null;
+		String SQL = "DELETE FROM AttributeAlias WHERE layerId=?";
+		try {
+			statement = cxn.prepareStatement(SQL);
+			statement.setLong(1, id);;
+			statement.executeUpdate();
+			for(FeatureConfiguration config:configs) {
+				if(StandardAttributes.names().contains(config.getAlias())) {
+					createAlias(id,config.getName(),config.getAlias());
+				}
+			}
+			
+			
+		}
+		catch(SQLException e) {
+			LOGGER.severe(String.format("%s.updateAliasTable: error (%s)",CLSS,e.getMessage()));
+		}
+		finally {
+			if( statement!=null) {
+				try { statement.close(); } catch(SQLException ignore) {}
+			}
+		}
 	}
 }

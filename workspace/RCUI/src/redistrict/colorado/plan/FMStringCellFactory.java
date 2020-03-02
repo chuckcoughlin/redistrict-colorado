@@ -32,7 +32,7 @@ public class FMStringCellFactory implements Callback<TableColumn<FeatureMetric, 
 		TableCell<FeatureMetric, String> cell = null;
 		if(p.getText().equalsIgnoreCase("Type")) {
 			ComboBoxTableCell<FeatureMetric, String> comboCell = new ComboBoxTableCell<FeatureMetric, String>();
-			comboCell.setConverter(new FMStringConverter(AttributeType.ATTRIBUTE_TYPE));
+			comboCell.setConverter(new FMStringConverter());
 			ObservableList<String> list = comboCell.getItems();
 			list.clear();
 			for( AttributeType type:AttributeType.basicTypes()) {
@@ -42,7 +42,7 @@ public class FMStringCellFactory implements Callback<TableColumn<FeatureMetric, 
 		}
 		else {
 			TextFieldTableCell<FeatureMetric, String> textCell = new TextFieldTableCell<FeatureMetric, String>();
-			textCell.setConverter(new FMStringConverter(AttributeType.STRING));
+			textCell.setConverter(new FMStringConverter());
 			cell = textCell;
 		}
 		return cell;
@@ -55,10 +55,8 @@ public class FMStringCellFactory implements Callback<TableColumn<FeatureMetric, 
 
 	}
 	public class FMStringConverter extends StringConverter<String> {
-		private final AttributeType type;
 		 
-		public FMStringConverter(AttributeType t) {
-			this.type = t;
+		public FMStringConverter() {
 		}
 
 		@Override
