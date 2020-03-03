@@ -5,6 +5,7 @@
  * modify it under the terms of the GNU General Public License.
  */
 package redistrict.colorado.gate;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
 /**
@@ -13,7 +14,9 @@ import javafx.scene.shape.Rectangle;
  */
 public abstract class Gate extends Rectangle {
 	public Gate() {
-		
+		this.setHeight(200.);
+		this.setWidth(200.);
+		this.setFill(Color.web("#88d197"));
 	}
 	public abstract String getTitle(); 
 }

@@ -18,8 +18,8 @@ import javafx.scene.layout.StackPane;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.district.DistrictTreeController;
 import redistrict.colorado.district.FeatureMapPane;
-import redistrict.colorado.district.LayerDetailPane;
 import redistrict.colorado.layer.LayerConfigurationPane;
+import redistrict.colorado.layer.LayerDetailPane;
 import redistrict.colorado.layer.LayerListController;
 import redistrict.colorado.layer.ModelMapPane;
 import redistrict.colorado.plan.PlanComparisonPane;
@@ -169,5 +169,4 @@ public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode>
 			index++;
 		}
 	}
-	
 }
