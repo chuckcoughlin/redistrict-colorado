@@ -16,10 +16,10 @@ import javafx.scene.Node;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.StackPane;
 import redistrict.colorado.bind.EventBindingHub;
-import redistrict.colorado.district.DistrictListController;
+import redistrict.colorado.district.DistrictTreeController;
 import redistrict.colorado.district.FeatureMapPane;
+import redistrict.colorado.district.LayerDetailPane;
 import redistrict.colorado.layer.LayerConfigurationPane;
-import redistrict.colorado.layer.LayerDetailPane;
 import redistrict.colorado.layer.LayerListController;
 import redistrict.colorado.layer.ModelMapPane;
 import redistrict.colorado.plan.PlanComparisonPane;
@@ -55,7 +55,7 @@ public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode>
 		leftChildren = new Node[N_CHILDREN_LEFT];
 		leftChildren[0] = new PlanListController();
 		leftChildren[1] = new LayerListController();
-		leftChildren[2] = new DistrictListController();
+		leftChildren[2] = new DistrictTreeController();
 		
 		rightChildren = new BasicRightSideNode[N_CHILDREN_RIGHT];
 		rightChildren[0] = new SplashScreen();

@@ -11,8 +11,8 @@ import javafx.scene.shape.Rectangle;
  * This is the base shape for gates that display results of comparisons 
  * between different plans. We expect a small number of comparisons (1-4).
  */
-public abstract class Gate extends Rectangle {
-	public Gate() {
+public abstract class PopulationGate extends Rectangle {
+	public PopulationGate() {
 		
 	}
 	public abstract String getTitle(); 
