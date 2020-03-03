@@ -79,6 +79,8 @@ public class PlanButtonPane extends AnchorPane implements EventSource<ActionEven
 		setLeftAnchor(addButton,UIConstants.BUTTON_PANEL_HEIGHT);
 		setLeftAnchor(deleteButton,2*UIConstants.BUTTON_PANEL_HEIGHT);
 		setRightAnchor(analyzeButton,UIConstants.BUTTON_PANEL_HEIGHT);
+		
+		updateUI();
 	}
 	
 	public void setDeleteDisabled(boolean flag) { deleteButton.setDisable(flag); }
@@ -116,6 +118,13 @@ public class PlanButtonPane extends AnchorPane implements EventSource<ActionEven
 	 */
 	@Override
 	public void changed(ObservableValue<? extends PlanModel> source, PlanModel oldModel, PlanModel newModel) {
+		updateUI();
+	}
+
+	/**
+	 * Set active plans and enable/disable analyze button appropriately.
+	 */
+	private void updateUI() {
 		EventBindingHub hub = EventBindingHub.getInstance();
 		List<PlanModel> activePlans = new ArrayList<>();
 		List<PlanModel> plans = Database.getInstance().getPlanTable().getPlans();
@@ -129,7 +138,4 @@ public class PlanButtonPane extends AnchorPane implements EventSource<ActionEven
 		hub.setActivePlans(activePlans);
 		analyzeButton.setDisable(!hasActive);
 	}
-
-
-
 }

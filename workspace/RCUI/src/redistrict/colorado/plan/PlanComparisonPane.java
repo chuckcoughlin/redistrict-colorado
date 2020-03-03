@@ -12,12 +12,13 @@ import javafx.geometry.HPos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.gate.CompactnessGate;
 import redistrict.colorado.gate.CompetitiveDistrictsGate;
+import redistrict.colorado.gate.CompositeGate;
+import redistrict.colorado.gate.CountyCrossingGate;
 import redistrict.colorado.gate.PopulationEqualityGate;
 import redistrict.colorado.gate.ProportionalityGate;
 import redistrict.colorado.gate.VoteEffeciencyGate;
@@ -35,9 +36,6 @@ import redistrict.colorado.ui.ViewMode;
 public class PlanComparisonPane extends BasicRightSideNode {
 	private final static String CLSS = "PlanComparisonPane";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
-	private final static double COL0_WIDTH = 100.;    // margin
-	private final static double COL1_WIDTH = 300.;
-	private final static double COL2_WIDTH = 40.;
 	private Label headerLabel = new Label("Plan Comparison");
 	private List<PlanModel> models;
 	private final GridPane grid;
@@ -61,19 +59,21 @@ public class PlanComparisonPane extends BasicRightSideNode {
 		ColumnConstraints col0 = new ColumnConstraints();
 		col0.setPercentWidth(50.);
 		col0.setHalignment(HPos.CENTER);
-		ColumnConstraints col1 = new ColumnConstraints(COL1_WIDTH,COL1_WIDTH,Double.MAX_VALUE);
-		col1.setHalignment(HPos.LEFT);
-		col1.setHgrow(Priority.ALWAYS);
+		ColumnConstraints col1 = new ColumnConstraints();
+		col0.setPercentWidth(50.);
+		col1.setHalignment(HPos.CENTER);
 		grid.getColumnConstraints().addAll(col0,col1); 
 		
 		grid.getRowConstraints().clear();
 		RowConstraints row0 = new RowConstraints();
-		row0.setPercentHeight(30.);
+		row0.setPercentHeight(25.);
 		RowConstraints row1 = new RowConstraints();
-		row1.setPercentHeight(30.);
+		row1.setPercentHeight(25.);
 		RowConstraints row2 = new RowConstraints();
-		row2.setPercentHeight(30.);
-		grid.getRowConstraints().addAll(row0,row1,row2); 
+		row2.setPercentHeight(25.);
+		RowConstraints row3 = new RowConstraints();
+		row3.setPercentHeight(25.);
+		grid.getRowConstraints().addAll(row0,row1,row2,row3); 
 			
 		grid.add(new PopulationEqualityGate(),0, 0);  // column row
 		grid.add(new CompactnessGate(), 1, 0);
@@ -81,6 +81,8 @@ public class PlanComparisonPane extends BasicRightSideNode {
 		grid.add(new VotingPowerImbalanceGate(), 1, 1);
 		grid.add(new ProportionalityGate(), 0, 2);
 		grid.add(new CompetitiveDistrictsGate(), 1, 2);
+		grid.add(new CountyCrossingGate(), 0, 3);
+		grid.add(new CompositeGate(), 1, 3);
 	
 		getChildren().add(grid);
 		setTopAnchor(grid,UIConstants.DETAIL_HEADER_SPACING);
