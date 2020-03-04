@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import javafx.geometry.HPos;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -40,9 +42,6 @@ public class PlanComparisonPane extends BasicRightSideNode {
 	private List<PlanModel> models;
 	private final GridPane grid;
 
-
-
-
 	public PlanComparisonPane() {
 		super(ViewMode.PLAN,DisplayOption.PLAN_COMPARISON);
 		models = EventBindingHub.getInstance().getActivePlans();
@@ -55,14 +54,14 @@ public class PlanComparisonPane extends BasicRightSideNode {
         grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(4);
+        grid.setAlignment(Pos.CENTER);
 		grid.getColumnConstraints().clear();
 		ColumnConstraints col0 = new ColumnConstraints();
-		col0.setPercentWidth(50.);
-		col0.setHalignment(HPos.CENTER);
+		col0.setMinWidth(250.);
+		grid.getColumnConstraints().add(col0);
 		ColumnConstraints col1 = new ColumnConstraints();
-		col0.setPercentWidth(50.);
-		col1.setHalignment(HPos.CENTER);
-		grid.getColumnConstraints().addAll(col0,col1); 
+		col1.setMinWidth(250.);
+		grid.getColumnConstraints().addAll(col1); 
 		
 		grid.getRowConstraints().clear();
 		RowConstraints row0 = new RowConstraints();
@@ -83,6 +82,7 @@ public class PlanComparisonPane extends BasicRightSideNode {
 		grid.add(new CompetitiveDistrictsGate(), 1, 2);
 		grid.add(new CountyCrossingGate(), 0, 3);
 		grid.add(new CompositeGate(), 1, 3);
+		//GridPane.setMargin(grid,new Insets(0,0,0,80));  // top right bottom left
 	
 		getChildren().add(grid);
 		setTopAnchor(grid,UIConstants.DETAIL_HEADER_SPACING);

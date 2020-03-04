@@ -13,7 +13,7 @@ import org.openjump.feature.FeatureCollection;
  * - Google map
  * - Shapefile
  */
-public class LayerModel{
+public class LayerModel  {
 	private final long id;
 	private String name;
 	private String description;
@@ -41,4 +41,20 @@ public class LayerModel{
 	public void setShapefilePath(String path) { this.shapefilePath = path; }
 	public void setRole(LayerRole r) { this.role = r; }
 	public void setFeatures(FeatureCollection fc) { this.features = fc; }
+	
+	/**
+	 * Make comparable
+	 */
+	@Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        LayerModel that = (LayerModel) o;
+        return id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return (int)(id&0XFFF);
+    }
 }

@@ -17,6 +17,22 @@
 	-fx-font-weight: bold;
 }
 /* ======== Custom Classes ======= */
+.graph-box {
+	-fx-alignment: center;
+	-fx-border-color: black;
+    -fx-border-width: 1 1 1 1;
+    -fx-border-radius: 0 0 3 3;
+}
+.graph-header {
+	-fx-background-color:-ma-light-background; 
+	-fx-font-size: 10pt;
+	-fx-font-weight: bold;
+	-fx-border-color: black;
+    -fx-border-width: 1 1 0 1;
+    -fx-border-radius: 3 3 0 0;
+	-fx-text-alignment: center;
+	-fx-text-overrun: ellipsis;
+}
 .layer-edit-diagram {
     -fx-font-size: 18px;
     -fx-font-weight: bold;

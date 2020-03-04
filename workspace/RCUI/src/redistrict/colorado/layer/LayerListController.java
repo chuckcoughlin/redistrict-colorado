@@ -82,7 +82,8 @@ public class LayerListController extends AnchorPane
 			String id = GuiUtil.idFromSource(event.getSource());
 			LOGGER.info(String.format("%s.handle: Action event: source = %s", CLSS,id));
 			if( id.equalsIgnoreCase(ComponentIds.BUTTON_ADD))       {
-				Database.getInstance().getLayerTable().createLayer();
+				LayerModel model = Database.getInstance().getLayerTable().createLayer();
+				LayerCache.getInstance().addLayer(model);
 				updateUIFromDatabase();
 			}
 			// Delete the selected layer, then refresh
@@ -91,6 +92,7 @@ public class LayerListController extends AnchorPane
 				if( selectedModel!=null) {
 					Database.getInstance().getLayerTable().deleteLayer(selectedModel.getId());
 					layerList.getItems().remove(selectedModel);
+					LayerCache.getInstance().removeLayer(selectedModel);
 					updateUIFromDatabase();
 				}
 			}
@@ -104,11 +106,12 @@ public class LayerListController extends AnchorPane
 		long selectedId = UIConstants.UNSET_KEY;
 		if( selectedModel!=null ) selectedId = selectedModel.getId();
 		selectedModel = null;
-		
+		LayerCache cache = LayerCache.getInstance();
 		List<LayerModel> layers = Database.getInstance().getLayerTable().getLayers();
 		layerList.getItems().clear();
 		for(LayerModel model:layers) {
 			layerList.getItems().add(model);
+			cache.addLayer(model);  // No effect if model already in cache
 			if( model.getId()==selectedId) selectedModel = model;
 		}
 		buttons.setDeleteDisabled(selectedModel==null);	
