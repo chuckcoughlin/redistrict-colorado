@@ -7,7 +7,6 @@
 package redistrict.colorado.plan;
 import java.util.logging.Logger;
 
-import org.geotools.data.shapefile.ShapefileReader;
 import org.locationtech.jts.geom.Polygon;
 import org.openjump.feature.Feature;
 
@@ -18,7 +17,6 @@ import javafx.event.EventHandler;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.FeatureMetric;
 import redistrict.colorado.core.LayerModel;
 import redistrict.colorado.core.LayerRole;
@@ -143,18 +141,6 @@ public class PlanMetricsPane extends BasicRightSideNode{
 			this.primaryLayer = Database.getInstance().getLayerTable().getPlanLayer(model.getId(), LayerRole.PRIMARY);
 			LOGGER.info(String.format("%s.updateModel: Model is %s", CLSS,model.getName()));
 			LOGGER.info(String.format("%s.updateModel: Primary is %s", CLSS,primaryLayer.getName()));
-			if( primaryLayer.getFeatures()==null ) {
-				try {
-					primaryLayer.setFeatures(ShapefileReader.read(primaryLayer.getShapefilePath()));
-				}
-				catch( Exception ex) {
-					primaryLayer.setFeatures(null);
-					String msg = String.format("%s: Failed to parse shapefile %s (%s)",CLSS,primaryLayer.getShapefilePath(),ex.getLocalizedMessage());
-					LOGGER.warning(msg);
-					EventBindingHub.getInstance().setMessage(msg);
-				}
-				Database.getInstance().getFeatureAttributeTable().synchronizeFeatureAttributes(model.getId(), primaryLayer.getFeatures().getFeatureSchema().getAttributeNames());
-			}
 			items.clear();
 			// Create a metric for each feature
 			String idName = Database.getInstance().getAttributeAliasTable().nameForAlias(primaryLayer.getId(), StandardAttributes.ID.name());

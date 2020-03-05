@@ -7,7 +7,6 @@
 package redistrict.colorado.district;
 import java.util.logging.Logger;
 
-import org.geotools.data.shapefile.ShapefileReader;
 import org.geotools.render.FeatureFilter;
 import org.geotools.render.MapLayer;
 import org.geotools.render.ShapefileRenderer;
@@ -16,9 +15,7 @@ import org.geotools.style.Style;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.LayerModel;
-import redistrict.colorado.db.Database;
 
 /**
  * Render shape as referenced by a single feature of a model.
