@@ -36,6 +36,7 @@ import redistrict.colorado.core.FeatureConfiguration;
 import redistrict.colorado.core.LayerModel;
 import redistrict.colorado.core.LayerRole;
 import redistrict.colorado.db.Database;
+import redistrict.colorado.db.LayerCache;
 import redistrict.colorado.pane.BasicRightSideNode;
 import redistrict.colorado.pane.SavePane;
 import redistrict.colorado.ui.ComponentIds;
@@ -225,20 +226,7 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 	 */
 	private void updateFeatures() {
 		if( model!=null ) {
-			try {
-				model.setFeatures(ShapefileReader.read(model.getShapefilePath()));
-				LOGGER.info(String.format("%s.configureDefinition: Shapefile has %d records, %d attributes", CLSS,model.getFeatures().getFeatures().size(),model.getFeatures().getFeatureSchema().getAttributeCount()));
-			}
-			catch( Exception ex) {
-				model.setFeatures(null);
-				String msg = String.format("%s.configureDefinition: Failed to parse shapefile %s (%s)",CLSS,model.getShapefilePath(),ex.getLocalizedMessage());
-				LOGGER.warning(msg);
-				ex.printStackTrace();
-				EventBindingHub.getInstance().setMessage(msg);
-			}
-
 			if( model.getFeatures()!=null){
-				Database.getInstance().getFeatureAttributeTable().synchronizeFeatureAttributes(model.getId(), model.getFeatures().getFeatureSchema().getAttributeNames());
 				List<FeatureConfiguration> configs = Database.getInstance().getFeatureAttributeTable().getFeatureAttributes(model.getId());
 				for(FeatureConfiguration fc:configs) {
 					items.add(fc);
@@ -265,16 +253,19 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 			configureTable();
 		}
 		// On a save, update the model object, the database and then the hub.
+		// If the shapefile path is changed, then update the feature list.
 		else if( source instanceof Button && ((Button)source).getId().equals(ComponentIds.BUTTON_SAVE)) {
 			if(model!=null) {
 				model.setName(nameField.getText());
 				model.setDescription(descriptionField.getText());
-				model.setShapefilePath(pathField.getText());
 				model.setRole(LayerRole.valueOf(roleChooser.getValue()));
+				if( !pathField.getText().equals(model.getShapefilePath())) {
+					model.setShapefilePath(pathField.getText());
+					LayerCache.getInstance().populateFeatures(model);
+				}
 				Database.getInstance().getLayerTable().updateLayer(model);
 				
 				// Update features in the model
-				Database.getInstance().getFeatureAttributeTable().synchronizeFeatureAttributes(model.getId(), model.getFeatures().getFeatureSchema().getAttributeNames());
 				Database.getInstance().getFeatureAttributeTable().updateFeatureAttributes(items);
 				Database.getInstance().getAttributeAliasTable().updateAliasTable(model.getId(),items);
 				EventBindingHub.getInstance().unselectLayer();     // Force fire
@@ -351,9 +342,4 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 			}
 		}
 	}
-
-
-	
-	
-
 }

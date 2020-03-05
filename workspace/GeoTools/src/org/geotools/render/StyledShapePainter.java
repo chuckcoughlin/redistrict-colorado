@@ -29,11 +29,8 @@ import org.locationtech.jts.geom.Polygon;
 import org.openjump.feature.Feature;
 
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
-
-
 
 /**
  * A simple class that knows how to paint a Shape object onto a Graphic given a Style. It's the
@@ -148,7 +145,7 @@ public class StyledShapePainter {
 		double[] x = new double[size];
 		double[] y = new double[size];
 		int n = decimator.decimatePolygon(geom,x,y);
-		LOGGER.info(String.format("%s.drawPolygon: %d of %d points",CLSS,n,size));
+		//LOGGER.info(String.format("%s.drawPolygon: %d of %d points",CLSS,n,size));
 		
 		graphics.setStroke(style.getLineColor());
 		graphics.setLineWidth(style.getLineWidth());
