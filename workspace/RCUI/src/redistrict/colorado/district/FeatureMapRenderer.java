@@ -58,23 +58,12 @@ import redistrict.colorado.db.Database;
 		 */
 		public void updateModel(LayerModel m) {
 			this.model = m;
-			if(  model.getFeatures()==null && !model.getShapefilePath().isEmpty()) {
-				try {
-					model.setFeatures(ShapefileReader.read(model.getShapefilePath()));
-					LOGGER.info(String.format("%s.updateModel: Shapefile has %d records, %d attributes", CLSS,model.getFeatures().getFeatures().size(),model.getFeatures().getFeatureSchema().getAttributeCount()));
-				}
-				catch( Exception ex) {
-					model.setFeatures(null);
-					String msg = String.format("%s.updateModel: Failed to parse shapefile %s (%s)",CLSS,model.getShapefilePath(),ex.getLocalizedMessage());
-					LOGGER.warning(msg);
-					EventBindingHub.getInstance().setMessage(msg);
-				}
-				Database.getInstance().getFeatureAttributeTable().synchronizeFeatureAttributes(model.getId(), model.getFeatures().getFeatureSchema().getAttributeNames());
+			if(  model.getFeatures()!=null ) {
+				MapLayer layer = new MapLayer(model.getFeatures());
+				layer.setTitle(model.getName());
+				this.renderer = new ShapefileRenderer(layer);
+				drawMap();
 			}
-			MapLayer layer = new MapLayer(model.getFeatures());
-			layer.setTitle(model.getName());
-			this.renderer = new ShapefileRenderer(layer);
-			drawMap();
 		}
 		/**
 		 * When a new model is defined or old model modified, make sure that its features are populated on screen.

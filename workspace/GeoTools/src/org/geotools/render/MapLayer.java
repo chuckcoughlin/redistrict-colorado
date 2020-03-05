@@ -18,7 +18,6 @@ package org.geotools.render;
 
 import java.util.logging.Logger;
 
-import org.geotools.style.Style;
 import org.locationtech.jts.geom.Envelope;
 import org.openjump.feature.FeatureCollection;
 
