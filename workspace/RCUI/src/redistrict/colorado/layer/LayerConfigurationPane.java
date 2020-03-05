@@ -9,7 +9,6 @@ import java.io.File;
 import java.util.List;
 import java.util.logging.Logger;
 
-import org.geotools.data.shapefile.ShapefileReader;
 import org.openjump.feature.AttributeType;
 
 import javafx.collections.FXCollections;

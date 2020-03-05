@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import org.geotools.data.shapefile.ShapefileReader;
 import org.openjump.feature.Feature;
 
 import javafx.collections.FXCollections;
@@ -20,7 +19,6 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.FeatureConfiguration;
 import redistrict.colorado.core.LayerModel;
 import redistrict.colorado.db.Database;
@@ -77,18 +75,6 @@ public class LayerDetailPane extends BasicRightSideNode {
 			this.model = selectedModel;
 			headerLabel.setText(model.getName());
 			LOGGER.info(String.format("%s.updateModel: Model is %s", CLSS,model.getName()));
-			if( model.getFeatures()==null ) {
-				try {
-					model.setFeatures(ShapefileReader.read(model.getShapefilePath()));
-				}
-				catch( Exception ex) {
-					model.setFeatures(null);
-					String msg = String.format("%s: Failed to parse shapefile %s (%s)",CLSS,model.getShapefilePath(),ex.getLocalizedMessage());
-					LOGGER.warning(msg);
-					EventBindingHub.getInstance().setMessage(msg);
-				}
-				Database.getInstance().getFeatureAttributeTable().synchronizeFeatureAttributes(model.getId(), model.getFeatures().getFeatureSchema().getAttributeNames());
-			}
 			table.getColumns().clear();
 			items.clear();
 			for(Feature feat:model.getFeatures().getFeatures()) {
