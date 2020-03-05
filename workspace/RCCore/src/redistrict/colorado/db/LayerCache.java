@@ -4,7 +4,7 @@
  * This program is free software; you may redistribute it and/or
  * modify it under the terms of the GNU General Public License.
  */
-package redistrict.colorado.layer;
+package redistrict.colorado.db;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,9 +12,7 @@ import java.util.logging.Logger;
 
 import org.geotools.data.shapefile.ShapefileReader;
 
-import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.LayerModel;
-import redistrict.colorado.db.Database;
 
 /**
  * The layer cache is a Singleton that holds references to all of
@@ -52,6 +50,14 @@ public class LayerCache {
 	 */
 	public LayerModel getLayer(long id) {
 		LayerModel model = map.get(id);
+		populateFeatures(model);
+		return model;
+	}
+	/**
+	 * Make sure that the model features are populated
+	 * @param model
+	 */
+	public void populateFeatures(LayerModel model) {
 		if( model!=null  ) {
 			if( model.getFeatures()==null ) {
 				try {
@@ -61,12 +67,11 @@ public class LayerCache {
 					model.setFeatures(null);
 					String msg = String.format("%s: Failed to parse shapefile %s (%s)",CLSS,model.getShapefilePath(),ex.getLocalizedMessage());
 					LOGGER.warning(msg);
-					EventBindingHub.getInstance().setMessage(msg);
 				}
 				Database.getInstance().getFeatureAttributeTable().synchronizeFeatureAttributes(model.getId(), model.getFeatures().getFeatureSchema().getAttributeNames());
 			}
 		}
-		return model;
 	}
 	public void removeLayer(LayerModel model) {map.remove(model.getId()); }
+	public void removeLayer(long id) {map.remove(id); }
 }

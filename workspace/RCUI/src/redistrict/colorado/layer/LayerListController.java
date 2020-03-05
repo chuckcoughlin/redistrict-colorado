@@ -20,6 +20,7 @@ import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.bind.EventReceiver;
 import redistrict.colorado.core.LayerModel;
 import redistrict.colorado.db.Database;
+import redistrict.colorado.db.LayerCache;
 import redistrict.colorado.ui.ButtonPane;
 import redistrict.colorado.ui.ComponentIds;
 import redistrict.colorado.ui.GuiUtil;

@@ -29,6 +29,7 @@ public class LayerTable {
 	private final static String DEFAULT_NAME = "New layer";
 	private final static String DEFAULT_DESCRIPTION = "";
 	private Connection cxn = null;
+	private final LayerCache cache = LayerCache.getInstance();
 	/** 
 	 * Constructor: 
 	 */
@@ -52,6 +53,7 @@ public class LayerTable {
 			ResultSet rs = statement.getGeneratedKeys();
 		    if (rs.next()) {
 		        model = new LayerModel(rs.getInt(1),DEFAULT_NAME);
+		        cache.addLayer(model);
 		    } 
 		}
 		catch(SQLException e) {
@@ -79,6 +81,7 @@ public class LayerTable {
 			statement.setLong(1, key);
 			statement.executeUpdate();
 			if( statement.getUpdateCount()>0) success = true;
+			cache.removeLayer(key);
 		}
 		catch(SQLException e) {
 			LOGGER.severe(String.format("%s.deleteLayer: error (%s)",CLSS,e.getMessage()));
@@ -104,18 +107,21 @@ public class LayerTable {
 			statement.setQueryTimeout(10);  // set timeout to 10 sec.
 			rs = statement.executeQuery();
 			while(rs.next()) {
-				model = new LayerModel(
-							rs.getLong("id"),
-							rs.getString("name")
-						);
-				model.setDescription(rs.getString("description"));
-				model.setShapefilePath(rs.getString("shapefilePath"));
-				LayerRole role = LayerRole.BOUNDARIES;   // Default
-				try {
-					role = LayerRole.valueOf(rs.getString("role"));
+				long id = rs.getLong("id");
+				model = cache.getLayer(id);
+				if( model==null  ) {
+					model = new LayerModel(id,rs.getString("name"));
+					model.setDescription(rs.getString("description"));
+					model.setShapefilePath(rs.getString("shapefilePath"));
+					LayerRole role = LayerRole.BOUNDARIES;   // Default
+					try {
+						role = LayerRole.valueOf(rs.getString("role"));
+					}
+					catch(IllegalArgumentException ignore) {}
+					model.setRole(role);
+					cache.addLayer(model);
+					cache.populateFeatures(model);
 				}
-				catch(IllegalArgumentException ignore) {}
-				model.setRole(role);
 				list.add(model);
 				//LOGGER.info(String.format("%s.getLayers %d: %s is %s",CLSS,model.getId(),model.getName(),model.getRole().name()));
 			}
@@ -157,13 +163,16 @@ public class LayerTable {
 			rs = statement.executeQuery();
 			// There should only be one result.
 			while(rs.next()) {
-				model = new LayerModel(
-							rs.getLong("id"),
-							rs.getString("name")
-						);
-				model.setDescription(rs.getString("description"));
-				model.setShapefilePath(rs.getString("shapefilePath"));
-				model.setRole(role);
+				long id = rs.getLong("id");
+				model = cache.getLayer(id);
+				if( model==null) {
+					model = new LayerModel(id,rs.getString("name"));
+					model.setDescription(rs.getString("description"));
+					model.setShapefilePath(rs.getString("shapefilePath"));
+					model.setRole(role);
+					cache.addLayer(model);
+					cache.populateFeatures(model);
+				}
 				//LOGGER.info(String.format("%s.getLayers %d: %s is %s",CLSS,model.getId(),model.getName(),model.getRole().name()));
 				break;
 			}
