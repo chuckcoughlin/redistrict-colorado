@@ -17,7 +17,7 @@ import javafx.scene.control.TreeView;
 import javafx.scene.layout.StackPane;
 import redistrict.colorado.bind.BasicEventDispatcher;
 import redistrict.colorado.bind.EventReceiver;
-import redistrict.colorado.core.LayerModel;
+import redistrict.colorado.core.DatasetModel;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.ui.GuiUtil;
 
@@ -36,18 +36,18 @@ public class DistrictTreeController extends StackPane implements EventReceiver<A
 		this.auxEventHandler = new RegionListHolderEventHandler();
 		this.auxEventDispatcher = new BasicEventDispatcher<ActionEvent>(auxEventHandler);
 		folderIcon = guiu.loadImage("images/folder.png");
-		this.root = new TreeItem<String> ("Layers", folderIcon);
+		this.root = new TreeItem<String> ("Datasets", folderIcon);
         root.setExpanded(true);       
         this.tree = new TreeView<String>(root);
-        populateLayers();
+        populateDatasets();
         getChildren().add(tree);
 
 	}
 	
-	private void populateLayers() {
-		List<LayerModel> layers = Database.getInstance().getLayerTable().getLayers();
-		for(LayerModel layerModel:layers) {
-			TreeItem<String> item = new TreeItem<String> (layerModel.getName());
+	private void populateDatasets() {
+		List<DatasetModel> layers = Database.getInstance().getDatasetTable().getDatasets();
+		for(DatasetModel datasetModel:layers) {
+			TreeItem<String> item = new TreeItem<String> (datasetModel.getName());
 			root.getChildren().add(item);
 		}
 		

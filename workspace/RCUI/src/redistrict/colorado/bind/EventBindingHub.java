@@ -13,7 +13,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import redistrict.colorado.core.DistrictModel;
-import redistrict.colorado.core.LayerModel;
+import redistrict.colorado.core.DatasetModel;
 import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.ui.ViewMode;
 
@@ -35,7 +35,7 @@ public class EventBindingHub {
 	private final SimpleObjectProperty<LeftSelectionEvent> leftSideSelection;
 	private final SimpleObjectProperty<ViewMode> mode;
 	private final SimpleStringProperty message;
-	private final SimpleObjectProperty<LayerModel> selectedLayer;
+	private final SimpleObjectProperty<DatasetModel> selectedLayer;
 	private final SimpleObjectProperty<List<PlanModel>> activePlans;
 	private final SimpleObjectProperty<PlanModel> selectedPlan;
 	private final SimpleObjectProperty<DistrictModel> selectedDistrict;
@@ -46,7 +46,7 @@ public class EventBindingHub {
 		this.mode = new SimpleObjectProperty<ViewMode>();
 		this.message = new SimpleStringProperty();
 		this.leftSideSelection = new SimpleObjectProperty<LeftSelectionEvent>();
-		this.selectedLayer = new SimpleObjectProperty<LayerModel>();
+		this.selectedLayer = new SimpleObjectProperty<DatasetModel>();
 		this.selectedPlan = new SimpleObjectProperty<PlanModel>();
 		this.activePlans = new SimpleObjectProperty<List<PlanModel>>();
 		this.selectedDistrict = new SimpleObjectProperty<DistrictModel>();
@@ -87,12 +87,12 @@ public class EventBindingHub {
 	public void addLeftSideSelectionListener(ChangeListener<LeftSelectionEvent> listener) {leftSideSelection.addListener(listener);}
 	public SimpleObjectProperty<LeftSelectionEvent> leftSideSelectionProperty(){return leftSideSelection;}
 	// Selected Layer
-	public LayerModel getSelectedLayer() { return selectedLayer.get(); }
+	public DatasetModel getSelectedLayer() { return selectedLayer.get(); }
 	public boolean isLayerSelected() { return (selectedLayer.get()!=null); }
-	public void setSelectedLayer(LayerModel model) { selectedLayer.set(model); }
+	public void setSelectedLayer(DatasetModel model) { selectedLayer.set(model); }
 	public void unselectLayer() { selectedLayer.set(null); }
-	public void addLayerListener(ChangeListener<LayerModel> listener) {selectedLayer.addListener(listener);}
-	public SimpleObjectProperty<LayerModel> selectedLayerProperty(){return selectedLayer;}
+	public void addLayerListener(ChangeListener<DatasetModel> listener) {selectedLayer.addListener(listener);}
+	public SimpleObjectProperty<DatasetModel> selectedLayerProperty(){return selectedLayer;}
 	// Selected Plan(s)
 	public List<PlanModel> getActivePlans() { return activePlans.get(); }
 	public void setActivePlans(List<PlanModel> models) { activePlans.set(models); }

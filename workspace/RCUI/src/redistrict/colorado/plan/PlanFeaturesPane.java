@@ -17,9 +17,9 @@ import javafx.event.EventHandler;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import redistrict.colorado.core.FeatureMetric;
-import redistrict.colorado.core.LayerModel;
-import redistrict.colorado.core.LayerRole;
+import redistrict.colorado.core.PlanFeature;
+import redistrict.colorado.core.DatasetModel;
+import redistrict.colorado.core.DatasetRole;
 import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.core.StandardAttributes;
 import redistrict.colorado.db.Database;
@@ -31,22 +31,22 @@ import redistrict.colorado.ui.ViewMode;
 /**
  * Display metrics by feature
  */
-public class PlanMetricsPane extends BasicRightSideNode{
-	private final static String CLSS = "PlanMetricsPane";
+public class PlanFeaturesPane extends BasicRightSideNode{
+	private final static String CLSS = "PlanFeaturesPane";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
-	private LayerModel primaryLayer;
+	private DatasetModel primaryDataset;
 	private PlanModel model;
-	private final ObservableList<FeatureMetric> items;
-	private final Label headerLabel = new Label("Plan Metrics");
-	private final TableView<FeatureMetric> table;
+	private final ObservableList<PlanFeature> items;
+	private final Label headerLabel = new Label("Plan Features");
+	private final TableView<PlanFeature> table;
 	private final EventHandler<ActionEvent> eventHandler;
 
-	public PlanMetricsPane() {
-		super(ViewMode.PLAN,DisplayOption.PLAN_METRICS);
+	public PlanFeaturesPane() {
+		super(ViewMode.PLAN,DisplayOption.PLAN_FEATURES);
 		this.model = hub.getSelectedPlan();
 		this.items = FXCollections.observableArrayList();
 		this.eventHandler = new ActionEventHandler();
-		this.table = new TableView<FeatureMetric>();
+		this.table = new TableView<PlanFeature>();
 		table.setEditable(true);
 		table.setPrefSize(UIConstants.FEATURE_TABLE_WIDTH, UIConstants.FEATURE_TABLE_HEIGHT);
 		table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
@@ -66,14 +66,14 @@ public class PlanMetricsPane extends BasicRightSideNode{
 		FMStringValueFactory stringValueFactory = new FMStringValueFactory();
 		FMStringCellFactory cellFactory = new FMStringCellFactory();
 
-		TableColumn<FeatureMetric,String> column = new TableColumn<>("Name");
+		TableColumn<PlanFeature,String> column = new TableColumn<>("Name");
 		column.prefWidthProperty().bind(table.widthProperty().multiply(0.2));
         column.setResizable(true);
 		column.setEditable(false);
 		column.setCellValueFactory(stringValueFactory);
 		table.getColumns().add(column);
 		
-		TableColumn<FeatureMetric,Number> dcol = new TableColumn<>("Area");
+		TableColumn<PlanFeature,Number> dcol = new TableColumn<>("Area");
 		dcol.prefWidthProperty().bind(table.widthProperty().multiply(0.1));
 		dcol.setResizable(true);
 		dcol.setEditable(false);
@@ -132,34 +132,36 @@ public class PlanMetricsPane extends BasicRightSideNode{
 		updateModel();
 	}
 
+	// NOTE: We can populate only when the datasets are configured with standard aliases.
 	@Override
 	public void updateModel() {
 		PlanModel selectedModel = hub.getSelectedPlan();
 		if( selectedModel!=null) {
 			this.model = selectedModel;
-			this.headerLabel.setText(model.getName()+" Metrics");
-			this.primaryLayer = Database.getInstance().getLayerTable().getPlanLayer(model.getId(), LayerRole.PRIMARY);
+			this.headerLabel.setText(model.getName()+" Feature Attributes");
+			this.primaryDataset = Database.getInstance().getDatasetTable().getPlanDataset(model.getId(), DatasetRole.PRIMARY);
+			if( primaryDataset==null) return;
 			LOGGER.info(String.format("%s.updateModel: Model is %s", CLSS,model.getName()));
-			LOGGER.info(String.format("%s.updateModel: Primary is %s", CLSS,primaryLayer.getName()));
+			LOGGER.info(String.format("%s.updateModel: Primary is %s", CLSS,primaryDataset.getName()));
 			items.clear();
-			// Create a metric for each feature
-			String idName = Database.getInstance().getAttributeAliasTable().nameForAlias(primaryLayer.getId(), StandardAttributes.ID.name());
-			String geoName = Database.getInstance().getAttributeAliasTable().nameForAlias(primaryLayer.getId(), StandardAttributes.GEOMETRY.name());
+			// Populate attributes for each feature
+			String idName = Database.getInstance().getAttributeAliasTable().nameForAlias(primaryDataset.getId(), StandardAttributes.ID.name());
+			String geoName = Database.getInstance().getAttributeAliasTable().nameForAlias(primaryDataset.getId(), StandardAttributes.GEOMETRY.name());
 			
-			for(Feature feat:primaryLayer.getFeatures().getFeatures()) {
-				FeatureMetric metric = new FeatureMetric(model.getId(),feat.getID());
-				if(idName!=null) metric.setName(feat.getString(idName).toString());
+			for(Feature feat:primaryDataset.getFeatures().getFeatures()) {
+				PlanFeature attribute = new PlanFeature(model.getId(),feat.getID());
+				if(idName!=null) attribute.setName(feat.getString(idName).toString());
 				if(geoName!=null) {
 					try {
 						Polygon geometry = (Polygon)(feat.getAttribute(geoName));
-						metric.setArea(geometry.getArea());
-						metric.setPerimeter(geometry.getExteriorRing().getLength());
+						attribute.setArea(geometry.getArea());
+						attribute.setPerimeter(geometry.getExteriorRing().getLength());
 					}
 					catch(ClassCastException cce) {
 						LOGGER.info(String.format("%s.updateModel: Geometry attribute wa not a polygon (%s)", CLSS,cce.getLocalizedMessage()));
 					}
 				}
-				items.add(metric);
+				items.add(attribute);
 			}
 			LOGGER.info(String.format("%s.updateModel: Table has %d rows", CLSS,items.size()));
 			table.setItems(items);
@@ -175,5 +177,4 @@ public class PlanMetricsPane extends BasicRightSideNode{
 			updateModel();
 		}
 	}
-
 }

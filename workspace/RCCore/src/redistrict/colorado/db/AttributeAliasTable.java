@@ -39,12 +39,12 @@ public class AttributeAliasTable {
 	public void createAlias(long id,String name,String alias) {
 		if( cxn==null ) return;
 		
-		String SQL = "INSERT INTO AttributeAlias(layerId,name,alias) values (?,?,?)";
+		String SQL = "INSERT INTO AttributeAlias(datasetId,name,alias) values (?,?,?)";
 		PreparedStatement statement = null;
 		try {
 			LOGGER.info(String.format("%s.createAlias: %s for %s",CLSS,alias,name));
 			statement = cxn.prepareStatement(SQL);
-			statement.setLong(1, id);;
+			statement.setLong(1, id);
 			statement.setString(2, name);
 			statement.setString(3, alias);
 			statement.executeUpdate(); 
@@ -65,7 +65,7 @@ public class AttributeAliasTable {
 	 */
 	public boolean deleteAlias(long id,String name) {
 		PreparedStatement statement = null;
-		String SQL = "DELETE FROM AttributeAlias WHERE layerId=? AND name = ?";
+		String SQL = "DELETE FROM AttributeAlias WHERE datasetId=? AND name = ?";
 		boolean success = false;
 		try {
 			LOGGER.info(String.format("%s.deleteLayer: \n%s",CLSS,SQL));
@@ -92,7 +92,7 @@ public class AttributeAliasTable {
 		Map<String,String> map = new HashMap<>();
 		Statement statement = null;
 		ResultSet rs = null;
-		String SQL = String.format("SELECT name,alias from AttributeAlias WHERE layerId=%d ORDER BY name",id); 
+		String SQL = String.format("SELECT name,alias from AttributeAlias WHERE datasetId=%d ORDER BY name",id); 
 		try {
 			statement = cxn.createStatement();
 			statement.setQueryTimeout(10);  // set timeout to 10 sec.
@@ -124,7 +124,7 @@ public class AttributeAliasTable {
 		String name = null;
 		PreparedStatement statement = null;
 		ResultSet rs = null;
-		String SQL = "SELECT name from AttributeAlias WHERE layerId=? AND alias=?"; 
+		String SQL = "SELECT name from AttributeAlias WHERE datasetId=? AND alias=?"; 
 		try {
 			statement = cxn.prepareStatement(SQL);
 			statement.setLong(1, id);
@@ -154,20 +154,21 @@ public class AttributeAliasTable {
 	}
 
 	/**
-	 * Associate an attribute name with a new alias.
+	 * Associate an attribute name with a new alias for a dataset
 	 * @param name
 	 * @param alias
 	 * @return true if the name existed and was re-assigned an alias.
 	 */
 	public boolean updateAlias(long id,String name,String alias) {
 		PreparedStatement statement = null;
-		String SQL = "UPDATE AttributeAlias SET alias=? WHERE name = ?";
+		String SQL = "UPDATE AttributeAlias SET alias=? WHERE datasetId = ? and name = ?";
 		boolean success = false;
 		try {
 			//LOGGER.info(String.format("%s.updateAlias: \n%s",CLSS,SQL));
 			statement = cxn.prepareStatement(SQL);
 			statement.setString(1,alias);
-			statement.setString(2,name);
+			statement.setLong(2, id);
+			statement.setString(3,name);
 			statement.executeUpdate();
 			if( statement.getUpdateCount()>0) success = true;
 		}
@@ -190,18 +191,17 @@ public class AttributeAliasTable {
 	 */
 	public void updateAliasTable(long id,List<FeatureConfiguration> configs) {
 		PreparedStatement statement = null;
-		String SQL = "DELETE FROM AttributeAlias WHERE layerId=?";
+		String SQL = "DELETE FROM AttributeAlias WHERE datasetId=?";
 		try {
 			statement = cxn.prepareStatement(SQL);
 			statement.setLong(1, id);;
 			statement.executeUpdate();
 			for(FeatureConfiguration config:configs) {
-				if(StandardAttributes.names().contains(config.getAlias())) {
+				if(config.getAlias()!=StandardAttributes.NONE.name() &&
+					StandardAttributes.names().contains(config.getAlias())) {
 					createAlias(id,config.getName(),config.getAlias());
 				}
-			}
-			
-			
+			}	
 		}
 		catch(SQLException e) {
 			LOGGER.severe(String.format("%s.updateAliasTable: error (%s)",CLSS,e.getMessage()));

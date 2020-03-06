@@ -33,9 +33,9 @@ public class Database {
 	private static Database instance = null;
 	private final AttributeAliasTable attributeAliasTable;
 	private final FeatureAttributeTable featureAttributeTable;
-	private final PlanLayerTable planLayerTable;
-	private final LayerTable layerTable;
+	private final DatasetTable datasetTable;
 	private final PlanTable planTable;
+	private final PlanDatasetTable planDatasetTable;
 
 	/**
 	 * Constructor is private per Singleton pattern.
@@ -43,9 +43,9 @@ public class Database {
 	private Database() {
 		this.attributeAliasTable = new AttributeAliasTable();
 		this.featureAttributeTable = new FeatureAttributeTable();
-		this.planLayerTable = new PlanLayerTable();
-		this.layerTable = new LayerTable();
+		this.datasetTable = new DatasetTable();
 		this.planTable = new PlanTable();
+		this.planDatasetTable = new PlanDatasetTable();
 	}
 	/**
 	 * Static method to create and/or fetch the single instance.
@@ -61,8 +61,8 @@ public class Database {
 	public boolean isConnected() { return connection!=null; }
 	public AttributeAliasTable getAttributeAliasTable() { return this.attributeAliasTable; }
 	public FeatureAttributeTable getFeatureAttributeTable() { return this.featureAttributeTable; }
-	public PlanLayerTable getPlanLayerTable() { return this.planLayerTable; }
-	public LayerTable getLayerTable() { return this.layerTable; }
+	public PlanDatasetTable getPlanLayerTable() { return this.planDatasetTable; }
+	public DatasetTable getDatasetTable() { return this.datasetTable; }
 	public PlanTable getPlanTable() { return this.planTable; }
 	
 	/**
@@ -81,9 +81,9 @@ public class Database {
 			connection = DriverManager.getConnection(connectPath);
 			attributeAliasTable.setConnection(connection);
 			featureAttributeTable.setConnection(connection);
-			planLayerTable.setConnection(connection);
-			layerTable.setConnection(connection);
+			datasetTable.setConnection(connection);
 			planTable.setConnection(connection);
+			planDatasetTable.setConnection(connection);
 			
 			String SQL = "PRAGMA foreign_keys = ON";
 			statement = connection.createStatement();

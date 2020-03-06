@@ -25,7 +25,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.bind.LeftSelectionEvent;
-import redistrict.colorado.core.LayerModel;
+import redistrict.colorado.core.DatasetModel;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.GuiUtil;
 import redistrict.colorado.ui.UIConstants;
@@ -34,7 +34,7 @@ import redistrict.colorado.ui.ViewMode;
 /**
  * This is the UI element for a list view that represents a layer.
  */
-public class LayerRow extends ListCell<LayerModel> implements ChangeListener<Toggle> {
+public class DatasetRow extends ListCell<DatasetModel> implements ChangeListener<Toggle> {
 	private static final String CLSS = "LayerRow";
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
 	private final static double COL1_WIDTH = 40.;
@@ -60,7 +60,7 @@ public class LayerRow extends ListCell<LayerModel> implements ChangeListener<Tog
     private final EditEventHandler handler;
     private final LayerChangeListener listener;
     
-	public LayerRow() {
+	public DatasetRow() {
 		handler = new EditEventHandler();
 		listener= new LayerChangeListener();
 		EventBindingHub.getInstance().addLayerListener(listener);
@@ -128,7 +128,7 @@ public class LayerRow extends ListCell<LayerModel> implements ChangeListener<Tog
     }
 	
     @Override
-    public void updateItem(LayerModel model, boolean empty) {
+    public void updateItem(DatasetModel model, boolean empty) {
         super.updateItem(model, empty);
         if (empty) {
             clearContent();
@@ -142,7 +142,7 @@ public class LayerRow extends ListCell<LayerModel> implements ChangeListener<Tog
         setGraphic(null);
     }
  
-    private void setContent(LayerModel model) {
+    private void setContent(DatasetModel model) {
         setText(null);
         id = model.getId();
         name.setText(model.getName());
@@ -160,7 +160,7 @@ public class LayerRow extends ListCell<LayerModel> implements ChangeListener<Tog
     	@Override public void handle(ActionEvent e) {
             LOGGER.info(String.format("%s.handle: processing edit event", CLSS));
             EventBindingHub hub = EventBindingHub.getInstance();
-            LayerModel model = getItem();
+            DatasetModel model = getItem();
             hub.setSelectedLayer(model);
             hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.DATASET,DisplayOption.LAYER_CONFIGURATION));
         }
@@ -192,9 +192,9 @@ public class LayerRow extends ListCell<LayerModel> implements ChangeListener<Tog
 		}
 	}
 	
-	public class LayerChangeListener implements ChangeListener<LayerModel> {
+	public class LayerChangeListener implements ChangeListener<DatasetModel> {
 		@Override
-		public void changed(ObservableValue<? extends LayerModel> source, LayerModel oldModel, LayerModel newModel) {
+		public void changed(ObservableValue<? extends DatasetModel> source, DatasetModel oldModel, DatasetModel newModel) {
 			if(newModel!=null && newModel.getId()==id) {
 				//LOGGER.info(String.format("%s.changed: name = %s",CLSS,newModel.getName()));
 				name.setText(newModel.getName());

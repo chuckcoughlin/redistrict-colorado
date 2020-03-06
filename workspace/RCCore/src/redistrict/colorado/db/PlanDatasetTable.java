@@ -12,50 +12,43 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 
-import org.openjump.feature.AttributeType;
-
-import javafx.scene.paint.Color;
-import redistrict.colorado.core.FeatureConfiguration;
-import redistrict.colorado.core.LayerRole;
-import redistrict.colorado.core.PlanLayer;
+import redistrict.colorado.core.DatasetRole;
+import redistrict.colorado.core.PlanDataset;
 import redistrict.colorado.core.PlanModel;
 
 /**
- * The FeatureAttribute table keeps track of the features associated with a given layer.
+ * The PlanDataset table keeps track of aggregated features associated with a given plan.
  * The Database class sets the connection once it is created.
  */
-public class PlanLayerTable {
-	private static final String CLSS = "PlanLayerTable";
+public class PlanDatasetTable {
+	private static final String CLSS = "PlanDatasetTable";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private Connection cxn = null;
 
 	/** 
 	 * Constructor: 
 	 */
-	public PlanLayerTable() {}
+	public PlanDatasetTable() {}
 	public void setConnection(Connection connection) { this.cxn = connection; }
 	
 	/**
-	 * Map a new feature to a layer. The id must be the id of an existing layer. The database
-	 * stores settings for display.
+	 * Map a new dataset to a plan. The id must be the id of an existing dataset. 
 	 */
-	public void createPlanLayer(long planId,long layerId,LayerRole role) {
+	public void createPlanDataset(long planId,long datasetId,DatasetRole role) {
 		if( cxn==null ) return;
-		String SQL = String.format("INSERT INTO PlanLayer(planId,layerId,role) values (%d,%d,'%s')",
-															planId,layerId,role.name());
+		String SQL = String.format("INSERT INTO PlanDataset(planId,datasetId,role) values (%d,%d,'%s')",
+															planId,datasetId,role.name());
 		Statement statement = null;
 		try {
-			//LOGGER.info(String.format("%s.createPlanLayer: \n%s",CLSS,SQL));
+			LOGGER.info(String.format("%s.createPlanDataset: \n%s",CLSS,SQL));
 			statement = cxn.createStatement();
 			statement.executeUpdate(SQL);
 		}
 		catch(SQLException e) {
-			LOGGER.severe(String.format("%s.createPlanLayer: error (%s)",CLSS,e.getMessage()));
+			LOGGER.severe(String.format("%s.createPlanDataset: error (%s)",CLSS,e.getMessage()));
 		}
 		finally {
 			if( statement!=null) {
@@ -64,22 +57,22 @@ public class PlanLayerTable {
 		}
 	}
 	/**
-	 * Delete a row given its plan and layer ids.
+	 * Delete a row given its plan and dataset ids.
 	 */
-	public boolean deletePlanLayer(long planId,long layerId) {
+	public boolean deletePlanDataset(long planId,long datasetId) {
 		PreparedStatement statement = null;
-		String SQL = "DELETE FROM PlanLayer WHERE planId= ? AND layerId = ?";
+		String SQL = "DELETE FROM PlanDataset WHERE planId= ? AND datasetId = ?";
 		boolean success = false;
 		try {
-			LOGGER.info(String.format("%s.deletePlanLayer: \n%s",CLSS,SQL));
+			LOGGER.info(String.format("%s.deletePlanDataset: \n%s",CLSS,SQL));
 			statement = cxn.prepareStatement(SQL);
 			statement.setLong(1, planId);
-			statement.setLong(2, layerId);
+			statement.setLong(2, datasetId);
 			statement.executeUpdate();
 			if( statement.getUpdateCount()>0) success = true;
 		}
 		catch(SQLException e) {
-			LOGGER.severe(String.format("%s.deletePlanLayer: error (%s)",CLSS,e.getMessage()));
+			LOGGER.severe(String.format("%s.deletePlanDataset: error (%s)",CLSS,e.getMessage()));
 		}
 		finally {
 			if( statement!=null) {
@@ -89,21 +82,21 @@ public class PlanLayerTable {
 		return success;
 	}
 	/**
-	 * Delete all layers for a given plan
+	 * Delete all datasets for a given plan
 	 */
-	public boolean deletePlanLayers(long planId) {
+	public boolean deletePlanDatasets(long planId) {
 		PreparedStatement statement = null;
-		String SQL = "DELETE FROM PlanLayer WHERE planId= ?";
+		String SQL = "DELETE FROM PlanDataset WHERE planId = ?";
 		boolean success = false;
 		try {
-			LOGGER.info(String.format("%s.deletePlanLayer: \n%s",CLSS,SQL));
+			LOGGER.info(String.format("%s.deletePlanDatasets: \n%s",CLSS,SQL));
 			statement = cxn.prepareStatement(SQL);
 			statement.setLong(1, planId);
 			statement.executeUpdate();
 			if( statement.getUpdateCount()>0) success = true;
 		}
 		catch(SQLException e) {
-			LOGGER.severe(String.format("%s.deletePlanLayer: error (%s)",CLSS,e.getMessage()));
+			LOGGER.severe(String.format("%s.deletePlanDatasets: error (%s)",CLSS,e.getMessage()));
 		}
 		finally {
 			if( statement!=null) {
@@ -113,39 +106,39 @@ public class PlanLayerTable {
 		return success;
 	}
 	/**
-	 * @return a list of roles for layers used by the specified plan. There may be none.
+	 * @return a list of roles for dataset used by the specified plan. There may be none.
 	 */
-	public List<PlanLayer> getLayerRoles(long planId) {
-		List<PlanLayer> list = new ArrayList<>();
-		PlanLayer planLayer = null;
+	public List<PlanDataset> getDatasetRoles(long planId) {
+		List<PlanDataset> list = new ArrayList<>();
+		PlanDataset planDataset = null;
 		PreparedStatement statement = null;
 		ResultSet rs = null;
-		String SQL = "SELECT Layer.id as id,Layer.name as name,PlanLayer.role as role from Layer,PlanLayer "+
-					" WHERE PlanLayer.planId=? "+
-					"   AND PlanLayer.layerId = Layer.id ORDER BY name";
+		String SQL = "SELECT Dataset.id as id,Dataset.name as name,PlanDataset.role as role from Dataset,PlanDataset "+
+					" WHERE PlanDataset.planId=? "+
+					"   AND PlanDataset.datasetId = Dataset.id ORDER BY name";
 		try {
 			statement = cxn.prepareStatement(SQL);
 			statement.setLong(1, planId);
 			statement.setQueryTimeout(10);  // set timeout to 10 sec.
 			rs = statement.executeQuery();
 			while(rs.next()) {
-				planLayer = new PlanLayer(planId,rs.getLong("id"));
-				planLayer.setName(rs.getString("name"));
-				LayerRole role = LayerRole.BOUNDARIES;   // Default
+				planDataset = new PlanDataset(planId,rs.getLong("id"));
+				planDataset.setName(rs.getString("name"));
+				DatasetRole role = DatasetRole.BOUNDARIES;   // Default
 				try {
-					role = LayerRole.valueOf(rs.getString("role").toUpperCase());
+					role = DatasetRole.valueOf(rs.getString("role").toUpperCase());
 				}
 				catch(IllegalArgumentException ignore) {}
-				planLayer.setRole(role);
-				LOGGER.info(String.format("%s.getLayerRoles: %d %d %s %s",CLSS,planId,planLayer.getLayerId(),planLayer.getName(),planLayer.getRole().name()));
-				list.add(planLayer);	
+				planDataset.setRole(role);
+				LOGGER.info(String.format("%s.getDatasetRoles: %d %d %s %s",CLSS,planId,planDataset.getLayerId(),planDataset.getName(),planDataset.getRole().name()));
+				list.add(planDataset);	
 			}
 			rs.close();
 		}
 		catch(SQLException e) {
 			// if the error message is "out of memory", 
 			// it probably means no database file is found
-			LOGGER.severe(String.format("%s.getLayerRoles: Error %s (%s)",CLSS,SQL,e.getMessage()));
+			LOGGER.severe(String.format("%s.getDatasetRoles: Error %s (%s)",CLSS,SQL,e.getMessage()));
 		}
 		finally {
 			if( rs!=null) {
@@ -158,15 +151,15 @@ public class PlanLayerTable {
 		return list;
 	}
 	/**
-	 * @return a list of roles for layers used by the specified plan. There may be none.
+	 * @return a list of roles for datasets used by the specified plan. There may be none.
 	 */
-	public List<PlanLayer> getUnusedLayerRoles(long planId) {
-		List<PlanLayer> list = new ArrayList<>();
-		PlanLayer planLayer = null;
+	public List<PlanDataset> getUnusedDatasetRoles(long planId) {
+		List<PlanDataset> list = new ArrayList<>();
+		PlanDataset planDataset = null;
 		PreparedStatement statement = null;
 		ResultSet rs = null;
-		String SQL = "SELECT id,name from Layer "+
-					" WHERE id NOT in (SELECT layerId as id FROM PlanLayer WHERE planId=?)" +
+		String SQL = "SELECT id,name from Dataset "+
+					" WHERE id NOT in (SELECT datasetId as id FROM PlanDataset WHERE planId=?)" +
 					" ORDER BY name";
 		try {
 			statement = cxn.prepareStatement(SQL);
@@ -174,17 +167,17 @@ public class PlanLayerTable {
 			statement.setQueryTimeout(10);  // set timeout to 10 sec.
 			rs = statement.executeQuery();
 			while(rs.next()) {
-				planLayer = new PlanLayer(planId,rs.getLong("id"));
-				planLayer.setName(rs.getString("name"));
-				planLayer.setRole(LayerRole.NONE);
-				list.add(planLayer);	
+				planDataset = new PlanDataset(planId,rs.getLong("id"));
+				planDataset.setName(rs.getString("name"));
+				planDataset.setRole(DatasetRole.NONE);
+				list.add(planDataset);	
 			}
 			rs.close();
 		}
 		catch(SQLException e) {
 			// if the error message is "out of memory", 
 			// it probably means no database file is found
-			LOGGER.severe(String.format("%s.getFeatureAttributes: Error (%s)",CLSS,e.getMessage()));
+			LOGGER.severe(String.format("%s.getUnusedDatasetRoles: Error (%s)",CLSS,e.getMessage()));
 		}
 		finally {
 			if( rs!=null) {
@@ -198,27 +191,27 @@ public class PlanLayerTable {
 	}
 	
 	/**
-	 * Clear the database of plan layers for the specified model, then re-create.
+	 * Clear the database of plan datasets for the specified model, then re-create.
 	 * @cxn an open database connection
-	 * @param layerId the layer id
+	 * @param model the plan model
 	 */
-	public void synchronizePlanLayers(PlanModel model) {
-		LOGGER.info(String.format("%s.synchronizePlanLayers: plan %d",CLSS,model.getId()));
+	public void synchronizePlanDatasets(PlanModel model) {
+		LOGGER.info(String.format("%s.synchronizePlanDatasets: plan %d",CLSS,model.getId()));
 		// Delete any layers currently associated with the plan
-		deletePlanLayers(model.getId());
+		deletePlanDatasets(model.getId());
 		// Create database entries for layers in the mpodel's list
-		for(PlanLayer planLayer:model.getLayers()) {
-			createPlanLayer(model.getId(),planLayer.getLayerId(),planLayer.getRole());
+		for(PlanDataset planDataset:model.getLayers()) {
+			createPlanDataset(model.getId(),planDataset.getLayerId(),planDataset.getRole());
 		}
 	}
 	/**
-	 * Change the database attributes of the named layer.
+	 * Change the role of the named dataset.
 	 * @cxn an open database connection
 	 * @param config configuration object
 	 */
-	public boolean updatePlanLayer(long planId,long layerId,LayerRole role) {
+	public boolean updatePlanDataset(long planId,long layerId,DatasetRole role) {
 		PreparedStatement statement = null;
-		String SQL = "UPDATE PlanLayer SET role=? WHERE planId=? AND layerId=?";
+		String SQL = "UPDATE PlanDataset SET role=? WHERE planId=? AND datasetId=?";
 		boolean success = false;
 		try {
 			statement = cxn.prepareStatement(SQL);
@@ -229,7 +222,7 @@ public class PlanLayerTable {
 			if( statement.getUpdateCount()>0) success = true;
 		}
 		catch(SQLException e) {
-			LOGGER.severe(String.format("%s.updatePlanLayer: role = %s error (%s)",CLSS,role,e.getMessage()));
+			LOGGER.severe(String.format("%s.updatePlanDataset: role = %s error (%s)",CLSS,role,e.getMessage()));
 		}
 		finally {
 			if( statement!=null) {

@@ -36,32 +36,32 @@ package redistrict.colorado.core;
 /**
  *  Describe the membership of a layer within a plan 
  */
-public class PlanLayer  {
+public class PlanDataset  {
     private static final long serialVersionUID = -871137208054228529L;
     private final long layerId; // Layer ID
     private final long planId; // Layer ID
     private String name;       // Layer name
-    private LayerRole role;  // Role of layer within the plan
+    private DatasetRole role;  // Role of layer within the plan
 
     /**
      * Define a layer within a plan.
      * @param pid plan Id
      * @param lid layerId
      */
-    public PlanLayer(long pid,long lid) {
+    public PlanDataset(long pid,long lid) {
     	this.planId = pid;
         this.layerId = lid;
         this.name = "";
-        this.role = LayerRole.BOUNDARIES;
+        this.role = DatasetRole.BOUNDARIES;
     }
     
 
     public long getLayerId() { return this.layerId; }
     public long getPlanId() { return this.planId; }
     public String getName()  { return this.name; }
-    public LayerRole getRole()  { return this.role; }
+    public DatasetRole getRole()  { return this.role; }
 
     public void setName(String nam) { this.name = nam; }
-    public void setRole(LayerRole r) { this.role = r; }
+    public void setRole(DatasetRole r) { this.role = r; }
 
  }

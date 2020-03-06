@@ -13,13 +13,13 @@ import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
-import redistrict.colorado.core.FeatureMetric;
+import redistrict.colorado.core.PlanFeature;
 
 /**
  * Render a string type cell in the FeatureMetric table
  */
-public class FMStringCellFactory implements Callback<TableColumn<FeatureMetric, String>, TableCell<FeatureMetric, String>>,
-														EventHandler<TableColumn.CellEditEvent<FeatureMetric, String>> { 
+public class FMStringCellFactory implements Callback<TableColumn<PlanFeature, String>, TableCell<PlanFeature, String>>,
+														EventHandler<TableColumn.CellEditEvent<PlanFeature, String>> { 
 	private final static String CLSS = "FMStringCellFactory";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 
@@ -27,11 +27,11 @@ public class FMStringCellFactory implements Callback<TableColumn<FeatureMetric, 
 	}
 	
 	@Override
-	public TableCell<FeatureMetric, String> call(TableColumn<FeatureMetric, String> p) {
+	public TableCell<PlanFeature, String> call(TableColumn<PlanFeature, String> p) {
 		//LOGGER.info(String.format("%s:TableCell.call: %s",CLSS,p.getText()));
-		TableCell<FeatureMetric, String> cell = null;
+		TableCell<PlanFeature, String> cell = null;
 		if(p.getText().equalsIgnoreCase("Type")) {
-			ComboBoxTableCell<FeatureMetric, String> comboCell = new ComboBoxTableCell<FeatureMetric, String>();
+			ComboBoxTableCell<PlanFeature, String> comboCell = new ComboBoxTableCell<PlanFeature, String>();
 			comboCell.setConverter(new FMStringConverter());
 			ObservableList<String> list = comboCell.getItems();
 			list.clear();
@@ -41,7 +41,7 @@ public class FMStringCellFactory implements Callback<TableColumn<FeatureMetric, 
 			cell = comboCell;
 		}
 		else {
-			TextFieldTableCell<FeatureMetric, String> textCell = new TextFieldTableCell<FeatureMetric, String>();
+			TextFieldTableCell<PlanFeature, String> textCell = new TextFieldTableCell<PlanFeature, String>();
 			textCell.setConverter(new FMStringConverter());
 			cell = textCell;
 		}
@@ -50,7 +50,7 @@ public class FMStringCellFactory implements Callback<TableColumn<FeatureMetric, 
 	
 	// ======================================== Event Handler ========================================
 	@Override
-	public void handle(CellEditEvent<FeatureMetric, String> text) {
+	public void handle(CellEditEvent<PlanFeature, String> text) {
 		LOGGER.info(String.format("%s.handle: %s",CLSS,text));
 
 	}

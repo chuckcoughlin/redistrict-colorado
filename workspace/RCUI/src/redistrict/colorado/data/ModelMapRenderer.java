@@ -15,7 +15,7 @@ import org.geotools.style.Style;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import redistrict.colorado.core.LayerModel;
+import redistrict.colorado.core.DatasetModel;
 
 /**
  * Render shapes as referenced by a single layer model in a panel on the screen.
@@ -23,7 +23,7 @@ import redistrict.colorado.core.LayerModel;
 	public class ModelMapRenderer  {
 		private final static String CLSS = "MapRenderer";
 		private static Logger LOGGER = Logger.getLogger(CLSS);
-		private LayerModel model = null;
+		private DatasetModel model = null;
 		private ShapefileRenderer renderer;
 		private final Canvas canvas;
 		private FeatureFilter filter;
@@ -53,7 +53,7 @@ import redistrict.colorado.core.LayerModel;
 		 * If the model has not been refreshed from the file yet this session, then do so now.
 		 * @param m the model
 		 */
-		public void updateModel(LayerModel m) {
+		public void updateModel(DatasetModel m) {
 			this.model = m;
 			MapLayer layer = new MapLayer(model.getFeatures());
 			layer.setTitle(model.getName());

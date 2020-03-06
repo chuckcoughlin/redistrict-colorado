@@ -13,7 +13,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Label;
-import redistrict.colorado.core.LayerModel;
+import redistrict.colorado.core.DatasetModel;
 import redistrict.colorado.pane.BasicRightSideNode;
 import redistrict.colorado.pane.NavigationPane;
 import redistrict.colorado.ui.DisplayOption;
@@ -28,7 +28,7 @@ public class FeatureMapPane extends BasicRightSideNode implements EventHandler<A
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private NavigationPane navPane = new NavigationPane(this,this);
 	private Label headerLabel = new Label("Map");
-	private LayerModel model;
+	private DatasetModel model;
 	private final FeatureMapRenderer map;
 
 	public FeatureMapPane() {
@@ -60,7 +60,7 @@ public class FeatureMapPane extends BasicRightSideNode implements EventHandler<A
 
 	@Override
 	public void updateModel() {
-		LayerModel selectedModel = hub.getSelectedLayer();
+		DatasetModel selectedModel = hub.getSelectedLayer();
 		if( selectedModel!=null) {
 			model = selectedModel;
 			headerLabel.setText(model.getName());

@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Specify allowable uses of map overlays.
  */
-public enum LayerRole
+public enum DatasetRole
 {
 	PRIMARY,
 	BOUNDARIES,
@@ -26,7 +26,7 @@ public enum LayerRole
 	 */
 	public static List<String> names() {
 		List<String> names = new ArrayList<>();
-		for (LayerRole role : LayerRole.values())
+		for (DatasetRole role : DatasetRole.values())
 		{
 			names.add(role.name());
 		}

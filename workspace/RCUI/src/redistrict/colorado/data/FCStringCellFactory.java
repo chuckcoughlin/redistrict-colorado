@@ -14,7 +14,7 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 import redistrict.colorado.core.FeatureConfiguration;
-import redistrict.colorado.core.LayerRole;
+import redistrict.colorado.core.StandardAttributes;
 
 /**
  * Render a string type cell in the FeatureConfiguration table
@@ -36,8 +36,8 @@ public class FCStringCellFactory implements Callback<TableColumn<FeatureConfigur
 			comboCell.setConverter(new FCStringConverter());
 			ObservableList<String> list = comboCell.getItems();
 			list.clear();
-			for( LayerRole type:LayerRole.values()) {
-				list.add(type.name());
+			for( String alias:StandardAttributes.names()) {
+				list.add(alias);
 			}
 			cell = comboCell;
 		}

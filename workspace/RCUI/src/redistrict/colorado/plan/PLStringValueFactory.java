@@ -14,9 +14,9 @@ import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.util.Callback;
-import redistrict.colorado.core.PlanLayer;
+import redistrict.colorado.core.PlanDataset;
 
-public class PLStringValueFactory implements Callback<TableColumn.CellDataFeatures<PlanLayer,String>,ObservableValue<String>> {
+public class PLStringValueFactory implements Callback<TableColumn.CellDataFeatures<PlanDataset,String>,ObservableValue<String>> {
 	private final static String CLSS = "PLStringValueFactory";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	
@@ -24,8 +24,8 @@ public class PLStringValueFactory implements Callback<TableColumn.CellDataFeatur
 	 * Key values off of column names. 
 	 */
 	@Override
-	public ObservableValue<String> call(CellDataFeatures<PlanLayer, String> cdf) {
-		PlanLayer pl = cdf.getValue();
+	public ObservableValue<String> call(CellDataFeatures<PlanDataset, String> cdf) {
+		PlanDataset pl = cdf.getValue();
 		String name = cdf.getTableColumn().getText();
 		//LOGGER.info(String.format("%s.getValue: %s",CLSS,name));
 		StringProperty property = new SimpleStringProperty();

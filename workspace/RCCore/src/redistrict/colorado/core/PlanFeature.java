@@ -36,7 +36,7 @@ package redistrict.colorado.core;
 /**
  *  Hold statistics for a plan-district. 
  */
-public class FeatureMetric  {
+public class PlanFeature  {
     private static final long serialVersionUID = -871137208054228529L;
     private final int featureId; // feature ID
     private final long planId; // Layer ID
@@ -55,7 +55,7 @@ public class FeatureMetric  {
      * @param pid plan Id
      * @param fid feature Id
      */
-    public FeatureMetric(long pid,int fid) {
+    public PlanFeature(long pid,int fid) {
     	this.planId = pid;
         this.featureId = fid;
     }

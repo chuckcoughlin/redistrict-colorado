@@ -50,6 +50,7 @@ public class PlanTable {
 			ResultSet rs = statement.getGeneratedKeys();
 		    if (rs.next()) {
 		        model = new PlanModel(rs.getInt(1),DEFAULT_NAME);
+		        model.setActive(false);
 		    } 
 		}
 		catch(SQLException e) {

@@ -14,9 +14,9 @@ import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.util.Callback;
-import redistrict.colorado.core.FeatureMetric;
+import redistrict.colorado.core.PlanFeature;
 
-public class FMDoubleValueFactory implements Callback<TableColumn.CellDataFeatures<FeatureMetric,Number>,ObservableValue<Number>> {
+public class FMDoubleValueFactory implements Callback<TableColumn.CellDataFeatures<PlanFeature,Number>,ObservableValue<Number>> {
 	private final static String CLSS = "FMDoubleValueFactory";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	
@@ -24,8 +24,8 @@ public class FMDoubleValueFactory implements Callback<TableColumn.CellDataFeatur
 	 * Key values off of column names. The only one that is a String is name 
 	 */
 	@Override
-	public ObservableValue<Number> call(CellDataFeatures<FeatureMetric, Number> cdf) {
-		FeatureMetric fm = cdf.getValue();
+	public ObservableValue<Number> call(CellDataFeatures<PlanFeature, Number> cdf) {
+		PlanFeature fm = cdf.getValue();
 		String name = cdf.getTableColumn().getText();
 		//LOGGER.info(String.format("%s.getValue: %s",CLSS,name));
 		DoubleProperty property = new SimpleDoubleProperty();

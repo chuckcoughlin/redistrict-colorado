@@ -33,7 +33,9 @@ public class FCStringValueFactory implements Callback<TableColumn.CellDataFeatur
 			property.setValue(fc.getName());
 		}
 		else if( name.equalsIgnoreCase("Alias")) {
-			property.setValue(fc.getAlias());
+			if( !fc.getAlias().equalsIgnoreCase("NONE")) {
+				property.setValue(fc.getAlias());
+			}
 		}
 		else if( name.equalsIgnoreCase("Type")) {
 			property.setValue(fc.getAttributeType().name());

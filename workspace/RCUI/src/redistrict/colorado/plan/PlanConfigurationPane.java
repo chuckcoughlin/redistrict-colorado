@@ -23,8 +23,8 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import redistrict.colorado.bind.EventBindingHub;
-import redistrict.colorado.core.LayerRole;
-import redistrict.colorado.core.PlanLayer;
+import redistrict.colorado.core.DatasetRole;
+import redistrict.colorado.core.PlanDataset;
 import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.pane.BasicRightSideNode;
@@ -54,8 +54,8 @@ public class PlanConfigurationPane extends BasicRightSideNode
 
 	private final TextField nameField;
 	private final TextField descriptionField;
-	private final ObservableList<PlanLayer> items;  // Array displayed in table
-	private final TableView<PlanLayer> table;
+	private final ObservableList<PlanDataset> items;  // Array displayed in table
+	private final TableView<PlanDataset> table;
 	private final TableEventHandler cellHandler;
 
 
@@ -96,11 +96,11 @@ public class PlanConfigurationPane extends BasicRightSideNode
 		setLeftAnchor(grid,UIConstants.LIST_PANEL_LEFT_MARGIN);
 		setRightAnchor(grid,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 		
-		table = new TableView<PlanLayer>();
+		table = new TableView<PlanDataset>();
 		table.setEditable(true);
 		table.setPrefSize(UIConstants.FEATURE_TABLE_WIDTH, UIConstants.FEATURE_TABLE_HEIGHT);
 		table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
-		TableColumn<PlanLayer,String> column;
+		TableColumn<PlanDataset,String> column;
 		PLStringValueFactory valueFactory = new PLStringValueFactory();
 		PLStringCellFactory cellFactory = new PLStringCellFactory();
 
@@ -131,7 +131,7 @@ public class PlanConfigurationPane extends BasicRightSideNode
 		setBottomAnchor(savePane,0.);
        
 		configureDefinition();
-		updateLayers();
+		updateDatasets();
 		configureTable();
 	}
 	
@@ -142,28 +142,28 @@ public class PlanConfigurationPane extends BasicRightSideNode
 		}
 	}
 	/**
-	 * Update the table layer list from the model. If the model has no layers, read them from the database.
+	 * Update the table's dataset list from the model. If the model has no datasets, read them from the database.
 	 */
-	private void updateLayers() {
+	private void updateDatasets() {
 		if( model!=null ) {
 			items.clear();
 			try {
-				model.setLayers(Database.getInstance().getPlanLayerTable().getLayerRoles(model.getId()));
-				LOGGER.info(String.format("%s.updateLayers: There are %d layer definitions", CLSS,model.getLayers().size()));
-				for(PlanLayer player:model.getLayers()) {
+				model.setLayers(Database.getInstance().getPlanLayerTable().getDatasetRoles(model.getId()));
+				LOGGER.info(String.format("%s.updateDatasets: There are %d dataset definitions", CLSS,model.getLayers().size()));
+				for(PlanDataset player:model.getLayers()) {
 					items.add(player);
 				}
 			}
 			catch( Exception ex) {
 				model.setLayers(null);
-				String msg = String.format("%s.updateLayers: Failed to read layer definitions (%s)",CLSS,ex.getLocalizedMessage());
+				String msg = String.format("%s.updateDatasets: Failed to read dataset definitions (%s)",CLSS,ex.getLocalizedMessage());
 				LOGGER.warning(msg);
 				ex.printStackTrace();
 				EventBindingHub.getInstance().setMessage(msg);
 			}
 			// For purposes of the table, append layers not part of the model.
-			List<PlanLayer> unused = Database.getInstance().getPlanLayerTable().getUnusedLayerRoles(model.getId());
-			for(PlanLayer player:unused) {
+			List<PlanDataset> unused = Database.getInstance().getPlanLayerTable().getUnusedDatasetRoles(model.getId());
+			for(PlanDataset player:unused) {
 				items.add(player);
 			}
 		}
@@ -176,9 +176,9 @@ public class PlanConfigurationPane extends BasicRightSideNode
 	@Override
 	public void updateModel() {
 		this.model = EventBindingHub.getInstance().getSelectedPlan();
-		this.headerLabel.setText(model.getName()+" Plan");
+		this.headerLabel.setText("Configure "+model.getName());
 		configureDefinition();
-		updateLayers();
+		updateDatasets();
 		configureTable();
 	}
 
@@ -194,38 +194,38 @@ public class PlanConfigurationPane extends BasicRightSideNode
 				model.setDescription(descriptionField.getText());
 				Database.getInstance().getPlanTable().updatePlan(model);
 				// Update layer roles in the model
-				List<PlanLayer> players = model.getLayers();
+				List<PlanDataset> players = model.getLayers();
 				players.clear();
-				for(PlanLayer player:items) {
-					if(!player.getRole().equals(LayerRole.NONE)) players.add(player);
+				for(PlanDataset player:items) {
+					if(!player.getRole().equals(DatasetRole.NONE)) players.add(player);
 				}
 				// Update layer roles in the database
-				Database.getInstance().getPlanLayerTable().synchronizePlanLayers(model);
+				Database.getInstance().getPlanLayerTable().synchronizePlanDatasets(model);
 				EventBindingHub.getInstance().unselectPlan();     // Force fire
 				EventBindingHub.getInstance().setSelectedPlan(model);
 			}
 		}
 	}
 	// ================================================= Event Handler ============================================
-	public class TableEventHandler implements EventHandler<TableColumn.CellEditEvent<PlanLayer,String>>  {
+	public class TableEventHandler implements EventHandler<TableColumn.CellEditEvent<PlanDataset,String>>  {
 		/**
 		 * The event source is a table column ... A cell edit requires a <ENTER> to complete.
 		 * Loss of focus is not enough.
 		 */
 		@Override
-		public void handle(CellEditEvent<PlanLayer, String> event) {
+		public void handle(CellEditEvent<PlanDataset, String> event) {
 			int row = event.getTablePosition().getRow();
 			String column = event.getTableColumn().getText();
 			String newValue = event.getNewValue();
-			List<PlanLayer> items = event.getTableView().getItems();
+			List<PlanDataset> items = event.getTableView().getItems();
 			LOGGER.info(String.format("%s.handle %s: row %d = %s",CLSS,column,row,newValue));
-			PlanLayer item = items.get(row);
+			PlanDataset item = items.get(row);
 			if( column.equalsIgnoreCase("Name") ) {
 				item.setName(newValue);
 			}
 			else if( column.equalsIgnoreCase("Role") ) {
 				try {
-					item.setRole(LayerRole.valueOf(event.getNewValue()));
+					item.setRole(DatasetRole.valueOf(event.getNewValue()));
 				}
 				catch(IllegalArgumentException iae) {
 					LOGGER.warning(String.format("%s.handle %s: Bad value for AttributeType - %s (%s)",CLSS,newValue,iae.getLocalizedMessage()));

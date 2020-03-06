@@ -17,6 +17,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
@@ -41,10 +42,10 @@ public class PlanRow extends ListCell<PlanModel>  {
 	private final static double COL2_WIDTH = 120.;
 	private final static double COL3_WIDTH = 65.;
 	private final static double COL4_WIDTH = 40.;
-	private final static double COL5_WIDTH = 70.;
+	private final static double COL5_WIDTH = 80.;
 	private final static double ROW1_HEIGHT = 40.;
 	private static final GuiUtil guiu = new GuiUtil();
-	private final static String METRICS = "metrics";
+	private final static String ATTRIBUTES = "attributes";
 	private final static String EDIT = "edit";
 	private final static String ACTIVE = "active";
 	private GridPane grid = new GridPane();
@@ -54,7 +55,7 @@ public class PlanRow extends ListCell<PlanModel>  {
     private final Label description;
     private final CheckBox active;
     private final Button edit;
-    private final Button metrics;
+    private final Button attributes;
     private final EditEventHandler handler;
     private final PlanChangeListener listener;
     
@@ -70,9 +71,11 @@ public class PlanRow extends ListCell<PlanModel>  {
 	    active.setUserData(ACTIVE);
 	    edit = new Button("",guiu.loadImage("images/edit.png"));
 	    edit.setUserData(EDIT);
-	    metrics =new Button("Metrics");
-	    metrics.setId(ComponentIds.BUTTON_METTRICS);
-	    metrics.setUserData(METRICS);
+	    attributes =new Button("Attributes");
+	    attributes.setId(ComponentIds.BUTTON_ATTRIBUTES);
+	    attributes.setUserData(ATTRIBUTES);
+	    Tooltip tt = new Tooltip("Display a table of aggregated feature attributes for this plan.");
+	    Tooltip.install(attributes, tt);
 
         configureGrid();        
         configureLabels();
@@ -82,7 +85,7 @@ public class PlanRow extends ListCell<PlanModel>  {
         
         active.setOnAction(handler);
         edit.setOnAction(handler);
-        metrics.setOnAction(handler);
+        attributes.setOnAction(handler);
     } 
 	private void configureControls() {
 		edit.getStyleClass().add(UIConstants.LIST_CELL_BUTTON_CLASS);
@@ -117,7 +120,7 @@ public class PlanRow extends ListCell<PlanModel>  {
     private void addControlsToGrid() {
     	grid.add(active, 2,0);
         grid.add(edit, 3, 0);                    
-        grid.add(metrics, 4, 0);        
+        grid.add(attributes, 4, 0);        
     }
 	
     @Override
@@ -160,8 +163,8 @@ public class PlanRow extends ListCell<PlanModel>  {
     		PlanModel model = getItem();
     		hub.setSelectedPlan(model);
     		LOGGER.info(String.format("%s.handle: processing event from %s (%s)", CLSS,data,model.getName()));
-    		if( data.equals(METRICS)) {
-    			hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.PLAN_METRICS));
+    		if( data.equals(ATTRIBUTES)) {
+    			hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.PLAN_FEATURES));
     		}
     		else if( data.equals(EDIT)) {
     			if(model!=null ) {

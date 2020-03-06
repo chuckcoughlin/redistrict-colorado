@@ -21,12 +21,12 @@ sqlite3 $DB < ${SQL}/createTables.sql
 
 # Change to CSV mode and load the attribute alias lookup table
 cd ${CSV}
-cat AttributeAlias.csv | tail -n+2|sed -e 's/	/,/g' >/tmp/attributealias
+cat Preferences.csv | tail -n+2|sed -e 's/	/,/g' >/tmp/preferences
 
 cd ${DBDIR}
 sqlite3 $DB << EOF
 .mode csv
-.import /tmp/attributealias AttributeAlias
+.import /tmp/preferences Preferences
 EOF
 mkdir -p ${APP}/db
 cp ${DB} ${APP}/db/${DB}

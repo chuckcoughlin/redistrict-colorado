@@ -21,7 +21,8 @@ public enum StandardAttributes
 	HISPANIC,
 	POPULATION,
 	REPUBLICAN,
-	WHITE
+	WHITE,
+	NONE
 	;
 
 	/**

@@ -31,11 +31,10 @@ import javafx.stage.FileChooser;
 import javafx.stage.Popup;
 import javafx.stage.Window;
 import redistrict.colorado.bind.EventBindingHub;
+import redistrict.colorado.core.DatasetModel;
+import redistrict.colorado.core.DatasetRole;
 import redistrict.colorado.core.FeatureConfiguration;
-import redistrict.colorado.core.LayerModel;
-import redistrict.colorado.core.LayerRole;
 import redistrict.colorado.db.Database;
-import redistrict.colorado.db.LayerCache;
 import redistrict.colorado.pane.BasicRightSideNode;
 import redistrict.colorado.pane.SavePane;
 import redistrict.colorado.ui.ComponentIds;
@@ -45,8 +44,8 @@ import redistrict.colorado.ui.TableCellCallback;
 import redistrict.colorado.ui.UIConstants;
 import redistrict.colorado.ui.ViewMode;
 
-public class LayerConfigurationPane extends BasicRightSideNode implements EventHandler<ActionEvent> {
-	private final static String CLSS = "LayerConfigurationPane";
+public class DatasetConfigurationPane extends BasicRightSideNode implements EventHandler<ActionEvent> {
+	private final static String CLSS = "DatasetConfigurationPane";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private final static double GRID0_WIDTH = 100.;    // Grid widths
 	private final static double GRID1_WIDTH = 300.;
@@ -54,7 +53,7 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 	private final static double TABLE_OFFSET_TOP = 200.;
 	private static final GuiUtil guiu = new GuiUtil();
 	private final GridPane grid;
-	private Label headerLabel = new Label("Layer Configuration");
+	private Label headerLabel = new Label("Dataset Configuration");
 	private final SavePane savePane = new SavePane(this);
 	private final Label nameLabel = new Label("Name: ");
 	private final Label descriptionLabel = new Label("Description: ");
@@ -65,13 +64,13 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 	private final TextField pathField;
 	private final ComboBox<String> roleChooser;
 	private Label indicator;
-	private LayerModel model;
+	private DatasetModel model;
 	private final ObservableList<FeatureConfiguration> items;
 	private final TableView<FeatureConfiguration> table;
 	private final TableEventHandler cellHandler;
 	
 
-	public LayerConfigurationPane() {
+	public DatasetConfigurationPane() {
 		super(ViewMode.DATASET,DisplayOption.LAYER_CONFIGURATION);
 		this.model = EventBindingHub.getInstance().getSelectedLayer();
 		this.items = FXCollections.observableArrayList();
@@ -91,7 +90,7 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
         this.pathField = new TextField();
         pathField.setEditable(false);
         this.roleChooser = new ComboBox<>();
-        roleChooser.getItems().addAll(LayerRole.names());
+        roleChooser.getItems().addAll(DatasetRole.names());
         this.indicator = new Label("",guiu.loadImage("images/ball_gray.png"));
         this.grid = new GridPane();
         grid.setHgap(10);
@@ -226,6 +225,7 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 	private void updateFeatures() {
 		if( model!=null ) {
 			if( model.getFeatures()!=null){
+				items.clear();
 				List<FeatureConfiguration> configs = Database.getInstance().getFeatureAttributeTable().getFeatureAttributes(model.getId());
 				for(FeatureConfiguration fc:configs) {
 					items.add(fc);
@@ -248,8 +248,6 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 			if (file != null) {      
 				pathField.setText(file.getAbsolutePath()); 
 			} 
-			updateFeatures();
-			configureTable();
 		}
 		// On a save, update the model object, the database and then the hub.
 		// If the shapefile path is changed, then update the feature list.
@@ -257,19 +255,22 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 			if(model!=null) {
 				model.setName(nameField.getText());
 				model.setDescription(descriptionField.getText());
-				model.setRole(LayerRole.valueOf(roleChooser.getValue()));
+				model.setRole(DatasetRole.valueOf(roleChooser.getValue()));
 				if( !pathField.getText().equals(model.getShapefilePath())) {
 					model.setShapefilePath(pathField.getText());
 					model.setFeatures(null);  // Force re-read next time features are used
 				}
-				Database.getInstance().getLayerTable().updateLayer(model);
+				Database.getInstance().getDatasetTable().updateDataset(model);
 				
 				// Update features in the model
 				Database.getInstance().getFeatureAttributeTable().updateFeatureAttributes(items);
 				Database.getInstance().getAttributeAliasTable().updateAliasTable(model.getId(),items);
 				EventBindingHub.getInstance().unselectLayer();     // Force fire
 				EventBindingHub.getInstance().setSelectedLayer(model);
+
 			}
+			updateFeatures();
+			configureTable();
 		}
 
 	}
@@ -293,9 +294,9 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 			int row = event.getTablePosition().getRow();
 			String column = event.getTableColumn().getText();
 			String newValue = event.getNewValue();
-			List<FeatureConfiguration> items = event.getTableView().getItems();
+			List<FeatureConfiguration> featConfigs = event.getTableView().getItems();
 			LOGGER.info(String.format("%s.handle %s: row %d = %s",CLSS,column,row,newValue));
-			FeatureConfiguration item = items.get(row);
+			FeatureConfiguration item = featConfigs.get(row);
 			if( column.equalsIgnoreCase("Alias") ) {
 				item.setAlias(newValue);
 			}

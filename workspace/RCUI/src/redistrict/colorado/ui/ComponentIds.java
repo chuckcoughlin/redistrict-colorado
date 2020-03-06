@@ -17,7 +17,7 @@ public interface ComponentIds {
 	public final static String BUTTON_DELETE 	= "ButtonDelete";
 	public final static String BUTTON_DOWN	 	= "ButtonDown";
 	public final static String BUTTON_LEFT	 	= "ButtonLeft";
-	public final static String BUTTON_METTRICS  = "ButtonMetrics";
+	public final static String BUTTON_ATTRIBUTES  = "ButtonMetrics";
 	public final static String BUTTON_RIGHT 	= "ButtonRight";
 	public final static String BUTTON_SAVE  	= "ButtonSave";
 	public final static String BUTTON_SHAPEFILE = "ButtonShapefile";

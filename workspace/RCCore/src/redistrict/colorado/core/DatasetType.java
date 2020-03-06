@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Specify allowable types of map overlays.
  */
-public enum LayerType
+public enum DatasetType
 {
 	GOOGLE_MAP,
 	SHAPEFILE
@@ -23,7 +23,7 @@ public enum LayerType
 	 */
 	public static List<String> names() {
 		List<String> names = new ArrayList<>();
-		for (LayerType type : LayerType.values())
+		for (DatasetType type : DatasetType.values())
 		{
 			names.add(type.name());
 		}

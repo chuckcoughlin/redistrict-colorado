@@ -13,7 +13,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Label;
-import redistrict.colorado.core.LayerModel;
+import redistrict.colorado.core.DatasetModel;
 import redistrict.colorado.pane.BasicRightSideNode;
 import redistrict.colorado.pane.NavigationPane;
 import redistrict.colorado.ui.DisplayOption;
@@ -29,7 +29,7 @@ import redistrict.colorado.ui.ViewMode;
 		private final NavigationPane navPane = new NavigationPane(this,this);
 		private final Label headerLabel = new Label("Map");
 		private final ModelMapRenderer map;
-		private LayerModel model;
+		private DatasetModel model;
 		
 		
 		public ModelMapPane() {
@@ -61,7 +61,7 @@ import redistrict.colorado.ui.ViewMode;
 		
 		@Override
 		public void updateModel() {
-			LayerModel selectedModel = hub.getSelectedLayer();
+			DatasetModel selectedModel = hub.getSelectedLayer();
 			if( selectedModel!=null) {
 				model = selectedModel;
 				headerLabel.setText(model.getName());

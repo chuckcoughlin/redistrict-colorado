@@ -24,7 +24,7 @@ import javafx.scene.paint.Color;
 import redistrict.colorado.core.FeatureConfiguration;
 
 /**
- * The FeatureAttribute table keeps track of the features associated with a given layer.
+ * The FeatureAttribute table keeps track of the features associated with a given dataset.
  * The Database class sets the connection once it is created.
  */
 public class FeatureAttributeTable {
@@ -40,7 +40,7 @@ public class FeatureAttributeTable {
 	public void setConnection(Connection connection) { this.cxn = connection; }
 	
 	/**
-	 * Map a new feature to a layer. The id must be the id of an existing layer. The database
+	 * Map a new feature to a dataset. The id must be the id of an existing dataset. The database
 	 * stores settings for display.
 	 */
 	public void createFeatureAttribute(long id,String name,AttributeType type) {
@@ -51,9 +51,9 @@ public class FeatureAttributeTable {
 		int g = rand.nextInt(255);
 		int b = rand.nextInt(255);
 		int rgb = 256*256*r+256*g+b;
-		String SQL = String.format("INSERT INTO FeatureAttribute(layerId,name,alias,type,background) values (%d,'%s','%s','%s',%d)",
+		String SQL = String.format("INSERT INTO FeatureAttribute(datasetId,name,alias,type,background) values (%d,'%s','%s','%s',%d)",
 															id,name,name,type.name(),rgb);
-		String UPDSQL = String.format("UPDATE FeatureAttribute SET alias = (SELECT alias FROM AttributeAlias WHERE name='%s') WHERE layerId=%d AND name='%s'",
+		String UPDSQL = String.format("UPDATE FeatureAttribute SET alias = (SELECT alias FROM AttributeAlias WHERE name='%s') WHERE datasetId=%d AND name='%s'",
 										name,id,name);
 		
 		Statement statement = null;
@@ -80,11 +80,11 @@ public class FeatureAttributeTable {
 		}
 	}
 	/**
-	 * Delete a row given its layer id.
+	 * Delete a row given its dataset id.
 	 */
 	public boolean deleteFeatureAttribute(long key,String name) {
 		PreparedStatement statement = null;
-		String SQL = "DELETE FROM FeatureAttribute WHERE layerId = ? and name = ?";
+		String SQL = "DELETE FROM FeatureAttribute WHERE datasetId = ? and name = ?";
 		boolean success = false;
 		try {
 			LOGGER.info(String.format("%s.deleteFeatureAttribute: \n%s",CLSS,SQL));
@@ -114,7 +114,7 @@ public class FeatureAttributeTable {
 		Map<String,String> map = new HashMap<>();
 		PreparedStatement statement = null;
 		ResultSet rs = null;
-		String SQL = "SELECT name,alias from FeatureAttribute WHERE layerId=?"; 
+		String SQL = "SELECT name,alias from FeatureAttribute WHERE datasetId=?"; 
 		try {
 			statement = cxn.prepareStatement(SQL);
 			statement.setLong(1, key);
@@ -128,7 +128,7 @@ public class FeatureAttributeTable {
 		catch(SQLException e) {
 			// if the error message is "out of memory", 
 			// it probably means no database file is found
-			LOGGER.severe(String.format("%s.getFeatureAttributes: Error (%s)",CLSS,e.getMessage()));
+			LOGGER.severe(String.format("%s.getNamesForFeatureAliases: Error (%s)",CLSS,e.getMessage()));
 		}
 		finally {
 			if( rs!=null) {
@@ -149,7 +149,7 @@ public class FeatureAttributeTable {
 		FeatureConfiguration configuration = null;
 		PreparedStatement statement = null;
 		ResultSet rs = null;
-		String SQL = "SELECT name,alias,type,visible,background,rank from FeatureAttribute WHERE layerId=? ORDER BY rank"; 
+		String SQL = "SELECT name,alias,type,visible,background,rank from FeatureAttribute WHERE datasetId=? ORDER BY rank"; 
 		try {
 			statement = cxn.prepareStatement(SQL);
 			statement.setLong(1, key);
@@ -195,32 +195,32 @@ public class FeatureAttributeTable {
 	
 	/**
 	 * Create or delete feature attributes as necessary so that the database accurately reflects
-	 * the schema for the specified layer.
+	 * the schema for the specified dataset.
 	 * @cxn an open database connection
-	 * @param layerId the layer id
+	 * @param datasetId the id of the dataset
 	 * @param attributes a list of attribute names recently read from the Shapefile
-	 * 		  for that layer
+	 * 		  for that dataset
 	 */
-	public void synchronizeFeatureAttributes(long layerId,List<String> attributes) {
-		LOGGER.info(String.format("%s.synchronizeFeatureAttributes: layer %d, %d attributes",CLSS,layerId,attributes.size()));
+	public void synchronizeFeatureAttributes(long datasetId,List<String> attributes) {
+		LOGGER.info(String.format("%s.synchronizeFeatureAttributes: dataset %d, %d attributes",CLSS,datasetId,attributes.size()));
 		// Make a dictionary of features per database
 		Map<String,FeatureConfiguration> configMap = new HashMap<>();
-		List<FeatureConfiguration> configList = getFeatureAttributes(layerId);
+		List<FeatureConfiguration> configList = getFeatureAttributes(datasetId);
 		for(FeatureConfiguration config: configList) {
 			configMap.put(config.getName(), config);
 		}
 		// Delete any features not in the collection
 		for(String key:configMap.keySet()) {
 			if(!attributes.contains(key)) {
-				LOGGER.info(String.format("%s.synchronizeFeatureAttributes: delete layer %d, %s",CLSS,layerId,key));
-				deleteFeatureAttribute(layerId,key);
+				LOGGER.info(String.format("%s.synchronizeFeatureAttributes: delete dataset %d, %s",CLSS,datasetId,key));
+				deleteFeatureAttribute(datasetId,key);
 			}
 		}
 		// Create database entries for new features
 		for(String name:attributes) {
 			if(!configMap.containsKey(name)) {
-				LOGGER.info(String.format("%s.synchronizeFeatureAttributes: create layer %d, %s",CLSS,layerId,name));
-				createFeatureAttribute(layerId,name,AttributeType.DOUBLE);
+				LOGGER.info(String.format("%s.synchronizeFeatureAttributes: create dataset %d, %s",CLSS,datasetId,name));
+				createFeatureAttribute(datasetId,name,AttributeType.DOUBLE);
 			}
 		}
 	}
@@ -231,7 +231,7 @@ public class FeatureAttributeTable {
 	 */
 	public boolean updateFeatureAttribute(FeatureConfiguration config) {
 		PreparedStatement statement = null;
-		String SQL = "UPDATE FeatureAttribute SET alias=?,type=?,visible=?,background=?,rank=? WHERE layerId = ? AND name=?";
+		String SQL = "UPDATE FeatureAttribute SET alias=?,type=?,visible=?,background=?,rank=? WHERE datasetId = ? AND name=?";
 		boolean success = false;
 		try {
 			statement = cxn.prepareStatement(SQL);
@@ -251,7 +251,7 @@ public class FeatureAttributeTable {
 			if( statement.getUpdateCount()>0) success = true;
 		}
 		catch(SQLException e) {
-			LOGGER.severe(String.format("%s.updateFeatureAttribute: updateLayerName error (%s)",CLSS,e.getMessage()));
+			LOGGER.severe(String.format("%s.updateFeatureAttribute: error (%s)",CLSS,e.getMessage()));
 		}
 		finally {
 			if( statement!=null) {
