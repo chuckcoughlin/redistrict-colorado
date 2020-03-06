@@ -7,7 +7,6 @@
 package redistrict.colorado.layer;
 import java.util.logging.Logger;
 
-import org.geotools.data.shapefile.ShapefileReader;
 import org.geotools.render.FeatureFilter;
 import org.geotools.render.MapLayer;
 import org.geotools.render.ShapefileRenderer;
@@ -16,9 +15,7 @@ import org.geotools.style.Style;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.LayerModel;
-import redistrict.colorado.db.Database;
 
 /**
  * Render shapes as referenced by a single layer model in a panel on the screen.
@@ -58,19 +55,6 @@ import redistrict.colorado.db.Database;
 		 */
 		public void updateModel(LayerModel m) {
 			this.model = m;
-			if(  model.getFeatures()==null && !model.getShapefilePath().isEmpty()) {
-				try {
-					model.setFeatures(ShapefileReader.read(model.getShapefilePath()));
-					LOGGER.info(String.format("%s.updateModel: Shapefile has %d records, %d attributes", CLSS,model.getFeatures().getFeatures().size(),model.getFeatures().getFeatureSchema().getAttributeCount()));
-				}
-				catch( Exception ex) {
-					model.setFeatures(null);
-					String msg = String.format("%s.updateModel: Failed to parse shapefile %s (%s)",CLSS,model.getShapefilePath(),ex.getLocalizedMessage());
-					LOGGER.warning(msg);
-					EventBindingHub.getInstance().setMessage(msg);
-				}
-				Database.getInstance().getFeatureAttributeTable().synchronizeFeatureAttributes(model.getId(), model.getFeatures().getFeatureSchema().getAttributeNames());
-			}
 			MapLayer layer = new MapLayer(model.getFeatures());
 			layer.setTitle(model.getName());
 			this.renderer = new ShapefileRenderer(layer);

@@ -6,14 +6,20 @@
  */
 package redistrict.colorado.core;
 
+import java.util.logging.Logger;
+
+import org.geotools.data.shapefile.ShapefileReader;
 import org.openjump.feature.FeatureCollection;
 
+import redistrict.colorado.db.Database;
+
 /**
- * A Layer is on overlay on the map. It must be one of two types:
- * - Google map
- * - Shapefile
+ * A Layer is on overlay on the map defined by a Shapefile. 
+ * The features are always read from the file, never the database. 
  */
 public class LayerModel  {
+	private final static String CLSS = "LayerModel";
+	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private final long id;
 	private String name;
 	private String description;
@@ -35,7 +41,24 @@ public class LayerModel  {
 	public String getDescription() { return this.description; }
 	public String getShapefilePath() { return this.shapefilePath; }
 	public LayerRole getRole() { return this.role; }
-	public FeatureCollection getFeatures() { return this.features; }
+	/**
+	 * As a way of lazy initialization, read from the shapefile when features
+	 * are currently null.
+	 * @return the layer's features as a collection
+	 */
+	public FeatureCollection getFeatures() { 
+		if(features==null && shapefilePath!=null && !shapefilePath.isBlank() ) {
+			try {
+				setFeatures(ShapefileReader.read(shapefilePath));
+			}
+			catch( Exception ex) {
+				String msg = String.format("%s: Failed to parse shapefile %s (%s)",CLSS,shapefilePath,ex.getLocalizedMessage());
+				LOGGER.warning(msg);
+			}
+			Database.getInstance().getFeatureAttributeTable().synchronizeFeatureAttributes(id, features.getFeatureSchema().getAttributeNames());
+		}
+		return this.features; 
+	}
 	public void setName(String nam) { this.name = nam; }
 	public void setDescription(String desc) { this.description = desc; }
 	public void setShapefilePath(String path) { this.shapefilePath = path; }
@@ -43,7 +66,7 @@ public class LayerModel  {
 	public void setFeatures(FeatureCollection fc) { this.features = fc; }
 	
 	/**
-	 * Make comparable
+	 * Make comparable for use with the cache.
 	 */
 	@Override
     public boolean equals(Object o) {

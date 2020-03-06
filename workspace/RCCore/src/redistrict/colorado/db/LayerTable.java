@@ -120,7 +120,6 @@ public class LayerTable {
 					catch(IllegalArgumentException ignore) {}
 					model.setRole(role);
 					cache.addLayer(model);
-					cache.populateFeatures(model);
 				}
 				list.add(model);
 				//LOGGER.info(String.format("%s.getLayers %d: %s is %s",CLSS,model.getId(),model.getName(),model.getRole().name()));
@@ -171,7 +170,6 @@ public class LayerTable {
 					model.setShapefilePath(rs.getString("shapefilePath"));
 					model.setRole(role);
 					cache.addLayer(model);
-					cache.populateFeatures(model);
 				}
 				//LOGGER.info(String.format("%s.getLayers %d: %s is %s",CLSS,model.getId(),model.getName(),model.getRole().name()));
 				break;
@@ -194,7 +192,7 @@ public class LayerTable {
 		return model;
 	}
 	/**
-	 * Associate a layer giving it a new name
+	 * Update the database from a model object.
 	 * it will be updated.
 	 * @cxn an open database connection
 	 * @param oldName

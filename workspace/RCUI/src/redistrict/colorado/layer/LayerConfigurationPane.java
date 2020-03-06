@@ -260,7 +260,7 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 				model.setRole(LayerRole.valueOf(roleChooser.getValue()));
 				if( !pathField.getText().equals(model.getShapefilePath())) {
 					model.setShapefilePath(pathField.getText());
-					LayerCache.getInstance().populateFeatures(model);
+					model.setFeatures(null);  // Force re-read next time features are used
 				}
 				Database.getInstance().getLayerTable().updateLayer(model);
 				

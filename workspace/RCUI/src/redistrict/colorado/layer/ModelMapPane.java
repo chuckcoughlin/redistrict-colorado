@@ -7,15 +7,12 @@
 package redistrict.colorado.layer;
 import java.util.logging.Logger;
 
-import org.geotools.data.shapefile.ShapefileReader;
-
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Label;
-import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.LayerModel;
 import redistrict.colorado.pane.BasicRightSideNode;
 import redistrict.colorado.pane.NavigationPane;
@@ -69,18 +66,6 @@ import redistrict.colorado.ui.ViewMode;
 				model = selectedModel;
 				headerLabel.setText(model.getName());
 				LOGGER.info(String.format("%s.updateModel: selected = %s", CLSS,model.getName()));
-				if( model.getFeatures()==null ) {
-					try {
-						model.setFeatures(ShapefileReader.read(model.getShapefilePath()));
-						map.updateModel(model);
-					}
-					catch( Exception ex) {
-						model.setFeatures(null);
-						String msg = String.format("%s: Failed to parse shapefile %s (%s)",CLSS,model.getShapefilePath(),ex.getLocalizedMessage());
-						LOGGER.warning(msg);
-						EventBindingHub.getInstance().setMessage(msg);
-					}
-				}
 				map.updateModel(model);
 			}
 		}
