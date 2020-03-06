@@ -4,7 +4,7 @@
  * This program is free software; you may redistribute it and/or
  * modify it under the terms of the GNU General Public License.
  */
-package redistrict.colorado.layer;
+package redistrict.colorado.data;
 import java.io.File;
 import java.util.List;
 import java.util.logging.Logger;
@@ -72,7 +72,7 @@ public class LayerConfigurationPane extends BasicRightSideNode implements EventH
 	
 
 	public LayerConfigurationPane() {
-		super(ViewMode.LAYER,DisplayOption.LAYER_CONFIGURATION);
+		super(ViewMode.DATASET,DisplayOption.LAYER_CONFIGURATION);
 		this.model = EventBindingHub.getInstance().getSelectedLayer();
 		this.items = FXCollections.observableArrayList();
 		this.cellHandler = new TableEventHandler();

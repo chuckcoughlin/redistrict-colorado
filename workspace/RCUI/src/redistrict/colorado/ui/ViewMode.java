@@ -15,7 +15,7 @@ import java.util.List;
 public enum ViewMode
 {
 	PLAN,
-	LAYER,
+	DATASET,
 	DISTRICT,
 	UNSELECTED
 	;

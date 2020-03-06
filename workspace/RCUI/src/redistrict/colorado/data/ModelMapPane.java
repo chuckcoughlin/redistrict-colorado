@@ -4,7 +4,7 @@
  * This program is free software; you may redistribute it and/or
  * modify it under the terms of the GNU General Public License.
  */
-package redistrict.colorado.layer;
+package redistrict.colorado.data;
 import java.util.logging.Logger;
 
 import javafx.beans.value.ChangeListener;
@@ -33,7 +33,7 @@ import redistrict.colorado.ui.ViewMode;
 		
 		
 		public ModelMapPane() {
-			super(ViewMode.LAYER,DisplayOption.MODEL_MAP);
+			super(ViewMode.DATASET,DisplayOption.MODEL_MAP);
 			this.model = hub.getSelectedLayer();
 			headerLabel.getStyleClass().add("list-header-label");
 			getChildren().add(headerLabel);

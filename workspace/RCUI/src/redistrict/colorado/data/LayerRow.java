@@ -4,7 +4,7 @@
  * This program is free software; you may redistribute it and/or
  * modify it under the terms of the GNU General Public License.
  */
-package redistrict.colorado.layer;
+package redistrict.colorado.data;
 
 import java.util.logging.Logger;
 
@@ -162,7 +162,7 @@ public class LayerRow extends ListCell<LayerModel> implements ChangeListener<Tog
             EventBindingHub hub = EventBindingHub.getInstance();
             LayerModel model = getItem();
             hub.setSelectedLayer(model);
-            hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.LAYER,DisplayOption.LAYER_CONFIGURATION));
+            hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.DATASET,DisplayOption.LAYER_CONFIGURATION));
         }
     }
 
@@ -183,10 +183,10 @@ public class LayerRow extends ListCell<LayerModel> implements ChangeListener<Tog
 			Object data = newValue.getUserData();
 			if( data==null ) data = "null";
 			if( data.toString().equalsIgnoreCase(MAP_DATA)) {
-				EventBindingHub.getInstance().setLeftSideSelection(new LeftSelectionEvent(ViewMode.LAYER,DisplayOption.MODEL_MAP));
+				EventBindingHub.getInstance().setLeftSideSelection(new LeftSelectionEvent(ViewMode.DATASET,DisplayOption.MODEL_MAP));
 			}
 			else if(data.toString().equalsIgnoreCase(DETAIL_DATA)) {
-				EventBindingHub.getInstance().setLeftSideSelection(new LeftSelectionEvent(ViewMode.LAYER,DisplayOption.MODEL_DETAIL));
+				EventBindingHub.getInstance().setLeftSideSelection(new LeftSelectionEvent(ViewMode.DATASET,DisplayOption.MODEL_DETAIL));
 			}
 			//LOGGER.info(String.format("%s.changed: toggle button = %s", CLSS,data.toString()));
 		}

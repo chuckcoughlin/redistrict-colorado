@@ -4,7 +4,7 @@
  * This program is free software; you may redistribute it and/or
  * modify it under the terms of the GNU General Public License.
  */
-package redistrict.colorado.layer;
+package redistrict.colorado.data;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -41,7 +41,7 @@ public class LayerDetailPane extends BasicRightSideNode {
 	private final EventHandler<ActionEvent> eventHandler;
 
 	public LayerDetailPane() {
-		super(ViewMode.LAYER,DisplayOption.MODEL_DETAIL);
+		super(ViewMode.DATASET,DisplayOption.MODEL_DETAIL);
 		this.model = hub.getSelectedLayer();
 		this.items = FXCollections.observableArrayList();
 		this.showAllColumns = new CheckBox("Show All");

@@ -32,7 +32,7 @@ public class FeatureMapPane extends BasicRightSideNode implements EventHandler<A
 	private final FeatureMapRenderer map;
 
 	public FeatureMapPane() {
-		super(ViewMode.LAYER,DisplayOption.FEATURE_MAP);
+		super(ViewMode.DATASET,DisplayOption.FEATURE_MAP);
 		this.model = hub.getSelectedLayer();
 		headerLabel.getStyleClass().add("list-header-label");
 		getChildren().add(headerLabel);

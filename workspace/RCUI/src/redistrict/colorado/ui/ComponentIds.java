@@ -23,6 +23,6 @@ public interface ComponentIds {
 	public final static String BUTTON_SHAPEFILE = "ButtonShapefile";
 	public final static String BUTTON_UP 		= "ButtonUp";
 	public final static String MENU_DISTRICT 	= "MenuDistrict";
-	public final static String MENU_LAYER 	    = "MenuLayer";
+	public final static String MENU_DATASET 	= "MenuDataset";
 	public final static String MENU_PLAN	    = "MenuPlan";	
 }
