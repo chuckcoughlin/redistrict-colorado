@@ -1,4 +1,5 @@
 /**  
+
  * Copyright (C) 2019 Charles Coughlin
  * 
  * This program is free software; you may redistribute it and/or
@@ -10,10 +11,12 @@ import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import redistrict.colorado.bind.EventBindingHub;
+import redistrict.colorado.bind.LeftSelectionEvent;
 
 /**
  * Create the menu hierarchy for the menubar.
@@ -24,11 +27,13 @@ public class MainMenuBar extends MenuBar  {
 	private static final String CLSS = "MainMenuBar";
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
 	private final EventHandler<ActionEvent> eventHandler;
-
+	private final GuiUtil guiu = new GuiUtil();
 	
 	private MenuItem plans;
-	private MenuItem datasets;
+	private Menu datasets;
 	private MenuItem districts;
+	private MenuItem define;    // Datasets
+	private MenuItem evaluate;  // Datasets
 	
 	public MainMenuBar() {
 		this.eventHandler = new MenuBarEventHandler();
@@ -38,7 +43,7 @@ public class MainMenuBar extends MenuBar  {
 	}
 	
 	public Menu systemMenu() {
-		Menu menu =  new Menu("Analyzer");
+		Menu menu =  new Menu("",guiu.loadImage("images/ColoradoFlag.png"));
 		MenuItem about = new MenuItem("About");
 		about.setOnAction(e -> About.display() );
 		MenuItem quit  = new MenuItem("Quit");
@@ -52,10 +57,20 @@ public class MainMenuBar extends MenuBar  {
 		plans.setId(ComponentIds.MENU_PLAN);
 		plans.setOnAction(eventHandler);
 		plans.setDisable(true);
-		datasets = new MenuItem("Datasets");
+		datasets = new Menu("Datasets");
 		datasets.setId(ComponentIds.MENU_DATASET);
-		datasets.setOnAction(eventHandler);
+		//datasets.setOnAction(eventHandler);
 		datasets.setDisable(false);
+		define    = new MenuItem("Definition");
+		define.setId(ComponentIds.MENU_DATASET_DEFINITION);
+		define.setOnAction(eventHandler);
+		define.setDisable(false);
+		evaluate  = new MenuItem("Evaluation");
+		evaluate.setId(ComponentIds.MENU_DATASET_EVALUATION);
+		evaluate.setOnAction(eventHandler);
+		evaluate.setDisable(false);
+		datasets.getItems().add(define);
+		datasets.getItems().add(evaluate);
 		districts  = new MenuItem("Districts");
 		districts.setId(ComponentIds.MENU_DISTRICT);
 		districts.setOnAction(eventHandler);
@@ -73,13 +88,25 @@ public class MainMenuBar extends MenuBar  {
 		@Override
 		public void handle(ActionEvent event) {
 			EventBindingHub hub = EventBindingHub.getInstance();
+			datasets.setDisable(false);    // Always enabled
 			String src = GuiUtil.idFromSource(event.getSource());
 			LOGGER.info(String.format("%s.handle: ActionEvent source = %s",CLSS,src));
-			datasets.setDisable(src.equalsIgnoreCase(ComponentIds.MENU_DATASET));
-			plans.setDisable(src.equalsIgnoreCase(ComponentIds.MENU_PLAN));
+			define.setDisable(src.equalsIgnoreCase(ComponentIds.MENU_DATASET_DEFINITION));
+			evaluate.setDisable(src.equalsIgnoreCase(ComponentIds.MENU_DATASET_EVALUATION));
 			districts.setDisable(src.equalsIgnoreCase(ComponentIds.MENU_DISTRICT));
+			plans.setDisable(src.equalsIgnoreCase(ComponentIds.MENU_PLAN ));
 
-			if( datasets.isDisable() ) hub.setMode(ViewMode.DATASET);
+
+			if( define.isDisable()) {
+				LeftSelectionEvent lse = new LeftSelectionEvent(ViewMode.DATASET,DisplayOption.DATASET_DEFINITION);
+				hub.setLeftSideSelection(lse);
+				hub.setMode(ViewMode.DATASET);
+			}
+			else if( define.isDisable()) {
+				LeftSelectionEvent lse = new LeftSelectionEvent(ViewMode.DATASET,DisplayOption.DATASET_EVALUATION);
+				hub.setLeftSideSelection(lse);
+				hub.setMode(ViewMode.DATASET);
+			}
 			else if( plans.isDisable() ) hub.setMode(ViewMode.PLAN);
 			else if( districts.isDisable() ) hub.setMode(ViewMode.DISTRICT);
 		}

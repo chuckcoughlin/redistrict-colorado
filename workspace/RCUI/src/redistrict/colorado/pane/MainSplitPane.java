@@ -107,7 +107,7 @@ public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode>
 			String id = GuiUtil.idFromSource(event.getSource());
 			LOGGER.info(String.format("%s.handle: ActionEvent source = %s",CLSS,id));
 			ViewMode mode = ViewMode.PLAN;
-			if( id.equalsIgnoreCase(ComponentIds.MENU_DATASET))         mode = ViewMode.DATASET;
+			if( id.equalsIgnoreCase(ComponentIds.MENU_DATASET_EVALUATION)) mode = ViewMode.DATASET;
 			else if( id.equalsIgnoreCase(ComponentIds.MENU_DISTRICT)) mode = ViewMode.DISTRICT;
 			updateUIForViewMode(mode);
 		}

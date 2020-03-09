@@ -243,7 +243,7 @@ public class FeatureAttributeTable {
 			int b = (int)(config.getBackground().getBlue()*255);
 			int rgb = b + 256*g + 256*256*r;
 			statement.setInt(4,rgb);
-			LOGGER.info(String.format("%s.updateFeatureAttribute: background = %d (%02x%02x%02x)",CLSS,rgb,r,g,b));
+			//LOGGER.info(String.format("%s.updateFeatureAttribute: background = %d (%02x%02x%02x)",CLSS,rgb,r,g,b));
 			statement.setInt(5,config.getRank());
 			statement.setLong(6, config.getLayerId());
 			statement.setString(7,config.getName());

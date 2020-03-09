@@ -71,7 +71,7 @@ public class DatasetConfigurationPane extends BasicRightSideNode implements Even
 	
 
 	public DatasetConfigurationPane() {
-		super(ViewMode.DATASET,DisplayOption.LAYER_CONFIGURATION);
+		super(ViewMode.DATASET,DisplayOption.DATASET_DEFINITION);
 		this.model = EventBindingHub.getInstance().getSelectedLayer();
 		this.items = FXCollections.observableArrayList();
 		this.cellHandler = new TableEventHandler();

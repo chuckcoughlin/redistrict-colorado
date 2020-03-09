@@ -162,7 +162,7 @@ public class DatasetRow extends ListCell<DatasetModel> implements ChangeListener
             EventBindingHub hub = EventBindingHub.getInstance();
             DatasetModel model = getItem();
             hub.setSelectedLayer(model);
-            hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.DATASET,DisplayOption.LAYER_CONFIGURATION));
+            hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.DATASET,DisplayOption.DATASET_DEFINITION));
         }
     }
 

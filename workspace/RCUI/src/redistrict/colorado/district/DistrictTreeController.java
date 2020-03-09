@@ -8,6 +8,9 @@ package redistrict.colorado.district;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.openjump.feature.Feature;
+import org.openjump.feature.FeatureCollection;
+
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
@@ -18,6 +21,7 @@ import javafx.scene.layout.StackPane;
 import redistrict.colorado.bind.BasicEventDispatcher;
 import redistrict.colorado.bind.EventReceiver;
 import redistrict.colorado.core.DatasetModel;
+import redistrict.colorado.core.DatasetRole;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.ui.GuiUtil;
 
@@ -45,12 +49,21 @@ public class DistrictTreeController extends StackPane implements EventReceiver<A
 	}
 	
 	private void populateDatasets() {
-		List<DatasetModel> layers = Database.getInstance().getDatasetTable().getDatasets();
-		for(DatasetModel datasetModel:layers) {
-			TreeItem<String> item = new TreeItem<String> (datasetModel.getName());
-			root.getChildren().add(item);
+		List<DatasetModel> datasets = Database.getInstance().getDatasetTable().getDatasets();
+		for(DatasetModel datasetModel:datasets) {
+			if( DatasetRole.PRIMARY.equals(datasetModel.getRole()) ||
+				DatasetRole.BOUNDARIES.equals(datasetModel.getRole()) ) {
+				TreeItem<String> item = new TreeItem<String> (datasetModel.getName());
+				root.getChildren().add(item);
+				FeatureCollection collection = datasetModel.getFeatures();
+				if(collection!=null) {
+					//String nameAttribute = Database.getInstance().getAttributeAliasTable().nameForAlias(id, alias)
+					for(Feature feature:collection.getFeatures() ) {
+						//TreeItem<String> leaf = new TreeItem<String> (feature.getAttribute("Name").toString());
+					}
+				}
+			}
 		}
-		
 	}
 	@Override
 	public BasicEventDispatcher<ActionEvent> getAuxillaryEventDispatcher() {
