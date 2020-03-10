@@ -140,7 +140,7 @@ public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode>
 		}
 		if( mode.equals(ViewMode.DATASET)) {
 			leftPane = 1;
-			if(hub.isLayerSelected()) rightPane = 1; // Layer map
+			if(hub.isDatasetSelected()) rightPane = 1; // Dataset map
 		}
 		else if( mode.equals(ViewMode.DISTRICT)) {
 			leftPane = 2;

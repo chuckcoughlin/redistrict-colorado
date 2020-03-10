@@ -72,7 +72,7 @@ public class DatasetConfigurationPane extends BasicRightSideNode implements Even
 
 	public DatasetConfigurationPane() {
 		super(ViewMode.DATASET,DisplayOption.DATASET_DEFINITION);
-		this.model = EventBindingHub.getInstance().getSelectedLayer();
+		this.model = EventBindingHub.getInstance().getSelectedDataset();
 		this.items = FXCollections.observableArrayList();
 		this.cellHandler = new TableEventHandler();
 
@@ -265,7 +265,7 @@ public class DatasetConfigurationPane extends BasicRightSideNode implements Even
 				// Update features in the model
 				Database.getInstance().getFeatureAttributeTable().updateFeatureAttributes(items);
 				Database.getInstance().getAttributeAliasTable().updateAliasTable(model.getId(),items);
-				EventBindingHub.getInstance().unselectLayer();     // Force fire
+				EventBindingHub.getInstance().unselectDataset();     // Force fire
 				EventBindingHub.getInstance().setSelectedLayer(model);
 
 			}
@@ -277,7 +277,7 @@ public class DatasetConfigurationPane extends BasicRightSideNode implements Even
 	// ====================================== BasicRightSideNode =====================================
 	@Override
 	public void updateModel() {
-		this.model = EventBindingHub.getInstance().getSelectedLayer();
+		this.model = EventBindingHub.getInstance().getSelectedDataset();
 		configureDefinition();
 		updateFeatures();
 		configureTable();

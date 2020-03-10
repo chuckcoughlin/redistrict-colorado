@@ -43,7 +43,7 @@ public class DatasetDetailPane extends BasicRightSideNode {
 
 	public DatasetDetailPane() {
 		super(ViewMode.DATASET,DisplayOption.MODEL_DETAIL);
-		this.model = hub.getSelectedLayer();
+		this.model = hub.getSelectedDataset();
 		this.items = FXCollections.observableArrayList();
 		this.showAllColumns = new CheckBox("Show All");
 		this.table = new TableView<Feature>();
@@ -71,7 +71,7 @@ public class DatasetDetailPane extends BasicRightSideNode {
 
 	@Override
 	public void updateModel() {
-		DatasetModel selectedModel = hub.getSelectedLayer();
+		DatasetModel selectedModel = hub.getSelectedDataset();
 		if( selectedModel!=null) {
 			this.model = selectedModel;
 			headerLabel.setText(model.getName());

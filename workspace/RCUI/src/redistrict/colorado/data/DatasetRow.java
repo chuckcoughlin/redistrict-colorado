@@ -63,7 +63,7 @@ public class DatasetRow extends ListCell<DatasetModel> implements ChangeListener
 	public DatasetRow() {
 		handler = new EditEventHandler();
 		listener= new LayerChangeListener();
-		EventBindingHub.getInstance().addLayerListener(listener);
+		EventBindingHub.getInstance().addDatasetListener(listener);
 		setPrefWidth(UIConstants.LIST_PANEL_WIDTH);
 		tag = new Label("",guiu.loadImage("images/layers.png"));
 		name = new Label();

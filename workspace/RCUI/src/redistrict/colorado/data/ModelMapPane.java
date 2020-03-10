@@ -34,7 +34,7 @@ import redistrict.colorado.ui.ViewMode;
 		
 		public ModelMapPane() {
 			super(ViewMode.DATASET,DisplayOption.MODEL_MAP);
-			this.model = hub.getSelectedLayer();
+			this.model = hub.getSelectedDataset();
 			headerLabel.getStyleClass().add("list-header-label");
 			getChildren().add(headerLabel);
 			
@@ -61,7 +61,7 @@ import redistrict.colorado.ui.ViewMode;
 		
 		@Override
 		public void updateModel() {
-			DatasetModel selectedModel = hub.getSelectedLayer();
+			DatasetModel selectedModel = hub.getSelectedDataset();
 			if( selectedModel!=null) {
 				model = selectedModel;
 				headerLabel.setText(model.getName());

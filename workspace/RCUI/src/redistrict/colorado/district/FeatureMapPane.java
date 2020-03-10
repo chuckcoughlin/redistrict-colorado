@@ -33,7 +33,7 @@ public class FeatureMapPane extends BasicRightSideNode implements EventHandler<A
 
 	public FeatureMapPane() {
 		super(ViewMode.DATASET,DisplayOption.FEATURE_MAP);
-		this.model = hub.getSelectedLayer();
+		this.model = hub.getSelectedDataset();
 		headerLabel.getStyleClass().add("list-header-label");
 		getChildren().add(headerLabel);
 
@@ -60,7 +60,7 @@ public class FeatureMapPane extends BasicRightSideNode implements EventHandler<A
 
 	@Override
 	public void updateModel() {
-		DatasetModel selectedModel = hub.getSelectedLayer();
+		DatasetModel selectedModel = hub.getSelectedDataset();
 		if( selectedModel!=null) {
 			model = selectedModel;
 			headerLabel.setText(model.getName());
