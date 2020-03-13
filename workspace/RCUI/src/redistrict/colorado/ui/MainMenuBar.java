@@ -30,10 +30,9 @@ public class MainMenuBar extends MenuBar  {
 	private final GuiUtil guiu = new GuiUtil();
 	
 	private MenuItem plans;
-	private Menu datasets;
+	private MenuItem datasets;
 	private MenuItem districts;
-	private MenuItem define;    // Datasets
-	private MenuItem evaluate;  // Datasets
+
 	
 	public MainMenuBar() {
 		this.eventHandler = new MenuBarEventHandler();
@@ -57,20 +56,10 @@ public class MainMenuBar extends MenuBar  {
 		plans.setId(ComponentIds.MENU_PLAN);
 		plans.setOnAction(eventHandler);
 		plans.setDisable(true);
-		datasets = new Menu("Datasets");
+		datasets = new MenuItem("Datasets");
 		datasets.setId(ComponentIds.MENU_DATASET);
-		//datasets.setOnAction(eventHandler);
+		datasets.setOnAction(eventHandler);
 		datasets.setDisable(false);
-		define    = new MenuItem("Definition");
-		define.setId(ComponentIds.MENU_DATASET_DEFINITION);
-		define.setOnAction(eventHandler);
-		define.setDisable(false);
-		evaluate  = new MenuItem("Evaluation");
-		evaluate.setId(ComponentIds.MENU_DATASET_EVALUATION);
-		evaluate.setOnAction(eventHandler);
-		evaluate.setDisable(false);
-		datasets.getItems().add(define);
-		datasets.getItems().add(evaluate);
 		districts  = new MenuItem("Districts");
 		districts.setId(ComponentIds.MENU_DISTRICT);
 		districts.setOnAction(eventHandler);
@@ -88,25 +77,14 @@ public class MainMenuBar extends MenuBar  {
 		@Override
 		public void handle(ActionEvent event) {
 			EventBindingHub hub = EventBindingHub.getInstance();
-			datasets.setDisable(false);    // Always enabled
 			String src = GuiUtil.idFromSource(event.getSource());
 			LOGGER.info(String.format("%s.handle: ActionEvent source = %s",CLSS,src));
-			define.setDisable(src.equalsIgnoreCase(ComponentIds.MENU_DATASET_DEFINITION));
-			evaluate.setDisable(src.equalsIgnoreCase(ComponentIds.MENU_DATASET_EVALUATION));
+			datasets.setDisable(src.equalsIgnoreCase(ComponentIds.MENU_DATASET));
 			districts.setDisable(src.equalsIgnoreCase(ComponentIds.MENU_DISTRICT));
 			plans.setDisable(src.equalsIgnoreCase(ComponentIds.MENU_PLAN ));
 
 
-			if( define.isDisable()) {
-				LeftSelectionEvent lse = new LeftSelectionEvent(ViewMode.DATASET,DisplayOption.DATASET_DEFINITION);
-				hub.setLeftSideSelection(lse);
-				hub.setMode(ViewMode.DATASET);
-			}
-			else if( define.isDisable()) {
-				LeftSelectionEvent lse = new LeftSelectionEvent(ViewMode.DATASET,DisplayOption.DATASET_EVALUATION);
-				hub.setLeftSideSelection(lse);
-				hub.setMode(ViewMode.DATASET);
-			}
+			if( datasets.isDisable()) hub.setMode(ViewMode.DATASET);
 			else if( plans.isDisable() ) hub.setMode(ViewMode.PLAN);
 			else if( districts.isDisable() ) hub.setMode(ViewMode.DISTRICT);
 		}

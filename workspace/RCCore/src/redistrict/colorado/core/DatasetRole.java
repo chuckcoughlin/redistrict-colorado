@@ -14,7 +14,6 @@ import java.util.List;
  */
 public enum DatasetRole
 {
-	PRIMARY,
 	BOUNDARIES,
 	DEMOGRAPHICS,
 	AFFILIATIONS,

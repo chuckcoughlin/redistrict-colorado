@@ -139,7 +139,7 @@ public class PlanFeaturesPane extends BasicRightSideNode{
 		if( selectedModel!=null) {
 			this.model = selectedModel;
 			this.headerLabel.setText(model.getName()+" Feature Attributes");
-			this.primaryDataset = Database.getInstance().getDatasetTable().getPlanDataset(model.getId(), DatasetRole.PRIMARY);
+			this.primaryDataset = Database.getInstance().getDatasetTable().getPlanDataset(model.getId(), DatasetRole.BOUNDARIES);
 			if( primaryDataset==null) return;
 			LOGGER.info(String.format("%s.updateModel: Model is %s", CLSS,model.getName()));
 			LOGGER.info(String.format("%s.updateModel: Primary is %s", CLSS,primaryDataset.getName()));

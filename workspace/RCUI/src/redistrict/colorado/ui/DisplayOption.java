@@ -1,5 +1,5 @@
 /**  
- * Copyright (C) 2019 Charles Coughlin
+ * Copyright (C) 2020 Charles Coughlin
  * 
  * This program is free software; you may redistribute it and/or
  * modify it under the terms of the GNU General Public License.
@@ -16,12 +16,11 @@ public enum DisplayOption
 {
 	FEATURE_MAP,
 	DATASET_DEFINITION,
-	DATASET_EVALUATION,
 	MODEL_DETAIL,
 	MODEL_MAP,
-	PLAN_CONFIGURATION,
 	PLAN_COMPARISON,
 	PLAN_FEATURES,
+	PLAN_SETUP,
 	NONE
 	;
 

@@ -6,6 +6,7 @@
  */
 package redistrict.colorado.plan;
 
+import java.util.List;
 import java.util.logging.Logger;
 
 import javafx.beans.value.ChangeListener;
@@ -15,6 +16,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.Tooltip;
@@ -24,6 +26,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.bind.LeftSelectionEvent;
+import redistrict.colorado.core.DatasetRole;
 import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.ui.ComponentIds;
@@ -46,15 +49,14 @@ public class PlanRow extends ListCell<PlanModel>  {
 	private final static double ROW1_HEIGHT = 40.;
 	private static final GuiUtil guiu = new GuiUtil();
 	private final static String ATTRIBUTES = "attributes";
-	private final static String EDIT = "edit";
+	private final static String COMBO = "combo";
 	private final static String ACTIVE = "active";
 	private GridPane grid = new GridPane();
 	private long id = -1;      // model identifier
     private final Label tag;   // Identifies the pane class
     private final Label name;
-    private final Label description;
     private final CheckBox active;
-    private final Button edit;
+    private final ComboBox<String> combo;
     private final Button attributes;
     private final EditEventHandler handler;
     private final PlanChangeListener listener;
@@ -66,11 +68,10 @@ public class PlanRow extends ListCell<PlanModel>  {
 		setPrefWidth(UIConstants.LIST_PANEL_WIDTH);
 		tag = new Label("",guiu.loadImage("images/plans.png"));
 		name = new Label();
-	    description = new Label();
 	    active = new CheckBox("Active:");
 	    active.setUserData(ACTIVE);
-	    edit = new Button("",guiu.loadImage("images/edit.png"));
-	    edit.setUserData(EDIT);
+	    combo = new ComboBox<String>();
+	    combo.setUserData(COMBO);
 	    attributes =new Button("Attributes");
 	    attributes.setId(ComponentIds.BUTTON_ATTRIBUTES);
 	    attributes.setUserData(ATTRIBUTES);
@@ -80,16 +81,15 @@ public class PlanRow extends ListCell<PlanModel>  {
         configureGrid();        
         configureLabels();
         addLabelsToGrid();
-        configureControls();
         addControlsToGrid(); 
         
+        List<String> items = Database.getInstance().getDatasetTable().getDatasetNames(DatasetRole.BOUNDARIES);
         active.setOnAction(handler);
-        edit.setOnAction(handler);
+        combo.setOnAction(handler);
+        combo.getItems().addAll(items);
         attributes.setOnAction(handler);
     } 
-	private void configureControls() {
-		edit.getStyleClass().add(UIConstants.LIST_CELL_BUTTON_CLASS);
-    }
+
 	private void configureGrid() {
         grid.setHgap(0);
         grid.setVgap(4);
@@ -107,19 +107,15 @@ public class PlanRow extends ListCell<PlanModel>  {
 	private void configureLabels() {
 		tag.getStyleClass().add(UIConstants.LIST_CELL_ICON_CLASS);
         name.getStyleClass().add(UIConstants.LIST_CELL_NAME_CLASS);
-        description.getStyleClass().add(UIConstants.LIST_CELL_FIELD_CLASS);
     }
 	
     private void addLabelsToGrid() {
         grid.add(tag, 0, 0);                    
-        grid.add(name, 1, 0);        
-        grid.add(description, 1,1,2,1);
-        
-
+        grid.add(name, 1, 0);         
     }
     private void addControlsToGrid() {
     	grid.add(active, 2,0);
-        grid.add(edit, 3, 0);                    
+        //grid.add(edit, 3, 0);                    
         grid.add(attributes, 4, 0);        
     }
 	
@@ -142,7 +138,6 @@ public class PlanRow extends ListCell<PlanModel>  {
         setText(null);
         id = model.getId();
         name.setText(model.getName());
-        description.setText(model.getDescription());
         active.setSelected(model.isActive());      
         setGraphic(grid);
     }
@@ -166,14 +161,16 @@ public class PlanRow extends ListCell<PlanModel>  {
     		if( data.equals(ATTRIBUTES)) {
     			hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.PLAN_FEATURES));
     		}
-    		else if( data.equals(EDIT)) {
+    		/*
+    		else if( data.equals(SELECT)) {
     			if(model!=null ) {
     				LOGGER.info(String.format("%s.changed: name = %s",CLSS,model.getName()));
     				name.setText(model.getName());
     				description.setText(model.getDescription());
     			}
-    			hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.PLAN_CONFIGURATION));
+    			hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.PLAN_SETUP));
     		}
+    		*/
     		else if( data.equals(ACTIVE)) {
     			model.setActive(active.isSelected());
     			Database.getInstance().getPlanTable().updatePlan(model);
@@ -189,7 +186,6 @@ public class PlanRow extends ListCell<PlanModel>  {
 			if(newModel!=null && newModel.getId()==id) {
 				//LOGGER.info(String.format("%s.changed: name = %s",CLSS,newModel.getName()));
 				name.setText(newModel.getName());
-				description.setText(newModel.getDescription());
 			}
 		}
 	}

@@ -23,7 +23,7 @@ import redistrict.colorado.data.ModelMapPane;
 import redistrict.colorado.district.DistrictTreeController;
 import redistrict.colorado.district.FeatureMapPane;
 import redistrict.colorado.plan.PlanComparisonPane;
-import redistrict.colorado.plan.PlanConfigurationPane;
+import redistrict.colorado.plan.PlanSetupPane;
 import redistrict.colorado.plan.PlanListController;
 import redistrict.colorado.plan.PlanFeaturesPane;
 import redistrict.colorado.ui.ComponentIds;
@@ -63,7 +63,7 @@ public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode>
 		rightChildren[2] = new DatasetDetailPane();
 		rightChildren[3] = new DatasetConfigurationPane();
 		rightChildren[4] = new FeatureMapPane();
-		rightChildren[5] = new PlanConfigurationPane();
+		rightChildren[5] = new PlanSetupPane();
 		rightChildren[6] = new PlanComparisonPane();
 		rightChildren[7] = new PlanFeaturesPane();
 		
@@ -107,7 +107,7 @@ public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode>
 			String id = GuiUtil.idFromSource(event.getSource());
 			LOGGER.info(String.format("%s.handle: ActionEvent source = %s",CLSS,id));
 			ViewMode mode = ViewMode.PLAN;
-			if( id.equalsIgnoreCase(ComponentIds.MENU_DATASET_EVALUATION)) mode = ViewMode.DATASET;
+			if( id.equalsIgnoreCase(ComponentIds.MENU_DATASET)) mode = ViewMode.DATASET;
 			else if( id.equalsIgnoreCase(ComponentIds.MENU_DISTRICT)) mode = ViewMode.DISTRICT;
 			updateUIForViewMode(mode);
 		}

@@ -141,7 +141,51 @@ public class DatasetTable {
 		}
 		return list;
 	}
-	
+	/**
+	 * @return a list of defined datasets that are assigned to the specified role.
+	 */
+	public List<String> getDatasetNames(DatasetRole role) {
+		List<String> list = new ArrayList<>();
+		DatasetModel model = null;
+		PreparedStatement statement = null;
+		ResultSet rs = null;
+		String SQL = String.format(
+				"SELECT id,name,description,shapefilePath,role from Dataset WHERE role ='%s' ORDER BY name",role.name()); 
+		try {
+			statement = cxn.prepareStatement(SQL);
+			statement.setQueryTimeout(10);  // set timeout to 10 sec.
+			rs = statement.executeQuery();
+			while(rs.next()) {
+				long id = rs.getLong("id");
+				model = cache.getDataset(id);
+				if( model==null  ) {
+					model = new DatasetModel(id,rs.getString("name"));
+					model.setDescription(rs.getString("description"));
+					model.setShapefilePath(rs.getString("shapefilePath"));
+					model.setRole(role);
+					cache.addDataset(model);
+					list.add(model.getName());
+				}
+				list.add(model.getName());
+				//LOGGER.info(String.format("%s.getDatasets %d: %s is %s",CLSS,model.getId(),model.getName(),model.getRole().name()));
+			}
+			rs.close();
+		}
+		catch(SQLException e) {
+			// if the error message is "out of memory", 
+			// it probably means no database file is found
+			LOGGER.severe(String.format("%s.getDatasets: Error (%s)",CLSS,e.getMessage()));
+		}
+		finally {
+			if( rs!=null) {
+				try { rs.close(); } catch(SQLException ignore) {}
+			}
+			if( statement!=null) {
+				try { statement.close(); } catch(SQLException ignore) {}
+			}
+		}
+		return list;
+	}
 	/**
 	 * @return a LayerModel that corresponds to a layer in a plan that 
 	 * has a specified role.

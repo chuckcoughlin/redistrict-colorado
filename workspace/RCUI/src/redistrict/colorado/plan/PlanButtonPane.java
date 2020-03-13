@@ -44,6 +44,7 @@ public class PlanButtonPane extends AnchorPane implements EventSource<ActionEven
 	private final Button addButton;
 	private final Button analyzeButton;
 	private final Button deleteButton;
+	private final Button setupButton;
 	private final GuiUtil guiu = new GuiUtil();
 	private final EventHandler<ActionEvent> eventHandler;
 	private final BasicEventDispatchChain<ActionEvent> eventChain;
@@ -68,6 +69,13 @@ public class PlanButtonPane extends AnchorPane implements EventSource<ActionEven
 		analyzeButton.setDisable(true);
 		analyzeButton.setOnAction(this);
 		analyzeButton.setId(ComponentIds.BUTTON_ANALYZE);
+		
+		setupButton = new Button("Setup");
+		setupButton.setId(ComponentIds.BUTTON_SETUP);
+		setupButton.setAlignment(Pos.CENTER_RIGHT);
+		setupButton.setDisable(false);
+		setupButton.setOnAction(this);
+		setupButton.setId(ComponentIds.BUTTON_SETUP);
 
 		this.getChildren().add(addButton);
 		this.getChildren().add(deleteButton);
@@ -75,9 +83,11 @@ public class PlanButtonPane extends AnchorPane implements EventSource<ActionEven
 		
 		setTopAnchor(addButton,HGAP);
 		setTopAnchor(deleteButton,HGAP);
+		setTopAnchor(setupButton,HGAP);
 		setTopAnchor(analyzeButton,HGAP);
 		setLeftAnchor(addButton,UIConstants.BUTTON_PANEL_HEIGHT);
 		setLeftAnchor(deleteButton,2*UIConstants.BUTTON_PANEL_HEIGHT);
+		setRightAnchor(setupButton,UIConstants.BUTTON_PANEL_HEIGHT*2);
 		setRightAnchor(analyzeButton,UIConstants.BUTTON_PANEL_HEIGHT);
 		
 		updateUI();

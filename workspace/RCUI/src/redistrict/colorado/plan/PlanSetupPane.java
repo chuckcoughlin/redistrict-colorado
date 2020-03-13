@@ -1,5 +1,5 @@
 /**  
- * Copyright (C) 2019 Charles Coughlin
+ * Copyright (C) 2020 Charles Coughlin
  * 
  * This program is free software; you may redistribute it and/or
  * modify it under the terms of the GNU General Public License.
@@ -8,6 +8,7 @@ package redistrict.colorado.plan;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javafx.beans.property.Property;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -24,28 +25,30 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.DatasetRole;
-import redistrict.colorado.core.PlanDataset;
 import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.pane.BasicRightSideNode;
 import redistrict.colorado.pane.SavePane;
 import redistrict.colorado.ui.ComponentIds;
 import redistrict.colorado.ui.DisplayOption;
-import redistrict.colorado.ui.GuiUtil;
 import redistrict.colorado.ui.UIConstants;
 import redistrict.colorado.ui.ViewMode;
 
-public class PlanConfigurationPane extends BasicRightSideNode 
+/**
+ * This pane allows configuration of parameters used in plan comparisons.
+ * These parameters include weightings, and mappings. 
+ * @author chuckc
+ *
+ */
+public class PlanSetupPane extends BasicRightSideNode 
 									implements EventHandler<ActionEvent> {
-	private final static String CLSS = "PlanConfigurationPane";
+	private final static String CLSS = "PlanSetupPane";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private final static double COL0_WIDTH = 100.;    // margin
 	private final static double COL1_WIDTH = 300.;
 	private final static double COL2_WIDTH = 40.;
-	private final static double COL_TEXT_WIDTH = 100.;
 	private final static double TABLE_OFFSET_TOP = 150.;
-	private static final GuiUtil guiu = new GuiUtil();
-	private Label headerLabel = new Label("Plan Configuration");
+	private Label headerLabel = new Label("Plan Setup");
 	private final SavePane savePane = new SavePane(this);
 	private PlanModel model;
 	private final GridPane grid;
@@ -54,13 +57,13 @@ public class PlanConfigurationPane extends BasicRightSideNode
 
 	private final TextField nameField;
 	private final TextField descriptionField;
-	private final ObservableList<PlanDataset> items;  // Array displayed in table
-	private final TableView<PlanDataset> table;
+	private final ObservableList<Property> items;  // Array displayed in table
+	private final TableView<Property> table;
 	private final TableEventHandler cellHandler;
 
 
-	public PlanConfigurationPane() {
-		super(ViewMode.PLAN,DisplayOption.PLAN_CONFIGURATION);
+	public PlanSetupPane() {
+		super(ViewMode.PLAN,DisplayOption.PLAN_SETUP);
 		this.model = EventBindingHub.getInstance().getSelectedPlan();
 		this.items = FXCollections.observableArrayList();
 		this.cellHandler = new TableEventHandler();
@@ -96,13 +99,13 @@ public class PlanConfigurationPane extends BasicRightSideNode
 		setLeftAnchor(grid,UIConstants.LIST_PANEL_LEFT_MARGIN);
 		setRightAnchor(grid,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 		
-		table = new TableView<PlanDataset>();
+		table = new TableView<Property>();
 		table.setEditable(true);
 		table.setPrefSize(UIConstants.FEATURE_TABLE_WIDTH, UIConstants.FEATURE_TABLE_HEIGHT);
 		table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
-		TableColumn<PlanDataset,String> column;
-		PLStringValueFactory valueFactory = new PLStringValueFactory();
-		PLStringCellFactory cellFactory = new PLStringCellFactory();
+		TableColumn<Property,String> column;
+		PreferenceStringValueFactory valueFactory = new PreferenceStringValueFactory();
+		PreferenceStringCellFactory cellFactory = new PreferenceStringCellFactory();
 
 		column = new TableColumn<>("Name");
 		column.prefWidthProperty().bind(table.widthProperty().multiply(0.7));
@@ -138,7 +141,6 @@ public class PlanConfigurationPane extends BasicRightSideNode
 	private void configureDefinition() {
 		if( model!=null ) {
 			nameField.setText(model.getName());
-			descriptionField.setText(model.getDescription());
 		}
 	}
 	/**
@@ -147,6 +149,7 @@ public class PlanConfigurationPane extends BasicRightSideNode
 	private void updateDatasets() {
 		if( model!=null ) {
 			items.clear();
+			/*
 			try {
 				model.setLayers(Database.getInstance().getPlanLayerTable().getDatasetRoles(model.getId()));
 				LOGGER.info(String.format("%s.updateDatasets: There are %d dataset definitions", CLSS,model.getLayers().size()));
@@ -166,6 +169,7 @@ public class PlanConfigurationPane extends BasicRightSideNode
 			for(PlanDataset player:unused) {
 				items.add(player);
 			}
+			*/
 		}
 	}
 	private void configureTable() {	
@@ -191,48 +195,43 @@ public class PlanConfigurationPane extends BasicRightSideNode
 		if( source instanceof Button && ((Button)source).getId().equals(ComponentIds.BUTTON_SAVE)) {
 			if(model!=null) {
 				model.setName(nameField.getText());
-				model.setDescription(descriptionField.getText());
 				Database.getInstance().getPlanTable().updatePlan(model);
 				// Update layer roles in the model
-				List<PlanDataset> players = model.getLayers();
+				/*
+				List<Property> players = model.
 				players.clear();
-				for(PlanDataset player:items) {
-					if(!player.getRole().equals(DatasetRole.NONE)) players.add(player);
+				for(Property player:items) {
+					//if(!player.getRole().equals(DatasetRole.NONE)) players.add(player);
 				}
 				// Update layer roles in the database
 				Database.getInstance().getPlanLayerTable().synchronizePlanDatasets(model);
 				EventBindingHub.getInstance().unselectPlan();     // Force fire
 				EventBindingHub.getInstance().setSelectedPlan(model);
+				*/
 			}
 		}
 	}
 	// ================================================= Event Handler ============================================
-	public class TableEventHandler implements EventHandler<TableColumn.CellEditEvent<PlanDataset,String>>  {
+	public class TableEventHandler implements EventHandler<TableColumn.CellEditEvent<Property,String>>  {
 		/**
 		 * The event source is a table column ... A cell edit requires a <ENTER> to complete.
 		 * Loss of focus is not enough.
 		 */
 		@Override
-		public void handle(CellEditEvent<PlanDataset, String> event) {
+		public void handle(CellEditEvent<Property, String> event) {
 			int row = event.getTablePosition().getRow();
 			String column = event.getTableColumn().getText();
 			String newValue = event.getNewValue();
-			List<PlanDataset> items = event.getTableView().getItems();
+			List<Property> items = event.getTableView().getItems();
 			LOGGER.info(String.format("%s.handle %s: row %d = %s",CLSS,column,row,newValue));
-			PlanDataset item = items.get(row);
+			Property item = items.get(row);
 			if( column.equalsIgnoreCase("Name") ) {
-				item.setName(newValue);
-			}
-			else if( column.equalsIgnoreCase("Role") ) {
-				try {
-					item.setRole(DatasetRole.valueOf(event.getNewValue()));
-				}
-				catch(IllegalArgumentException iae) {
-					LOGGER.warning(String.format("%s.handle %s: Bad value for AttributeType - %s (%s)",CLSS,newValue,iae.getLocalizedMessage()));
-				}
+				item.setValue(newValue);
 			}
 
 		}
 	}
+	
+	
 
 }

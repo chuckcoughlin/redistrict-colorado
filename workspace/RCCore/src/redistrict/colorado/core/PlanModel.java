@@ -9,36 +9,32 @@ package redistrict.colorado.core;
 import java.util.List;
 
 /**
- * A Plan is a comprehensive re-districting strategy. It consists of a list of
- * Layers in various roles.
+ * A Plan is a comprehensive re-districting strategy. It is based on a BOUNDARIES
+ * dataset. Its feature attributes depend on the current analyzer configuration.
  */
 public class PlanModel {
 	private final long id;
 	private String name;
-	private String description;
 	private boolean active;
-	private List<PlanDataset> layers;
+	private DatasetModel boundary;
 	private List<PlanFeature> metrics;
 	
 	public PlanModel(long id,String nam) {
 		this.id = id;
 		this.name = nam;
-		this.description = "";
 		this.active = true;
-		this.layers = null;
+		this.boundary = null;
 		this.metrics = null;
 	}
 	
 	public long getId() { return this.id; }
 	public String getName() { return this.name; }
-	public String getDescription() { return this.description; }
 	public boolean isActive() { return this.active; }
-	public List<PlanDataset> getLayers() { return layers; }
+	public DatasetModel getBoundary() { return boundary; }
 	public List<PlanFeature> getMetrics() { return metrics; }
 	
 	public void setActive(boolean flag) { this.active = flag; }
 	public void setName(String nam) { this.name = nam; }
-	public void setDescription(String desc) { this.description = desc; }
-	public void setLayers(List<PlanDataset> list) { this.layers = list; }
+	public void setBoundary(DatasetModel bound) { this.boundary = bound; }
 	public void setMetrics(List<PlanFeature> list) { this.metrics = list; }
 }

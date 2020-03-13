@@ -40,25 +40,15 @@ CREATE TABLE FeatureAttribute (
 	PRIMARY KEY(datasetId,name),
 	FOREIGN KEY (datasetId) references Dataset(id) ON DELETE CASCADE
 );
--- The Plan table holds basic information for plans which are collections
--- of layers each with a different role. We compute metrics on plans.
+-- The Plan table holds basic information for a plan based on a dataset
+-- with a role of BOUNDARIES. We compute metrics on plans.
 DROP TABLE IF EXISTS Plan;
 CREATE TABLE Plan (
 	id		INTEGER  PRIMARY KEY,
 	name	text NOT NULL,
-	description text NULL,
+	datasetId INTEGER NULL,
 	active integer DEFAULT 1,
-	UNIQUE (name)
-);
--- The PlanDataset table maps datasets to a plan. The datasets have roles
--- within the plan.
-DROP TABLE IF EXISTS PlanDataset;
-CREATE TABLE PlanDataset (
-	planId		INTEGER  NOT NULL,
-	datasetId	INTEGER  NOT NULL,
-	role		text NOT NULL,
-	PRIMARY KEY(planId,datasetId),
-	FOREIGN KEY (planId) references Plan(id) ON DELETE CASCADE,
+	UNIQUE (name),
 	FOREIGN KEY (datasetId) references Dataset(id) ON DELETE CASCADE
 );
 -- The PlanFeature table caches aggregated feature values for a plan.

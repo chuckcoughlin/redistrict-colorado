@@ -28,21 +28,24 @@ import redistrict.colorado.ui.GuiUtil;
 public class DistrictTreeController extends StackPane implements EventReceiver<ActionEvent> {
 	private final static String CLSS = "DistrictListController";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
-	private Label headerLabel = new Label("Districts");
 	private static final GuiUtil guiu = new GuiUtil();
+	private Label headerLabel = new Label("Districts");
 	private final TreeView<String> tree; 
 	private final TreeItem<String> root;
-    private final Node folderIcon;
+	private final Node openFolderIcon;
+    private final Node closedFolderIcon;
 	private final BasicEventDispatcher<ActionEvent> auxEventDispatcher;
 	private final EventHandler<ActionEvent> auxEventHandler;
 	
 	public DistrictTreeController() {
 		this.auxEventHandler = new RegionListHolderEventHandler();
 		this.auxEventDispatcher = new BasicEventDispatcher<ActionEvent>(auxEventHandler);
-		folderIcon = guiu.loadImage("images/folder.png");
-		this.root = new TreeItem<String> ("Datasets", folderIcon);
+		openFolderIcon = guiu.loadImage("images/folder.png");
+		closedFolderIcon = guiu.loadImage("images/folder_closed.png");
+		this.root = new TreeItem<String> ("Datasets", closedFolderIcon);
         root.setExpanded(true);       
         this.tree = new TreeView<String>(root);
+        tree.setCellFactory(new DistrictCellFactory());
         populateDatasets();
         getChildren().add(tree);
 
@@ -51,8 +54,7 @@ public class DistrictTreeController extends StackPane implements EventReceiver<A
 	private void populateDatasets() {
 		List<DatasetModel> datasets = Database.getInstance().getDatasetTable().getDatasets();
 		for(DatasetModel datasetModel:datasets) {
-			if( DatasetRole.PRIMARY.equals(datasetModel.getRole()) ||
-				DatasetRole.BOUNDARIES.equals(datasetModel.getRole()) ) {
+			if( DatasetRole.BOUNDARIES.equals(datasetModel.getRole()) ) {
 				TreeItem<String> item = new TreeItem<String> (datasetModel.getName());
 				root.getChildren().add(item);
 				FeatureCollection collection = datasetModel.getFeatures();
@@ -79,4 +81,5 @@ public class DistrictTreeController extends StackPane implements EventReceiver<A
 			LOGGER.info(String.format("%s.handle: Action event: source = %s", CLSS,((Node)event.getSource()).getId()));
 		}
 	}
+	
 }

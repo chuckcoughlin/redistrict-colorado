@@ -35,7 +35,7 @@ public class Database {
 	private final FeatureAttributeTable featureAttributeTable;
 	private final DatasetTable datasetTable;
 	private final PlanTable planTable;
-	private final PlanDatasetTable planDatasetTable;
+	private final PreferencesTable preferencesTable;
 
 	/**
 	 * Constructor is private per Singleton pattern.
@@ -45,7 +45,7 @@ public class Database {
 		this.featureAttributeTable = new FeatureAttributeTable();
 		this.datasetTable = new DatasetTable();
 		this.planTable = new PlanTable();
-		this.planDatasetTable = new PlanDatasetTable();
+		this.preferencesTable = new PreferencesTable();
 	}
 	/**
 	 * Static method to create and/or fetch the single instance.
@@ -61,7 +61,7 @@ public class Database {
 	public boolean isConnected() { return connection!=null; }
 	public AttributeAliasTable getAttributeAliasTable() { return this.attributeAliasTable; }
 	public FeatureAttributeTable getFeatureAttributeTable() { return this.featureAttributeTable; }
-	public PlanDatasetTable getPlanLayerTable() { return this.planDatasetTable; }
+	public PreferencesTable getPreferencesTable() { return this.preferencesTable; }
 	public DatasetTable getDatasetTable() { return this.datasetTable; }
 	public PlanTable getPlanTable() { return this.planTable; }
 	
@@ -83,7 +83,7 @@ public class Database {
 			featureAttributeTable.setConnection(connection);
 			datasetTable.setConnection(connection);
 			planTable.setConnection(connection);
-			planDatasetTable.setConnection(connection);
+			preferencesTable.setConnection(connection);
 			
 			String SQL = "PRAGMA foreign_keys = ON";
 			statement = connection.createStatement();

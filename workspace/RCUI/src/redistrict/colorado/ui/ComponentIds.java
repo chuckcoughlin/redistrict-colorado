@@ -20,11 +20,10 @@ public interface ComponentIds {
 	public final static String BUTTON_ATTRIBUTES  = "ButtonMetrics";
 	public final static String BUTTON_RIGHT 	= "ButtonRight";
 	public final static String BUTTON_SAVE  	= "ButtonSave";
+	public final static String BUTTON_SETUP   	= "ButtonSetup";
 	public final static String BUTTON_SHAPEFILE = "ButtonShapefile";
 	public final static String BUTTON_UP 		= "ButtonUp";
 	public final static String MENU_DISTRICT 	= "MenuDistrict";
 	public final static String MENU_DATASET 	= "MenuDataset";
-	public final static String MENU_DATASET_EVALUATION 	= "MenuDatasetEvaluation";
-	public final static String MENU_DATASET_DEFINITION 	= "MenuDatasetDefinition";
 	public final static String MENU_PLAN	    = "MenuPlan";	
 }

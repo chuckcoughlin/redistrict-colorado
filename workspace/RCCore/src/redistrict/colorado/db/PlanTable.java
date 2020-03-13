@@ -25,7 +25,6 @@ public class PlanTable {
 	private static final String CLSS = "PlanTable";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private final static String DEFAULT_NAME = "New plan";
-	private final static String DEFAULT_DESCRIPTION = "";
 	private Connection cxn = null;
 	/** 
 	 * Constructor: 
@@ -40,8 +39,8 @@ public class PlanTable {
 		PlanModel model = null;
 		if( cxn==null ) return model;
 		
-		String SQL = String.format("INSERT INTO Plan(name,description) values ('%s','%s')",
-									DEFAULT_NAME,DEFAULT_DESCRIPTION);
+		String SQL = String.format("INSERT INTO Plan(name,active) values ('%s',0)",
+									DEFAULT_NAME);
 		Statement statement = null;
 		try {
 			LOGGER.info(String.format("%s.createPlan: \n%s",CLSS,SQL));
@@ -97,7 +96,7 @@ public class PlanTable {
 		PlanModel model = null;
 		PreparedStatement statement = null;
 		ResultSet rs = null;
-		String SQL = "SELECT id,name,description,active from Plan ORDER BY name"; 
+		String SQL = "SELECT id,name,active from Plan ORDER BY name"; 
 		try {
 			statement = cxn.prepareStatement(SQL);
 			statement.setQueryTimeout(10);  // set timeout to 10 sec.
@@ -107,7 +106,6 @@ public class PlanTable {
 							rs.getLong("id"),
 							rs.getString("name")
 						);
-				model.setDescription(rs.getString("description"));
 				model.setActive((rs.getInt("active")==1));
 				list.add(model);
 				LOGGER.info(String.format("%s.getPlans %d: %s",CLSS,model.getId(),model.getName()));
@@ -139,15 +137,14 @@ public class PlanTable {
 	 */
 	public boolean updatePlan(PlanModel model) {
 		PreparedStatement statement = null;
-		String SQL = "UPDATE Plan SET name=?,description=?,active=? WHERE id = ?";
+		String SQL = "UPDATE Plan SET name=?,active=? WHERE id = ?";
 		boolean success = false;
 		try {
 			LOGGER.info(String.format("%s.updatePlan: \n%s",CLSS,SQL));
 			statement = cxn.prepareStatement(SQL);
 			statement.setString(1,model.getName());
-			statement.setString(2,model.getDescription());
-			statement.setInt(3,(model.isActive()?1:0));
-			statement.setLong(4, model.getId());
+			statement.setInt(2,(model.isActive()?1:0));
+			statement.setLong(3, model.getId());
 			statement.executeUpdate();
 			if( statement.getUpdateCount()>0) success = true;
 		}

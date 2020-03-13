@@ -26,8 +26,6 @@ public interface UIConstants {
 	public final static double STAGE_WIDTH  = 1200.; // Default size for main window
 	public final static double STAGE_HEIGHT = 800.;  
 	
-	// UI Names for popup diagrams
-	public static final String LAYER_EDITOR_CLASS = "layer-edit-diagram";
 			
 	// UI Names for the left-side lists
 	public static final String LIST_CELL_SELECTED_CLASS = "list-cell-selected";
