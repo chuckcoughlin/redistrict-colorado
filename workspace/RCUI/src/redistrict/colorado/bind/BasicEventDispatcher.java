@@ -6,6 +6,8 @@
  */
 package redistrict.colorado.bind;
 
+import java.util.logging.Logger;
+
 import javafx.event.Event;
 import javafx.event.EventDispatchChain;
 import javafx.event.EventDispatcher;
@@ -15,6 +17,8 @@ import javafx.event.EventHandler;
  * simply dispatches the event to its list of targets.
  */
 public class BasicEventDispatcher<T extends Event> implements EventDispatcher {
+	private final static String CLSS = "BasicEventDispatcher";
+	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private final EventHandler<T> handler;
 	
 	public BasicEventDispatcher(EventHandler<T> h) {
@@ -27,6 +31,7 @@ public class BasicEventDispatcher<T extends Event> implements EventDispatcher {
 	 */
 	@Override
 	public Event dispatchEvent(Event event, EventDispatchChain ignore) {
+		//LOGGER.info(String.format("%s.dispatchEvent %s", CLSS,event.getSource()));
 		try {
 			handler.handle((T)event);
 		}

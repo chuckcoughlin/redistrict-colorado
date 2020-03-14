@@ -47,7 +47,7 @@ public class DatasetModel  {
 	 * @return the layer's features as a collection
 	 */
 	public FeatureCollection getFeatures() { 
-		if(features==null && shapefilePath!=null && !shapefilePath.isBlank() ) {
+		if(features==null && shapefilePath!=null && !shapefilePath.isEmpty() ) {
 			try {
 				setFeatures(ShapefileReader.read(shapefilePath));
 			}

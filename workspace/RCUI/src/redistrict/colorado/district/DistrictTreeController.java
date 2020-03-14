@@ -42,16 +42,22 @@ public class DistrictTreeController extends StackPane implements EventReceiver<A
 		this.auxEventDispatcher = new BasicEventDispatcher<ActionEvent>(auxEventHandler);
 		openFolderIcon = guiu.loadImage("images/folder.png");
 		closedFolderIcon = guiu.loadImage("images/folder_closed.png");
-		this.root = new TreeItem<String> ("Datasets", closedFolderIcon);
+		this.root = new TreeItem<String> ("Datasets");
         root.setExpanded(true);       
         this.tree = new TreeView<String>(root);
-        tree.setCellFactory(new DistrictCellFactory());
+        tree.setEditable(false);
+        //tree.setCellFactory(new DistrictCellFactory());
         populateDatasets();
         getChildren().add(tree);
-
 	}
 	
 	private void populateDatasets() {
+		if(root.isExpanded()) {
+			root.setGraphic(openFolderIcon);
+		}
+		else {
+			root.setGraphic(closedFolderIcon);
+		}
 		List<DatasetModel> datasets = Database.getInstance().getDatasetTable().getDatasets();
 		for(DatasetModel datasetModel:datasets) {
 			if( DatasetRole.BOUNDARIES.equals(datasetModel.getRole()) ) {

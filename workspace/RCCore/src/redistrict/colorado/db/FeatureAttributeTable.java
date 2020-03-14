@@ -212,14 +212,14 @@ public class FeatureAttributeTable {
 		// Delete any features not in the collection
 		for(String key:configMap.keySet()) {
 			if(!attributes.contains(key)) {
-				LOGGER.info(String.format("%s.synchronizeFeatureAttributes: delete dataset %d, %s",CLSS,datasetId,key));
+				//LOGGER.info(String.format("%s.synchronizeFeatureAttributes: delete dataset %d, %s",CLSS,datasetId,key));
 				deleteFeatureAttribute(datasetId,key);
 			}
 		}
 		// Create database entries for new features
 		for(String name:attributes) {
 			if(!configMap.containsKey(name)) {
-				LOGGER.info(String.format("%s.synchronizeFeatureAttributes: create dataset %d, %s",CLSS,datasetId,name));
+				//LOGGER.info(String.format("%s.synchronizeFeatureAttributes: create dataset %d, %s",CLSS,datasetId,name));
 				createFeatureAttribute(datasetId,name,AttributeType.DOUBLE);
 			}
 		}
