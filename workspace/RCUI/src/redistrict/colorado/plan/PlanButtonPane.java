@@ -79,6 +79,7 @@ public class PlanButtonPane extends AnchorPane implements EventSource<ActionEven
 
 		this.getChildren().add(addButton);
 		this.getChildren().add(deleteButton);
+		this.getChildren().add(setupButton);
 		this.getChildren().add(analyzeButton);
 		
 		setTopAnchor(addButton,HGAP);

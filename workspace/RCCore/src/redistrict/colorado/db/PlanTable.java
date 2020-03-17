@@ -39,8 +39,7 @@ public class PlanTable {
 		PlanModel model = null;
 		if( cxn==null ) return model;
 		
-		String SQL = String.format("INSERT INTO Plan(name,active) values ('%s',0)",
-									DEFAULT_NAME);
+		String SQL = "INSERT INTO Plan(active) values (,)";
 		Statement statement = null;
 		try {
 			LOGGER.info(String.format("%s.createPlan: \n%s",CLSS,SQL));
@@ -48,7 +47,7 @@ public class PlanTable {
 			statement.executeUpdate(SQL);
 			ResultSet rs = statement.getGeneratedKeys();
 		    if (rs.next()) {
-		        model = new PlanModel(rs.getInt(1),DEFAULT_NAME);
+		        model = new PlanModel(rs.getInt(1));
 		        model.setActive(false);
 		    } 
 		}

@@ -115,7 +115,7 @@ public class PlanRow extends ListCell<PlanModel>  {
     }
     private void addControlsToGrid() {
     	grid.add(active, 2,0);
-        //grid.add(edit, 3, 0);                    
+        grid.add(combo, 1, 1);                    
         grid.add(attributes, 4, 0);        
     }
 	

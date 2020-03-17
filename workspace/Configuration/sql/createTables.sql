@@ -34,21 +34,19 @@ CREATE TABLE FeatureAttribute (
 	name text NOT NULL,
 	alias text NOT NULL,
 	type text NOT null,
-	visible integer DEFAULT 1,
+	visible integer DEFAULT 0,
 	background integer DEFAULT 0,
 	rank integer DEFAULT 10,
 	PRIMARY KEY(datasetId,name),
 	FOREIGN KEY (datasetId) references Dataset(id) ON DELETE CASCADE
 );
--- The Plan table holds basic information for a plan based on a dataset
--- with a role of BOUNDARIES. We compute metrics on plans.
+-- The Plan table links a plan to a dataset. The dataset must
+-- have a role of BOUNDARIES. We compute metrics on plans.
 DROP TABLE IF EXISTS Plan;
 CREATE TABLE Plan (
 	id		INTEGER  PRIMARY KEY,
-	name	text NOT NULL,
 	datasetId INTEGER NULL,
 	active integer DEFAULT 1,
-	UNIQUE (name),
 	FOREIGN KEY (datasetId) references Dataset(id) ON DELETE CASCADE
 );
 -- The PlanFeature table caches aggregated feature values for a plan.
@@ -69,7 +67,7 @@ CREATE TABLE PlanFeature (
 	PRIMARY KEY(planId,featureId),
 	FOREIGN KEY (planId) references Plan(id)
 );
--- Store application constants
+-- Store application constants.
 DROP TABLE IF EXISTS Preferences;
 CREATE TABLE Preferences (
 	name text NOT NULL,
