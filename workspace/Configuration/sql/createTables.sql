@@ -36,7 +36,7 @@ CREATE TABLE FeatureAttribute (
 	type text NOT null,
 	visible integer DEFAULT 1,
 	background integer DEFAULT 0,
-	rank integer DEFAULT 1,
+	rank integer DEFAULT 10,
 	PRIMARY KEY(datasetId,name),
 	FOREIGN KEY (datasetId) references Dataset(id) ON DELETE CASCADE
 );

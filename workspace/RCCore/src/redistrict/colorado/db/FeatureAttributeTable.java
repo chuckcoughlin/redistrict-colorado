@@ -51,7 +51,7 @@ public class FeatureAttributeTable {
 		int g = rand.nextInt(255);
 		int b = rand.nextInt(255);
 		int rgb = 256*256*r+256*g+b;
-		String SQL = String.format("INSERT INTO FeatureAttribute(datasetId,name,alias,type,background) values (%d,'%s','%s','%s',%d)",
+		String SQL = String.format("INSERT INTO FeatureAttribute(datasetId,name,alias,type,background,rank) values (%d,'%s','%s','%s',%d,10)",
 															id,name,name,type.name(),rgb);
 		String UPDSQL = String.format("UPDATE FeatureAttribute SET alias = (SELECT alias FROM AttributeAlias WHERE name='%s') WHERE datasetId=%d AND name='%s'",
 										name,id,name);

@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 import org.openjump.feature.Feature;
 import org.openjump.feature.FeatureCollection;
 
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -36,39 +37,37 @@ public class DistrictTreeController extends StackPane implements EventReceiver<A
 	private Label headerLabel = new Label("Districts");
 	private final TreeView<String> tree; 
 	private final TreeItem<String> root;
-	private final Node openFolderIcon;
-    private final Node closedFolderIcon;
-	private final BasicEventDispatcher<ActionEvent> auxEventDispatcher;
+    private final BasicEventDispatcher<ActionEvent> auxEventDispatcher;
+	private final ExpansionListener  expansionListener;
 	private final EventHandler<ActionEvent> auxEventHandler;
 	private final ReadOnlyObjectProperty<TreeItem<String>> selectionModel;
 	
 	public DistrictTreeController() {
 		this.auxEventHandler = new RegionListHolderEventHandler();
 		this.auxEventDispatcher = new BasicEventDispatcher<ActionEvent>(auxEventHandler);
-		openFolderIcon = guiu.loadImage("images/folder.png");
-		closedFolderIcon = guiu.loadImage("images/folder_closed.png");
-		this.root = new TreeItem<String> ("Datasets");
+		this.expansionListener = new ExpansionListener();
+		this.root = new TreeItem<String> ("Datasets",guiu.loadImage("images/folder_closed.png"));
         root.setExpanded(false);       
         this.tree = new TreeView<String>(root);
         this.selectionModel = tree.getSelectionModel().selectedItemProperty();
         selectionModel.addListener(this);
         tree.setEditable(false);
         tree.addEventHandler(ActionEvent.ACTION, auxEventHandler);
+        root.expandedProperty().addListener(expansionListener); 
         populateDatasets();
         getChildren().add(tree);
 	}
 	
+	@Override
+	public BasicEventDispatcher<ActionEvent> getAuxillaryEventDispatcher() {
+		return auxEventDispatcher;
+	}
 	private void populateDatasets() {
-		if(root.isExpanded()) {
-			root.setGraphic(openFolderIcon);
-		}
-		else {
-			root.setGraphic(closedFolderIcon);
-		}
 		List<DatasetModel> datasets = Database.getInstance().getDatasetTable().getDatasets();
 		for(DatasetModel datasetModel:datasets) {
 			if( DatasetRole.BOUNDARIES.equals(datasetModel.getRole()) ) {
-				TreeItem<String> item = new TreeItem<String> (datasetModel.getName());
+				TreeItem<String> item = new TreeItem<String> (datasetModel.getName(),guiu.loadImage("images/folder_closed.png"));
+				item.expandedProperty().addListener(expansionListener);
 				root.getChildren().add(item);
 				FeatureCollection collection = datasetModel.getFeatures();
 				if(collection!=null) {
@@ -80,10 +79,6 @@ public class DistrictTreeController extends StackPane implements EventReceiver<A
 				}
 			}
 		}
-	}
-	@Override
-	public BasicEventDispatcher<ActionEvent> getAuxillaryEventDispatcher() {
-		return auxEventDispatcher;
 	}
 
 	// ================================================ Change Listener =========================================
@@ -105,5 +100,23 @@ public class DistrictTreeController extends StackPane implements EventReceiver<A
 		}
 	}
 
-	
+	// ================================================ Change Listener =========================================
+	/**
+	 * Expansion change listener. Require separate class because main already listens on items.
+	 */
+	public class ExpansionListener implements ChangeListener<Boolean> {
+		@Override
+	    public void changed(ObservableValue<? extends  Boolean> observable, Boolean oldValue, Boolean newValue) {
+	        BooleanProperty bb = (BooleanProperty) observable;
+	        LOGGER.info(String.format("%s.changed: %s= %s",CLSS,bb.getBean(),newValue));
+	        @SuppressWarnings("unchecked")
+			TreeItem<String> t = (TreeItem<String>) bb.getBean();
+			if(t.isExpanded()) {
+				t.setGraphic(guiu.loadImage("images/folder.png"));
+			}
+			else {
+				t.setGraphic(guiu.loadImage("images/folder_closed.png"));
+			}
+	    }
+	}
 }
