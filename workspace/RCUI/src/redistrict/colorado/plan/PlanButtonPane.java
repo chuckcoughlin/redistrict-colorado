@@ -119,7 +119,16 @@ public class PlanButtonPane extends AnchorPane implements EventSource<ActionEven
 	@Override
 	public void handle(ActionEvent event) {
 		EventBindingHub hub = EventBindingHub.getInstance();
-		hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.PLAN_COMPARISON));
+		String id = GuiUtil.idFromSource(event.getSource());
+		LOGGER.info(String.format("%s.handle: Action event: source = %s", CLSS,id));
+		if( id.equalsIgnoreCase(ComponentIds.BUTTON_ANALYZE)) {
+			hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.PLAN_COMPARISON));
+		}
+		else if( id.equalsIgnoreCase(ComponentIds.BUTTON_SETUP)) {
+			hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.PLAN_SETUP));
+		}
+		
+		
 	}
 	
 	// =========================== ChangeListener<PlanModel> =============================================

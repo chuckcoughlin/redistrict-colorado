@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
+import redistrict.colorado.core.AnalysisModel;
 import redistrict.colorado.core.DatasetModel;
 import redistrict.colorado.core.DistrictModel;
 import redistrict.colorado.core.PlanModel;
@@ -39,6 +40,7 @@ public class EventBindingHub  {
 	private final SimpleObjectProperty<List<PlanModel>> activePlans;
 	private final SimpleObjectProperty<PlanModel> selectedPlan;
 	private final SimpleObjectProperty<DistrictModel> selectedDistrict;
+	private final SimpleObjectProperty<AnalysisModel> analysisModel;
 	/**
 	 * Constructor is private per Singleton pattern.
 	 */
@@ -50,6 +52,7 @@ public class EventBindingHub  {
 		this.selectedPlan = new SimpleObjectProperty<PlanModel>();
 		this.activePlans = new SimpleObjectProperty<List<PlanModel>>();
 		this.selectedDistrict = new SimpleObjectProperty<DistrictModel>();
+		this.analysisModel = new SimpleObjectProperty<AnalysisModel>();
 	}
 	/**
 	 * Static method to create and/or fetch the single instance.
@@ -101,7 +104,9 @@ public class EventBindingHub  {
 	public void setSelectedPlan(PlanModel model) {selectedPlan.set(model);}
 	public void unselectPlan() { selectedPlan.set(null); }
 	public SimpleObjectProperty<PlanModel> selectedPlanProperty(){return selectedPlan; }
-	
+	// Analysis Model
+	public AnalysisModel getAnalysisModel() { return analysisModel.get(); }
+	public SimpleObjectProperty<AnalysisModel> analysisModelProperty(){return analysisModel; }
 	
 	// Selected District
 	public DistrictModel getSelectedDistrict() { return selectedDistrict.get(); }

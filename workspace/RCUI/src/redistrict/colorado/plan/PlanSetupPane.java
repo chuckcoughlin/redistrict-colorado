@@ -15,17 +15,17 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import redistrict.colorado.bind.EventBindingHub;
+import redistrict.colorado.core.AnalysisModel;
 import redistrict.colorado.core.DatasetRole;
-import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.pane.BasicRightSideNode;
 import redistrict.colorado.pane.SavePane;
@@ -48,15 +48,16 @@ public class PlanSetupPane extends BasicRightSideNode
 	private final static double COL1_WIDTH = 300.;
 	private final static double COL2_WIDTH = 40.;
 	private final static double TABLE_OFFSET_TOP = 150.;
-	private Label headerLabel = new Label("Plan Setup");
+	private Label headerLabel = new Label("Analysis Setup");
 	private final SavePane savePane = new SavePane(this);
-	private PlanModel model;
+	private AnalysisModel model;
 	private final GridPane grid;
-	private final Label nameLabel = new Label("Name: ");
-	private final Label descriptionLabel = new Label("Description: ");
+	private final Label datasetLabel = new Label("Ancillary Datasets");
+	private final Label affiliationLabel = new Label("Affiliation: ");
+	private final Label demographicsLabel = new Label("Demographics: ");
 
-	private final TextField nameField;
-	private final TextField descriptionField;
+	private final ComboBox<String> affiliationCombo;
+	private final ComboBox<String> demographicsCombo;
 	private final ObservableList<Property> items;  // Array displayed in table
 	private final TableView<Property> table;
 	private final TableEventHandler cellHandler;
@@ -64,7 +65,7 @@ public class PlanSetupPane extends BasicRightSideNode
 
 	public PlanSetupPane() {
 		super(ViewMode.PLAN,DisplayOption.PLAN_SETUP);
-		this.model = EventBindingHub.getInstance().getSelectedPlan();
+		this.model = EventBindingHub.getInstance().getAnalysisModel();
 		this.items = FXCollections.observableArrayList();
 		this.cellHandler = new TableEventHandler();
 		
@@ -74,8 +75,8 @@ public class PlanSetupPane extends BasicRightSideNode
 		setLeftAnchor(headerLabel,UIConstants.LIST_PANEL_LEFT_MARGIN);
 		setRightAnchor(headerLabel,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 		
-        nameField = new TextField();
-        descriptionField = new TextField();
+        affiliationCombo  = new ComboBox<>();
+        demographicsCombo = new ComboBox<>();
         
         grid = new GridPane();
         grid.setHgap(10);
@@ -89,10 +90,10 @@ public class PlanSetupPane extends BasicRightSideNode
 		ColumnConstraints col2 = new ColumnConstraints(COL2_WIDTH);
 		col2.setHalignment(HPos.CENTER);
 		grid.getColumnConstraints().addAll(col0,col1,col2); 
-		grid.add(nameLabel,0, 0);
-		grid.add(nameField, 1, 0);
-		grid.add(descriptionLabel, 0, 1);
-		grid.add(descriptionField, 1, 1);
+		grid.add(affiliationLabel,0, 0);
+		grid.add(affiliationCombo, 1, 0);
+		grid.add(demographicsLabel, 0, 1);
+		grid.add(demographicsCombo, 1, 1);
 		
 		getChildren().add(grid);
 		setTopAnchor(grid,UIConstants.DETAIL_HEADER_SPACING);
@@ -133,15 +134,16 @@ public class PlanSetupPane extends BasicRightSideNode
 		setRightAnchor(savePane,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 		setBottomAnchor(savePane,0.);
        
-		configureDefinition();
+		configureComboBoxes();
 		updateDatasets();
 		configureTable();
 	}
 	
-	private void configureDefinition() {
-		if( model!=null ) {
-			nameField.setText(model.getBoundary().getName());
-		}
+	private void configureComboBoxes() {
+		List<String> affiliations = Database.getInstance().getDatasetTable().getDatasetNames(DatasetRole.AFFILIATIONS);
+		affiliationCombo.getItems().addAll(affiliations);
+		List<String> demographics = Database.getInstance().getDatasetTable().getDatasetNames(DatasetRole.DEMOGRAPHICS);
+		demographicsCombo.getItems().addAll(demographics);
 	}
 	/**
 	 * Update the table's dataset list from the model. If the model has no datasets, read them from the database.
@@ -179,9 +181,8 @@ public class PlanSetupPane extends BasicRightSideNode
 	// ====================================== BasicRightSideNode =====================================
 	@Override
 	public void updateModel() {
-		this.model = EventBindingHub.getInstance().getSelectedPlan();
-		this.headerLabel.setText("Configure "+model.getBoundary().getName());
-		configureDefinition();
+		this.model = EventBindingHub.getInstance().getAnalysisModel();
+		configureComboBoxes();
 		updateDatasets();
 		configureTable();
 	}
@@ -194,8 +195,6 @@ public class PlanSetupPane extends BasicRightSideNode
 		Object source = event.getSource();
 		if( source instanceof Button && ((Button)source).getId().equals(ComponentIds.BUTTON_SAVE)) {
 			if(model!=null) {
-				model.getBoundary().setName(nameField.getText());
-				Database.getInstance().getPlanTable().updatePlan(model);
 				// Update layer roles in the model
 				/*
 				List<Property> players = model.
