@@ -99,7 +99,7 @@
 	-fx-background-color:-ma-light-background;
 	-fx-border-radius: 3;
 }
-#ButtonAnalyze {
+#ButtonAnalyze, #ButtonSetup {
 	-fx-background-color: -ma-dark-blue;
 	-fx-font-size: 10pt;
 	-fx-text-fill: white;
@@ -130,6 +130,7 @@
 	-fx-pref-height: 28;
 	-fx-max-height:28;
 }
+
 #ButtonShapefile {
 	-fx-background-color: lightslategrey;
 	-fx-font-size: 9pt;

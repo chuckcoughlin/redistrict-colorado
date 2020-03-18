@@ -11,6 +11,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.bind.LeftSelectionEvent;
+import redistrict.colorado.ui.DisplayOption;
 
 
 /**
@@ -36,6 +37,7 @@ public class RightSideController implements ChangeListener<LeftSelectionEvent> {
 	@Override
 	public void changed(ObservableValue<? extends LeftSelectionEvent> source, LeftSelectionEvent oldValue,LeftSelectionEvent newValue) {
 		if( newValue==null ) return;
+		if(newValue.getOption().equals(DisplayOption.NONE)) return;   // Leave "as-is"
 		for(BasicRightSideNode node:nodes) {
 			if( node.getMode().equals(newValue.getMode()) && 
 				node.getOption().equals(newValue.getOption()) ) {

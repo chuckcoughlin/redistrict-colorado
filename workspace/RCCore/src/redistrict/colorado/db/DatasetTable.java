@@ -187,55 +187,6 @@ public class DatasetTable {
 		return list;
 	}
 	/**
-	 * @return a LayerModel that corresponds to a layer in a plan that 
-	 * has a specified role.
-	 */
-	public DatasetModel getPlanDataset(long planId,DatasetRole role) {
-		DatasetModel model = null;
-		PreparedStatement statement = null;
-		ResultSet rs = null;
-		String SQL = "SELECT id,name,description,shapefilePath,Dataset.role from Dataset,PlanDataset "+
-		              " WHERE Dataset.id = PlanDataset.datasetId "+
-				      "   AND planDataset.planId = ? " +
-		              "   AND planDataset.role = ?"; 
-		try {
-			statement = cxn.prepareStatement(SQL);
-			statement.setQueryTimeout(10);  // set timeout to 10 sec.
-			statement.setLong(1, planId);
-			statement.setString(2,role.name());
-			rs = statement.executeQuery();
-			// There should only be one result.
-			while(rs.next()) {
-				long id = rs.getLong("id");
-				model = cache.getDataset(id);
-				if( model==null) {
-					model = new DatasetModel(id,rs.getString("name"));
-					model.setDescription(rs.getString("description"));
-					model.setShapefilePath(rs.getString("shapefilePath"));
-					model.setRole(role);
-					cache.addDataset(model);
-				}
-				//LOGGER.info(String.format("%s.getLayers %d: %s is %s",CLSS,model.getId(),model.getName(),model.getRole().name()));
-				break;
-			}
-			rs.close();
-		}
-		catch(SQLException e) {
-			// if the error message is "out of memory", 
-			// it probably means no database file is found
-			LOGGER.severe(String.format("%s.getPlanDataset: Error (%s)",CLSS,e.getMessage()));
-		}
-		finally {
-			if( rs!=null) {
-				try { rs.close(); } catch(SQLException ignore) {}
-			}
-			if( statement!=null) {
-				try { statement.close(); } catch(SQLException ignore) {}
-			}
-		}
-		return model;
-	}
-	/**
 	 * Update the database from a model object.
 	 * @cxn an open database connection
 	 * @param oldName

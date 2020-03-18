@@ -11,12 +11,10 @@ import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import redistrict.colorado.bind.EventBindingHub;
-import redistrict.colorado.bind.LeftSelectionEvent;
 
 /**
  * Create the menu hierarchy for the menubar.

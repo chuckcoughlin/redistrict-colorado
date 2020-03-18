@@ -12,8 +12,8 @@ import java.util.logging.Logger;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
-import redistrict.colorado.core.DistrictModel;
 import redistrict.colorado.core.DatasetModel;
+import redistrict.colorado.core.DistrictModel;
 import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.ui.ViewMode;
 
@@ -28,7 +28,7 @@ import redistrict.colorado.ui.ViewMode;
  * 	ViewMode - plans, layers or routes
  *  Message  - string status message used for logging and status panel.
  */
-public class EventBindingHub {
+public class EventBindingHub  {
 	private static final String CLSS = "EventRoutingHub";
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
 	private static EventBindingHub instance = null;
@@ -98,10 +98,11 @@ public class EventBindingHub {
 	public void setActivePlans(List<PlanModel> models) { activePlans.set(models); }
 	public PlanModel getSelectedPlan() { return selectedPlan.get(); }
 	public boolean isPlanSelected() { return (selectedPlan.get()!=null); }
-	public void setSelectedPlan(PlanModel model) { selectedPlan.set(model); }
+	public void setSelectedPlan(PlanModel model) {selectedPlan.set(model);}
 	public void unselectPlan() { selectedPlan.set(null); }
-	public void addPlanListener(ChangeListener<PlanModel> listener) {selectedPlan.addListener(listener);}
-	public SimpleObjectProperty<PlanModel> selectedPlanProperty(){return selectedPlan;}
+	public SimpleObjectProperty<PlanModel> selectedPlanProperty(){return selectedPlan; }
+	
+	
 	// Selected District
 	public DistrictModel getSelectedDistrict() { return selectedDistrict.get(); }
 	public boolean isDistrictSelected() { return (selectedDistrict.get()!=null); }

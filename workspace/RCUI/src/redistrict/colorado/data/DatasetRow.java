@@ -58,11 +58,11 @@ public class DatasetRow extends ListCell<DatasetModel> implements ChangeListener
     private final ToggleButton detailButton;
     private final ToggleGroup toggleGroup;
     private final EditEventHandler handler;
-    private final LayerChangeListener listener;
+    private final DatasetChangeListener listener;
     
 	public DatasetRow() {
 		handler = new EditEventHandler();
-		listener= new LayerChangeListener();
+		listener= new DatasetChangeListener();
 		EventBindingHub.getInstance().addDatasetListener(listener);
 		setPrefWidth(UIConstants.LIST_PANEL_WIDTH);
 		tag = new Label("",guiu.loadImage("images/layers.png"));
@@ -192,7 +192,7 @@ public class DatasetRow extends ListCell<DatasetModel> implements ChangeListener
 		}
 	}
 	
-	public class LayerChangeListener implements ChangeListener<DatasetModel> {
+	public class DatasetChangeListener implements ChangeListener<DatasetModel> {
 		@Override
 		public void changed(ObservableValue<? extends DatasetModel> source, DatasetModel oldModel, DatasetModel newModel) {
 			if(newModel!=null && newModel.getId()==id) {

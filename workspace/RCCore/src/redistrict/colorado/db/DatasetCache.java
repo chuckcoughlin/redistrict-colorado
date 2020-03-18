@@ -6,11 +6,14 @@
  */
 package redistrict.colorado.db;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
 import redistrict.colorado.core.DatasetModel;
+import redistrict.colorado.core.DatasetRole;
 
 /**
  * The dataset cache is a Singleton that holds references to all of
@@ -43,12 +46,32 @@ public class DatasetCache {
 	
 	public void addDataset(DatasetModel model) {map.put(model.getId(),model); }
 	/**
-	 * When we get the layer from the cache, make sure that the features are populated.
+	 * When we get the dataset from the cache, make sure that the features are populated.
 	 * This amounts to a lazy initialization.
 	 */
 	public DatasetModel getDataset(long id) {
 		DatasetModel model = map.get(id);
 		return model;
+	}
+	
+	/**
+	 * Do a linear for dataset by name.
+	 */
+	public DatasetModel getDataset(String name) {
+		for(DatasetModel model:map.values() ) {
+			if(model.getName().equalsIgnoreCase(name)) return model;
+		}
+		return null;
+	}
+	
+	public List<DatasetModel> getDatasetsInRole(DatasetRole role) {
+		List<DatasetModel> datasets = new ArrayList<>();
+		for(DatasetModel model:map.values()) {
+			if( model.getRole().equals(role)) {
+				datasets.add(model);
+			}
+		}
+		return datasets;
 	}
 
 	public void removeDataset(DatasetModel model) {map.remove(model.getId()); }

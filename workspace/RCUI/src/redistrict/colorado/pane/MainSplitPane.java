@@ -1,5 +1,5 @@
 /**  
- * Copyright (C) 2019 Charles Coughlin
+ * Copyright (C) 2019-2020 Charles Coughlin
  * 
  * This program is free software; you may redistribute it and/or
  * modify it under the terms of the GNU General Public License.
@@ -47,15 +47,17 @@ public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode>
 	private final BasicRightSideNode[] rightChildren;
 	private ViewMode currentViewMode = ViewMode.PLAN;  // Initially
 	private final RightSideController rightController;
+	private final DistrictTreeController districtTreeController;
 	
 	public MainSplitPane() {
 		this.eventHandler = new SplitPaneEventHandler();
 		left = new StackPane();
 		right = new StackPane();
+		districtTreeController = new DistrictTreeController();
 		leftChildren = new Node[N_CHILDREN_LEFT];
 		leftChildren[0] = new PlanListController();
 		leftChildren[1] = new DatasetListController();
-		leftChildren[2] = new DistrictTreeController();
+		leftChildren[2] = districtTreeController;
 		
 		rightChildren = new BasicRightSideNode[N_CHILDREN_RIGHT];
 		rightChildren[0] = new SplashScreen();
@@ -144,6 +146,7 @@ public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode>
 		}
 		else if( mode.equals(ViewMode.DISTRICT)) {
 			leftPane = 2;
+			districtTreeController.populateDatasets();
 			if(hub.isDistrictSelected()) rightPane = 4; // Feature map
 		}
 		int index = 0;

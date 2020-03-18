@@ -34,7 +34,6 @@ import redistrict.colorado.ui.ViewMode;
 public class PlanFeaturesPane extends BasicRightSideNode{
 	private final static String CLSS = "PlanFeaturesPane";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
-	private DatasetModel primaryDataset;
 	private PlanModel model;
 	private final ObservableList<PlanFeature> items;
 	private final Label headerLabel = new Label("Plan Features");
@@ -138,17 +137,20 @@ public class PlanFeaturesPane extends BasicRightSideNode{
 		PlanModel selectedModel = hub.getSelectedPlan();
 		if( selectedModel!=null) {
 			this.model = selectedModel;
-			this.headerLabel.setText(model.getName()+" Feature Attributes");
-			this.primaryDataset = Database.getInstance().getDatasetTable().getPlanDataset(model.getId(), DatasetRole.BOUNDARIES);
-			if( primaryDataset==null) return;
-			LOGGER.info(String.format("%s.updateModel: Model is %s", CLSS,model.getName()));
-			LOGGER.info(String.format("%s.updateModel: Primary is %s", CLSS,primaryDataset.getName()));
+			DatasetModel boundaryDataset = model.getBoundary();
+			
+			if( boundaryDataset==null) {
+				LOGGER.warning(String.format("%s.updateModel: Model has no associated boundary dataset", CLSS));
+				return;
+			}
+			this.headerLabel.setText(boundaryDataset.getName()+" Feature Attributes");
+			LOGGER.info(String.format("%s.updateModel: Model is %s", CLSS,boundaryDataset.getName()));
 			items.clear();
 			// Populate attributes for each feature
-			String idName = Database.getInstance().getAttributeAliasTable().nameForAlias(primaryDataset.getId(), StandardAttributes.ID.name());
-			String geoName = Database.getInstance().getAttributeAliasTable().nameForAlias(primaryDataset.getId(), StandardAttributes.GEOMETRY.name());
+			String idName = Database.getInstance().getAttributeAliasTable().nameForAlias(boundaryDataset.getId(), StandardAttributes.ID.name());
+			String geoName = Database.getInstance().getAttributeAliasTable().nameForAlias(boundaryDataset.getId(), StandardAttributes.GEOMETRY.name());
 			
-			for(Feature feat:primaryDataset.getFeatures().getFeatures()) {
+			for(Feature feat:boundaryDataset.getFeatures().getFeatures()) {
 				PlanFeature attribute = new PlanFeature(model.getId(),feat.getID());
 				if(idName!=null) attribute.setName(feat.getString(idName).toString());
 				if(geoName!=null) {
@@ -158,7 +160,7 @@ public class PlanFeaturesPane extends BasicRightSideNode{
 						attribute.setPerimeter(geometry.getExteriorRing().getLength());
 					}
 					catch(ClassCastException cce) {
-						LOGGER.info(String.format("%s.updateModel: Geometry attribute wa not a polygon (%s)", CLSS,cce.getLocalizedMessage()));
+						LOGGER.info(String.format("%s.updateModel: Geometry attribute is not a polygon (%s)", CLSS,cce.getLocalizedMessage()));
 					}
 				}
 				items.add(attribute);

@@ -34,11 +34,13 @@ public class PlanListController extends AnchorPane
 	private final BasicEventDispatcher<ActionEvent> auxEventDispatcher;
 	private final EventHandler<ActionEvent> auxEventHandler;
 	private final EventBindingHub hub;
+
 	
 	public PlanListController() {
 		this.auxEventHandler = new PlanListHolderEventHandler();
 		this.auxEventDispatcher = new BasicEventDispatcher<ActionEvent>(auxEventHandler);
 		this.hub = EventBindingHub.getInstance();
+		
 		planList = new ListView<PlanModel>();
 		planList.setCellFactory(new PlanRowFactory());
 		planList.getSelectionModel().selectedItemProperty().addListener(this);
@@ -82,7 +84,7 @@ public class PlanListController extends AnchorPane
 				Database.getInstance().getPlanTable().createPlan();
 				updateUIFromDatabase();
 			}
-			// Delete the selected layer, then refresh
+			// Delete the selected plan, then refresh
 			else if( id.equalsIgnoreCase(ComponentIds.BUTTON_DELETE)) {
 				PlanModel selectedModel = planList.getSelectionModel().getSelectedItem();
 				if( selectedModel!=null) {
@@ -94,7 +96,7 @@ public class PlanListController extends AnchorPane
 		}
 	}
 	/**
-	 * Query the Layer table and update the list accordingly. Retain the same selection, if any.
+	 * Query the Dataset table and update the list accordingly. Retain the same selection, if any.
 	 */
 	private void updateUIFromDatabase() {
 		PlanModel selectedModel = planList.getSelectionModel().getSelectedItem();
@@ -104,8 +106,10 @@ public class PlanListController extends AnchorPane
 		
 		List<PlanModel> plans = Database.getInstance().getPlanTable().getPlans();
 		planList.getItems().clear();
+		LOGGER.info(String.format("%s.updateUIFromDatabase: cleared plan list", CLSS));
 		for(PlanModel model:plans) {
 			planList.getItems().add(model);
+			LOGGER.info(String.format("%s.updateUIFromDatabase: added model", CLSS));
 			if( model.getId()==selectedId) selectedModel = model;
 		}
 		buttons.setDeleteDisabled(selectedModel==null);
@@ -116,7 +120,7 @@ public class PlanListController extends AnchorPane
 	 */
 	@Override
 	public void changed(ObservableValue<? extends PlanModel> source, PlanModel oldValue, PlanModel newValue) {
-		LOGGER.info(String.format("%s.changed: selected = %s", CLSS,(newValue==null?"null":newValue.getName())));
+		LOGGER.info(String.format("%s.changed: selected = %s", CLSS,(newValue==null?"null":newValue.getBoundary().getName())));
 		buttons.setDeleteDisabled(newValue==null);
 		hub.setSelectedPlan(newValue);
 	}

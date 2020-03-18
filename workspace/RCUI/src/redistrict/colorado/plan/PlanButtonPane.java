@@ -37,8 +37,8 @@ import redistrict.colorado.ui.ViewMode;
  * 
  * We provide a method to enable/disable the delete button.
  */
-public class PlanButtonPane extends AnchorPane implements EventSource<ActionEvent>, EventHandler<ActionEvent>, ChangeListener<PlanModel> {
-	private static final String CLSS = "ButtonPane";
+public class PlanButtonPane extends AnchorPane implements EventSource<ActionEvent>, EventHandler<ActionEvent>, ChangeListener<LeftSelectionEvent> {
+	private static final String CLSS = "PlanButtonPane";
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
 	private static final double HGAP = 6.;
 	private final Button addButton;
@@ -50,10 +50,11 @@ public class PlanButtonPane extends AnchorPane implements EventSource<ActionEven
 	private final BasicEventDispatchChain<ActionEvent> eventChain;
 	
 	public PlanButtonPane() {
-		EventBindingHub.getInstance().addPlanListener(this);
 		this.setPrefHeight(UIConstants.BUTTON_PANEL_HEIGHT);
 		this.eventHandler = new ButtonPaneEventHandler();
 		this.eventChain   = new BasicEventDispatchChain<ActionEvent>();
+		EventBindingHub.getInstance().addLeftSideSelectionListener(this);
+		
 		addButton = new Button("",guiu.loadImage("images/add.png"));
 		addButton.setId(ComponentIds.BUTTON_ADD);
 		addButton.setOnAction(eventHandler);
@@ -68,14 +69,12 @@ public class PlanButtonPane extends AnchorPane implements EventSource<ActionEven
 		analyzeButton.setAlignment(Pos.CENTER_RIGHT);
 		analyzeButton.setDisable(true);
 		analyzeButton.setOnAction(this);
-		analyzeButton.setId(ComponentIds.BUTTON_ANALYZE);
 		
 		setupButton = new Button("Setup");
 		setupButton.setId(ComponentIds.BUTTON_SETUP);
 		setupButton.setAlignment(Pos.CENTER_RIGHT);
 		setupButton.setDisable(false);
 		setupButton.setOnAction(this);
-		setupButton.setId(ComponentIds.BUTTON_SETUP);
 
 		this.getChildren().add(addButton);
 		this.getChildren().add(deleteButton);
@@ -88,7 +87,7 @@ public class PlanButtonPane extends AnchorPane implements EventSource<ActionEven
 		setTopAnchor(analyzeButton,HGAP);
 		setLeftAnchor(addButton,UIConstants.BUTTON_PANEL_HEIGHT);
 		setLeftAnchor(deleteButton,2*UIConstants.BUTTON_PANEL_HEIGHT);
-		setRightAnchor(setupButton,UIConstants.BUTTON_PANEL_HEIGHT*2);
+		setRightAnchor(setupButton,UIConstants.BUTTON_PANEL_HEIGHT*3);
 		setRightAnchor(analyzeButton,UIConstants.BUTTON_PANEL_HEIGHT);
 		
 		updateUI();
@@ -127,8 +126,9 @@ public class PlanButtonPane extends AnchorPane implements EventSource<ActionEven
 	/**
 	 * There has been some change to a plan. Check to see if any are active - even if the new model is null
 	 */
-	@Override
+	//@Override
 	public void changed(ObservableValue<? extends PlanModel> source, PlanModel oldModel, PlanModel newModel) {
+		LOGGER.info(String.format("%s.PlanModel.changed", CLSS));
 		updateUI();
 	}
 
@@ -149,4 +149,15 @@ public class PlanButtonPane extends AnchorPane implements EventSource<ActionEven
 		hub.setActivePlans(activePlans);
 		analyzeButton.setDisable(!hasActive);
 	}
+
+	//============================================= LeftSideChangeListener =================================================
+	@Override
+	public void changed(ObservableValue<? extends LeftSelectionEvent> source, LeftSelectionEvent oldValue,LeftSelectionEvent newValue) {
+		LOGGER.info(String.format("%s.PlanSelectionListener.changed", CLSS));
+		if( newValue==null ) return;
+		if( newValue.getMode().equals(ViewMode.PLAN)) {
+			updateUI();
+		}
+	}
+
 }

@@ -62,8 +62,9 @@ public class DistrictTreeController extends StackPane implements EventReceiver<A
 	public BasicEventDispatcher<ActionEvent> getAuxillaryEventDispatcher() {
 		return auxEventDispatcher;
 	}
-	private void populateDatasets() {
+	public void populateDatasets() {
 		List<DatasetModel> datasets = Database.getInstance().getDatasetTable().getDatasets();
+		root.getChildren().clear();
 		for(DatasetModel datasetModel:datasets) {
 			if( DatasetRole.BOUNDARIES.equals(datasetModel.getRole()) ) {
 				TreeItem<String> item = new TreeItem<String> (datasetModel.getName(),guiu.loadImage("images/folder_closed.png"));
@@ -72,9 +73,14 @@ public class DistrictTreeController extends StackPane implements EventReceiver<A
 				FeatureCollection collection = datasetModel.getFeatures();
 				if(collection!=null) {
 					String nameAttribute = Database.getInstance().getAttributeAliasTable().nameForAlias(datasetModel.getId(), StandardAttributes.ID.name());
-					for(Feature feature:collection.getFeatures() ) {
-						TreeItem<String> leaf = new TreeItem<String> (feature.getAttribute(nameAttribute).toString());
-						item.getChildren().add(leaf);
+					if( nameAttribute!=null) {
+						for(Feature feature:collection.getFeatures() ) {
+							TreeItem<String> leaf = new TreeItem<String> (feature.getAttribute(nameAttribute).toString());
+							item.getChildren().add(leaf);
+						}
+					}
+					else {
+						LOGGER.warning(String.format("%s.populateDaatasets: %s has no ID attribute specified", CLSS,datasetModel.getName()));
 					}
 				}
 			}

@@ -140,7 +140,7 @@ public class PlanSetupPane extends BasicRightSideNode
 	
 	private void configureDefinition() {
 		if( model!=null ) {
-			nameField.setText(model.getName());
+			nameField.setText(model.getBoundary().getName());
 		}
 	}
 	/**
@@ -180,21 +180,21 @@ public class PlanSetupPane extends BasicRightSideNode
 	@Override
 	public void updateModel() {
 		this.model = EventBindingHub.getInstance().getSelectedPlan();
-		this.headerLabel.setText("Configure "+model.getName());
+		this.headerLabel.setText("Configure "+model.getBoundary().getName());
 		configureDefinition();
 		updateDatasets();
 		configureTable();
 	}
 
 	/**
-	 * On a "save", update the model object, the database and then the hub..
+	 * On a "save", update the model object, the database and then the hub.
 	 */
 	@Override
 	public void handle(ActionEvent event) {
 		Object source = event.getSource();
 		if( source instanceof Button && ((Button)source).getId().equals(ComponentIds.BUTTON_SAVE)) {
 			if(model!=null) {
-				model.setName(nameField.getText());
+				model.getBoundary().setName(nameField.getText());
 				Database.getInstance().getPlanTable().updatePlan(model);
 				// Update layer roles in the model
 				/*
