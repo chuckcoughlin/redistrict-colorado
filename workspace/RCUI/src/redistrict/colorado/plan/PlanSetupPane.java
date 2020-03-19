@@ -45,8 +45,7 @@ public class PlanSetupPane extends BasicRightSideNode
 	private final static String CLSS = "PlanSetupPane";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private final static double COL0_WIDTH = 100.;    // margin
-	private final static double COL1_WIDTH = 300.;
-	private final static double COL2_WIDTH = 40.;
+	private final static double COL1_WIDTH = 400.;
 	private final static double TABLE_OFFSET_TOP = 150.;
 	private Label headerLabel = new Label("Analysis Setup");
 	private final SavePane savePane = new SavePane(this);
@@ -84,12 +83,10 @@ public class PlanSetupPane extends BasicRightSideNode
 		grid.getColumnConstraints().clear();
 		ColumnConstraints col0 = new ColumnConstraints(COL0_WIDTH);
 		col0.setHalignment(HPos.LEFT);
-		ColumnConstraints col1 = new ColumnConstraints(COL1_WIDTH,COL1_WIDTH,Double.MAX_VALUE);
+		ColumnConstraints col1 = new ColumnConstraints(COL1_WIDTH);
 		col1.setHalignment(HPos.LEFT);
-		col1.setHgrow(Priority.ALWAYS);
-		ColumnConstraints col2 = new ColumnConstraints(COL2_WIDTH);
-		col2.setHalignment(HPos.CENTER);
-		grid.getColumnConstraints().addAll(col0,col1,col2); 
+		//col1.setHgrow(Priority.ALWAYS);
+		grid.getColumnConstraints().addAll(col0,col1); 
 		grid.add(affiliationLabel,0, 0);
 		grid.add(affiliationCombo, 1, 0);
 		grid.add(demographicsLabel, 0, 1);

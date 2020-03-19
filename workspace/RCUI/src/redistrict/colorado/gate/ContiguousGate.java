@@ -10,9 +10,9 @@ package redistrict.colorado.gate;
  * Compare plans based on the populations of each district are within 
  * 1% of each other.
  */
-public class VotingPowerImbalanceGate extends Gate {
-	public VotingPowerImbalanceGate() {
+public class ContiguousGate extends Gate {
+	public ContiguousGate() {
 		
 	}
-	public String getTitle() { return "Voting Power Imbalance"; } 
+	public String getTitle() { return "Contiguous"; } 
 }
