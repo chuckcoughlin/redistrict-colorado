@@ -14,6 +14,7 @@ import java.util.List;
  */
 public class PlanModel {
 	private final long id;
+	private String name;
 	private boolean active;
 	private DatasetModel boundary;
 	private List<PlanFeature> metrics;
@@ -23,14 +24,17 @@ public class PlanModel {
 		this.active = true;
 		this.boundary = null;
 		this.metrics = null;
+		this.name = "";
 	}
 	
 	public long getId() { return this.id; }
 	public boolean isActive() { return this.active; }
 	public DatasetModel getBoundary() { return boundary; }
 	public List<PlanFeature> getMetrics() { return metrics; }
+	public String getName() { return this.name; }
 	
 	public void setActive(boolean flag) { this.active = flag; }
 	public void setBoundary(DatasetModel bound) { this.boundary = bound; }
 	public void setMetrics(List<PlanFeature> list) { this.metrics = list; }
+	public void setName(String nam) { this.name = nam; }
 }

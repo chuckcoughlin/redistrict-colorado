@@ -75,7 +75,9 @@ public class PlanSetupPane extends BasicRightSideNode
 		setRightAnchor(headerLabel,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 		
         affiliationCombo  = new ComboBox<>();
+        affiliationCombo.setPrefWidth(COL1_WIDTH);
         demographicsCombo = new ComboBox<>();
+        demographicsCombo.setPrefWidth(COL1_WIDTH);
         
         grid = new GridPane();
         grid.setHgap(10);

@@ -45,8 +45,10 @@ CREATE TABLE FeatureAttribute (
 DROP TABLE IF EXISTS Plan;
 CREATE TABLE Plan (
 	id		INTEGER  PRIMARY KEY,
+	name TEXT NOT NULL,
 	datasetId INTEGER NULL,
 	active integer DEFAULT 1,
+	UNIQUE(name),
 	FOREIGN KEY (datasetId) references Dataset(id) ON DELETE CASCADE
 );
 -- The PlanFeature table caches aggregated feature values for a plan.

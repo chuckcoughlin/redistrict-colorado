@@ -14,5 +14,5 @@ public class ContiguousGate extends Gate {
 	public ContiguousGate() {
 		
 	}
-	public String getTitle() { return "Contiguous"; } 
+	public String getTitle() { return "Contiguity"; } 
 }
