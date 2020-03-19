@@ -25,6 +25,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.AnalysisModel;
+import redistrict.colorado.core.DatasetModel;
 import redistrict.colorado.core.DatasetRole;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.pane.BasicRightSideNode;
@@ -75,8 +76,8 @@ public class PlanSetupPane extends BasicRightSideNode
 		setRightAnchor(headerLabel,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 		
         affiliationCombo  = new ComboBox<>();
-        affiliationCombo.setPrefWidth(COL1_WIDTH);
         demographicsCombo = new ComboBox<>();
+        affiliationCombo.setPrefWidth(COL1_WIDTH);
         demographicsCombo.setPrefWidth(COL1_WIDTH);
         
         grid = new GridPane();
@@ -87,7 +88,7 @@ public class PlanSetupPane extends BasicRightSideNode
 		col0.setHalignment(HPos.LEFT);
 		ColumnConstraints col1 = new ColumnConstraints(COL1_WIDTH);
 		col1.setHalignment(HPos.LEFT);
-		//col1.setHgrow(Priority.ALWAYS);
+		col1.setHgrow(Priority.ALWAYS);
 		grid.getColumnConstraints().addAll(col0,col1); 
 		grid.add(affiliationLabel,0, 0);
 		grid.add(affiliationCombo, 1, 0);
@@ -114,7 +115,7 @@ public class PlanSetupPane extends BasicRightSideNode
 		column.setCellValueFactory(valueFactory);
 		table.getColumns().add(column);
 
-		column = new TableColumn<>("Role");
+		column = new TableColumn<>("Value");
 		column.prefWidthProperty().bind(table.widthProperty().multiply(0.3));
         column.setResizable(true);
 		column.setEditable(true);
@@ -150,27 +151,14 @@ public class PlanSetupPane extends BasicRightSideNode
 	private void updateDatasets() {
 		if( model!=null ) {
 			items.clear();
-			/*
-			try {
-				model.setLayers(Database.getInstance().getPlanLayerTable().getDatasetRoles(model.getId()));
-				LOGGER.info(String.format("%s.updateDatasets: There are %d dataset definitions", CLSS,model.getLayers().size()));
-				for(PlanDataset player:model.getLayers()) {
-					items.add(player);
-				}
+			DatasetModel affModel = model.getAffiliations();
+			if( affModel!=null ) {
+				affiliationCombo.getSelectionModel().select(affModel.getName());
 			}
-			catch( Exception ex) {
-				model.setLayers(null);
-				String msg = String.format("%s.updateDatasets: Failed to read dataset definitions (%s)",CLSS,ex.getLocalizedMessage());
-				LOGGER.warning(msg);
-				ex.printStackTrace();
-				EventBindingHub.getInstance().setMessage(msg);
+			DatasetModel demModel = model.getDemographics();
+			if( demModel!=null ) {
+				demographicsCombo.getSelectionModel().select(demModel.getName());
 			}
-			// For purposes of the table, append layers not part of the model.
-			List<PlanDataset> unused = Database.getInstance().getPlanLayerTable().getUnusedDatasetRoles(model.getId());
-			for(PlanDataset player:unused) {
-				items.add(player);
-			}
-			*/
 		}
 	}
 	private void configureTable() {	

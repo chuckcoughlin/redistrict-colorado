@@ -125,6 +125,6 @@ public class DatasetListController extends AnchorPane
 	public void changed(ObservableValue<? extends DatasetModel> source, DatasetModel oldValue, DatasetModel newValue) {
 		LOGGER.info(String.format("%s.changed: selected = %s", CLSS,(newValue==null?"null":newValue.getName())));
 		buttons.setDeleteDisabled(newValue==null);
-		hub.setSelectedLayer(newValue);
+		hub.setSelectedDataset(newValue);
 	}
 }

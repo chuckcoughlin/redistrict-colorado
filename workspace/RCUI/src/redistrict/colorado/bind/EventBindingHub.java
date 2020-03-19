@@ -92,7 +92,7 @@ public class EventBindingHub  {
 	// Selected Layer
 	public DatasetModel getSelectedDataset() { return selectedDataset.get(); }
 	public boolean isDatasetSelected() { return (selectedDataset.get()!=null); }
-	public void setSelectedLayer(DatasetModel model) { selectedDataset.set(model); }
+	public void setSelectedDataset(DatasetModel model) { selectedDataset.set(model); }
 	public void unselectDataset() { selectedDataset.set(null); }
 	public void addDatasetListener(ChangeListener<DatasetModel> listener) {selectedDataset.addListener(listener);}
 	public SimpleObjectProperty<DatasetModel> selectedDatasetProperty(){return selectedDataset;}
@@ -104,6 +104,7 @@ public class EventBindingHub  {
 	public void setSelectedPlan(PlanModel model) {selectedPlan.set(model);}
 	public void unselectPlan() { selectedPlan.set(null); }
 	public SimpleObjectProperty<PlanModel> selectedPlanProperty(){return selectedPlan; }
+	public void addPlanListener(ChangeListener<PlanModel> listener) {selectedPlan.addListener(listener);}
 	// Analysis Model
 	public AnalysisModel getAnalysisModel() { return analysisModel.get(); }
 	public SimpleObjectProperty<AnalysisModel> analysisModelProperty(){return analysisModel; }

@@ -266,7 +266,7 @@ public class DatasetConfigurationPane extends BasicRightSideNode implements Even
 				Database.getInstance().getFeatureAttributeTable().updateFeatureAttributes(items);
 				Database.getInstance().getAttributeAliasTable().updateAliasTable(model.getId(),items);
 				EventBindingHub.getInstance().unselectDataset();     // Force fire
-				EventBindingHub.getInstance().setSelectedLayer(model);
+				EventBindingHub.getInstance().setSelectedDataset(model);
 
 			}
 			updateFeatures();

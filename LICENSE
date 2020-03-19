@@ -1,4 +1,7 @@
-                    GNU GENERAL PUBLIC LICENSE
+==== The following license applies to original project code in this repository. It also applies to code 
+attributed to Kevin Baas (autoredistrict)
+
+                   GNU GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
 
  Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>
@@ -619,8 +622,25 @@ Program, unless a warranty or assumption of liability accompanies a
 copy of the Program in return for a fee.
 
                      END OF TERMS AND CONDITIONS
+==== For GeoTools:
+/*
+ *    GeoTools - The Open Source Java GIS Toolkit
+ *    http://geotools.org
+ *
+ *    (C) 2001-2008, Open Source Geospatial Foundation (OSGeo)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ */
 
-The following license applies to the FXGraphics2D library.
+==== The following license applies to the FXGraphics2D library.
 
 Copyright (c) 2014, Object Refinery Limited.
 All rights reserved.
@@ -715,7 +735,11 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
     The Specification is subject to U.S. export control laws and may be subject to export or import regulations in other countries. Licensee agrees to comply strictly with all such laws and regulations and acknowledges that it has the responsibility to obtain such licenses to export, re-export or import as may be required after delivery to Licensee.
 
     This Agreement is the parties' entire agreement relating to its subject matter. It supersedes all prior or contemporaneous oral or written communications, proposals, conditions, representations and warranties and prevails over any conflicting or additional terms of any quote, order, acknowledgment, or other communication between the parties relating to its subject matter during the term of this Agreement. No modification to this Agreement will be binding, unless in writing and signed by an authorized representative of each party.
+==== For GeographyLib
+ * Copyright (c) Charles Karney (2013-2019) <charles@karney.com> and licensed
+ * under the MIT/X11 License.  For more information, see
+ * https://geographiclib.sourceforge.io/
+
 ====
 Other attribution:
-Colorado Capitol backdrop from Intermountain Rural Electric Association
-web site.
+Colorado Capitol backdrop from Intermountain Rural Electric Association web site.

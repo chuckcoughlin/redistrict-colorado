@@ -17,9 +17,8 @@ import javafx.event.EventHandler;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import redistrict.colorado.core.PlanFeature;
 import redistrict.colorado.core.DatasetModel;
-import redistrict.colorado.core.DatasetRole;
+import redistrict.colorado.core.PlanFeature;
 import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.core.StandardAttributes;
 import redistrict.colorado.db.Database;
@@ -38,13 +37,11 @@ public class PlanFeaturesPane extends BasicRightSideNode{
 	private final ObservableList<PlanFeature> items;
 	private final Label headerLabel = new Label("Plan Features");
 	private final TableView<PlanFeature> table;
-	private final EventHandler<ActionEvent> eventHandler;
 
 	public PlanFeaturesPane() {
 		super(ViewMode.PLAN,DisplayOption.PLAN_FEATURES);
 		this.model = hub.getSelectedPlan();
 		this.items = FXCollections.observableArrayList();
-		this.eventHandler = new ActionEventHandler();
 		this.table = new TableView<PlanFeature>();
 		table.setEditable(true);
 		table.setPrefSize(UIConstants.FEATURE_TABLE_WIDTH, UIConstants.FEATURE_TABLE_HEIGHT);
@@ -63,7 +60,6 @@ public class PlanFeaturesPane extends BasicRightSideNode{
 		
 		FMDoubleValueFactory valueFactory = new FMDoubleValueFactory();
 		FMStringValueFactory stringValueFactory = new FMStringValueFactory();
-		FMStringCellFactory cellFactory = new FMStringCellFactory();
 
 		TableColumn<PlanFeature,String> column = new TableColumn<>("Name");
 		column.prefWidthProperty().bind(table.widthProperty().multiply(0.2));
@@ -167,16 +163,6 @@ public class PlanFeaturesPane extends BasicRightSideNode{
 			}
 			LOGGER.info(String.format("%s.updateModel: Table has %d rows", CLSS,items.size()));
 			table.setItems(items);
-		}
-	}
-	
-	/**
-	 * The checkbox has been selected. Update the model
-	 */
-	public class ActionEventHandler implements EventHandler<ActionEvent> {
-		@Override
-		public void handle(ActionEvent event) {
-			updateModel();
 		}
 	}
 }

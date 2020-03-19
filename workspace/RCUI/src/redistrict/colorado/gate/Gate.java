@@ -44,5 +44,6 @@ public abstract class Gate extends VBox {
 		body.getChildren().addAll(rectangle,text);
 		getChildren().addAll(header,body);	
 	}
-	public abstract String getTitle(); 
+	public abstract String getTitle();
+	
 }

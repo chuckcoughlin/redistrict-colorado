@@ -10,8 +10,8 @@
 DROP TABLE IF EXISTS AttributeAlias;
 CREATE TABLE AttributeAlias (
 	datasetId  INTEGER NOT NULL,
-	name text NOT NULL,
-	alias text NOT NULL,
+	name TEXT NOT NULL,
+	alias TEXT NOT NULL,
 	PRIMARY KEY(datasetId,name)
 );
 -- The Dataset table holds configuration information for overlay layers. 
@@ -20,9 +20,9 @@ CREATE TABLE AttributeAlias (
 DROP TABLE IF EXISTS Dataset;
 CREATE TABLE Dataset (
 	id		INTEGER  PRIMARY KEY,
-	name	text NOT NULL,
-	description text NULL,
-	shapeFilePath text NULL,
+	name	TEXT NOT NULL,
+	description TEXT NULL,
+	shapeFilePath TEXT NULL,
 	role text NULL,
 	UNIQUE (name)
 );
@@ -31,9 +31,9 @@ CREATE TABLE Dataset (
 DROP TABLE IF EXISTS FeatureAttribute;
 CREATE TABLE FeatureAttribute (
 	datasetId	INTEGER  NOT NULL,
-	name text NOT NULL,
-	alias text NOT NULL,
-	type text NOT null,
+	name TEXT NOT NULL,
+	alias TEXT NOT NULL,
+	type TEXT NOT null,
 	visible integer DEFAULT 0,
 	background integer DEFAULT 0,
 	rank integer DEFAULT 10,
@@ -46,6 +46,7 @@ DROP TABLE IF EXISTS Plan;
 CREATE TABLE Plan (
 	id		INTEGER  PRIMARY KEY,
 	name TEXT NOT NULL,
+	description TEXT NULL,
 	datasetId INTEGER NULL,
 	active integer DEFAULT 1,
 	UNIQUE(name),

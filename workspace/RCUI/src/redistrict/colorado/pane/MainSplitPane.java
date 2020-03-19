@@ -23,9 +23,10 @@ import redistrict.colorado.data.ModelMapPane;
 import redistrict.colorado.district.DistrictTreeController;
 import redistrict.colorado.district.FeatureMapPane;
 import redistrict.colorado.plan.PlanComparisonPane;
-import redistrict.colorado.plan.PlanSetupPane;
-import redistrict.colorado.plan.PlanListController;
+import redistrict.colorado.plan.PlanConfigurationPane;
 import redistrict.colorado.plan.PlanFeaturesPane;
+import redistrict.colorado.plan.PlanListController;
+import redistrict.colorado.plan.PlanSetupPane;
 import redistrict.colorado.ui.ComponentIds;
 import redistrict.colorado.ui.GuiUtil;
 import redistrict.colorado.ui.UIConstants;
@@ -38,7 +39,7 @@ import redistrict.colorado.ui.ViewMode;
 public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode> {
 	private static final String CLSS = "MainSplitPane";
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
-	private final static int N_CHILDREN_RIGHT = 8;
+	private final static int N_CHILDREN_RIGHT = 9;
 	private final static int N_CHILDREN_LEFT = 3;
 	private final EventHandler<ActionEvent> eventHandler;
 	private final StackPane left;
@@ -68,6 +69,7 @@ public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode>
 		rightChildren[5] = new PlanSetupPane();
 		rightChildren[6] = new PlanComparisonPane();
 		rightChildren[7] = new PlanFeaturesPane();
+		rightChildren[8] = new PlanConfigurationPane();
 		
 		this.rightController = new RightSideController(rightChildren);
 		this.init();

@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -19,16 +21,19 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.RowConstraints;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.bind.LeftSelectionEvent;
 import redistrict.colorado.core.DatasetModel;
 import redistrict.colorado.core.DatasetRole;
 import redistrict.colorado.core.PlanModel;
+import redistrict.colorado.data.DatasetRow.DatasetChangeListener;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.db.DatasetCache;
 import redistrict.colorado.ui.ComponentIds;
@@ -48,52 +53,59 @@ public class PlanRow extends ListCell<PlanModel>   {
 	private final static double COL3_WIDTH = 65.;
 	private final static double COL4_WIDTH = 40.;
 	private final static double COL5_WIDTH = 80.;
+	private final static double ROW1_HEIGHT = 40.;
 	private static final GuiUtil guiu = new GuiUtil();
 	private final static String ACTIVE = "active";
 	private final static String ATTRIBUTES = "attributes";
-	private final static String COMBO = "combo";
+	private final static String EDIT = "edit";
 	private final static String NAME = "name";
 	private GridPane grid = new GridPane();
 	private long id = -1;      // model identifier
-	private String name = "";  // model name
     private final Label tag;   // Identifies the pane class
+    private final Label name;
+    private final Label description;
     private final CheckBox active;
-    private final ComboBox<String> combo;
-    private final Label nameLabel;
+    private final Button edit;
     private final Button attributes;
     private final EditEventHandler handler;
-    private final MouseEventHandler clickHandler;
+    private final PlanChangeListener listener;
     
 	public PlanRow() {
 		handler = new EditEventHandler();
-		clickHandler = new MouseEventHandler();
+		listener= new PlanChangeListener();
+		EventBindingHub.getInstance().addPlanListener(listener);
 		setPrefWidth(UIConstants.LIST_PANEL_WIDTH);
 		tag = new Label("",guiu.loadImage("images/plans.png"));
+		name = new Label();
+	    description = new Label();
 	    active = new CheckBox("Active:");
 	    active.setUserData(ACTIVE);
-	    combo = new ComboBox<String>();
-	    combo.setUserData(COMBO);
-	    nameLabel = new Label("");
-	    nameLabel.setUserData(NAME);
-	    nameLabel.setOnMouseClicked(clickHandler);
+	    edit = new Button("",guiu.loadImage("images/edit.png"));
+	    edit.setUserData(EDIT);
 	    attributes =new Button("Attributes");
 	    attributes.setId(ComponentIds.BUTTON_ATTRIBUTES);
 	    attributes.setUserData(ATTRIBUTES);
 	    Tooltip tt = new Tooltip("Display a table of aggregated feature attributes for this plan.");
 	    Tooltip.install(attributes, tt);
-        configureGrid();        
+        
+        configureGrid();
         configureLabels();
+        configureControls();
         addLabelsToGrid();
         addControlsToGrid(); 
         
-        List<String> items = Database.getInstance().getDatasetTable().getDatasetNames(DatasetRole.BOUNDARIES);
         active.setOnAction(handler);
-        combo.setOnAction(handler);
-        combo.getItems().addAll(items);
-        setContent(getItem());
         attributes.setOnAction(handler);
+        edit.setOnAction(handler);
+        
+        setContent(getItem());
+
     } 
 
+	private void configureControls() {
+		edit.getStyleClass().add(UIConstants.LIST_CELL_BUTTON_CLASS);
+    }
+	
 	private void configureGrid() {
         grid.setHgap(0);
         grid.setVgap(4);
@@ -105,21 +117,23 @@ public class PlanRow extends ListCell<PlanModel>   {
         grid.getColumnConstraints().add(new ColumnConstraints(COL3_WIDTH)); 					// active
         grid.getColumnConstraints().add(new ColumnConstraints(COL4_WIDTH)); 					// edit
         grid.getColumnConstraints().add(new ColumnConstraints(COL5_WIDTH)); 					// metrics
-
+        grid.getRowConstraints().add(new RowConstraints(ROW1_HEIGHT)); // column 0 is 40 wide
     }
 	
 	private void configureLabels() {
 		tag.getStyleClass().add(UIConstants.LIST_CELL_ICON_CLASS);
-		nameLabel.getStyleClass().add(UIConstants.LIST_CELL_NAME_CLASS);
+        name.getStyleClass().add(UIConstants.LIST_CELL_NAME_CLASS);
+        description.getStyleClass().add(UIConstants.LIST_CELL_FIELD_CLASS);
     }
 	
     private void addLabelsToGrid() {
-        grid.add(tag, 0, 0);                             
+        grid.add(tag, 0, 0);                    
+        grid.add(name, 1, 0);        
+        grid.add(description, 1,1,2,1);                            
     }
     private void addControlsToGrid() {
-    	grid.add(active, 3,0);
-    	grid.add(nameLabel, 1, 0);
-        grid.add(combo, 2, 0);                    
+    	grid.add(active, 2,0);
+    	grid.add(edit, 3, 0);                   
         grid.add(attributes, 4, 0);        
     }
 	
@@ -143,11 +157,21 @@ public class PlanRow extends ListCell<PlanModel>   {
         setGraphic(grid);
         if( model==null) return;
         id = model.getId();
-        name = model.getBoundary().getName();
-        combo.getSelectionModel().select(name);
+        name.setText(model.getName());
+        description.setText(model.getDescription());
         active.setSelected(model.isActive());      
     }
-
+    
+    public class PlanChangeListener implements ChangeListener<PlanModel> {
+		@Override
+		public void changed(ObservableValue<? extends PlanModel> source, PlanModel oldModel, PlanModel newModel) {
+			if(newModel!=null && newModel.getId()==id) {
+				//LOGGER.info(String.format("%s.changed: name = %s",CLSS,newModel.getName()));
+				name.setText(newModel.getName());
+				description.setText(newModel.getDescription());
+			}
+		}
+	}
     
     /**
      * Handle an event from one of the buttons.
@@ -172,35 +196,9 @@ public class PlanRow extends ListCell<PlanModel>   {
     			Database.getInstance().getPlanTable().updatePlan(model);
     			hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.NONE));
     		}
-    		else if( data.equals(COMBO)) {
-    			String datasetName = combo.getSelectionModel().getSelectedItem();
-    			DatasetModel dm = DatasetCache.getInstance().getDataset(datasetName);
-    			if(dm!=null) model.setBoundary(dm);
-    			Database.getInstance().getPlanTable().updatePlan(model);
-    		}
-    	}
-    }
-    /**
-     * Handle a click on the name text. Popup a dialog.
-     */
-    public class MouseEventHandler implements EventHandler<MouseEvent> {
-    	@Override public void handle(MouseEvent e) {
-    		if( e.getSource() instanceof Label ) {
-    			Label source = (Label)e.getSource();
-    			if(source.getUserData().toString().equals(NAME) ) {
-    				PlanModel model = getItem();
-    				TextInputDialog dialog = new TextInputDialog(model.getName());
-    				dialog.setTitle("Plan Name Dialog");
-    				dialog.setHeaderText("Enter a unique name for the plan");
-    				dialog.setContentText("Name:");
-
-    				Optional<String> result = dialog.showAndWait();
-    				if (result.isPresent()){
-    				    model.setName(result.get());
-    				    source.setText(result.get());
-    				}
-    				Database.getInstance().getPlanTable().updatePlan(model);
-    			}
+    		else if( data.equals(EDIT)) {
+    	         hub.setSelectedPlan(model);
+    	         hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.PLAN_DEFINITION));
     		}
     	}
     }

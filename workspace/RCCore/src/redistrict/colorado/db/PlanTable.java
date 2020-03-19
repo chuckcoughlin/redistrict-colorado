@@ -41,7 +41,7 @@ public class PlanTable {
 		PlanModel model = null;
 		if( cxn==null ) return model;
 		
-		String SQL = String.format("INSERT INTO Plan(name,active) values ('%s',0)",DEFAULT_NAME);
+		String SQL = String.format("INSERT INTO Plan(name,description,active) values ('%s','',0)",DEFAULT_NAME);
 		Statement statement = null;
 		try {
 			LOGGER.info(String.format("%s.createPlan: \n%s",CLSS,SQL));
@@ -103,7 +103,7 @@ public class PlanTable {
 		PlanModel model = null;
 		PreparedStatement statement = null;
 		ResultSet rs = null;
-		String SQL = "SELECT id, name, active from Plan"; 
+		String SQL = "SELECT id, name, description, active FROM Plan"; 
 		try {
 			statement = cxn.prepareStatement(SQL);
 			statement.setQueryTimeout(10);  // set timeout to 10 sec.
@@ -114,6 +114,7 @@ public class PlanTable {
 				model.setBoundary(DatasetCache.getInstance().getDataset(model.getId()));
 				model.setActive((rs.getInt("active")==1));
 				model.setName(rs.getString("name"));
+				model.setDescription(rs.getString("description"));
 				list.add(model);
 				LOGGER.info(String.format("%s.getPlans: id = %d",CLSS,model.getId()));
 			}
@@ -144,14 +145,15 @@ public class PlanTable {
 	 */
 	public boolean updatePlan(PlanModel model) {
 		PreparedStatement statement = null;
-		String SQL = "UPDATE Plan SET active=?, name= ? WHERE id = ?";
+		String SQL = "UPDATE Plan SET active=?, name=?, description=? WHERE id = ?";
 		boolean success = false;
 		try {
 			//LOGGER.info(String.format("%s.updatePlan: \n%s",CLSS,SQL));
 			statement = cxn.prepareStatement(SQL);
 			statement.setInt(1,(model.isActive()?1:0));
 			statement.setString(2, model.getName());
-			statement.setLong(3, model.getId());
+			statement.setString(3, model.getDescription());
+			statement.setLong(4, model.getId());
 			statement.executeUpdate();
 			if( statement.getUpdateCount()>0) success = true;
 		}

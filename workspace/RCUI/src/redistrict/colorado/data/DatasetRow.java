@@ -161,7 +161,7 @@ public class DatasetRow extends ListCell<DatasetModel> implements ChangeListener
             LOGGER.info(String.format("%s.handle: processing edit event", CLSS));
             EventBindingHub hub = EventBindingHub.getInstance();
             DatasetModel model = getItem();
-            hub.setSelectedLayer(model);
+            hub.setSelectedDataset(model);
             hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.DATASET,DisplayOption.DATASET_DEFINITION));
         }
     }
@@ -179,7 +179,7 @@ public class DatasetRow extends ListCell<DatasetModel> implements ChangeListener
 			LOGGER.info(String.format("%s.changed: toggle button no new value", CLSS));
 		}
 		else {
-			EventBindingHub.getInstance().setSelectedLayer(getItem());
+			EventBindingHub.getInstance().setSelectedDataset(getItem());
 			Object data = newValue.getUserData();
 			if( data==null ) data = "null";
 			if( data.toString().equalsIgnoreCase(MAP_DATA)) {
