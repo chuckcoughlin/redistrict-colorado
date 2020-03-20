@@ -14,19 +14,21 @@ The list below describes some publicly-available data-sets that are compatible w
     Democrat
     Clinton
 ```
-* [TIGER Shapefiles](https://catalog.data.gov/dataset/tiger-line-shapefile-2012-2010-state-colorado-2010-census-voting-district-state-based-vtd). These are the official US Census Bureau data files.
+* [TIGER Shapefiles](https://catalog.data.gov/dataset/tiger-line-shapefile-2012-2010-state-colorado-2010-census-voting-district-state-based-vtd)- These are the official US Census Bureau data files.
  * tl_2012_08_vtd10.zip - Voting district boundaries for the state of Colorado. Some of the features include:
  ```
     LSAD - Legal/Statistical Area Description
     FUNCSTAT - Functional status
     VTD - Voting district
  ```
- 
-* [Colorado Department of Local Affairs](https://demography.dola.colorado.gov/gis/gis-data/#census-and-acs) 2010 US Census results by block groups and 2017
+
+* [Colorado Department of Local Affairs](https://demography.dola.colorado.gov/gis/gis-data/#census-and-acs) - 2010 US Census results by block groups and 2017
  American Community Survey. Both have demographic features.
 
+* [autoredistrict](ftp://autoredistrict.org/pub/shapefiles_2010_vtd/Colorado/2010/2012/vtd/) - Results of the *autoredistrict* application run for the state of Colorado.
+
 Other resources:
-* [Colorado Redistricting Data Used](https://www.colorado.gov/pacific/cga-redistrict/data-used). This page documents the resources used in the state of Colorado for the 2010 redistricting effort.
+* [Colorado Redistricting Data Used](https://www.colorado.gov/pacific/cga-redistrict/data-used) - This page documents the resources used in the state of Colorado for the 2010 redistricting effort.
  * HouseFinalPlan2010.zip - Colorado House district boundaries 2010.
  * SenateFinalPlan2010.zip - Colorado Senate district boundaries 2010.
 
@@ -38,4 +40,4 @@ Other resources:
 * [The Atlas of Redistricting](https://projects.fivethirtyeight.com/redistricting-maps/) - the 538 organization's gerrymandering project has designed several redistricting options using 2010 census data. Their [datasets](https://github.com/fivethirtyeight/redistricting-atlas-data) provide good test cases for the current application.
 
 
-* [Data.Census.gov](https://www.census.gov/data/academy/data-gems/2018/shapefiles.html). This video shows how to download shapefiles from the US Census Bureau's American Factfinder. The data available include political boundaries and demographical information.
+* [Data.Census.gov](https://www.census.gov/data/academy/data-gems/2018/shapefiles.html) - This video shows how to download shapefiles from the US Census Bureau's American Factfinder. The data available include political boundaries and demographical information.
