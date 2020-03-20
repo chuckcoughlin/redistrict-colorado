@@ -4,7 +4,6 @@ The list below describes some publicly-available data-sets that are compatible w
 * [American Fact Finder](https://factfinder.census.gov/faces/nav/jsf/pages/searchresults.xhtml?refresh=t) - Census Bureau search engine. The files below are results of custom searches.
  * co_counties.zip - Colorado county boundaries
 
-
 * [Harvard dataverse](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/NH5S2I)
  * co_2016.zip - Precinct-level presidential and senatorial election results for 2016. A typical feature field has a name like: *G16PREDCli*, which means:
 ```
@@ -23,9 +22,10 @@ The list below describes some publicly-available data-sets that are compatible w
  ```
 
 * [Colorado Department of Local Affairs](https://demography.dola.colorado.gov/gis/gis-data/#census-and-acs) - 2010 US Census results by block groups and 2017
- American Community Survey. Both have demographic features.
+ American Community Survey. Both have demographic features. [See](file:///Users/chuckc/downloads/cntdem_acs_2014.htm) for a glossary of attribute names and their meanings.
+  * CensusBlockGroups2017.zip
 
-* [autoredistrict](ftp://autoredistrict.org/pub/shapefiles_2010_vtd/Colorado/2010/2012/vtd/) - Results of the *autoredistrict* application run for the state of Colorado.
+* [autoredistrict](ftp://autoredistrict.org/pub/shapefiles_2010_vtd/Colorado/2010/2012/vtd/) - Results of the *autoredistrict* application run for the state of Colorado. Directories *2012* and *cd113* were zipped to create shapefiles.
 
 Other resources:
 * [Colorado Redistricting Data Used](https://www.colorado.gov/pacific/cga-redistrict/data-used) - This page documents the resources used in the state of Colorado for the 2010 redistricting effort.
