@@ -18,12 +18,14 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import redistrict.colorado.core.AnalysisModel;
 import redistrict.colorado.core.DatasetModel;
 import redistrict.colorado.core.PlanFeature;
 import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.core.StandardAttributes;
 import redistrict.colorado.data.DatasetDetailPane.ActionEventHandler;
 import redistrict.colorado.db.Database;
+import redistrict.colorado.gate.Calculator;
 import redistrict.colorado.pane.BasicRightSideNode;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.UIConstants;
@@ -105,11 +107,15 @@ public class PlanFeaturesPane extends BasicRightSideNode{
 				return;
 			}
 			this.headerLabel.setText(boundaryDataset.getName()+" Feature Attributes");
+			if(model.getMetrics()==null ) {
+				
+			}
 			LOGGER.info(String.format("%s.updateModel: Model is %s", CLSS,boundaryDataset.getName()));
 			items.clear();
 			// Populate attributes for each feature
 			String idName = Database.getInstance().getAttributeAliasTable().nameForAlias(boundaryDataset.getId(), StandardAttributes.ID.name());
 			String geoName = Database.getInstance().getAttributeAliasTable().nameForAlias(boundaryDataset.getId(), StandardAttributes.GEOMETRY.name());
+			AnalysisModel am = hub.getAnalysisModel();
 			
 			for(Feature feat:boundaryDataset.getFeatures().getFeatures()) {
 				PlanFeature attribute = new PlanFeature(model.getId(),feat.getID());
@@ -119,6 +125,8 @@ public class PlanFeaturesPane extends BasicRightSideNode{
 						Polygon geometry = (Polygon)(feat.getAttribute(geoName));
 						attribute.setArea(geometry.getArea());
 						attribute.setPerimeter(geometry.getExteriorRing().getLength());
+						Calculator.aggregateAffiliations(attribute, geometry,am);
+						Calculator.aggregateDemographics(attribute, geometry,am);
 					}
 					catch(ClassCastException cce) {
 						LOGGER.info(String.format("%s.updateModel: Geometry attribute is not a polygon (%s)", CLSS,cce.getLocalizedMessage()));

@@ -28,6 +28,7 @@ import redistrict.colorado.core.AnalysisModel;
 import redistrict.colorado.core.DatasetModel;
 import redistrict.colorado.core.DatasetRole;
 import redistrict.colorado.db.Database;
+import redistrict.colorado.db.DatasetCache;
 import redistrict.colorado.pane.BasicRightSideNode;
 import redistrict.colorado.pane.SavePane;
 import redistrict.colorado.ui.ComponentIds;
@@ -57,7 +58,7 @@ public class PlanSetupPane extends BasicRightSideNode
 	private final Label demographicsLabel = new Label("Demographics: ");
 
 	private final ComboBox<String> affiliationCombo;
-	private final ComboBox<String> demographicsCombo;
+	private final ComboBox<String> demographicCombo;
 	private final ObservableList<Property> items;  // Array displayed in table
 	private final TableView<Property> table;
 	private final TableEventHandler cellHandler;
@@ -76,9 +77,9 @@ public class PlanSetupPane extends BasicRightSideNode
 		setRightAnchor(headerLabel,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 		
         affiliationCombo  = new ComboBox<>();
-        demographicsCombo = new ComboBox<>();
+        demographicCombo = new ComboBox<>();
         affiliationCombo.setPrefWidth(COL1_WIDTH);
-        demographicsCombo.setPrefWidth(COL1_WIDTH);
+        demographicCombo.setPrefWidth(COL1_WIDTH);
         
         grid = new GridPane();
         grid.setHgap(10);
@@ -93,7 +94,7 @@ public class PlanSetupPane extends BasicRightSideNode
 		grid.add(affiliationLabel,0, 0);
 		grid.add(affiliationCombo, 1, 0);
 		grid.add(demographicsLabel, 0, 1);
-		grid.add(demographicsCombo, 1, 1);
+		grid.add(demographicCombo, 1, 1);
 		
 		getChildren().add(grid);
 		setTopAnchor(grid,UIConstants.DETAIL_HEADER_SPACING);
@@ -143,7 +144,7 @@ public class PlanSetupPane extends BasicRightSideNode
 		List<String> affiliations = Database.getInstance().getDatasetTable().getDatasetNames(DatasetRole.AFFILIATIONS);
 		affiliationCombo.getItems().addAll(affiliations);
 		List<String> demographics = Database.getInstance().getDatasetTable().getDatasetNames(DatasetRole.DEMOGRAPHICS);
-		demographicsCombo.getItems().addAll(demographics);
+		demographicCombo.getItems().addAll(demographics);
 	}
 	/**
 	 * Update the table's dataset list from the model. If the model has no datasets, read them from the database.
@@ -151,13 +152,13 @@ public class PlanSetupPane extends BasicRightSideNode
 	private void updateDatasets() {
 		if( model!=null ) {
 			items.clear();
-			DatasetModel affModel = model.getAffiliations();
+			DatasetModel affModel = DatasetCache.getInstance().getDataset(model.getAffiliationId());
 			if( affModel!=null ) {
 				affiliationCombo.getSelectionModel().select(affModel.getName());
 			}
-			DatasetModel demModel = model.getDemographics();
+			DatasetModel demModel = DatasetCache.getInstance().getDataset(model.getDemographicId());
 			if( demModel!=null ) {
-				demographicsCombo.getSelectionModel().select(demModel.getName());
+				demographicCombo.getSelectionModel().select(demModel.getName());
 			}
 		}
 	}
@@ -182,18 +183,22 @@ public class PlanSetupPane extends BasicRightSideNode
 		Object source = event.getSource();
 		if( source instanceof Button && ((Button)source).getId().equals(ComponentIds.BUTTON_SAVE)) {
 			if(model!=null) {
-				// Update layer roles in the model
-				/*
-				List<Property> players = model.
-				players.clear();
-				for(Property player:items) {
-					//if(!player.getRole().equals(DatasetRole.NONE)) players.add(player);
+				// Update the model from UI elements
+				String name = affiliationCombo.getSelectionModel().getSelectedItem();
+				DatasetModel affModel = DatasetCache.getInstance().getDataset(name);
+				if( affModel!=null ) {
+					model.setAffiliationId(affModel.getId());
+					model.updateAffiliationFeatures();
 				}
-				// Update layer roles in the database
-				Database.getInstance().getPlanLayerTable().synchronizePlanDatasets(model);
-				EventBindingHub.getInstance().unselectPlan();     // Force fire
-				EventBindingHub.getInstance().setSelectedPlan(model);
-				*/
+				
+				name = demographicCombo.getSelectionModel().getSelectedItem();
+				DatasetModel demModel = DatasetCache.getInstance().getDataset(name);
+				if( demModel!=null ) {
+					model.setDemographicId(demModel.getId());
+					model.updateDemographicFeatures();
+				}
+				// Update model in the database
+				Database.getInstance().getPreferencesTable().updateAnalysisModel(model);
 			}
 		}
 	}

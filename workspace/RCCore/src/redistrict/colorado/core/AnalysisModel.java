@@ -6,22 +6,58 @@
  */
 package redistrict.colorado.core;
 
+import redistrict.colorado.db.Database;
+import redistrict.colorado.db.DatasetCache;
+
 /**
  * The analysis model holds the current parameters for running the comparison.
  * Parameter values are stored in the Preferences table.
  */
 public class AnalysisModel {
-	private DatasetModel affiliations;
-	private DatasetModel demographics;
+	private final long id;
+	private long affiliationId;
+	private long demographicId;
+	private String affGeoName = null;
+	private String blackName = null;
+	private String demoGeoName = null;
+	private String democratName = null;
+	private String hispanicName = null;
+	private String populationName= null;
+	private String republicanName= null;
+	private String whiteName = null;
 	
 	public AnalysisModel(long id) {
-		this.affiliations = null;
-		this.demographics = null;
+		this.id = id;
 	}
 	
-	public DatasetModel getAffiliations() { return this.affiliations; }
-	public DatasetModel getDemographics() { return this.demographics; }
+	public long getAffiliationId() { return this.affiliationId; }
+	public String getAffiliationGeometryName() { return this.affGeoName; }
+	public long getDemographicId() { return this.demographicId; }
+	public String getDemographicGeometryName() { return this.demoGeoName; }
+	public String getAttributeForBlack() { return blackName; }
+	public String getAttributeForDemocrat() { return democratName; }
+	public String getAttributeForHispanic() { return hispanicName; }
+	public String getAttributeForPopulation() { return populationName; }
+	public String getAttributeForRepublican() { return republicanName; }
+	public String getAttributeForWhite() { return whiteName; }
 	
-	public void setAffiliation(DatasetModel model) { this.affiliations = model; }
-	public void setDemographics(DatasetModel model) { this.demographics = model; }
+	// When we change the affiliations dataset, re-query for the alias names
+	public void setAffiliationId(long aid) { this.affiliationId = aid; }
+	public void setDemographicId(long did) { this.demographicId = did; }
+	public void updateAffiliationFeatures() { 
+		DatasetModel dm = DatasetCache.getInstance().getDataset(affiliationId);
+		if(dm==null) return;
+		this.affGeoName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.GEOMETRY.name());
+		this.blackName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.BLACK.name());
+		this.hispanicName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.HISPANIC.name());
+		this.whiteName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.WHITE.name());
+		this.populationName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.POPULATION.name());
+	}
+	public void updateDemographicFeatures() {  
+		DatasetModel dm = DatasetCache.getInstance().getDataset(demographicId);
+		if(dm==null) return;
+		this.demoGeoName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.GEOMETRY.name());
+		this.democratName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.DEMOCRAT.name());
+		this.republicanName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.REPUBLICAN.name());
+	}
 }

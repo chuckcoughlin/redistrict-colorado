@@ -17,7 +17,6 @@ import redistrict.colorado.ui.ViewMode;
  * whenever there are not items selected on the left.
  */
 public class SplashScreen extends BasicRightSideNode {
-	private final static String CLSS = "SplashScreen";
 	private final static String BACKDROP = "images/ColoradoCapitol.png";
 	private Label headerLabel = new Label("Colorado Voting District Analyzer");
 	private static final GuiUtil guiu = new GuiUtil();

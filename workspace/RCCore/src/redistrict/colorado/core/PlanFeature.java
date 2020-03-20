@@ -76,7 +76,7 @@ public class PlanFeature  {
     public void incrementPopulation(double val) { this.population += val; }
     public void incrementDemocrat(double val) { this.democrat += val; }
     public void incrementRepublican(double val) { this.republican += val; }
-    public void incrementtBlack(double val) { this.black += val; }
+    public void incrementBlack(double val) { this.black += val; }
     public void incrementHispanic(double val) { this.hispanic += val; }
     public void incrementWhite(double val) { this.white += val; }
     

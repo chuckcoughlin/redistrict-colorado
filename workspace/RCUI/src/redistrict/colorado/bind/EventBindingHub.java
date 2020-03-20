@@ -16,6 +16,7 @@ import redistrict.colorado.core.AnalysisModel;
 import redistrict.colorado.core.DatasetModel;
 import redistrict.colorado.core.DistrictModel;
 import redistrict.colorado.core.PlanModel;
+import redistrict.colorado.db.Database;
 import redistrict.colorado.ui.ViewMode;
 
 /**
@@ -106,7 +107,13 @@ public class EventBindingHub  {
 	public SimpleObjectProperty<PlanModel> selectedPlanProperty(){return selectedPlan; }
 	public void addPlanListener(ChangeListener<PlanModel> listener) {selectedPlan.addListener(listener);}
 	// Analysis Model
-	public AnalysisModel getAnalysisModel() { return analysisModel.get(); }
+	public AnalysisModel getAnalysisModel() { 
+		AnalysisModel am =  analysisModel.get();
+		if( am==null ) {
+			am = Database.getInstance().getPreferencesTable().getAnalysisModel();
+		}
+		return am;
+	}
 	public SimpleObjectProperty<AnalysisModel> analysisModelProperty(){return analysisModel; }
 	
 	// Selected District
