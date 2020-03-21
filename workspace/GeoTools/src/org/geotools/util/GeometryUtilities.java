@@ -16,12 +16,11 @@
  */
 package org.geotools.util;
 
-import org.geotools.geometry.Geometries;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygon;
 
 /**
- * Miscellaneous methods dealing with the Geometry class
+ * Convert geometry type to a string
  */
 public final class GeometryUtilities {
 	public static String toText(Geometry geom) {

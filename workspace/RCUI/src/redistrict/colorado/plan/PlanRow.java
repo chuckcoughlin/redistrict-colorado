@@ -33,7 +33,7 @@ import redistrict.colorado.bind.LeftSelectionEvent;
 import redistrict.colorado.core.DatasetModel;
 import redistrict.colorado.core.DatasetRole;
 import redistrict.colorado.core.PlanModel;
-import redistrict.colorado.data.DatasetRow.DatasetChangeListener;
+import redistrict.colorado.dataset.DatasetRow.DatasetChangeListener;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.db.DatasetCache;
 import redistrict.colorado.ui.ComponentIds;

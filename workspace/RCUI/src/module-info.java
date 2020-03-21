@@ -15,7 +15,7 @@ module rc.ui {
 	
 	exports redistrict.colorado.bind;
 	exports redistrict.colorado.district;
-	exports redistrict.colorado.data;
+	exports redistrict.colorado.dataset;
 	exports redistrict.colorado.pane;
 	exports redistrict.colorado.plan;
 	exports redistrict.colorado.ui;

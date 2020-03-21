@@ -48,16 +48,16 @@ public class AnalysisModel {
 		DatasetModel dm = DatasetCache.getInstance().getDataset(affiliationId);
 		if(dm==null) return;
 		this.affGeoName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.GEOMETRY.name());
-		this.blackName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.BLACK.name());
-		this.hispanicName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.HISPANIC.name());
-		this.whiteName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.WHITE.name());
-		this.populationName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.POPULATION.name());
+		this.democratName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.DEMOCRAT.name());
+		this.republicanName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.REPUBLICAN.name());
 	}
 	public void updateDemographicFeatures() {  
 		DatasetModel dm = DatasetCache.getInstance().getDataset(demographicId);
 		if(dm==null) return;
 		this.demoGeoName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.GEOMETRY.name());
-		this.democratName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.DEMOCRAT.name());
-		this.republicanName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.REPUBLICAN.name());
+		this.blackName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.BLACK.name());
+		this.hispanicName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.HISPANIC.name());
+		this.whiteName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.WHITE.name());
+		this.populationName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.POPULATION.name());
 	}
 }

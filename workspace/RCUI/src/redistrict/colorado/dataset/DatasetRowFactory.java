@@ -1,4 +1,4 @@
-package redistrict.colorado.data;
+package redistrict.colorado.dataset;
 
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;

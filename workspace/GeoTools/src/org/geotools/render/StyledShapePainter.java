@@ -19,8 +19,8 @@ package org.geotools.render;
 
 import java.util.logging.Logger;
 
-import org.geotools.geometry.Geometries;
 import org.geotools.style.Style;
+import org.geotools.util.Geometries;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.geom.LineString;

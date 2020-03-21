@@ -56,7 +56,6 @@ public class PlanSetupPane extends BasicRightSideNode
 	private final Label datasetLabel = new Label("Ancillary Datasets");
 	private final Label affiliationLabel = new Label("Affiliation: ");
 	private final Label demographicsLabel = new Label("Demographics: ");
-
 	private final ComboBox<String> affiliationCombo;
 	private final ComboBox<String> demographicCombo;
 	private final ObservableList<Property> items;  // Array displayed in table
@@ -142,8 +141,10 @@ public class PlanSetupPane extends BasicRightSideNode
 	
 	private void configureComboBoxes() {
 		List<String> affiliations = Database.getInstance().getDatasetTable().getDatasetNames(DatasetRole.AFFILIATIONS);
+		affiliationCombo.getItems().clear();
 		affiliationCombo.getItems().addAll(affiliations);
 		List<String> demographics = Database.getInstance().getDatasetTable().getDatasetNames(DatasetRole.DEMOGRAPHICS);
+		demographicCombo.getItems().clear();
 		demographicCombo.getItems().addAll(demographics);
 	}
 	/**

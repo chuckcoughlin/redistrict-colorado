@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.locationtech.jts.geom.Geometry;
 
@@ -43,7 +44,8 @@ import org.locationtech.jts.geom.Geometry;
  * @see Feature
  */
 public class FeatureUtil {
-	
+	private static final String CLSS = "FeatureUtil";
+	private static final Logger LOGGER = Logger.getLogger(CLSS);
 	/**
 	 * Creates a new Feature from the given Geometry, with nominal values for
 	 * the attributes.</p>
@@ -125,5 +127,24 @@ public class FeatureUtil {
         }
         return true;
     }	
+    
+	/**
+	 * Cast an arbitrary type to a long. This is used when we get a feature attribute, for example.
+	 */
+	public static long castToLong(Object obj) {
+		long result = 0;
+		if( obj instanceof Long ) result =  ((Long)obj).longValue();
+		else if( obj instanceof Integer ) result = ((Integer)obj).longValue();
+		else if( obj instanceof Double  ) result = ((Double)obj).longValue();
+		else {
+			try{
+				result = Math.round(Double.parseDouble(obj.toString()));
+			}
+			catch(NumberFormatException nfe) {
+				LOGGER.warning(String.format("%s.castToLong: Unable to convert %s to Long(%s)",CLSS,obj.toString(),nfe.getLocalizedMessage()));
+			}
+		}
+		return result;
+	}
 	
 }

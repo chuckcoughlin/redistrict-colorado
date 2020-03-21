@@ -1,17 +1,23 @@
 ## Redistrict Colorado
 ### User Guide
-This guide walks through the installation and use of the *RCAnalyzer* application. *RCAnalyzer* computes metrics for a redistricting plan based on a collection of "datasets" that contain
+This guide walks through the installation and use of the *RCAnalyzer* application. *RCAnalyzer* computes metrics for redistricting plans based on a collection of "datasets" that contain
 district geometries, voter
-affiliation and demographic information based on publicly available shapefiles.
+affiliation and demographic information based on publicly available shapefiles. The purpose of the application is to compare two or more redistricting plans for fairness. The criteria used are based on the work of Kevin Baas and his [autoredistrict](http://autoredistrict.org/index.php) project.
 
 #### Overview
 
 ![SplitPane](/images/application_plans.png)
+
 ```                  Main Page     ```
 
 The application's main interface is a split pane with
-actions in the left side controlling what is displayed on the right. A main menu controls which of the three scopes is displayed.
+actions in the left side controlling what is displayed on the right. A *View* menu controls which of three contexts is displayed. The contexts are:
+ * Plans - these are the redistricting plans. Each plan is based on a dataset containing boundaries. This context also includes a setup pane for configuration of the weightings, affiliation and demographic datasets that are necessary for plan evaluation.
+ * Datasets - a dataset holds information necessary for the construction and evaluation of a plan. Datasets are not part of the application as distributed, but are loaded in from files downloaded independently. Datasets correspond to a "shapefile" and contain geographic and other information.
+ * Districts - a district is one of the regions of a dataset. The purpose of the *district* screens is to view details of a dataset.
+
 ![Menu](/images/view_menu.png)
+
 ```                  View Menu     ```
 
 #### Feature Attribute Aliases

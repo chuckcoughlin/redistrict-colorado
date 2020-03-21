@@ -116,7 +116,7 @@ public class PlanTable {
 				model.setName(rs.getString("name"));
 				model.setDescription(rs.getString("description"));
 				list.add(model);
-				LOGGER.info(String.format("%s.getPlans: id = %d",CLSS,model.getId()));
+				//LOGGER.info(String.format("%s.getPlans: id = %d",CLSS,model.getId()));
 			}
 			rs.close();
 		}

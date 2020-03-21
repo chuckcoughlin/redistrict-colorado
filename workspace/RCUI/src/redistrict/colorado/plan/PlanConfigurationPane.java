@@ -112,6 +112,7 @@ public class PlanConfigurationPane extends BasicRightSideNode implements EventHa
 	}
 	private void configureComboBox() {
 		List<String> boundaries = Database.getInstance().getDatasetTable().getDatasetNames(DatasetRole.BOUNDARIES);
+		boundaryCombo.getItems().clear();
 		boundaryCombo.getItems().addAll(boundaries);
 	}
 	

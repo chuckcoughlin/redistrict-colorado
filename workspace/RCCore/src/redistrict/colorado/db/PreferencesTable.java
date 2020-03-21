@@ -33,7 +33,7 @@ public class PreferencesTable {
 	public void setConnection(Connection connection) { this.cxn = connection; }
 
 	/**
-	 * Get the Id of the dataset that provides affliation information
+	 * Create a dataset that provides setup information for the comparison.
 	 */
 	public AnalysisModel getAnalysisModel() {
 		AnalysisModel model = new AnalysisModel(MODEL_ID);
@@ -71,7 +71,7 @@ public class PreferencesTable {
 
 	}
 	/**
-	 * Set the Id of the dataset that provides affiliation information
+	 * Update preferences based on the model object.
 	 */
 	public void updateAnalysisModel(AnalysisModel model) {
 		PreparedStatement statement = null;
