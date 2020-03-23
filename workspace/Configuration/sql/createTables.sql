@@ -40,17 +40,18 @@ CREATE TABLE FeatureAttribute (
 	PRIMARY KEY(datasetId,name),
 	FOREIGN KEY (datasetId) references Dataset(id) ON DELETE CASCADE
 );
--- The Plan table links a plan to a dataset. The dataset must
--- have a role of BOUNDARIES. We compute metrics on plans.
+-- The Plan table links a plan to a boundary dataset. The dataset must
+-- have a role of BOUNDARIES. We compute metrics on plans using the
+-- environment provided by a AnalysisModel.
 DROP TABLE IF EXISTS Plan;
 CREATE TABLE Plan (
 	id	INTEGER  PRIMARY KEY,
 	name TEXT NOT NULL,
 	description TEXT NULL,
-	datasetId INTEGER NULL,
+	boundaryId INTEGER NULL,
 	active integer DEFAULT 1,
 	UNIQUE(name),
-	FOREIGN KEY (datasetId) references Dataset(id) ON DELETE CASCADE
+	FOREIGN KEY (boundaryId) references Dataset(id) ON DELETE CASCADE
 );
 -- The PlanFeature table caches aggregated feature values for a plan.
 -- A feature corresponds to a geographic area. The values are standardized

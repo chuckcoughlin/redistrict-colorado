@@ -1,1 +1,12 @@
-Name,ValueGoogleKey,xxxx
+Name,Value,Role
+GoogleKey,xxxx
+AffiliationId,
+DemographicID,
+CompactnessWeight,1.0
+CompetitivenessWeight,1.0
+ContiguityWeight,1.0
+CountyCrossingWeight,1.0
+PopulationEqualityWeight,1.0
+ProportionalityWeight,1.0
+VoteEffeciencyWeight,1.0
+VotingPowerWeight,1.0

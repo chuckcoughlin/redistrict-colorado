@@ -1,10 +1,10 @@
 ## Redistrict Colorado
-### User Guide
-This guide walks through the installation and use of the *RCAnalyzer* application. *RCAnalyzer* computes metrics for redistricting plans based on a collection of "datasets" that contain
+## User Guide
+This guide walks through the use and installation of the *RCAnalyzer* application. *RCAnalyzer* computes metrics for redistricting plans based on a collection of datasets which contain
 district geometries, voter
-affiliation and demographic information based on publicly available shapefiles. The purpose of the application is to compare two or more redistricting plans for fairness. The criteria used are based on the work of Kevin Baas and his [autoredistrict](http://autoredistrict.org/index.php) project.
+affiliation and demographic information based on publicly available shapefiles. The purpose of the application is to compare two or more redistricting plans for fairness. The criteria used are largely based on the work of Kevin Baas and his [autoredistrict](http://autoredistrict.org/index.php) project.
 
-#### Overview
+### Overview
 
 ![SplitPane](/images/application_plans.png)
 
@@ -20,20 +20,35 @@ actions in the left side controlling what is displayed on the right. A *View* me
 
 ```                  View Menu     ```
 
-#### Feature Attribute Aliases
+##### Feature Attribute Aliases
 Within a shapefile, a feature corresponds to a geographical area and is represented by a polygon in latitude/longitude units. Features have an arbitrary set of attributes depending on the purpose of the file. There is no naming standard for these attributes. In order to correlate features from different layers we have adopted a set of standard names which are assigned by the user of
  *RCAnalyzer*. These are:
- * ID - a unique identifier of the feature. This is the value that appears on the tree-view navigation panel in "District" scope.
- * BLACK - African-American population.
- * DEMOCRAT - votes cast for Democratic candidates.
- * GEOMETRY - defines the feature's geographic layout.
- * HISPANIC - Hispanic population.
- * POPULATION - total population of the area.
- * REPUBLICAN - votes cast for Republican candidates.
- * WHITE - Caucasian population count.
-#### Data
+  * ID - a unique identifier of the feature. This is the value that appears on the tree-view navigation panel in "District" scope.
+  * BLACK - African-American population.
+  * DEMOCRAT - votes cast for Democratic candidates.
+  * GEOMETRY - defines the feature's geographic layout.
+  * HISPANIC - Hispanic population.
+  * FEMALE - female population.
+  * MALE - male population.
+  * POPULATION - total population of the area.
+  * REPUBLICAN - votes cast for Republican candidates.
+  * WHITE - Caucasian population count.
+
+ Note: Some of the demographic datasets do not include POPULATION as
+ a feature attribute. For those, the application computes the total
+ population by added FEMALE and MALE counts.
+
+##### Data
 The location and contents of compatible data files
 is described [here](https://github.com/chuckcoughlin/redistrict-colorado/tree/master/docs/datasets.md)
 in a separate document.
 Datasets
 of interest should be downloaded and stored locally. The application re-reads the files each time it accesses them for the first time.
+
+### Preparation and Installation
+The installation of the application consists of three components:
+  * Application - the application is a Java desktop application
+   requiring Java 13 or higher. It is distributed as an executable
+   *jar* file.
+  * Database - the application depends on a SQLite database to persist its state. SQLite is natively resident on most systems.
+  * Shapefiles - the data files must be downloaded into the local file system. Locations of some publicly available data files are listed [here](https://github.com/chuckcoughlin/redistrict-colorado/tree/master/docs/datasets.md).

@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import redistrict.colorado.core.DatasetModel;
-import redistrict.colorado.core.DatasetRole;
 import redistrict.colorado.core.PlanFeature;
 import redistrict.colorado.core.PlanModel;
 
@@ -63,7 +62,7 @@ public class PlanTable {
 	}
 	/**
 	 * Create a new row. This will fail if there is already a row with the default name.
-	 * The metrics are empty.
+	 * Initially, the metrics are empty, the boundaryId is null.
 	 */
 	public PlanModel createPlan() {
 		PlanModel model = null;
@@ -77,14 +76,16 @@ public class PlanTable {
 			statement.executeUpdate(SQL);
 			ResultSet rs = statement.getGeneratedKeys();
 		    if (rs.next()) {
-		        model = new PlanModel(rs.getInt(1));
+		        model = new PlanModel(rs.getLong(1));
 		        model.setActive(false);
 		        model.setName(DEFAULT_NAME);
 		        // Set a default boundary dataset
+		        /*
 		        List<DatasetModel> datasets = DatasetCache.getInstance().getDatasetsInRole(DatasetRole.BOUNDARIES);
 		        if( datasets.size()>0 ) {
 		        	model.setBoundary(datasets.get(0));
 		        }
+		        */
 		    } 
 		}
 		catch(SQLException e) {
@@ -179,7 +180,7 @@ public class PlanTable {
 		PlanModel model = null;
 		PreparedStatement statement = null;
 		ResultSet rs = null;
-		String SQL = "SELECT id, name, description, active FROM Plan"; 
+		String SQL = "SELECT id, name, description, boundaryId, active FROM Plan"; 
 		try {
 			statement = cxn.prepareStatement(SQL);
 			statement.setQueryTimeout(10);  // set timeout to 10 sec.
@@ -191,6 +192,9 @@ public class PlanTable {
 				model.setActive((rs.getInt("active")==1));
 				model.setName(rs.getString("name"));
 				model.setDescription(rs.getString("description"));
+				long boundaryId = rs.getLong("boundaryId");
+				DatasetModel boundaryModel = DatasetCache.getInstance().getDataset(boundaryId);
+				if( boundaryModel!=null ) model.setBoundary(boundaryModel);
 				list.add(model);
 				//LOGGER.info(String.format("%s.getPlans: id = %d",CLSS,model.getId()));
 			}
@@ -223,7 +227,7 @@ public class PlanTable {
 	 */
 	public boolean updatePlan(PlanModel model) {
 		PreparedStatement statement = null;
-		String SQL = "UPDATE Plan SET active=?, name=?, description=? WHERE id = ?";
+		String SQL = "UPDATE Plan SET active=?, name=?, description=?, boundaryId=? WHERE id = ?";
 		boolean success = false;
 		try {
 			//LOGGER.info(String.format("%s.updatePlan: \n%s",CLSS,SQL));
@@ -231,7 +235,8 @@ public class PlanTable {
 			statement.setInt(1,(model.isActive()?1:0));
 			statement.setString(2, model.getName());
 			statement.setString(3, model.getDescription());
-			statement.setLong(4, model.getId());
+			statement.setLong(4, model.getBoundary().getId());
+			statement.setLong(5, model.getId());
 			statement.executeUpdate();
 			if( statement.getUpdateCount()>0) success = true;
 		}

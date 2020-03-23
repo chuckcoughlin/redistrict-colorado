@@ -1,5 +1,5 @@
 /**  
- * Copyright (C) 2019-2020 Charles Coughlin
+ * Copyright (C) 2020 Charles Coughlin
  * 
  * This program is free software; you may redistribute it and/or
  * modify it under the terms of the GNU General Public License.
@@ -10,26 +10,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Specify the kinds of gates that we consider
+ * These values categorize entries in the Preferences table.
  */
-public enum GateType
+public enum PreferencesRole
 {
-	COMPACTNESS,
-	COMPETIVENESS,
-	CONTIGUITY,
-	COUNTY_CROSSINGS,
-	POPULATION_EQUALITY,
-	PROPORTIONALITY,
-	VOTING_EFFICIENCY,
-	VOTING_POWER_GATE
+	ID,
+	KEY,
+	WEIGHT
 	;
 
 	/**
-	 * @return gate types in a list.
+	 * @return preference types in a list.
 	 */
 	public static List<String> names() {
 		List<String> names = new ArrayList<>();
-		for (GateType type : GateType.values())
+		for (PreferencesRole type : PreferencesRole.values())
 		{
 			names.add(type.name());
 		}

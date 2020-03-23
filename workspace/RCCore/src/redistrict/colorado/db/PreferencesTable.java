@@ -14,17 +14,22 @@ import java.sql.Statement;
 import java.util.logging.Logger;
 
 import redistrict.colorado.core.AnalysisModel;
+import redistrict.colorado.core.PreferencesRole;
 
 /**
  * The preferences table holds name/value pairs for "well-known"
- * constants within the application.
+ * constants within the application. These values should match the
+ * values used to initialize the table. 
  */
 public class PreferencesTable {
 	private static final String CLSS = "PreferencesTable";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private static final long MODEL_ID = 42;
-	private static final String AFFILIATION_KEY = "AFFLIATIONID";
-	private static final String DEMOGRAPHIC_KEY = "DEMOGRAPHICID";
+	private static final String AFFILIATION_KEY = "AffiliationId";
+	private static final String DEMOGRAPHIC_KEY = "DemographicID";
+	
+	public static final String POPULATION_EQUALITY_WEIGHT_KEY = "PopulationEqualityWeight";
+	
 	private Connection cxn = null;
 	/** 
 	 * Constructor: 
@@ -33,11 +38,11 @@ public class PreferencesTable {
 	public void setConnection(Connection connection) { this.cxn = connection; }
 
 	/**
-	 * Create a dataset that provides setup information for the comparison.
+	 * Configure an AnalysisModel with IDs from Preferences
 	 */
 	public AnalysisModel getAnalysisModel() {
 		AnalysisModel model = new AnalysisModel(MODEL_ID);
-		String SQL = String.format("SELECT name,value FROM Preferences");
+		String SQL = "SELECT name,value FROM Preferences";
 		Statement statement = null;
 		ResultSet rs = null;
 		try {
@@ -70,6 +75,45 @@ public class PreferencesTable {
 		return model;
 
 	}
+	
+	/*
+	 * We assume that the existence of the row is ensured by the original creation of the database
+	 */
+	public double getWeight(String key) {
+		double weight = 0.;
+		String SQL = String.format("SELECT value FROM Preferences WHERE name = '%s'",key);
+		Statement statement = null;
+		ResultSet rs = null;
+		try {
+			statement = cxn.createStatement();
+			statement.setQueryTimeout(10);     // set timeout to 10 sec.
+			rs = statement.executeQuery(SQL); 
+			while(rs.next()) {
+				String value = rs.getString(1);
+				weight = Double.parseDouble(value);
+				break; 
+			}
+		}
+		catch(NumberFormatException nfe) {
+			LOGGER.severe(String.format("%s.getWeight: Error (%s)",CLSS,nfe.getMessage()));
+		}
+		catch(SQLException e) {
+			LOGGER.severe(String.format("%s.getWeight: Error (%s)",CLSS,e.getMessage()));
+		}
+		return weight;
+	}
+	public void setWeight(String key,double value) {
+		String SQL = String.format("UPDATE Preferences SET value = %s WHERE name = '%s'",String.valueOf(value),key);
+		Statement statement = null;
+		try {
+			statement = cxn.createStatement();
+			statement.setQueryTimeout(10);     // set timeout to 10 sec.
+			statement.executeUpdate(SQL); 
+		}
+		catch(SQLException e) {
+			LOGGER.severe(String.format("%s.setWeight: Error (%s)",CLSS,e.getMessage()));
+		}
+	}
 	/**
 	 * Update preferences based on the model object.
 	 */
@@ -80,6 +124,7 @@ public class PreferencesTable {
 			statement = cxn.prepareStatement(SQL);
 			statement.setString(1,AFFILIATION_KEY);
 			statement.setString(2, String.valueOf(model.getAffiliationId()));
+			statement.setString(3, PreferencesRole.ID.name());
 			statement.executeUpdate();
 			statement.setString(1,DEMOGRAPHIC_KEY);
 			statement.setString(2, String.valueOf(model.getDemographicId()));
