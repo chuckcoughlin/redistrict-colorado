@@ -138,7 +138,9 @@ public class FeatureUtil {
 		else if( obj instanceof Double  ) result = ((Double)obj).longValue();
 		else {
 			try{
-				result = Math.round(Double.parseDouble(obj.toString()));
+				if( !obj.toString().isEmpty() ) {
+					result = Math.round(Double.parseDouble(obj.toString()));
+				}
 			}
 			catch(NumberFormatException nfe) {
 				LOGGER.warning(String.format("%s.castToLong: Unable to convert %s to Long(%s)",CLSS,obj.toString(),nfe.getLocalizedMessage()));

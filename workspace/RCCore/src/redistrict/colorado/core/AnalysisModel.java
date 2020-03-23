@@ -22,6 +22,8 @@ public class AnalysisModel {
 	private String demoGeoName = null;
 	private String democratName = null;
 	private String hispanicName = null;
+	private String femaleName = null;
+	private String maleName = null;
 	private String populationName= null;
 	private String republicanName= null;
 	private String whiteName = null;
@@ -37,6 +39,8 @@ public class AnalysisModel {
 	public String getAttributeForBlack() { return blackName; }
 	public String getAttributeForDemocrat() { return democratName; }
 	public String getAttributeForHispanic() { return hispanicName; }
+	public String getAttributeForFemale() { return femaleName; }
+	public String getAttributeForMale() { return maleName; }
 	public String getAttributeForPopulation() { return populationName; }
 	public String getAttributeForRepublican() { return republicanName; }
 	public String getAttributeForWhite() { return whiteName; }
@@ -57,6 +61,8 @@ public class AnalysisModel {
 		this.demoGeoName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.GEOMETRY.name());
 		this.blackName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.BLACK.name());
 		this.hispanicName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.HISPANIC.name());
+		this.femaleName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.FEMALE.name());
+		this.maleName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.MALE.name());
 		this.whiteName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.WHITE.name());
 		this.populationName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.POPULATION.name());
 	}

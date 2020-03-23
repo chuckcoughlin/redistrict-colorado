@@ -44,7 +44,7 @@ CREATE TABLE FeatureAttribute (
 -- have a role of BOUNDARIES. We compute metrics on plans.
 DROP TABLE IF EXISTS Plan;
 CREATE TABLE Plan (
-	id		INTEGER  PRIMARY KEY,
+	id	INTEGER  PRIMARY KEY,
 	name TEXT NOT NULL,
 	description TEXT NULL,
 	datasetId INTEGER NULL,
@@ -58,7 +58,8 @@ CREATE TABLE Plan (
 DROP TABLE IF EXISTS PlanFeature;
 CREATE TABLE PlanFeature (
 	planId		INTEGER  NOT NULL,
-	featureId	text NOT NULL,
+	featureId	INTEGER  NOT NULL,
+	name 		text NOT NULL,
 	area		real DEFAULT 0.,
 	perimeter	real DEFAULT 0.,
 	population	real DEFAULT 0.,
@@ -68,7 +69,7 @@ CREATE TABLE PlanFeature (
 	hispanic	real DEFAULT 0.,
 	white		real DEFAULT 0.,
 	PRIMARY KEY(planId,featureId),
-	FOREIGN KEY (planId) references Plan(id)
+	FOREIGN KEY (planId) references Plan(id) ON DELETE CASCADE
 );
 -- Store application constants.
 DROP TABLE IF EXISTS Preferences;

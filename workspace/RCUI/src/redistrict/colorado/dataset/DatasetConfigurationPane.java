@@ -224,8 +224,8 @@ public class DatasetConfigurationPane extends BasicRightSideNode implements Even
 	 */
 	private void updateFeatures() {
 		if( model!=null ) {
+			items.clear();
 			if( model.getFeatures()!=null){
-				items.clear();
 				List<FeatureConfiguration> configs = Database.getInstance().getFeatureAttributeTable().getFeatureAttributes(model.getId());
 				for(FeatureConfiguration fc:configs) {
 					items.add(fc);

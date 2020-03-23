@@ -118,7 +118,8 @@ public class AttributeAliasTable {
 		return map;
 	}
 	/**
-	 * @return the attribute name associated with the specified alias, if any.
+	 * @return the attribute name associated with the specified alias.
+	 * 			The result is NULL if there is no corresponding alias.
 	 */
 	public String nameForAlias(long id,String alias) {
 		String name = null;
@@ -183,8 +184,8 @@ public class AttributeAliasTable {
 		return success;
 	}
 	/**
-	 * Update aliases for a layer. We only bother with aliases that in the standard list.
-	 * Clean entries for the layer, then add back in.
+	 * Update aliases for a plan. We only bother with aliases that in the standard list.
+	 * Clean entries for the plan, then add back in.
 	 * @param id layerId
 	 * @param configs a list of FeatureConfiguration objects
 	 * @return true if the name existed and was re-assigned an alias.

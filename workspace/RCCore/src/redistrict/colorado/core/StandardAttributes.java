@@ -19,6 +19,8 @@ public enum StandardAttributes
 	DEMOCRAT,
 	GEOMETRY,
 	HISPANIC,
+	FEMALE,
+	MALE,
 	POPULATION,
 	REPUBLICAN,
 	WHITE,

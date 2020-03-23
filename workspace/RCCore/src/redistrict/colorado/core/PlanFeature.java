@@ -38,7 +38,7 @@ package redistrict.colorado.core;
  */
 public class PlanFeature  {
     private static final long serialVersionUID = -871137208054228529L;
-    private final int featureId; // feature ID
+    private final long featureId; // feature ID
     private final long planId; // Layer ID
     private String  name = "";
     private double 	area = 0.;
@@ -55,13 +55,13 @@ public class PlanFeature  {
      * @param pid plan Id
      * @param fid feature Id
      */
-    public PlanFeature(long pid,int fid) {
+    public PlanFeature(long pid,long fid) {
     	this.planId = pid;
         this.featureId = fid;
     }
     
 
-    public int getFeatureId() { return this.featureId; }
+    public long getFeatureId() { return this.featureId; }
     public long getPlanId() { return this.planId; }
     public String getName() { return this.name; }
     public double getArea() { return this.area; }

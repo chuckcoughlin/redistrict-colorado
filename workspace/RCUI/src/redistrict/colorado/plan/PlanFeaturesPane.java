@@ -5,10 +5,9 @@
  * modify it under the terms of the GNU General Public License.
  */
 package redistrict.colorado.plan;
+import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
-
-import org.locationtech.jts.geom.Geometry;
-import org.openjump.feature.Feature;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -16,15 +15,14 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.PopupControl;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import redistrict.colorado.core.AnalysisModel;
 import redistrict.colorado.core.DatasetModel;
 import redistrict.colorado.core.PlanFeature;
 import redistrict.colorado.core.PlanModel;
-import redistrict.colorado.core.StandardAttributes;
 import redistrict.colorado.db.Database;
-import redistrict.colorado.gate.Calculator;
 import redistrict.colorado.pane.BasicRightSideNode;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.UIConstants;
@@ -106,32 +104,23 @@ public class PlanFeaturesPane extends BasicRightSideNode{
 				return;
 			}
 			this.headerLabel.setText(boundaryDataset.getName()+" Feature Attributes");
-			if(model.getMetrics()==null ) {
-				
-			}
-			LOGGER.info(String.format("%s.updateModel: Model is %s", CLSS,boundaryDataset.getName()));
-			items.clear();
-			// Populate attributes for each feature
-			String idName = Database.getInstance().getAttributeAliasTable().nameForAlias(boundaryDataset.getId(), StandardAttributes.ID.name());
-			String geoName = Database.getInstance().getAttributeAliasTable().nameForAlias(boundaryDataset.getId(), StandardAttributes.GEOMETRY.name());
-			AnalysisModel am = hub.getAnalysisModel();
-			
-			for(Feature feat:boundaryDataset.getFeatures().getFeatures()) {
-				PlanFeature attribute = new PlanFeature(model.getId(),feat.getID());
-				if(idName!=null) attribute.setName(feat.getString(idName).toString());
-				if(geoName!=null) {
-					try {
-						Geometry geometry = (Geometry)(feat.getAttribute(geoName));
-						attribute.setArea(geometry.getArea());
-						attribute.setPerimeter(geometry.getLength());
-						Calculator.aggregateAffiliations(attribute, geometry,am);
-						Calculator.aggregateDemographics(attribute, geometry,am);
-					}
-					catch(ClassCastException cce) {
-						LOGGER.info(String.format("%s.updateModel: Geometry attribute is not a polygon (%s)", CLSS,cce.getLocalizedMessage()));
-					}
+			if(model.getMetrics()==null || model.getMetrics().isEmpty()) {
+				AnalysisModel am = hub.getAnalysisModel();
+				PlanFeatureDialog dialog = new PlanFeatureDialog(model,am);
+				dialog.initOwner(getScene().getWindow());
+				Optional<List<PlanFeature>> result = dialog.showAndWait();
+				if (result.isPresent() ) {
+				     model.setMetrics(result.get());
+				     Database.getInstance().getPlanTable().updatePlanMetrics(model);
 				}
-				items.add(attribute);
+			}
+			LOGGER.info(String.format("%s.updateModel: %s has %d attributes", CLSS,model.getName(),model.getMetrics().size()));
+			items.clear();
+			
+			if( model.getMetrics()!=null) {
+				for(PlanFeature feat:model.getMetrics()) {
+					items.add(feat);
+				}
 			}
 			LOGGER.info(String.format("%s.updateModel: Table has %d rows", CLSS,items.size()));
 			table.setItems(items);

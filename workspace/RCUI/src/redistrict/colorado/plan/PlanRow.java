@@ -6,8 +6,6 @@
  */
 package redistrict.colorado.plan;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.logging.Logger;
 
 import javafx.beans.value.ChangeListener;
@@ -17,25 +15,17 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
-import javafx.scene.control.TextInputDialog;
-import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.Tooltip;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.bind.LeftSelectionEvent;
-import redistrict.colorado.core.DatasetModel;
-import redistrict.colorado.core.DatasetRole;
 import redistrict.colorado.core.PlanModel;
-import redistrict.colorado.dataset.DatasetRow.DatasetChangeListener;
 import redistrict.colorado.db.Database;
-import redistrict.colorado.db.DatasetCache;
 import redistrict.colorado.ui.ComponentIds;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.GuiUtil;
@@ -66,7 +56,7 @@ public class PlanRow extends ListCell<PlanModel>   {
     private final Label description;
     private final CheckBox active;
     private final Button edit;
-    private final Button attributes;
+    private final Button metrics;
     private final EditEventHandler handler;
     private final PlanChangeListener listener;
     
@@ -82,11 +72,11 @@ public class PlanRow extends ListCell<PlanModel>   {
 	    active.setUserData(ACTIVE);
 	    edit = new Button("",guiu.loadImage("images/edit.png"));
 	    edit.setUserData(EDIT);
-	    attributes =new Button("Attributes");
-	    attributes.setId(ComponentIds.BUTTON_ATTRIBUTES);
-	    attributes.setUserData(ATTRIBUTES);
+	    metrics =new Button("Attributes");
+	    metrics.setId(ComponentIds.BUTTON_ATTRIBUTES);
+	    metrics.setUserData(ATTRIBUTES);
 	    Tooltip tt = new Tooltip("Display a table of aggregated feature attributes for this plan.");
-	    Tooltip.install(attributes, tt);
+	    Tooltip.install(metrics, tt);
         
         configureGrid();
         configureLabels();
@@ -95,7 +85,7 @@ public class PlanRow extends ListCell<PlanModel>   {
         addControlsToGrid(); 
         
         active.setOnAction(handler);
-        attributes.setOnAction(handler);
+        metrics.setOnAction(handler);
         edit.setOnAction(handler);
         
         setContent(getItem());
@@ -134,7 +124,7 @@ public class PlanRow extends ListCell<PlanModel>   {
     private void addControlsToGrid() {
     	grid.add(active, 2,0);
     	grid.add(edit, 3, 0);                   
-        grid.add(attributes, 4, 0);        
+        grid.add(metrics, 4, 0);        
     }
 	
     @Override
