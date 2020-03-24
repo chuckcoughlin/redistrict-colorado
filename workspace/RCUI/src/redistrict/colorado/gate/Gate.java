@@ -13,6 +13,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import redistrict.colorado.core.GateType;
 
 /**
@@ -45,7 +46,7 @@ public abstract class Gate extends VBox {
 		body.getChildren().addAll(rectangle,text);
 		getChildren().addAll(header,body);	
 	}
-	public abstract String getExplanation();  // Display in "info" box.
+	public abstract TextFlow getInfo();  // Display in "info" box.
 	public abstract String getTitle();
 	public abstract double getWeight();
 	public abstract GateType getType();

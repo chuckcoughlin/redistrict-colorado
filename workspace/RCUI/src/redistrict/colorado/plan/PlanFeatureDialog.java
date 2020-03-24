@@ -48,7 +48,7 @@ public class PlanFeatureDialog extends Dialog<List<PlanFeature>> {
 		
 		this.setHeaderText("Plan Feature Aggregation");
 		this.setTitle("Aggregating Features");
-		this.label = new Label("Aggregate features:");
+		this.label = new Label("Aggregation progress:");
 		this.progressBar = new ProgressBar(0);
 		progressBar.setProgress(0.);
 		this.cancelButton= new Button("Cancel");

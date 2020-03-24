@@ -6,13 +6,29 @@
  */
 package redistrict.colorado.gate;
 
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
+import redistrict.colorado.core.GateType;
+import redistrict.colorado.db.Database;
+import redistrict.colorado.db.PreferencesTable;
+
 /**
- * Compare plans based on the populations of each district are within 
- * 1% of each other.
+ * Maximized the number of districts that are balanced in party affiliations
  */
 public class CompetitiveDistrictsGate extends Gate {
+	private final TextFlow info;
 	public CompetitiveDistrictsGate() {
-		
+		this.info = new TextFlow();
+		Text t1 = new Text("This metric is simply a count of the number of districts where the probable ");
+		Text t2 = new Text("difference between parties is less than 15%. We want this count to be ");
+		Text t3 = new Text("maximized");
+		t3.setStyle("-fx-font-weight: bold");
+		Text t4 = new Text(".");
+		info.getChildren().addAll(t1,t2,t3,t4);
 	}
+	public TextFlow getInfo() { return this.info; }
 	public String getTitle() { return "Competitive Districts"; } 
+	public double getWeight() { return Database.getInstance().getPreferencesTable().getWeight(PreferencesTable.COMPETITIVENESS_WEIGHT_KEY);}
+	public GateType getType() { return GateType.COMPETIVENESS; }
+	public void setWeight(double weight) {Database.getInstance().getPreferencesTable().setWeight(PreferencesTable.COMPETITIVENESS_WEIGHT_KEY,weight);}
 }

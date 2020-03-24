@@ -6,13 +6,31 @@
  */
 package redistrict.colorado.gate;
 
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
+import redistrict.colorado.core.GateType;
+import redistrict.colorado.db.Database;
+import redistrict.colorado.db.PreferencesTable;
+
 /**
  * Compare plans based on the populations of each district are within 
  * 1% of each other.
  */
 public class VoteEffeciencyGate extends Gate {
+	private final TextFlow info;
 	public VoteEffeciencyGate() {
-		
+		this.info = new TextFlow();
+		Text t1 = new Text("To measure wasted votes, we count the number of votes above the amount necessary to win, ");
+		Text t2 = new Text("for each district and each party. The more wasted votes an election had, the less competitive ");
+		Text t3 = new Text("it was. We want this score to be ");
+		Text t4 = new Text("minimized");
+		t4.setStyle("-fx-font-weight: bold");
+		Text t5 = new Text(".");
+		info.getChildren().addAll(t1,t2,t3,t4,t5);
 	}
+	public TextFlow getInfo() { return this.info; }
 	public String getTitle() { return "Vote Efficiency"; } 
+	public double getWeight() { return Database.getInstance().getPreferencesTable().getWeight(PreferencesTable.VOTE_EFFICIENCY_WEIGHT_KEY);}
+	public GateType getType() { return GateType.VOTING_EFFICIENCY; }
+	public void setWeight(double weight) {Database.getInstance().getPreferencesTable().setWeight(PreferencesTable.VOTE_EFFICIENCY_WEIGHT_KEY,weight);}
 }

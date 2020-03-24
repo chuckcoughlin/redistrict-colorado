@@ -73,7 +73,7 @@ public class PlanRow extends ListCell<PlanModel>   {
 	    edit = new Button("",guiu.loadImage("images/edit.png"));
 	    edit.setUserData(EDIT);
 	    metrics =new Button("Attributes");
-	    metrics.setId(ComponentIds.BUTTON_ATTRIBUTES);
+	    metrics.setId(ComponentIds.BUTTON_METRICS);
 	    metrics.setUserData(ATTRIBUTES);
 	    Tooltip tt = new Tooltip("Display a table of aggregated feature attributes for this plan.");
 	    Tooltip.install(metrics, tt);

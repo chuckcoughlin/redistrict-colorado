@@ -9,6 +9,7 @@ module rc.ui {
 	requires javafx.base;
 	requires transitive javafx.graphics;
 	requires transitive javafx.controls;
+	requires transitive javafx.web;
 	requires transitive rc.core;
 	requires org.geotools;
 	requires org.locationtech.jts;

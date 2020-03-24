@@ -117,7 +117,7 @@
 	 fx-background-color:-ma-light-background;
 }
 #ButtonMetrics {
-	-fx-background-color: lightgrey;
+	fx-background-color:-ma-light-background;
 }
 #ButtonSave {
 	-fx-background-color: royalblue;
