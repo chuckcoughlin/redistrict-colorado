@@ -49,6 +49,7 @@ CREATE TABLE Plan (
 	name TEXT NOT NULL,
 	description TEXT NULL,
 	boundaryId INTEGER NULL,
+	fill integer DEFAULT 0,
 	active integer DEFAULT 1,
 	UNIQUE(name),
 	FOREIGN KEY (boundaryId) references Dataset(id) ON DELETE CASCADE

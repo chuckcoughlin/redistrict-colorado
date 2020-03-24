@@ -15,14 +15,17 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.scene.shape.Rectangle;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.DatasetModel;
 import redistrict.colorado.core.DatasetRole;
 import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.db.Database;
+import redistrict.colorado.db.DatasetCache;
 import redistrict.colorado.pane.BasicRightSideNode;
 import redistrict.colorado.pane.SavePane;
 import redistrict.colorado.ui.ComponentIds;
@@ -36,14 +39,17 @@ public class PlanConfigurationPane extends BasicRightSideNode implements EventHa
 	private final static double GRID0_WIDTH = 100.;    // Grid widths
 	private final static double GRID1_WIDTH = 300.;
 	private final static double GRID2_WIDTH = 40.;
+	private final static double RECTANGLE_SIDE = 20;
 	private final GridPane grid;
 	private Label headerLabel = new Label("Plan Definition");
 	private final SavePane savePane = new SavePane(this);
 	private final Label nameLabel = new Label("Name: ");
 	private final Label descriptionLabel = new Label("Description: ");
 	private final Label boundaryLabel = new Label("Boundary: ");
+	private final Label fillLabel = new Label("Fill color: ");
 	private final TextField nameField;
 	private final TextField descriptionField;
+	private final Rectangle fillRectangle;
 	private final ComboBox<String> boundaryCombo;
 	private PlanModel model;
 	
@@ -63,7 +69,11 @@ public class PlanConfigurationPane extends BasicRightSideNode implements EventHa
         this.descriptionField = new TextField();
         this.boundaryCombo = new ComboBox<>();
         boundaryCombo.setPrefWidth(GRID1_WIDTH);
-        
+        this.fillRectangle = new Rectangle(RECTANGLE_SIDE,RECTANGLE_SIDE);
+	    Tooltip tt = new Tooltip("Select the dataset that provides the district boundaries for the plan.");
+	    Tooltip.install(boundaryLabel, tt);
+	    tt = new Tooltip("Define the color that identifies this plan in the bar charts showing results.");
+	    Tooltip.install(fillLabel, tt);
         
         this.grid = new GridPane();
         grid.setHgap(10);
@@ -83,6 +93,8 @@ public class PlanConfigurationPane extends BasicRightSideNode implements EventHa
 		grid.add(descriptionField, 1, 1);
 		grid.add(boundaryLabel, 0, 2);
 		grid.add(boundaryCombo, 1, 2);
+		grid.add(fillLabel, 0, 3);
+		grid.add(fillRectangle, 1, 3);
 		
 		getChildren().add(grid);
 		setTopAnchor(grid,UIConstants.DETAIL_HEADER_SPACING);
@@ -108,10 +120,12 @@ public class PlanConfigurationPane extends BasicRightSideNode implements EventHa
 			if( boundary!=null) {
 				boundaryCombo.getSelectionModel().select(model.getBoundary().getName());
 			}
+			fillRectangle.setFill(model.getFill());
+			fillRectangle.setStyle("-fx-background-color: black, red; -fx-background-insets: 3, 3;");
 		}
 	}
 	private void configureComboBox() {
-		List<String> boundaries = Database.getInstance().getDatasetTable().getDatasetNames(DatasetRole.BOUNDARIES);
+		List<String> boundaries = Database.getInstance().getDatasetTable().getDatasetNamesForRole(DatasetRole.BOUNDARIES);
 		boundaryCombo.getItems().clear();
 		boundaryCombo.getItems().addAll(boundaries);
 	}
@@ -127,6 +141,8 @@ public class PlanConfigurationPane extends BasicRightSideNode implements EventHa
 			if(model!=null) {
 				model.setName(nameField.getText());
 				model.setDescription(descriptionField.getText());
+				DatasetModel dm = DatasetCache.getInstance().getDataset(boundaryCombo.getSelectionModel().getSelectedItem());
+				model.setBoundary(dm);
 				Database.getInstance().getPlanTable().updatePlan(model);
 				EventBindingHub.getInstance().unselectPlan();     // Force fire
 				EventBindingHub.getInstance().setSelectedPlan(model);

@@ -120,7 +120,7 @@ public class PlanListController extends AnchorPane
 	 */
 	@Override
 	public void changed(ObservableValue<? extends PlanModel> source, PlanModel oldValue, PlanModel newValue) {
-		LOGGER.info(String.format("%s.changed: selected = %s", CLSS,(newValue==null?"null":newValue.getBoundary().getName())));
+		LOGGER.info(String.format("%s.changed: selected = %s", CLSS,(newValue==null?"null":(newValue.getBoundary()==null?"null":newValue.getBoundary().getName()))));
 		buttons.setDeleteDisabled(newValue==null);
 		hub.setSelectedPlan(newValue);
 	}

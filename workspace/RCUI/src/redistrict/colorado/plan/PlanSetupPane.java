@@ -23,6 +23,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.util.Pair;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.AnalysisModel;
 import redistrict.colorado.core.DatasetModel;
@@ -58,8 +59,8 @@ public class PlanSetupPane extends BasicRightSideNode
 	private final Label demographicsLabel = new Label("Demographics: ");
 	private final ComboBox<String> affiliationCombo;
 	private final ComboBox<String> demographicCombo;
-	private final ObservableList<Property> items;  // Array displayed in table
-	private final TableView<Property> table;
+	private final ObservableList<Pair<String,String>> items;  // Array displayed in table
+	private final TableView<Pair<String,String>> table;
 	private final TableEventHandler cellHandler;
 
 
@@ -100,15 +101,15 @@ public class PlanSetupPane extends BasicRightSideNode
 		setLeftAnchor(grid,UIConstants.LIST_PANEL_LEFT_MARGIN);
 		setRightAnchor(grid,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 		
-		table = new TableView<Property>();
+		table = new TableView<Pair<String,String>>();
 		table.setEditable(true);
 		table.setPrefSize(UIConstants.FEATURE_TABLE_WIDTH, UIConstants.FEATURE_TABLE_HEIGHT);
 		table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
-		TableColumn<Property,String> column;
+		TableColumn<Pair<String,String>,String> column;
 		PreferenceStringValueFactory valueFactory = new PreferenceStringValueFactory();
 		PreferenceStringCellFactory cellFactory = new PreferenceStringCellFactory();
 
-		column = new TableColumn<>("Name");
+		column = new TableColumn<>("Weight");
 		column.prefWidthProperty().bind(table.widthProperty().multiply(0.7));
         column.setResizable(true);
 		column.setEditable(false);
@@ -140,10 +141,10 @@ public class PlanSetupPane extends BasicRightSideNode
 	}
 	
 	private void configureComboBoxes() {
-		List<String> affiliations = Database.getInstance().getDatasetTable().getDatasetNames(DatasetRole.AFFILIATIONS);
+		List<String> affiliations = Database.getInstance().getDatasetTable().getDatasetNamesForRole(DatasetRole.AFFILIATIONS);
 		affiliationCombo.getItems().clear();
 		affiliationCombo.getItems().addAll(affiliations);
-		List<String> demographics = Database.getInstance().getDatasetTable().getDatasetNames(DatasetRole.DEMOGRAPHICS);
+		List<String> demographics = Database.getInstance().getDatasetTable().getDatasetNamesForRole(DatasetRole.DEMOGRAPHICS);
 		demographicCombo.getItems().clear();
 		demographicCombo.getItems().addAll(demographics);
 	}
@@ -204,23 +205,27 @@ public class PlanSetupPane extends BasicRightSideNode
 		}
 	}
 	// ================================================= Event Handler ============================================
-	public class TableEventHandler implements EventHandler<TableColumn.CellEditEvent<Property,String>>  {
+	public class TableEventHandler implements EventHandler<TableColumn.CellEditEvent<Pair<String,String>,String>>  {
 		/**
 		 * The event source is a table column ... A cell edit requires a <ENTER> to complete.
 		 * Loss of focus is not enough.
 		 */
 		@Override
-		public void handle(CellEditEvent<Property, String> event) {
+		public void handle(CellEditEvent<Pair<String,String>, String> event) {
 			int row = event.getTablePosition().getRow();
 			String column = event.getTableColumn().getText();
 			String newValue = event.getNewValue();
-			List<Property> items = event.getTableView().getItems();
+			List<Pair<String,String>> items = event.getTableView().getItems();
 			LOGGER.info(String.format("%s.handle %s: row %d = %s",CLSS,column,row,newValue));
-			Property item = items.get(row);
-			if( column.equalsIgnoreCase("Name") ) {
+			/*
+			Pair<String,String> item = items.get(row);
+			if( column.equalsIgnoreCase("Weight") ) {
+				item.setKey(newValue);
+			}
+			else {
 				item.setValue(newValue);
 			}
-
+*/
 		}
 	}
 	

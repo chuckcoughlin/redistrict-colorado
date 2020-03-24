@@ -14,7 +14,6 @@ import java.sql.Statement;
 import java.util.logging.Logger;
 
 import redistrict.colorado.core.AnalysisModel;
-import redistrict.colorado.core.PreferencesRole;
 
 /**
  * The preferences table holds name/value pairs for "well-known"
@@ -132,7 +131,6 @@ public class PreferencesTable {
 			statement = cxn.prepareStatement(SQL);
 			statement.setString(1,AFFILIATION_KEY);
 			statement.setString(2, String.valueOf(model.getAffiliationId()));
-			statement.setString(3, PreferencesRole.ID.name());
 			statement.executeUpdate();
 			statement.setString(1,DEMOGRAPHIC_KEY);
 			statement.setString(2, String.valueOf(model.getDemographicId()));

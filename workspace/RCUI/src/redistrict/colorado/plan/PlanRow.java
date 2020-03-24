@@ -177,7 +177,7 @@ public class PlanRow extends ListCell<PlanModel>   {
     		EventBindingHub hub = EventBindingHub.getInstance();
     		PlanModel model = getItem();
     		hub.setSelectedPlan(model);
-    		LOGGER.info(String.format("%s.handle: processing event from %s (%s)", CLSS,data,model.getBoundary().getName()));
+    		LOGGER.info(String.format("%s.handle: processing event from %s", CLSS,(model==null?"null":(model.getBoundary()==null?"null":model.getBoundary().getName()))));
     		if( data.equals(ATTRIBUTES)) {
     			hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.PLAN_FEATURES));
     		}

@@ -13,9 +13,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.PopupControl;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import redistrict.colorado.core.AnalysisModel;
@@ -106,12 +107,21 @@ public class PlanFeaturesPane extends BasicRightSideNode{
 			this.headerLabel.setText(boundaryDataset.getName()+" Feature Attributes");
 			if(model.getMetrics()==null || model.getMetrics().isEmpty()) {
 				AnalysisModel am = hub.getAnalysisModel();
-				PlanFeatureDialog dialog = new PlanFeatureDialog(model,am);
-				dialog.initOwner(getScene().getWindow());
-				Optional<List<PlanFeature>> result = dialog.showAndWait();
-				if (result.isPresent() ) {
-				     model.setMetrics(result.get());
-				     Database.getInstance().getPlanTable().updatePlanMetrics(model);
+				if( am.getAffiliationId()>=0 && am.getDemographicId()>=0 ) {
+					PlanFeatureDialog dialog = new PlanFeatureDialog(model,am);
+					dialog.initOwner(getScene().getWindow());
+					Optional<List<PlanFeature>> result = dialog.showAndWait();
+					if (result.isPresent() ) {
+						model.setMetrics(result.get());
+						Database.getInstance().getPlanTable().updatePlanMetrics(model);
+					}
+				}
+				else {
+					Alert alert = new Alert(AlertType.INFORMATION);
+					alert.setTitle("Missing Analysis Configuration");
+					alert.setHeaderText("Incomplete Analysis Setup");
+					alert.setContentText("The affiliation and demographics datasets must be configured in the Analysis setup before plan metrics can be calculated.");
+					alert.show();
 				}
 			}
 			LOGGER.info(String.format("%s.updateModel: %s has %d attributes", CLSS,model.getName(),model.getMetrics().size()));

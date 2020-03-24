@@ -30,6 +30,8 @@ public class AnalysisModel {
 	
 	public AnalysisModel(long id) {
 		this.id = id;
+		this.demographicId = -1;
+		this.affiliationId = -1;
 	}
 	
 	public long getAffiliationId() { return this.affiliationId; }

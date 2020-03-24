@@ -44,7 +44,7 @@ public class AggregateTask  extends Task<List<PlanFeature>> {
 			this.updateProgress(index, count);
 			PlanFeature attribute = new PlanFeature(model.getId(),feat.getID());
 			if(idName!=null) attribute.setName(feat.getString(idName).toString());
-			this.updateMessage("Aggregating district "+feat.getID());
+			this.updateMessage("Aggregating district "+attribute.getName());
 			if(geoName!=null) {
 				try {
 					Geometry geometry = (Geometry)(feat.getAttribute(geoName));
@@ -135,7 +135,6 @@ public class AggregateTask  extends Task<List<PlanFeature>> {
 							increment = FeatureUtil.castToLong(feat.getAttribute(am.getAttributeForPopulation()));
 							planFeat.incrementPopulation(areaRatio*increment);
 						}
-
 						count++;
 					}
 				}

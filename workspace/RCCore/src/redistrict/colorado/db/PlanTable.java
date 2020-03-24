@@ -13,8 +13,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.logging.Logger;
 
+import javafx.scene.paint.Color;
 import redistrict.colorado.core.DatasetModel;
 import redistrict.colorado.core.PlanFeature;
 import redistrict.colorado.core.PlanModel;
@@ -67,8 +69,14 @@ public class PlanTable {
 	public PlanModel createPlan() {
 		PlanModel model = null;
 		if( cxn==null ) return model;
-		
-		String SQL = String.format("INSERT INTO Plan(name,description,active) values ('%s','',0)",DEFAULT_NAME);
+		// Create a random color for the bar that represents this plan
+		Random rand = new Random();
+		int r = rand.nextInt(255);
+		int g = rand.nextInt(255);
+		int b = rand.nextInt(255);
+		int rgb = 256*256*r+256*g+b;
+
+		String SQL = String.format("INSERT INTO Plan(name,description,fill,active) values ('%s','',%d,0)",DEFAULT_NAME,rgb);
 		Statement statement = null;
 		try {
 			LOGGER.info(String.format("%s.createPlan: \n%s",CLSS,SQL));
@@ -79,13 +87,7 @@ public class PlanTable {
 		        model = new PlanModel(rs.getLong(1));
 		        model.setActive(false);
 		        model.setName(DEFAULT_NAME);
-		        // Set a default boundary dataset
-		        /*
-		        List<DatasetModel> datasets = DatasetCache.getInstance().getDatasetsInRole(DatasetRole.BOUNDARIES);
-		        if( datasets.size()>0 ) {
-		        	model.setBoundary(datasets.get(0));
-		        }
-		        */
+		        model.setFill(Color.rgb(r,g,b));
 		    } 
 		}
 		catch(SQLException e) {
@@ -134,13 +136,13 @@ public class PlanTable {
 		Statement statement = null;
 		ResultSet rs = null;
 		String SQL = "SELECT featureId,name,area,perimeter,population,democrat,republican,black,hispanic,white "+
-					  String.format("PlanFeatures WHERE planId=%d",plan.getId()); 
+					  String.format("FROM PlanFeature WHERE planId=%d",plan.getId()); 
 		try {
 			statement = cxn.createStatement();
 			statement.setQueryTimeout(10);  // set timeout to 10 sec.
 			rs = statement.executeQuery(SQL);
 			while(rs.next()) {
-				long fid = rs.getLong("id");
+				long fid = rs.getLong("featureId");
 				PlanFeature pfeat = new PlanFeature(plan.getId(),fid);;
 				pfeat.setName(rs.getString("name"));
 				pfeat.setArea(rs.getDouble("area"));
@@ -152,14 +154,14 @@ public class PlanTable {
 				pfeat.setHispanic(rs.getDouble("hispanic"));
 				pfeat.setWhite(rs.getDouble("white"));
 				list.add(pfeat);
-				//LOGGER.info(String.format("%s.getPlans: id = %d",CLSS,model.getId()));
+				//LOGGER.info(String.format("%s.getMetrics: id = %d",CLSS,model.getId()));
 			}
 			rs.close();
 		}
 		catch(SQLException e) {
 			// if the error message is "out of memory", 
 			// it probably means no database file is found
-			LOGGER.severe(String.format("%s.getPlans: Error (%s)",CLSS,e.getMessage()));
+			LOGGER.severe(String.format("%s.getMetrics: Error (%s)",CLSS,e.getMessage()));
 		}
 		finally {
 			if( rs!=null) {
@@ -178,13 +180,13 @@ public class PlanTable {
 	public List<PlanModel> getPlans() {
 		List<PlanModel> list = new ArrayList<>();
 		PlanModel model = null;
-		PreparedStatement statement = null;
+		Statement statement = null;
 		ResultSet rs = null;
-		String SQL = "SELECT id, name, description, boundaryId, active FROM Plan"; 
+		String SQL = "SELECT id, name, description, boundaryId, fill, active FROM Plan ORDER BY name"; 
 		try {
-			statement = cxn.prepareStatement(SQL);
+			statement = cxn.createStatement();
 			statement.setQueryTimeout(10);  // set timeout to 10 sec.
-			rs = statement.executeQuery();
+			rs = statement.executeQuery(SQL);
 			while(rs.next()) {
 				long id = rs.getLong("id");
 				model = new PlanModel(id);
@@ -192,6 +194,11 @@ public class PlanTable {
 				model.setActive((rs.getInt("active")==1));
 				model.setName(rs.getString("name"));
 				model.setDescription(rs.getString("description"));
+				int rgb = rs.getInt("fill");
+				int r = (rgb & 0xFF0000) >> 16;
+	            int g = (rgb & 0xFF00) >> 8;
+	            int b = (rgb & 0xFF);
+				model.setFill(Color.rgb(r,g,b));
 				long boundaryId = rs.getLong("boundaryId");
 				DatasetModel boundaryModel = DatasetCache.getInstance().getDataset(boundaryId);
 				if( boundaryModel!=null ) model.setBoundary(boundaryModel);
@@ -227,7 +234,7 @@ public class PlanTable {
 	 */
 	public boolean updatePlan(PlanModel model) {
 		PreparedStatement statement = null;
-		String SQL = "UPDATE Plan SET active=?, name=?, description=?, boundaryId=? WHERE id = ?";
+		String SQL = "UPDATE Plan SET active=?, name=?, description=?, boundaryId=?, fill=? WHERE id = ?";
 		boolean success = false;
 		try {
 			//LOGGER.info(String.format("%s.updatePlan: \n%s",CLSS,SQL));
@@ -236,7 +243,12 @@ public class PlanTable {
 			statement.setString(2, model.getName());
 			statement.setString(3, model.getDescription());
 			statement.setLong(4, model.getBoundary().getId());
-			statement.setLong(5, model.getId());
+			int r = (int)(model.getFill().getRed()*255);
+			int g = (int)(model.getFill().getGreen()*255);
+			int b = (int)(model.getFill().getBlue()*255);
+			int rgb = b + 256*g + 256*256*r;
+			statement.setInt(5, rgb);
+			statement.setLong(6, model.getId());
 			statement.executeUpdate();
 			if( statement.getUpdateCount()>0) success = true;
 		}
@@ -260,7 +272,7 @@ public class PlanTable {
 		clearMetrics(model.getId());
 		List<PlanFeature> metrics = new ArrayList<>();
 		PreparedStatement statement = null;
-		String SQL = "INSERT INTO PlanFeatures(planId,featureId,name,area,perimeter,population,democrat,republican,black,hispanic,white"+
+		String SQL = "INSERT INTO PlanFeature(planId,featureId,name,area,perimeter,population,democrat,republican,black,hispanic,white)"+
 					 " VALUES(?,?,?,?,?,?,?,?,?,?,?)";
 		boolean success = true;
 		try {
@@ -280,6 +292,7 @@ public class PlanTable {
 				statement.setDouble(10, pfeat.getHispanic());
 				statement.setDouble(11, pfeat.getWhite());
 				statement.executeUpdate();
+				featureId++;
 			}
 		}
 		catch(SQLException e) {

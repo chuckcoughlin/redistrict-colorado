@@ -143,18 +143,20 @@ public class DatasetTable {
 	}
 	/**
 	 * @return a list of defined datasets that are assigned to the specified role.
+	 *         If the model object does not exist, create it.
 	 */
-	public List<String> getDatasetNames(DatasetRole role) {
+	public List<String> getDatasetNamesForRole(DatasetRole role) {
 		List<String> list = new ArrayList<>();
 		DatasetModel model = null;
-		PreparedStatement statement = null;
+		Statement statement = null;
 		ResultSet rs = null;
 		String SQL = String.format(
-				"SELECT id,name,description,shapefilePath,role from Dataset WHERE role ='%s' ORDER BY name",role.name()); 
+				"SELECT id,name,description,shapefilePath from Dataset WHERE role ='%s' ORDER BY name",role.name()); 
 		try {
-			statement = cxn.prepareStatement(SQL);
+			statement = cxn.createStatement();
 			statement.setQueryTimeout(10);  // set timeout to 10 sec.
-			rs = statement.executeQuery();
+			rs = statement.executeQuery(SQL);
+			//LOGGER.info(String.format("%s.getDatasetNamesForRole: %s\n%s",CLSS,role.name(),SQL));
 			while(rs.next()) {
 				long id = rs.getLong("id");
 				model = cache.getDataset(id);
@@ -164,17 +166,16 @@ public class DatasetTable {
 					model.setShapefilePath(rs.getString("shapefilePath"));
 					model.setRole(role);
 					cache.addDataset(model);
-					list.add(model.getName());
 				}
 				list.add(model.getName());
-				//LOGGER.info(String.format("%s.getDatasets %d: %s is %s",CLSS,model.getId(),model.getName(),model.getRole().name()));
+				LOGGER.info(String.format("%s.getDatasetNamesForRole %d: %s is %s",CLSS,model.getId(),model.getName(),model.getRole().name()));
 			}
 			rs.close();
 		}
 		catch(SQLException e) {
 			// if the error message is "out of memory", 
 			// it probably means no database file is found
-			LOGGER.severe(String.format("%s.getDatasets: Error (%s)",CLSS,e.getMessage()));
+			LOGGER.severe(String.format("%s.getDatasetNamesForRole: Error (%s)",CLSS,e.getMessage()));
 		}
 		finally {
 			if( rs!=null) {
