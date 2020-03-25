@@ -26,7 +26,19 @@ public enum GateType
 	;
 
 	/**
-	 * @return gate types in a list.
+	 * @return the basic gate types in a list. "Composite"
+	 *         relies on the others and is therefore excluded.
+	 */
+	public static List<GateType> basicTypes() {
+		List<GateType> types = new ArrayList<>();
+		for (GateType type : GateType.values()){	
+			if(!type.equals(COMPOSITE) ) types.add(type);
+		}
+		return types;
+	}
+	
+	/**
+	 * @return gate type names in a list.
 	 */
 	public static List<String> names() {
 		List<String> names = new ArrayList<>();

@@ -33,6 +33,7 @@ public class GateCache {
 		this.map = new HashMap<>();
 		map.put(GateType.COMPACTNESS, new CompactnessGate());
 		map.put(GateType.COMPETIVENESS, new CompetitiveDistrictsGate());
+		map.put(GateType.COMPOSITE, new CompositeGate());
 		map.put(GateType.CONTIGUITY, new ContiguousGate());
 		map.put(GateType.COUNTY_CROSSINGS, new CountyCrossingGate());
 		map.put(GateType.POPULATION_EQUALITY, new PopulationEqualityGate());
@@ -60,6 +61,18 @@ public class GateCache {
 		return gate;
 	}
 	
+	/**
+	 * The order of the list is the order types are 
+	 * defined in the enumeration. This method leaves
+	 * out "Composite"
+	 */
+	public List<Gate> getBasicGates() {
+		List<Gate> gates = new ArrayList<>();
+		for(GateType type:GateType.basicTypes()) {
+			gates.add(map.get(type));
+		}
+		return gates;
+	}
 	
 	/**
 	 * The order of the list is the order types are 

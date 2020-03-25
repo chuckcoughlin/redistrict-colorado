@@ -132,6 +132,7 @@ public class PlanTable {
 	 */
 	public void getMetrics(PlanModel plan) {
 		plan.setMetrics(null);
+		//LOGGER.info(String.format("%s.getMetrics: plan %d = %s",CLSS,plan.getId(),plan.getName()));
 		List<PlanFeature> list = new ArrayList<>();
 		Statement statement = null;
 		ResultSet rs = null;
@@ -154,7 +155,7 @@ public class PlanTable {
 				pfeat.setHispanic(rs.getDouble("hispanic"));
 				pfeat.setWhite(rs.getDouble("white"));
 				list.add(pfeat);
-				//LOGGER.info(String.format("%s.getMetrics: id = %d",CLSS,model.getId()));
+				//LOGGER.info(String.format("%s.getMetrics for %d: name = %s",CLSS,fid,pfeat.getName()));
 			}
 			rs.close();
 		}
@@ -270,7 +271,6 @@ public class PlanTable {
 	 */
 	public boolean updatePlanMetrics(PlanModel model) {
 		clearMetrics(model.getId());
-		List<PlanFeature> metrics = new ArrayList<>();
 		PreparedStatement statement = null;
 		String SQL = "INSERT INTO PlanFeature(planId,featureId,name,area,perimeter,population,democrat,republican,black,hispanic,white)"+
 					 " VALUES(?,?,?,?,?,?,?,?,?,?,?)";
@@ -278,7 +278,7 @@ public class PlanTable {
 		try {
 			statement = cxn.prepareStatement(SQL);
 			long featureId = 0;
-			for(PlanFeature pfeat:metrics) {
+			for(PlanFeature pfeat:model.getMetrics()) {
 				//LOGGER.info(String.format("%s.updatePlan: \n%s",CLSS,SQL));		
 				statement.setLong(1,model.getId());
 				statement.setLong(2,featureId);

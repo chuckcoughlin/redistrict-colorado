@@ -14,6 +14,7 @@ public interface ComponentIds {
 	
 	public final static String BUTTON_ADD 		= "ButtonAdd";
 	public final static String BUTTON_ANALYZE   = "ButtonAnalyze";
+	public final static String BUTTON_CANCEL 	= "ButtonCancel";
 	public final static String BUTTON_DELETE 	= "ButtonDelete";
 	public final static String BUTTON_DOWN	 	= "ButtonDown";
 	public final static String BUTTON_LEFT	 	= "ButtonLeft";

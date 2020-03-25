@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Dialog;
@@ -25,6 +26,7 @@ import redistrict.colorado.core.AnalysisModel;
 import redistrict.colorado.core.PlanFeature;
 import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.gate.AggregateTask;
+import redistrict.colorado.ui.ComponentIds;
 
 /**
  * Display a progress dialog while aggregating features for a plan.
@@ -35,24 +37,25 @@ public class PlanFeatureDialog extends Dialog<List<PlanFeature>> {
 	private final static String CLSS = "PlanFeatureDialog";
 	private final static Logger LOGGER = Logger.getLogger(CLSS);
 	private final double LABEL_WIDTH = 250.;
+	private final double PROGRESS_WIDTH = 200.;
 	
 	private final AggregateTask task;
 	private final FlowPane root;
 	private final Button cancelButton;
-	private final Label label;
 	private final Label statusLabel;
 	private final ProgressBar progressBar; 
 	
 	public PlanFeatureDialog(PlanModel model,AnalysisModel am) {
 		this.task = new AggregateTask(model,am);
 		
-		this.setHeaderText("Plan Feature Aggregation");
-		this.setTitle("Aggregating Features");
-		this.label = new Label("Aggregation progress:");
+		this.setTitle("Aggregating Feature Information");
+		this.setHeaderText("Aggregate affiliation and demographic information into plan boundaries.");
 		this.progressBar = new ProgressBar(0);
 		progressBar.setProgress(0.);
+		progressBar.setPrefWidth(PROGRESS_WIDTH);
 		this.cancelButton= new Button("Cancel");
 		cancelButton.setDisable(false);
+		cancelButton.setId(ComponentIds.BUTTON_CANCEL);
 		cancelButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
@@ -101,7 +104,9 @@ public class PlanFeatureDialog extends Dialog<List<PlanFeature>> {
 	    FlowPane root = new FlowPane();
 	    root.setPadding(new Insets(10));
 	    root.setHgap(10);
-	    root.getChildren().addAll(label, progressBar,  statusLabel, cancelButton);
+	    root.setPrefWrapLength(500);
+	    root.setColumnHalignment(HPos.RIGHT); 
+	    root.getChildren().addAll(statusLabel,progressBar,cancelButton);
         getDialogPane().setContent(root);
         
 	    // Start the Task.

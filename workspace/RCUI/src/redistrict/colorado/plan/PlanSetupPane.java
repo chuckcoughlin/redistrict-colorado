@@ -166,7 +166,7 @@ public class PlanSetupPane extends BasicRightSideNode
 			if( demModel!=null ) {
 				demographicCombo.getSelectionModel().select(demModel.getName());
 			}
-			items.addAll(GateCache.getInstance().getGates());
+			items.addAll(GateCache.getInstance().getBasicGates());
 		}
 	}
 	private void configureTable() {	

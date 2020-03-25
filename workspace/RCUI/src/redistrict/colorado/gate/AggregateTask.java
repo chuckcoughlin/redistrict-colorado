@@ -54,7 +54,7 @@ public class AggregateTask  extends Task<List<PlanFeature>> {
 					aggregateDemographics(attribute, geometry,am);
 				}
 				catch(ClassCastException cce) {
-					LOGGER.info(String.format("%s.updateModel: Geometry attribute is not a polygon (%s)", CLSS,cce.getLocalizedMessage()));
+					LOGGER.info(String.format("%s.call: Geometry attribute is not a polygon (%s)", CLSS,cce.getLocalizedMessage()));
 				}
 			}
 			attributes.add(attribute);

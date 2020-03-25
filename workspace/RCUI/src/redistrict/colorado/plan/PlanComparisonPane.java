@@ -15,12 +15,15 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
 import redistrict.colorado.bind.EventBindingHub;
+import redistrict.colorado.core.GateType;
 import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.gate.CompactnessGate;
 import redistrict.colorado.gate.CompetitiveDistrictsGate;
 import redistrict.colorado.gate.CompositeGate;
 import redistrict.colorado.gate.ContiguousGate;
 import redistrict.colorado.gate.CountyCrossingGate;
+import redistrict.colorado.gate.Gate;
+import redistrict.colorado.gate.GateCache;
 import redistrict.colorado.gate.PopulationEqualityGate;
 import redistrict.colorado.gate.ProportionalityGate;
 import redistrict.colorado.gate.VoteEfficiencyGate;
@@ -38,9 +41,11 @@ import redistrict.colorado.ui.ViewMode;
 public class PlanComparisonPane extends BasicRightSideNode {
 	private final static String CLSS = "PlanComparisonPane";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
+	private static final double HEADER_HEIGHT = 20.;
 	private Label headerLabel = new Label("Plan Comparison");
 	private List<PlanModel> models;
 	private final GridPane grid;
+	private final Legend legend;
 
 	public PlanComparisonPane() {
 		super(ViewMode.PLAN,DisplayOption.PLAN_COMPARISON);
@@ -50,6 +55,14 @@ public class PlanComparisonPane extends BasicRightSideNode {
 		setTopAnchor(headerLabel,0.);
 		setLeftAnchor(headerLabel,UIConstants.LIST_PANEL_LEFT_MARGIN);
 		setRightAnchor(headerLabel,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+		int nmodels = models.size();
+		this.legend = new Legend();
+		legend.setAlignment(Pos.CENTER);
+		getChildren().add(legend);
+		setTopAnchor(legend,HEADER_HEIGHT);
+		setLeftAnchor(legend,UIConstants.LIST_PANEL_LEFT_MARGIN);
+		setRightAnchor(legend,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+		
         
         grid = new GridPane();
         grid.setHgap(10);
@@ -87,16 +100,24 @@ public class PlanComparisonPane extends BasicRightSideNode {
 		GridPane.setMargin(grid,new Insets(20,0,0,0));  // top right bottom left
 	
 		getChildren().add(grid);
-		setTopAnchor(grid,20.);
+		setTopAnchor(grid,HEADER_HEIGHT*(nmodels+1));
 		setLeftAnchor(grid,UIConstants.LIST_PANEL_LEFT_MARGIN);
 		setRightAnchor(grid,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 		setBottomAnchor(grid,0.);
+		
+		updateModel();  // Perform the calculations
 	}
 
 
 	@Override
 	public void updateModel() {
-		List<PlanModel> models = EventBindingHub.getInstance().getActivePlans();
+		models = EventBindingHub.getInstance().getActivePlans();
 		
+		for(Gate gate:GateCache.getInstance().getBasicGates()) {
+			gate.evaluate(models);
+		}
+		// Do the composite last as it relies on the others
+		Gate composite = GateCache.getInstance().getGate(GateType.COMPOSITE);
+		composite.evaluate(models);
 	}
 }

@@ -112,6 +112,7 @@ public class PlanFeaturesPane extends BasicRightSideNode{
 					dialog.initOwner(getScene().getWindow());
 					Optional<List<PlanFeature>> result = dialog.showAndWait();
 					if (result.isPresent() ) {
+						LOGGER.info(String.format("%s.updateModel:Dialog returned metrics for %d features", CLSS,result.get().size()));
 						model.setMetrics(result.get());
 						Database.getInstance().getPlanTable().updatePlanMetrics(model);
 					}

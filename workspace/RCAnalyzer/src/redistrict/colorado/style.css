@@ -1,8 +1,10 @@
 /* Stylesheet for MapAnalyzer */
 /* ======== Variables ======= */
-* {
+*
+{
 	-ma-dark-blue:        #2E40CD;
 	-ma-light-background: #FAFAFA;
+	-ma-button-background: #DADADA;
 }
 /* ======== Core Classes ======= */
 .root {
@@ -11,17 +13,24 @@
   -fx-padding: 2px;
 }
 .button{
-  -fx-background-color: white;
+  -fx-background-color: transparent;
 }
 .menu {
 	-fx-font-weight: bold;
 }
 /* ======== Custom Classes ======= */
 .graph-box {
+	-fx-background-color:-ma-light-background; 
 	-fx-alignment: center;
 	-fx-border-color: black;
     -fx-border-width: 1 1 1 1;
     -fx-border-radius: 0 0 3 3;
+}
+.graph-rectangle {
+    -fx-fill: -ma-light-background;
+    -fx-stroke: black;
+    -fx-stroke-width: 1;
+    -fx-stroke-line-cap: round;
 }
 .graph-header {
 	-fx-background-color:-ma-light-background; 
@@ -116,8 +125,8 @@
 #ButtonDown {
 	 fx-background-color:-ma-light-background;
 }
-#ButtonMetrics {
-	fx-background-color:-ma-light-background;
+#ButtonMetrics, #ButtonCancel {
+	-fx-background-color:-ma-button-background;
 }
 #ButtonSave {
 	-fx-background-color: royalblue;
