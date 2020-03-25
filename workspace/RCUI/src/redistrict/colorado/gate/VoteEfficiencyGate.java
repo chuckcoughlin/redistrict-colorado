@@ -16,9 +16,9 @@ import redistrict.colorado.db.PreferencesTable;
  * Compare plans based on the populations of each district are within 
  * 1% of each other.
  */
-public class VoteEffeciencyGate extends Gate {
+public class VoteEfficiencyGate extends Gate {
 	private final TextFlow info;
-	public VoteEffeciencyGate() {
+	public VoteEfficiencyGate() {
 		this.info = new TextFlow();
 		Text t1 = new Text("To measure wasted votes, we count the number of votes above the amount necessary to win, ");
 		Text t2 = new Text("for each district and each party. The more wasted votes an election had, the less competitive ");

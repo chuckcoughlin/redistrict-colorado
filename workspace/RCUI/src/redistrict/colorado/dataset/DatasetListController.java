@@ -41,7 +41,7 @@ public class DatasetListController extends AnchorPane
 	
 	
 	public DatasetListController() {
-		this.auxEventHandler = new LayerListHolderEventHandler();
+		this.auxEventHandler = new DatasetListHolderEventHandler();
 		this.auxEventDispatcher = new BasicEventDispatcher<ActionEvent>(auxEventHandler);
 		this.hub = EventBindingHub.getInstance();
 		datasetList = new ListView<DatasetModel>();
@@ -77,7 +77,7 @@ public class DatasetListController extends AnchorPane
 	/**
 	 * We've received an event from the button panel (or other). React.
 	 */
-	public class LayerListHolderEventHandler implements EventHandler<ActionEvent> {
+	public class DatasetListHolderEventHandler implements EventHandler<ActionEvent> {
 		@Override
 		public void handle(ActionEvent event) {
 			String id = GuiUtil.idFromSource(event.getSource());

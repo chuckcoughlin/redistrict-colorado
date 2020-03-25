@@ -10,11 +10,12 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.Callback;
 import javafx.util.Pair;
 import javafx.util.StringConverter;
+import redistrict.colorado.gate.Gate;
 
 /**
  * Render a String cell in the PlanLayer table
  */
-public class PreferenceStringCellFactory implements Callback<TableColumn<Pair<String,String>, String>, TableCell<Pair<String,String>, String>>,
+public class PreferenceStringCellFactory implements Callback<TableColumn<Gate, String>, TableCell<Gate, String>>,
 											EventHandler<TableColumn.CellEditEvent<Pair<String,String>, String>> { 
 	private final static String CLSS = "PreferenceStringCellFactory";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
@@ -23,10 +24,10 @@ public class PreferenceStringCellFactory implements Callback<TableColumn<Pair<St
 	}
 	
 	@Override
-	public TableCell<Pair<String,String>, String> call(TableColumn<Pair<String,String>, String> p) {
+	public TableCell<Gate, String> call(TableColumn<Gate, String> p) {
 		//LOGGER.info(String.format("%s:TableCell.call: %s",CLSS,p.getText()));
-		TableCell<Pair<String,String>, String> cell = null;
-		TextFieldTableCell<Pair<String,String>, String> textCell = new TextFieldTableCell<>();
+		TableCell<Gate, String> cell = null;
+		TextFieldTableCell<Gate, String> textCell = new TextFieldTableCell<>();
 		textCell.setConverter(new PreferenceStringConverter());
 		cell = textCell;
 		return cell;

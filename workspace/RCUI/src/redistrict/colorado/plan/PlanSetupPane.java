@@ -8,7 +8,6 @@ package redistrict.colorado.plan;
 import java.util.List;
 import java.util.logging.Logger;
 
-import javafx.beans.property.Property;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -30,6 +29,8 @@ import redistrict.colorado.core.DatasetModel;
 import redistrict.colorado.core.DatasetRole;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.db.DatasetCache;
+import redistrict.colorado.gate.Gate;
+import redistrict.colorado.gate.GateCache;
 import redistrict.colorado.pane.BasicRightSideNode;
 import redistrict.colorado.pane.SavePane;
 import redistrict.colorado.ui.ComponentIds;
@@ -54,13 +55,12 @@ public class PlanSetupPane extends BasicRightSideNode
 	private final SavePane savePane = new SavePane(this);
 	private AnalysisModel model;
 	private final GridPane grid;
-	private final Label datasetLabel = new Label("Ancillary Datasets");
 	private final Label affiliationLabel = new Label("Affiliation: ");
 	private final Label demographicsLabel = new Label("Demographics: ");
 	private final ComboBox<String> affiliationCombo;
 	private final ComboBox<String> demographicCombo;
-	private final ObservableList<Pair<String,String>> items;  // Array displayed in table
-	private final TableView<Pair<String,String>> table;
+	private final ObservableList<Gate> items;  // Array displayed in table
+	private final TableView<Gate> table;
 	private final TableEventHandler cellHandler;
 
 
@@ -81,14 +81,21 @@ public class PlanSetupPane extends BasicRightSideNode
         affiliationCombo.setPrefWidth(COL1_WIDTH);
         demographicCombo.setPrefWidth(COL1_WIDTH);
         
+		table = new TableView<Gate>();
+		table.setEditable(true);
+		table.setPrefSize(UIConstants.FEATURE_TABLE_WIDTH, UIConstants.FEATURE_TABLE_HEIGHT);
+		table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+		
         grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(4);
 		grid.getColumnConstraints().clear();
 		ColumnConstraints col0 = new ColumnConstraints(COL0_WIDTH);
 		col0.setHalignment(HPos.LEFT);
+		col0.prefWidthProperty().bind(table.widthProperty().multiply(0.4));
 		ColumnConstraints col1 = new ColumnConstraints(COL1_WIDTH);
 		col1.setHalignment(HPos.LEFT);
+		col1.prefWidthProperty().bind(table.widthProperty().multiply(0.4));
 		col1.setHgrow(Priority.ALWAYS);
 		grid.getColumnConstraints().addAll(col0,col1); 
 		grid.add(affiliationLabel,0, 0);
@@ -101,22 +108,18 @@ public class PlanSetupPane extends BasicRightSideNode
 		setLeftAnchor(grid,UIConstants.LIST_PANEL_LEFT_MARGIN);
 		setRightAnchor(grid,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 		
-		table = new TableView<Pair<String,String>>();
-		table.setEditable(true);
-		table.setPrefSize(UIConstants.FEATURE_TABLE_WIDTH, UIConstants.FEATURE_TABLE_HEIGHT);
-		table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
-		TableColumn<Pair<String,String>,String> column;
+		TableColumn<Gate,String> column;
 		PreferenceStringValueFactory valueFactory = new PreferenceStringValueFactory();
 		PreferenceStringCellFactory cellFactory = new PreferenceStringCellFactory();
 
-		column = new TableColumn<>("Weight");
+		column = new TableColumn<>("Metric");
 		column.prefWidthProperty().bind(table.widthProperty().multiply(0.7));
         column.setResizable(true);
 		column.setEditable(false);
 		column.setCellValueFactory(valueFactory);
 		table.getColumns().add(column);
 
-		column = new TableColumn<>("Value");
+		column = new TableColumn<>("Weight");
 		column.prefWidthProperty().bind(table.widthProperty().multiply(0.3));
         column.setResizable(true);
 		column.setEditable(true);
@@ -150,6 +153,7 @@ public class PlanSetupPane extends BasicRightSideNode
 	}
 	/**
 	 * Update the table's dataset list from the model. If the model has no datasets, read them from the database.
+	 * Next update the weights.
 	 */
 	private void updateDatasets() {
 		if( model!=null ) {
@@ -162,6 +166,7 @@ public class PlanSetupPane extends BasicRightSideNode
 			if( demModel!=null ) {
 				demographicCombo.getSelectionModel().select(demModel.getName());
 			}
+			items.addAll(GateCache.getInstance().getGates());
 		}
 	}
 	private void configureTable() {	
@@ -205,27 +210,28 @@ public class PlanSetupPane extends BasicRightSideNode
 		}
 	}
 	// ================================================= Event Handler ============================================
-	public class TableEventHandler implements EventHandler<TableColumn.CellEditEvent<Pair<String,String>,String>>  {
+	public class TableEventHandler implements EventHandler<TableColumn.CellEditEvent<Gate,String>>  {
 		/**
 		 * The event source is a table column ... A cell edit requires a <ENTER> to complete.
 		 * Loss of focus is not enough.
 		 */
 		@Override
-		public void handle(CellEditEvent<Pair<String,String>, String> event) {
+		public void handle(CellEditEvent<Gate, String> event) {
 			int row = event.getTablePosition().getRow();
 			String column = event.getTableColumn().getText();
 			String newValue = event.getNewValue();
-			List<Pair<String,String>> items = event.getTableView().getItems();
+			List<Gate> items = event.getTableView().getItems();
 			LOGGER.info(String.format("%s.handle %s: row %d = %s",CLSS,column,row,newValue));
-			/*
-			Pair<String,String> item = items.get(row);
+			
+			Gate item = items.get(row);
 			if( column.equalsIgnoreCase("Weight") ) {
-				item.setKey(newValue);
+				try {
+					item.setWeight(Double.parseDouble(newValue));
+				}
+				catch(NumberFormatException nfe) {
+					LOGGER.warning(String.format("%s.handle %s is not a double (%s)",CLSS,newValue,nfe.getLocalizedMessage()));
+				}
 			}
-			else {
-				item.setValue(newValue);
-			}
-*/
 		}
 	}
 	

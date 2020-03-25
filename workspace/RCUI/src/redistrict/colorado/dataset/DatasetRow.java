@@ -35,7 +35,7 @@ import redistrict.colorado.ui.ViewMode;
  * This is the UI element for a list view that represents a layer.
  */
 public class DatasetRow extends ListCell<DatasetModel> implements ChangeListener<Toggle> {
-	private static final String CLSS = "LayerRow";
+	private static final String CLSS = "DatasetRow";
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
 	private final static double COL1_WIDTH = 40.;
 	private final static double COL2_WIDTH = 100.;

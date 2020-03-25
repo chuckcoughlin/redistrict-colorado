@@ -23,7 +23,7 @@ import redistrict.colorado.gate.ContiguousGate;
 import redistrict.colorado.gate.CountyCrossingGate;
 import redistrict.colorado.gate.PopulationEqualityGate;
 import redistrict.colorado.gate.ProportionalityGate;
-import redistrict.colorado.gate.VoteEffeciencyGate;
+import redistrict.colorado.gate.VoteEfficiencyGate;
 import redistrict.colorado.gate.VotingPowerGate;
 import redistrict.colorado.pane.BasicRightSideNode;
 import redistrict.colorado.ui.DisplayOption;
@@ -81,7 +81,7 @@ public class PlanComparisonPane extends BasicRightSideNode {
 		grid.add(new VotingPowerGate(), 0, 1);
 		grid.add(new ProportionalityGate(), 1, 1);
 		grid.add(new CompetitiveDistrictsGate(), 2, 1);
-		grid.add(new VoteEffeciencyGate(), 0, 2);
+		grid.add(new VoteEfficiencyGate(), 0, 2);
 		grid.add(new CountyCrossingGate(), 1, 2);
 		grid.add(new CompositeGate(), 2, 2);
 		GridPane.setMargin(grid,new Insets(20,0,0,0));  // top right bottom left

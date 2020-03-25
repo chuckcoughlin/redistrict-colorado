@@ -12,8 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import redistrict.colorado.core.DatasetModel;
-import redistrict.colorado.core.DatasetRole;
 import redistrict.colorado.core.GateType;
 
 /**
@@ -33,7 +31,14 @@ public class GateCache {
 	 */
 	private GateCache() {
 		this.map = new HashMap<>();
+		map.put(GateType.COMPACTNESS, new CompactnessGate());
+		map.put(GateType.COMPETIVENESS, new CompetitiveDistrictsGate());
+		map.put(GateType.CONTIGUITY, new ContiguousGate());
+		map.put(GateType.COUNTY_CROSSINGS, new CountyCrossingGate());
 		map.put(GateType.POPULATION_EQUALITY, new PopulationEqualityGate());
+		map.put(GateType.PROPORTIONALITY, new ProportionalityGate());
+		map.put(GateType.VOTING_EFFICIENCY, new VoteEfficiencyGate());
+		map.put(GateType.VOTING_POWER, new VotingPowerGate());
 		
 	}
 	/**
