@@ -40,4 +40,5 @@ public class VotingPowerGate extends Gate {
 	public double getWeight() { return Database.getInstance().getPreferencesTable().getWeight(PreferencesTable.VOTING_POWER_WEIGHT_KEY);}
 	public GateType getType() { return GateType.VOTING_POWER; }
 	public void setWeight(double weight) {Database.getInstance().getPreferencesTable().setWeight(PreferencesTable.VOTING_POWER_WEIGHT_KEY,weight);}
+	public boolean useMaximum() { return false; }
 }

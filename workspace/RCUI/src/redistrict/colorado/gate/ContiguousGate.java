@@ -30,4 +30,5 @@ public class ContiguousGate extends Gate {
 	public double getWeight() { return Database.getInstance().getPreferencesTable().getWeight(PreferencesTable.CONTIGUITY_WEIGHT_KEY);}
 	public GateType getType() { return GateType.CONTIGUITY; }
 	public void setWeight(double weight) {Database.getInstance().getPreferencesTable().setWeight(PreferencesTable.CONTIGUITY_WEIGHT_KEY,weight);}
+	public boolean useMaximum() { return false; }
 }

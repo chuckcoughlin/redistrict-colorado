@@ -104,8 +104,6 @@ public class PlanComparisonPane extends BasicRightSideNode {
 		setLeftAnchor(grid,UIConstants.LIST_PANEL_LEFT_MARGIN);
 		setRightAnchor(grid,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 		setBottomAnchor(grid,0.);
-		
-		updateModel();  // Perform the calculations
 	}
 
 

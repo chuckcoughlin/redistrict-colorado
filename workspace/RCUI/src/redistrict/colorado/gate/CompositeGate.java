@@ -35,4 +35,5 @@ public class CompositeGate extends Gate {
 	public double getWeight() { return 0.; }
 	public GateType getType() { return GateType.COMPOSITE; }
 	public void setWeight(double weight) {}
+	public boolean useMaximum() { return true; }
 }

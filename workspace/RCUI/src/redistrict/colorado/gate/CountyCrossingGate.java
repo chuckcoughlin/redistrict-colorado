@@ -34,23 +34,5 @@ public class CountyCrossingGate extends Gate {
 	public double getWeight() { return Database.getInstance().getPreferencesTable().getWeight(PreferencesTable.COUNTY_CROSSING_WEIGHT_KEY);}
 	public GateType getType() { return GateType.COUNTY_CROSSINGS; }
 	public void setWeight(double weight) {Database.getInstance().getPreferencesTable().setWeight(PreferencesTable.COUNTY_CROSSING_WEIGHT_KEY,weight);}
-
-    /**
-     * Handle a click on the name text. Popup a dialog.
-     */
-    public class MouseEventHandler implements EventHandler<MouseEvent> {
-    	@Override public void handle(MouseEvent e) {
-    		/*
-    		if( e.getSource() instanceof Label ) {
-    			Label source = (Label)e.getSource();
-    			if(source.getUserData().toString().equals(NAME) ) {
-    				TextInputDialog dialog = new TextInputDialog(model.getName());
-    				dialog.setTitle("Plan Name Dialog");
-    				dialog.setHeaderText("Enter a unique name for the plan");
-    				dialog.setContentText("Name:");
-    			}
-    		}
-    		*/
-    	}
-    }
+	public boolean useMaximum() { return false; }
 }

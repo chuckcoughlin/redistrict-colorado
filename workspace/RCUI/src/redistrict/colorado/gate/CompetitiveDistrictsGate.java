@@ -30,4 +30,5 @@ public class CompetitiveDistrictsGate extends Gate {
 	public double getWeight() { return Database.getInstance().getPreferencesTable().getWeight(PreferencesTable.COMPETITIVENESS_WEIGHT_KEY);}
 	public GateType getType() { return GateType.COMPETIVENESS; }
 	public void setWeight(double weight) {Database.getInstance().getPreferencesTable().setWeight(PreferencesTable.COMPETITIVENESS_WEIGHT_KEY,weight);}
+	public boolean useMaximum() { return true; }
 }

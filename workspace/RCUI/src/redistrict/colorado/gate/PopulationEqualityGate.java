@@ -33,4 +33,5 @@ public class PopulationEqualityGate extends Gate {
 	public double getWeight() { return Database.getInstance().getPreferencesTable().getWeight(PreferencesTable.POPULATION_EQUALITY_WEIGHT_KEY);}
 	public GateType getType() { return GateType.POPULATION_EQUALITY; }
 	public void setWeight(double weight) {Database.getInstance().getPreferencesTable().setWeight(PreferencesTable.POPULATION_EQUALITY_WEIGHT_KEY,weight);}
+	public boolean useMaximum() { return false; }
 }

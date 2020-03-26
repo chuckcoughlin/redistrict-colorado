@@ -30,8 +30,8 @@ public class InfoDialog extends Dialog<Gate> {
 	private final ButtonType dismissButton;
 
 	public InfoDialog(Gate gate) {
-		setTitle(gate.getTitle());
-		setHeaderText("Computation Details");
+		setHeaderText(gate.getTitle());
+		setTitle("Computation Details");  // On top bar of window
 		setResizable(true);
 		
 		StackPane pane = new StackPane();

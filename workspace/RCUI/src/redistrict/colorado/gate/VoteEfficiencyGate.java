@@ -32,4 +32,5 @@ public class VoteEfficiencyGate extends Gate {
 	public double getWeight() { return Database.getInstance().getPreferencesTable().getWeight(PreferencesTable.VOTE_EFFICIENCY_WEIGHT_KEY);}
 	public GateType getType() { return GateType.VOTING_EFFICIENCY; }
 	public void setWeight(double weight) {Database.getInstance().getPreferencesTable().setWeight(PreferencesTable.VOTE_EFFICIENCY_WEIGHT_KEY,weight);}
+	public boolean useMaximum() { return false; }
 }
