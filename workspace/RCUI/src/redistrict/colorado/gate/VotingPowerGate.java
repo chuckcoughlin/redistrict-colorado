@@ -17,9 +17,8 @@ import redistrict.colorado.db.PreferencesTable;
  * 1% of each other.
  */
 public class VotingPowerGate extends Gate {
-	private final TextFlow info;
-	public VotingPowerGate() {
-		this.info = new TextFlow();
+	public TextFlow getInfo() { 
+		TextFlow info = new TextFlow();
 		Text t1 = new Text("We define voting power as the ability to elect a candidate of one's choosing. ");
 		Text t2 = new Text("Another way to state this is the ability to effect the outcome of one or more elections. ");
 		Text t3 = new Text("For a single district, this can be summarized by taking the margin of victory (in votes) and ");
@@ -35,8 +34,8 @@ public class VotingPowerGate extends Gate {
 		t12.setStyle("-fx-font-weight: bold");
 		Text t13 = new Text("."); 
 		info.getChildren().addAll(t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13);
+		return info;
 	}
-	public TextFlow getInfo() { return this.info; }
 	public String getTitle() { return "Voting Power"; } 
 	public double getWeight() { return Database.getInstance().getPreferencesTable().getWeight(PreferencesTable.VOTING_POWER_WEIGHT_KEY);}
 	public GateType getType() { return GateType.VOTING_POWER; }

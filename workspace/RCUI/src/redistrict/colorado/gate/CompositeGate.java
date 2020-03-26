@@ -15,9 +15,8 @@ import redistrict.colorado.core.GateType;
  * 1% of each other.
  */
 public class CompositeGate extends Gate {
-	private final TextFlow info;
-	public CompositeGate() {
-		this.info = new TextFlow();
+	public TextFlow getInfo() { 
+		TextFlow info = new TextFlow();
 		Text t1 = new Text(" Each of these scores will have vastly different ranges. For instance, compactness varies from 0 to 1, ");
 		Text t2 = new Text("while population imbalance could be in the tens of thousands. But we want each score to be \"weighed\" ");
 		Text t3 = new Text("about the same, or, rather, in proportion to where the sliders are set. So we have to get them all on ");
@@ -30,8 +29,8 @@ public class CompositeGate extends Gate {
 		Text t10= new Text("geometry/fairness slider is set (starting from left or right, depending on whether it's a geometry score ");
 		Text t11= new Text("or a fairness score). We then add these all together, and this gives us a final single-number score for a map." );
 		info.getChildren().addAll(t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11);
+		return info;
 	}
-	public TextFlow getInfo() { return this.info; }
 	public String getTitle() { return "Composite Score"; }
 	public double getWeight() { return 0.; }
 	public GateType getType() { return GateType.COMPOSITE; }

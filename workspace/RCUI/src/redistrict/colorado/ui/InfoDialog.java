@@ -6,23 +6,52 @@
  */
 package redistrict.colorado.ui;
 
-import javafx.scene.control.Alert;
-import javafx.scene.control.Label;
+import java.util.logging.Logger;
+
+import javafx.geometry.Pos;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
+import javafx.scene.layout.StackPane;
 import javafx.scene.text.TextFlow;
+import javafx.util.Callback;
+import redistrict.colorado.gate.Gate;
 
 /**
- * Display an info dialog with HTML content. 
+ * Display an info dialog with text content. 
  *   info = new InfoDialog(html)
  *   info.showAndWait()
  *
  */
-public class InfoDialog extends Alert {
-	//private final static String CLSS = "InfoDialog";
-	//private final static Logger LOGGER = Logger.getLogger(CLSS);
+public class InfoDialog extends Dialog<Gate> {
+	private final static String CLSS = "InfoDialog";
+	private final static Logger LOGGER = Logger.getLogger(CLSS);
+	private final double MAX_TEXT_WIDTH = 400.;
+	private final ButtonType dismissButton;
 
-	public InfoDialog(TextFlow text) {
-		super(AlertType.INFORMATION);
-		Label label = new Label(null,text);
-		this.graphicProperty().set(label);
+	public InfoDialog(Gate gate) {
+		setTitle(gate.getTitle());
+		setHeaderText("Computation Details");
+		setResizable(true);
+		
+		StackPane pane = new StackPane();
+		TextFlow text = gate.getInfo();
+		text.setMaxWidth(MAX_TEXT_WIDTH);
+		pane.getChildren().add(text);
+		StackPane.setAlignment(text, Pos.CENTER);
+		getDialogPane().setContent(pane);
+		
+		dismissButton = new ButtonType("Dismiss",ButtonData.CANCEL_CLOSE);
+		getDialogPane().getButtonTypes().add(dismissButton);
+
+		// We never return anything useful from this dialog
+		setResultConverter(new Callback<ButtonType, Gate>() {
+		    @Override
+		    public Gate call(ButtonType b) {
+		    	return null;
+		    }
+		});
 	}
+	
+	
 }

@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
@@ -20,6 +21,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.GateType;
@@ -54,7 +56,7 @@ public abstract class Gate extends VBox {
 		super(0.);     // No spacing
 		this.hub = EventBindingHub.getInstance();
 		this.header = new Label(getTitle());
-		this.infoDialog = new InfoDialog(getInfo());
+		this.infoDialog = new InfoDialog(this);
 		this.resultsDialog = new ComparisonResultsDialog(this);
 		this.xAxis = new NumberAxis();
         this.yAxis = new CategoryAxis();
@@ -85,6 +87,14 @@ public abstract class Gate extends VBox {
 		getChildren().addAll(body);	
 	}
 	protected BarChart<Number,String> getChart() { return this.chart; }
+	protected Node getResultsContents() { 
+		StackPane node =  new StackPane(); 
+		Text text = new Text("Unimplemented");
+		TextFlow flow = new TextFlow();
+		flow.getChildren().addAll(text);
+		node.getChildren().add(flow);
+		return node;
+	}
 	
 	public abstract TextFlow getInfo();  // Display in "info" box.
 	public abstract String getTitle();
@@ -96,6 +106,7 @@ public abstract class Gate extends VBox {
 	}
 	
 	public void showDialog() {
+		infoDialog.initOwner(getScene().getWindow());
         infoDialog.showAndWait();
     }
 	
@@ -103,6 +114,7 @@ public abstract class Gate extends VBox {
 		@Override
 		public void handle(MouseEvent arg0) {
 			LOGGER.info("ChartclickedHandler: CLICKED");
+			resultsDialog.initOwner(getScene().getWindow());
 			resultsDialog.showAndWait();
 		}	
 	}

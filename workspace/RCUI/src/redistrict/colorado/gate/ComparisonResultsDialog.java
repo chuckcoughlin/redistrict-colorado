@@ -8,14 +8,11 @@ package redistrict.colorado.gate;
 
 import java.util.logging.Logger;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.geometry.HPos;
-import javafx.geometry.Insets;
-import javafx.scene.control.Button;
+import javafx.scene.Node;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
-import javafx.scene.layout.FlowPane;
-import redistrict.colorado.ui.ComponentIds;
+import javafx.util.Callback;
 
 /**
  * Display this dialog by clicking on the bar chart. It only makes sense once the
@@ -24,32 +21,24 @@ import redistrict.colorado.ui.ComponentIds;
 public class ComparisonResultsDialog extends Dialog<Gate> {
 	private final static String CLSS = "ComparisonResultsDialog";
 	private final static Logger LOGGER = Logger.getLogger(CLSS);
-	private final FlowPane root;
-	private final Button dismissButton;
-	
+	private final ButtonType dismissButton;
+
 	public ComparisonResultsDialog(Gate gate) {
-		
 		this.setTitle(gate.getTitle());
-		this.setHeaderText("Header text");
-		this.dismissButton= new Button("Dismiss");
-		dismissButton.setDisable(false);
-		dismissButton.setId(ComponentIds.BUTTON_CANCEL);
-		dismissButton.setOnAction(new EventHandler<ActionEvent>() {
+		this.setHeaderText("Comparison Result Details");
+
+		Node pane = gate.getResultsContents();
+		getDialogPane().setContent(pane);
+
+		dismissButton = new ButtonType("Dismiss",ButtonData.CANCEL_CLOSE);
+		getDialogPane().getButtonTypes().add(dismissButton);
+
+		// We never return anything useful from this dialog
+		setResultConverter(new Callback<ButtonType, Gate>() {
 			@Override
-			public void handle(ActionEvent event) {
-				close();
+			public Gate call(ButtonType b) {
+				return null;
 			}
 		});
-
-	    
-	    
-	    this.root = new FlowPane();
-	    FlowPane root = new FlowPane();
-	    root.setPadding(new Insets(10));
-	    root.setHgap(10);
-	    root.setPrefWrapLength(500);
-	    root.setColumnHalignment(HPos.RIGHT); 
-	    root.getChildren().addAll(dismissButton);
-        getDialogPane().setContent(root);
 	}
 }
