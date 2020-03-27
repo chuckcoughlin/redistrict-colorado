@@ -13,12 +13,30 @@
   -fx-padding: 2px;
 }
 .button{
-  -fx-background-color: transparent;
+  -fx-background-color: -ma-light-background;
+}
+.dialog-pane .button {
+ -fx-font-family: 'Open Sans', sans-serif; 
+-fx-font-size: 14;
+-fx-text-fill: #55595c;
+-fx-background-color: #d0d0d0;
 }
 .menu {
 	-fx-font-weight: bold;
 }
+.table-view {
+    -fx-border-color: mediumgray ;
+    -fx-box-border: mediumgray;
+}
 /* ======== Custom Classes ======= */
+.bordered-grid {
+	-fx-padding: 10; 
+   -fx-border-style: solid inside;
+   -fx-border-width: 1;
+   -fx-border-insets: 3; 
+   -fx-border-radius: 3;
+}
+
 .graph-box {
 	-fx-background-color:-ma-light-background; 
 	-fx-alignment: center;
@@ -103,6 +121,7 @@
 	-fx-pref-width: 800;
 	-fx-max-width:4000;
 }
+
 /* ======== By Component ID ======= */
 #ButtonAdd {
 	-fx-background-color:-ma-light-background;
@@ -123,7 +142,10 @@
 	 -fx-border-radius: 3;
 }
 #ButtonDown {
-	 fx-background-color:-ma-light-background;
+	 -fx-background-color:-ma-light-background;
+}
+#ButtonInfo {
+	-fx-background-color: transparent;
 }
 #ButtonMetrics, #ButtonCancel {
 	-fx-background-color:-ma-button-background;

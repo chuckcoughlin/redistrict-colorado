@@ -1,5 +1,4 @@
 /**  
-
  * Copyright (C) 2019 Charles Coughlin
  * 
  * This program is free software; you may redistribute it and/or

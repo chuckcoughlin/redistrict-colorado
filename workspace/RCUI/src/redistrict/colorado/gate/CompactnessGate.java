@@ -9,6 +9,13 @@ package redistrict.colorado.gate;
 import java.util.Collections;
 import java.util.List;
 
+import javafx.geometry.HPos;
+import javafx.scene.Node;
+import javafx.scene.control.Label;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import redistrict.colorado.core.GateType;
@@ -16,12 +23,17 @@ import redistrict.colorado.core.PlanFeature;
 import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.db.PreferencesTable;
+import redistrict.colorado.ui.UIConstants;
 
 /**
  * Compare plans based on the compactness of the districts.
  */
 public class CompactnessGate extends Gate {
-
+	// For the results popup
+	private final static double GRID0_WIDTH = 80.;    // Grid widths
+	private final Label headerLabel = new Label("Compactness Results");
+	private final Label detailLabel = new Label("Isoperimetric Quotients");
+	
 	public TextFlow getInfo() { 
 		TextFlow info = new TextFlow();
 		Text t1 = new Text("To measure compactness, we calculate the ");
@@ -45,7 +57,7 @@ public class CompactnessGate extends Gate {
  	/**
 	 * Compute composite the isoperimetric quotient for each plan. 
 	 * The list of plans will be sorted in place by score, best score
-	 * is first.
+	 * is first. Save the details for each feature for viewing in the popup.
 	 */
 	@Override
 	public void evaluate(List<PlanModel> plans) {
@@ -62,6 +74,42 @@ public class CompactnessGate extends Gate {
 		sortedPlans.clear();
 		sortedPlans.addAll(plans);
 		updateChart();
+	}
+	// Create contents that allow viewing the details of the calculation
+	@Override
+	protected Node getResultsContents() { 
+		AnchorPane pane =  new AnchorPane(); 
+		pane.getChildren().add(headerLabel);
+		
+		GridPane grid = new GridPane();
+		grid.setHgap(10);
+        grid.setVgap(4);
+		ColumnConstraints cc = new ColumnConstraints(GRID0_WIDTH);
+		cc.setHalignment(HPos.LEFT);
+
+		grid.getColumnConstraints().addAll(cc); 
+		grid.add(new Label("Plan"),0, 0);
+		grid.add(new Label("Score"),0, 1);
+		int i = 1;
+		for(PlanModel plan:sortedPlans ) {
+			grid.add(new Label(plan.getName()),i,0);
+			grid.add(new Label(String.valueOf(scoreMap.get(plan.getId()))),i,1);
+			i++;
+		}
+		grid.getStyleClass().add("bordered-grid");
+		
+		pane.getChildren().add(grid);
+		pane.getChildren().add(detailLabel);
+		
+		AnchorPane.setRightAnchor(headerLabel,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+		AnchorPane.setTopAnchor(headerLabel,0.);
+		AnchorPane.setLeftAnchor(headerLabel,UIConstants.LIST_PANEL_LEFT_MARGIN);
+		AnchorPane.setRightAnchor(grid,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+		AnchorPane.setTopAnchor(grid,UIConstants.BUTTON_PANEL_HEIGHT);
+		AnchorPane.setLeftAnchor(grid,UIConstants.LIST_PANEL_LEFT_MARGIN);
+		AnchorPane.setRightAnchor(detailLabel,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+		AnchorPane.setLeftAnchor(detailLabel,UIConstants.LIST_PANEL_LEFT_MARGIN);
+		return pane;
 	}
 
 }

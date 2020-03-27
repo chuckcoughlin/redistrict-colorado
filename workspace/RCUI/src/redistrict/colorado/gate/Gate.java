@@ -34,6 +34,7 @@ import javafx.scene.text.TextFlow;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.GateType;
 import redistrict.colorado.core.PlanModel;
+import redistrict.colorado.ui.ComponentIds;
 import redistrict.colorado.ui.GuiUtil;
 import redistrict.colorado.ui.InfoDialog;
 
@@ -51,7 +52,6 @@ public abstract class Gate extends VBox {
 	private static final double CHART_WIDTH = 150.;
 	private final Label header;
 	private final Button info;
-	private final ComparisonResultsDialog resultsDialog;
 	private final InfoDialog infoDialog;
 	private final StackPane body;
 	protected final NumberAxis xAxis;
@@ -69,7 +69,6 @@ public abstract class Gate extends VBox {
 		this.sortedPlans = new ArrayList<>();
 		this.header = new Label(getTitle());
 		this.infoDialog = new InfoDialog(this);
-		this.resultsDialog = new ComparisonResultsDialog(this);
 		this.xAxis = new NumberAxis();
         this.yAxis = new CategoryAxis();
         yAxis.setVisible(false);
@@ -88,6 +87,7 @@ public abstract class Gate extends VBox {
 	        	showDialog(); 
 	        }
 	    } );
+		info.setId(ComponentIds.BUTTON_INFO);
 		this.body = new StackPane();
 		body.setAlignment(Pos.CENTER);
 		rectangle = new Rectangle(WIDTH,HEIGHT);
@@ -127,8 +127,8 @@ public abstract class Gate extends VBox {
 	public class ChartClickedHandler implements EventHandler<MouseEvent> {
 		@Override
 		public void handle(MouseEvent arg0) {
-			LOGGER.info("ChartclickedHandler: CLICKED");
-			resultsDialog.initOwner(getScene().getWindow());
+			ComparisonResultsDialog resultsDialog = new ComparisonResultsDialog(Gate.this);
+			resultsDialog.initOwner(Gate.this.getScene().getWindow());
 			resultsDialog.showAndWait();
 		}	
 	}
@@ -143,30 +143,39 @@ public abstract class Gate extends VBox {
 	    }
 	};
 	
+	// Set the bar size to be around 20
+	// This was developed purely by cut and try
+	// The chart is made up of series, one bar each
+	private void setBarWidth(int nbars) {
+		double barGap  = 5.;
+		chart.setBarGap(barGap);
+		chart.setCategoryGap(80.-nbars*10.);
+	}
+	
+	// Update the bars based on computations
 	protected void updateChart() {
-		int index = 0;
 		chart.getData().clear();  // Remove existing series.
+		setBarWidth(sortedPlans.size());
 
+		int index = 1;
 		for(PlanModel model:sortedPlans) {
-		    XYChart.Series<Number,String> series = new XYChart.Series<Number,String>();
-		    index++;
-		    series.setName(String.valueOf(index));
-		    
-		    XYChart.Data<Number,String> data = new XYChart.Data<Number,String> (scoreMap.get(model.getId()),model.getName());
+			XYChart.Series<Number,String> series = new XYChart.Series<Number,String>();
+			series.setName(String.valueOf(index));
+		    XYChart.Data<Number,String> data = new XYChart.Data<Number,String> (scoreMap.get(model.getId()),"");
 		    Color c = model.getFill();
 		    String style = String.format("-fx-bar-fill: rgb(%d,%d,%d);", (int)(c.getRed()*255),(int)(c.getGreen()*255),(int)(c.getBlue()*255));
 		    data.nodeProperty().addListener(new ChangeListener<Node>() {
 		    	  @Override public void changed(ObservableValue<? extends Node> ov, Node oldNode, Node newNode) {
 		    		 LOGGER.info(String.format("%s.updateChart: bar style = %s",CLSS,style));
 		    	    if (newNode != null) {
-		    	      newNode.setStyle(style);  
+		    	      newNode.setStyle(style); 
 		    	    }
 		    	  }
 		    	});
 		    series.getData().add(data);
+		    index++;
 		    chart.getData().add(series);
 		}
-
 		
 		LOGGER.info("Gate.updateChart: complete.");
 	}

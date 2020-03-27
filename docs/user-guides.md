@@ -47,7 +47,9 @@ plan comparison page.
 The sections below describe calculations made for each of the comparison metrics. These are largely described in the application's
 comparison screen by selection of the appropriate blue "information" icon.
 
-`Compactness`
+`Compactness:`
+  To measure compactness, we calculate the *Isoperimetric Quotient*
+  of each district. This is obtained by dividing its area by the square of the length of its perimeter. In order to obtain a grand total, we average the reciprocals of these for all districts and then take the reciprocal of that. This gives us a weighted average. We want this score to be maximized.
 
 `Population Equality`
 

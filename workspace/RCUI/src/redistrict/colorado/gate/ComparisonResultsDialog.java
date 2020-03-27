@@ -24,8 +24,8 @@ public class ComparisonResultsDialog extends Dialog<Gate> {
 	private final ButtonType dismissButton;
 
 	public ComparisonResultsDialog(Gate gate) {
-		this.setTitle(gate.getTitle());
-		this.setHeaderText("Comparison Result Details");
+		this.setHeaderText(gate.getTitle());
+		this.setTitle("Comparison Result Details");
 
 		Node pane = gate.getResultsContents();
 		getDialogPane().setContent(pane);
