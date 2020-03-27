@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -21,7 +23,6 @@ import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
@@ -30,7 +31,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-import javafx.util.Callback;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.GateType;
 import redistrict.colorado.core.PlanModel;
@@ -145,6 +145,7 @@ public abstract class Gate extends VBox {
 	
 	protected void updateChart() {
 		int index = 0;
+		chart.getData().clear();  // Remove existing series.
 
 		for(PlanModel model:sortedPlans) {
 		    XYChart.Series<Number,String> series = new XYChart.Series<Number,String>();
@@ -154,7 +155,14 @@ public abstract class Gate extends VBox {
 		    XYChart.Data<Number,String> data = new XYChart.Data<Number,String> (scoreMap.get(model.getId()),model.getName());
 		    Color c = model.getFill();
 		    String style = String.format("-fx-bar-fill: rgb(%d,%d,%d);", (int)(c.getRed()*255),(int)(c.getGreen()*255),(int)(c.getBlue()*255));
-		    if(data.getNode()!=null) data.getNode().setStyle(style);
+		    data.nodeProperty().addListener(new ChangeListener<Node>() {
+		    	  @Override public void changed(ObservableValue<? extends Node> ov, Node oldNode, Node newNode) {
+		    		 LOGGER.info(String.format("%s.updateChart: bar style = %s",CLSS,style));
+		    	    if (newNode != null) {
+		    	      newNode.setStyle(style);  
+		    	    }
+		    	  }
+		    	});
 		    series.getData().add(data);
 		    chart.getData().add(series);
 		}
