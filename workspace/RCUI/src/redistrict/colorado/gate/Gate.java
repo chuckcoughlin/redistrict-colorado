@@ -21,6 +21,7 @@ import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
@@ -29,6 +30,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import javafx.util.Callback;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.GateType;
 import redistrict.colorado.core.PlanModel;
@@ -74,6 +76,7 @@ public abstract class Gate extends VBox {
         this.chart = new BarChart<Number,String>(xAxis,yAxis);
         chart.setPrefWidth(CHART_WIDTH);
         chart.setPrefHeight(CHART_HEIGHT);
+        chart.setLegendVisible(false);
         chart.setOnMouseClicked(new ChartClickedHandler ());
        
 		header.setAlignment(Pos.CENTER);
@@ -142,11 +145,7 @@ public abstract class Gate extends VBox {
 	
 	protected void updateChart() {
 		int index = 0;
-		chart = new BarChart<Number,String>(xAxis,yAxis);
-        chart.setPrefWidth(CHART_WIDTH);
-        chart.setPrefHeight(CHART_HEIGHT);
-        chart.setOnMouseClicked(new ChartClickedHandler ());
-        
+
 		for(PlanModel model:sortedPlans) {
 		    XYChart.Series<Number,String> series = new XYChart.Series<Number,String>();
 		    index++;
@@ -159,8 +158,8 @@ public abstract class Gate extends VBox {
 		    series.getData().add(data);
 		    chart.getData().add(series);
 		}
-		body.getChildren().clear();
-		body.getChildren().addAll(rectangle,chart,header,info);
+
+		
 		LOGGER.info("Gate.updateChart: complete.");
 	}
 }

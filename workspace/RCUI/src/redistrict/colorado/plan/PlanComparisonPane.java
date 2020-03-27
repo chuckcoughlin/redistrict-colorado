@@ -87,16 +87,7 @@ public class PlanComparisonPane extends BasicRightSideNode {
 		RowConstraints row2 = new RowConstraints();
 		row2.setPercentHeight(30.);
 		grid.getRowConstraints().addAll(row0,row1,row2); 
-			
-		grid.add(new PopulationEqualityGate(),0, 0);  // column row
-		grid.add(new CompactnessGate(), 1, 0);
-		grid.add(new ContiguousGate(), 2, 0);
-		grid.add(new VotingPowerGate(), 0, 1);
-		grid.add(new ProportionalityGate(), 1, 1);
-		grid.add(new CompetitiveDistrictsGate(), 2, 1);
-		grid.add(new VoteEfficiencyGate(), 0, 2);
-		grid.add(new CountyCrossingGate(), 1, 2);
-		grid.add(new CompositeGate(), 2, 2);
+		populateGrid();
 		GridPane.setMargin(grid,new Insets(20,0,0,0));  // top right bottom left
 	
 		getChildren().add(grid);
@@ -106,11 +97,27 @@ public class PlanComparisonPane extends BasicRightSideNode {
 		setBottomAnchor(grid,0.);
 	}
 
+	// Place gates from the GateCache into the grid.
+	private void populateGrid() {
+		GateCache cache = GateCache.getInstance();
+		grid.getChildren().clear();
+		grid.add(cache.getGate(GateType.POPULATION_EQUALITY),0, 0);  // column row
+		grid.add(cache.getGate(GateType.COMPACTNESS), 1, 0);
+		grid.add(cache.getGate(GateType.CONTIGUITY), 2, 0);
+		grid.add(cache.getGate(GateType.VOTING_POWER), 0, 1);
+		grid.add(cache.getGate(GateType.PROPORTIONALITY), 1, 1);
+		grid.add(cache.getGate(GateType.COMPETIVENESS), 2, 1);
+		grid.add(cache.getGate(GateType.VOTING_EFFICIENCY), 0, 2);
+		grid.add(cache.getGate(GateType.COUNTY_CROSSINGS), 1, 2);
+		grid.add(cache.getGate(GateType.COMPOSITE), 2, 2);
+	}
 
+	/**
+	 * We use the cache to make sure we are dealing with the same objects.
+	 */
 	@Override
 	public void updateModel() {
 		models = EventBindingHub.getInstance().getActivePlans();
-		
 		for(Gate gate:GateCache.getInstance().getBasicGates()) {
 			gate.evaluate(models);
 		}
