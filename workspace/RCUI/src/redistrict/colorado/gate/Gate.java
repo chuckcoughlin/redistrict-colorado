@@ -149,7 +149,7 @@ public abstract class Gate extends VBox {
 	private void setBarWidth(int nbars) {
 		double barGap  = 5.;
 		chart.setBarGap(barGap);
-		chart.setCategoryGap(80.-nbars*10.);
+		chart.setCategoryGap(120.-nbars*20.);
 	}
 	
 	// Update the bars based on computations

@@ -12,6 +12,7 @@ package redistrict.colorado.ui;
  */
 public interface ComponentIds {
 	
+	public final static String BORDERED_CELL 	= "BorderedCell";
 	public final static String BUTTON_ADD 		= "ButtonAdd";
 	public final static String BUTTON_ANALYZE   = "ButtonAnalyze";
 	public final static String BUTTON_CANCEL 	= "ButtonCancel";

@@ -24,17 +24,22 @@
 .menu {
 	-fx-font-weight: bold;
 }
+.table-cell {
+     -fx-border-color: lightgrey ;
+     -fx-border-width: 1;
+}
+
 .table-view {
-    -fx-border-color: mediumgray ;
-    -fx-box-border: mediumgray;
+    -fx-border-color: lightgrey ;
+    -fx-box-border: lightgrey;
 }
 /* ======== Custom Classes ======= */
 .bordered-grid {
 	-fx-padding: 10; 
-   -fx-border-style: solid inside;
-   -fx-border-width: 1;
-   -fx-border-insets: 3; 
-   -fx-border-radius: 3;
+	-fx-border-style: solid inside;
+	-fx-border-width: 1;
+	-fx-border-insets: 3; 
+	-fx-border-radius: 3;
 }
 
 .graph-box {
@@ -137,6 +142,11 @@
 	-fx-border-radius: 4;
 	-fx-pref-height: 28;
 	-fx-max-height:28;
+}
+#BorderedCell {
+	-fx-border-color: black; 
+	-fx-border-style: solid inside;
+	-fx-border-width: 1;
 }
 #ButtonDelete {
 	 -fx-border-radius: 3;
