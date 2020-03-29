@@ -49,7 +49,7 @@ comparison screen by selection of the appropriate blue "information" icon.
 
 `Compactness:`
   To measure compactness, we calculate the *Isoperimetric Quotient*
-  of each district. This is obtained by dividing its area by the square of its perimeter. We then normalize by dividing by 0.07216878, the quotient of a hexagon, a theoretical optimum honeycomb shape. In order to obtain a grand total, we average the reciprocals of these for all districts and then take the reciprocal of that. This gives us a weighted average. We want this score to be maximized.
+  of each district. This is obtained by dividing its area by the square of its perimeter. We then normalize by dividing by 0.07216878, the quotient for a hexagonal shape, a theoretical optimum honeycomb shape. In order to obtain a grand total, we average the reciprocals of these for all districts and then take the reciprocal of that. This gives us a weighted average. We want this score to be maximized.
 
   The normalization step guarantees that the final score is in the range 0-1.
 
@@ -58,6 +58,29 @@ comparison screen by selection of the appropriate blue "information" icon.
 `Composite`
 
 ### Datasets
+
+![Datasets](/images/application_datasets.png)
+
+The following screen show the Dataset context in a state just after
+pressing the "Edit" button for one of its entries.
+
+```                  Dataset List     ```
+
+On the right side, are components which allow us to change the properties of a dataset, its name, description, shapefile path and role. The role refers to the usage of the dataset in evaluation of a plan.
+  * BOUNDARIES - defines the plan itself. It specifies
+  the geometry of the district boundaries.
+  * DEMOGRAPHICS - lists population counts both totals and by race
+  within the overall plan boundaries. The boundaries of areas
+  for which counts are tallied will almost certainly NOT coincide
+  with the district boundaries.
+  * AFFILIATION - as with the previous, datasets of this type are
+  used to evaluate plans. Counts in this type of dataset reflect
+  party affiliations.
+
+In the figure above, the dataset had already been saved, at least once. Notice how the rows in its attribute list have been sorted
+by rank. This is also the order in which columns are ordered in
+the detail screen.
+
 ##### Feature Attribute Aliases
 Within a shapefile, a feature corresponds to a geographical area and is represented by a polygon in latitude/longitude units. Features have an arbitrary set of attributes depending on the purpose of the file. There is no naming standard for these attributes. In order to correlate features from different layers we have adopted a set of standard names which are assigned by the user of
  *RCAnalyzer*. These are:
