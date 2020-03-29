@@ -12,8 +12,6 @@ package redistrict.colorado.ui;
 public interface UIConstants {
 	public final static double BUTTON_PANEL_HEIGHT  = 40.;
 	public final static double DETAIL_HEADER_SPACING= 60.;
-	public static final double FEATURE_TABLE_HEIGHT = 600; // Preferred
-	public static final double FEATURE_TABLE_WIDTH  = 600; 
 	public static final double FRAME_HEIGHT = 600; 
 	public final static double LIST_PANEL_LEFT_MARGIN  = 2.;
 	public final static double LIST_PANEL_RIGHT_MARGIN = 2.;
@@ -37,5 +35,6 @@ public interface UIConstants {
 	public static final String LIST_CELL_ICON_CLASS = "list-cell-icon";
 	public static final String LIST_CELL_FONT = "Arial";
     
+	public final static double TABLE_ROW_HEIGHT = 40.;   
 	public final static long UNSET_KEY = -1;         // Indicator for no key selected
 }

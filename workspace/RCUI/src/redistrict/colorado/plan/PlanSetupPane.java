@@ -22,7 +22,6 @@ import javafx.scene.control.TableView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import javafx.util.Pair;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.AnalysisModel;
 import redistrict.colorado.core.DatasetModel;
@@ -50,6 +49,8 @@ public class PlanSetupPane extends BasicRightSideNode
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private final static double COL0_WIDTH = 100.;    // margin
 	private final static double COL1_WIDTH = 400.;
+	private final double SETUP_TABLE_HEIGHT = 200.; // Preferred
+	private final double SETUP_TABLE_WIDTH  = 200.; 
 	private final static double TABLE_OFFSET_TOP = 150.;
 	private Label headerLabel = new Label("Analysis Setup");
 	private final SavePane savePane = new SavePane(this);
@@ -83,7 +84,7 @@ public class PlanSetupPane extends BasicRightSideNode
         
 		table = new TableView<Gate>();
 		table.setEditable(true);
-		table.setPrefSize(UIConstants.FEATURE_TABLE_WIDTH, UIConstants.FEATURE_TABLE_HEIGHT);
+		//table.setPrefSize(SETUP_TABLE_WIDTH,SETUP_TABLE_HEIGHT);
 		table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
 		
         grid = new GridPane();
@@ -130,9 +131,9 @@ public class PlanSetupPane extends BasicRightSideNode
 
 		getChildren().add(table);
 		setTopAnchor(table,TABLE_OFFSET_TOP);
-		setLeftAnchor(table,UIConstants.LIST_PANEL_LEFT_MARGIN);
+		setLeftAnchor(table,4*UIConstants.LIST_PANEL_LEFT_MARGIN);
 		setRightAnchor(table,UIConstants.LIST_PANEL_RIGHT_MARGIN);
-		setBottomAnchor(table,UIConstants.BUTTON_PANEL_HEIGHT);
+		setBottomAnchor(table,4*UIConstants.BUTTON_PANEL_HEIGHT);
 		getChildren().add(savePane);
 		setLeftAnchor(savePane,UIConstants.LIST_PANEL_LEFT_MARGIN);
 		setRightAnchor(savePane,UIConstants.LIST_PANEL_RIGHT_MARGIN);

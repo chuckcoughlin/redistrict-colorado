@@ -28,9 +28,8 @@
      -fx-border-color: lightgrey ;
      -fx-border-width: 1;
 }
-
-.table-view {
-    -fx-border-color: lightgrey ;
+.table-view .column-header {
+    -fx-border-color: darkgray ;
     -fx-box-border: lightgrey;
 }
 /* ======== Custom Classes ======= */
@@ -182,4 +181,7 @@
 	-fx-border-radius: 4;
 	-fx-pref-height: 24;
 	-fx-max-height:24;
+}
+#LabelScore {
+	-fx-font-size: 10pt;
 }

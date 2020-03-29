@@ -76,7 +76,7 @@ public class PlanConfigurationPane extends BasicRightSideNode implements EventHa
 	    tt = new Tooltip("Define the color that identifies this plan in the bar charts showing results.");
 	    Tooltip.install(fillLabel, tt);
         this.colorPicker = new ColorPicker();
-        colorPicker.getStyleClass().add("button"); 
+        colorPicker.getStyleClass().add("text-field"); 
         
         this.grid = new GridPane();
         grid.setHgap(10);

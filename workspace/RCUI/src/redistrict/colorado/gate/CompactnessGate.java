@@ -12,13 +12,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javafx.geometry.HPos;
-import javafx.geometry.Pos;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import redistrict.colorado.core.GateType;
@@ -35,15 +35,16 @@ import redistrict.colorado.ui.UIConstants;
  */
 public class CompactnessGate extends Gate {
 	// For the results popup
-	private final static double GRID0_WIDTH = 80.;    // Grid widths
-	private final static double DETAIL_GRID_HEIGHT = 110.;
-	private final static double DETAIL_LABEL_HEIGHT = 80.; 
+	private final static double DIALOG_HEIGHT = 500.; 
+	private final static double DIALOG_WIDTH = 600.;
 	private final double HEX_QUOTIENT = 0.07216878;   // 3*SQRT(3)/72
-	private final Label detailLabel = new Label("Isoperimetric Quotients");
+	private final Label detailLabel = new Label("Normalized Isoperimetric Quotients by District:");
 	private final Map<Long,List<NameValue>> districtScores; 
 	
 	public CompactnessGate() {
 		this.districtScores = new HashMap<>();
+		xAxis.setUpperBound(0.5);
+		xAxis.setAutoRanging(false);
 	}
 	
 	public TextFlow getInfo() { 
@@ -52,12 +53,13 @@ public class CompactnessGate extends Gate {
 		Text t2 = new Text("Isoperimetric Quotient");
 		t2.setStyle("-fx-font-style: italic");
 		Text t3 = new Text(". This is obtained by dividing the area by the square of the length of the perimeter. ");
-		Text t4 = new Text("In order to obtain a grand total, we add together the reciprocals of this for each district,");
-		Text t5 = new Text("and then take the reciprocal of that. This gives us a weighted average. We want this score to be ");
-		Text t6 = new Text("maximized");
+		Text t4 = new Text(". We then normalize by dviding by the quotient for a hexagon, leaving the theoretical maximum at 1.0. ");
+		Text t5 = new Text("In order to obtain a grand total, we add together the reciprocals of this for each district,");
+		Text t6 = new Text("and then take the reciprocal of that. This gives us a weighted average. We want this score to be ");
+		Text t7 = new Text("maximized");
 		t6.setStyle("-fx-font-weight: bold");
-		Text t7 = new Text(".");
-		info.getChildren().addAll(t1,t2,t3,t4,t5,t6,t7);
+		Text t8 = new Text(".");
+		info.getChildren().addAll(t1,t2,t3,t4,t5,t6,t7,t8);
 		return info;
 	}
 
@@ -95,59 +97,83 @@ public class CompactnessGate extends Gate {
 	// Create contents that allow viewing the details of the calculation
 	@Override
 	protected Node getResultsContents() { 
-		AnchorPane pane =  new AnchorPane(); 
-		
-		GridPane grid = new GridPane();
-		grid.setHgap(10);
-        grid.setVgap(4);
-		ColumnConstraints cc = new ColumnConstraints(GRID0_WIDTH);
-		cc.setHalignment(HPos.LEFT);
+		VBox pane =  new VBox(10);
+		pane.setPrefSize(DIALOG_WIDTH, DIALOG_HEIGHT);
+		pane.setFillWidth(true);
 
-		grid.getColumnConstraints().addAll(cc); 
-		grid.add(new Label("Plan"),0, 0);
-		grid.add(new Label("Score"),0, 1);
-		int i = 1;
+		// Aggregate table
+		TableView<NameValue> aggregateTable = new TableView<>();
+		double height = UIConstants.TABLE_ROW_HEIGHT*(1.5+sortedPlans.size());
+		aggregateTable.setPrefSize(AGGREGATE_TABLE_WIDTH, height);
+		aggregateTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+		
+		TableColumn<NameValue,String> column;
+		NameValueCellValueFactory factory = new NameValueCellValueFactory();
+		column = new TableColumn<>("Plan");
+		column.setCellValueFactory(factory);
+		column.prefWidthProperty().bind(aggregateTable.widthProperty().multiply(0.5));
+		aggregateTable.getColumns().add(column);
+		column = new TableColumn<>("Score");
+		column.setCellValueFactory(factory);
+		column.prefWidthProperty().bind(aggregateTable.widthProperty().multiply(0.5));
+		aggregateTable.getColumns().add(column);
+		ObservableList<NameValue> aitems = FXCollections.observableArrayList();
 		for(PlanModel plan:sortedPlans ) {
-			Label nameLabel = new Label(plan.getName());	
-			grid.add(nameLabel,i,0);
-			grid.add(new Label(String.valueOf(scoreMap.get(plan.getId()))),i,1);
-			i++;
+			// There is a single row containing the overall score
+			aitems.add(new NameValue(plan.getName(),scoreMap.get(plan.getId())));
 		}
-		grid.getStyleClass().add("bordered-grid");
-		pane.getChildren().add(grid);
+		aggregateTable.setItems(aitems);
+		pane.getChildren().add(aggregateTable);
 		
-		AnchorPane.setRightAnchor(grid,UIConstants.LIST_PANEL_RIGHT_MARGIN);
-		AnchorPane.setTopAnchor(grid,0.);
-		AnchorPane.setLeftAnchor(grid,UIConstants.LIST_PANEL_LEFT_MARGIN);
-		
+		detailLabel.setId(ComponentIds.LABEL_SCORE);
 		pane.getChildren().add(detailLabel);
-		grid = new GridPane();
-		grid.setHgap(10);
-        grid.setVgap(4);
-        int iplan = 0;
+		
+		// Detail table
+		TableView<List<NameValue>> detailTable = new TableView<>();
+		TableColumn<List<NameValue>,String> col;
+		TableColumn<List<NameValue>,String> subcol;
+		NameValueListCellValueFactory fact = new NameValueListCellValueFactory();
+		
+		int colno = 0;
+		int maxrows = 0;  // Max districts among plans
 		for(PlanModel plan:sortedPlans ) {
-			Label nameLabel = new Label(plan.getName());
-			nameLabel.setId(ComponentIds.BORDERED_CELL);
-			grid.add(nameLabel,iplan,0,2,1);
-			List<NameValue> quotients = districtScores.get(plan.getId());
-			int row = 1;
-			for(NameValue nv:quotients) {
-				nameLabel = new Label(nv.getName());	
-				grid.add(nameLabel,2*iplan,row);
-				Label valueLabel = new Label(String.valueOf(nv.getValue()));
-				grid.add(valueLabel,2*iplan+1,row);
-				row++;
-			}
-			iplan++;
+			int ndistricts = districtScores.get(plan.getId()).size();
+			if(ndistricts>maxrows) maxrows = ndistricts;
+			// These columns have no cells, just sub-columns.
+			col = new TableColumn<>(plan.getName());
+			col.setPrefWidth(DIALOG_WIDTH);
+			detailTable.getColumns().add(col);
+			subcol = new TableColumn<>("Name");
+			subcol.setCellValueFactory(fact);
+			subcol.setUserData(colno);
+			subcol.prefWidthProperty().bind(column.widthProperty().multiply(0.5));
+			col.getColumns().add(subcol);
+			subcol = new TableColumn<>("IsoQuotient");
+			subcol.setCellValueFactory(fact);
+			subcol.prefWidthProperty().bind(column.widthProperty().multiply(0.5));
+			subcol.setUserData(colno);
+			col.getColumns().add(subcol);
+			colno++;
 		}
-        pane.getChildren().add(grid);
+		
+		ObservableList<List<NameValue>> ditems = FXCollections.observableArrayList();
+		for( int row=0;row<maxrows;row++ ) {
+			List<NameValue> values = new ArrayList<>();
+			for(PlanModel plan:sortedPlans ) {
+				List<NameValue> scores = districtScores.get(plan.getId());
+				if(scores.size()>row ) {
+					values.add(scores.get(row));
+				}
+				else {
+					values.add(NameValue.EMPTY);
+				}
+			}
+			ditems.add(values);
+		}
+		
+		detailTable.setItems(ditems);
+		pane.getChildren().add(detailTable);
 
-		AnchorPane.setRightAnchor(detailLabel,UIConstants.LIST_PANEL_RIGHT_MARGIN);
-		AnchorPane.setTopAnchor(detailLabel,DETAIL_LABEL_HEIGHT);
-		AnchorPane.setLeftAnchor(detailLabel,UIConstants.LIST_PANEL_LEFT_MARGIN);
-		AnchorPane.setRightAnchor(grid,UIConstants.LIST_PANEL_RIGHT_MARGIN);
-		AnchorPane.setTopAnchor(grid,DETAIL_GRID_HEIGHT);
-		AnchorPane.setLeftAnchor(grid,UIConstants.LIST_PANEL_LEFT_MARGIN);
 		return pane;
 	}
 

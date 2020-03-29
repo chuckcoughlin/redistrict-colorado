@@ -12,6 +12,8 @@ package redistrict.colorado.ui;
 public class NameValue {
 	private final String name;
 	private double value;
+	public static NameValue EMPTY = new NameValue("",0.);
+	
 	public NameValue(String name,double value) {
 		this.name = name;
 		this.value = value;

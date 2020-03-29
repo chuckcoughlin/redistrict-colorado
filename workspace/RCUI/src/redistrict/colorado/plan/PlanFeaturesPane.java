@@ -35,6 +35,8 @@ import redistrict.colorado.ui.ViewMode;
 public class PlanFeaturesPane extends BasicRightSideNode{
 	private final static String CLSS = "PlanFeaturesPane";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
+	public static final double FEATURE_TABLE_HEIGHT = 500; // Preferred
+	public static final double FEATURE_TABLE_WIDTH  = 600; 
 	private PlanModel model;
 	private final CheckBox showAffilations;
 	private final CheckBox showDemographics;
@@ -54,7 +56,7 @@ public class PlanFeaturesPane extends BasicRightSideNode{
 		this.showGeometry = new CheckBox("Geometry");
 		this.table = new TableView<PlanFeature>();
 		table.setEditable(true);
-		table.setPrefSize(UIConstants.FEATURE_TABLE_WIDTH, UIConstants.FEATURE_TABLE_HEIGHT);
+		table.setPrefSize(FEATURE_TABLE_WIDTH,FEATURE_TABLE_HEIGHT);
 		table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
 
 		showAffilations.setIndeterminate(false);

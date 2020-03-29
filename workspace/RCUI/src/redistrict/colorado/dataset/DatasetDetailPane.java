@@ -34,6 +34,8 @@ import redistrict.colorado.ui.ViewMode;
 public class DatasetDetailPane extends BasicRightSideNode {
 	private final static String CLSS = "DatasetDetailPane";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
+	public static final double DETAIL_TABLE_HEIGHT = 600; // Preferred
+	public static final double DETAIL_TABLE_WIDTH  = 400; 
 	private DatasetModel model;
 	private final ObservableList<Feature> items;
 	private final Label headerLabel = new Label("Layer Details");
@@ -48,7 +50,7 @@ public class DatasetDetailPane extends BasicRightSideNode {
 		this.showAllColumns = new CheckBox("Show All");
 		this.table = new TableView<Feature>();
 		this.eventHandler = new ActionEventHandler();
-		table.setPrefSize(UIConstants.FEATURE_TABLE_WIDTH, UIConstants.FEATURE_TABLE_HEIGHT);
+		table.setPrefSize(DETAIL_TABLE_WIDTH, DETAIL_TABLE_HEIGHT);
 		table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
 
 		showAllColumns.setIndeterminate(false);

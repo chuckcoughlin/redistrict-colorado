@@ -49,7 +49,9 @@ comparison screen by selection of the appropriate blue "information" icon.
 
 `Compactness:`
   To measure compactness, we calculate the *Isoperimetric Quotient*
-  of each district. This is obtained by dividing its area by the square of its perimeter. In order to obtain a grand total, we average the reciprocals of these for all districts and then take the reciprocal of that. This gives us a weighted average. We want this score to be maximized.
+  of each district. This is obtained by dividing its area by the square of its perimeter. We then normalize by dividing by 0.07216878, the quotient of a hexagon, a theoretical optimum honeycomb shape. In order to obtain a grand total, we average the reciprocals of these for all districts and then take the reciprocal of that. This gives us a weighted average. We want this score to be maximized.
+
+  The normalization step guarantees that the final score is in the range 0-1.
 
 `Population Equality`
 

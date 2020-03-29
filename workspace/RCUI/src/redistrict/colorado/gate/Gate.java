@@ -50,6 +50,7 @@ public abstract class Gate extends VBox {
 	private static final double CHART_HEIGHT = 160.;
 	private static final double WIDTH = 180.;
 	private static final double CHART_WIDTH = 150.;
+	public static final double AGGREGATE_TABLE_WIDTH  = 180; 
 	private final Label header;
 	private final Button info;
 	private final InfoDialog infoDialog;
@@ -129,6 +130,7 @@ public abstract class Gate extends VBox {
 		public void handle(MouseEvent arg0) {
 			ComparisonResultsDialog resultsDialog = new ComparisonResultsDialog(Gate.this);
 			resultsDialog.initOwner(Gate.this.getScene().getWindow());
+			resultsDialog.setResizable(true);
 			resultsDialog.showAndWait();
 		}	
 	}

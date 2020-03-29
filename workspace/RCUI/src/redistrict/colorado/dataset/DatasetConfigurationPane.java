@@ -50,6 +50,8 @@ public class DatasetConfigurationPane extends BasicRightSideNode implements Even
 	private final static double GRID0_WIDTH = 100.;    // Grid widths
 	private final static double GRID1_WIDTH = 300.;
 	private final static double GRID2_WIDTH = 40.;
+	private static final double CONFIGURATION_TABLE_HEIGHT = 500; // Preferred
+	private static final double CONFIGURATION_TABLE_WIDTH  = 600; 
 	private final static double TABLE_OFFSET_TOP = 200.;
 	private static final GuiUtil guiu = new GuiUtil();
 	private final GridPane grid;
@@ -121,7 +123,7 @@ public class DatasetConfigurationPane extends BasicRightSideNode implements Even
 		
 		table = new TableView<FeatureConfiguration>();
 		table.setEditable(true);
-		table.setPrefSize(UIConstants.FEATURE_TABLE_WIDTH, UIConstants.FEATURE_TABLE_HEIGHT);
+		table.setPrefSize(CONFIGURATION_TABLE_WIDTH, CONFIGURATION_TABLE_HEIGHT);
 		table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
 		TableColumn<FeatureConfiguration,String> column;
 		FCStringValueFactory valueFactory = new FCStringValueFactory();
