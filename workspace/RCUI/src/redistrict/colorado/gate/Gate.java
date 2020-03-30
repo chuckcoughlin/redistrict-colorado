@@ -45,7 +45,7 @@ import redistrict.colorado.ui.InfoDialog;
 public abstract class Gate extends VBox {
 	private final static String CLSS = "Gate";
 	protected static Logger LOGGER = Logger.getLogger(CLSS);
-	private static final GuiUtil guiu = new GuiUtil();
+	protected static final GuiUtil guiu = new GuiUtil();
 	private static final double HEIGHT = 190.;
 	private static final double CHART_HEIGHT = 160.;
 	private static final double WIDTH = 180.;
@@ -54,7 +54,7 @@ public abstract class Gate extends VBox {
 	private final Label header;
 	private final Button info;
 	private final InfoDialog infoDialog;
-	private final StackPane body;
+	protected final StackPane body;
 	protected final NumberAxis xAxis;
     protected final CategoryAxis yAxis;
     private BarChart<Number,String> chart;
@@ -70,6 +70,7 @@ public abstract class Gate extends VBox {
 		this.sortedPlans = new ArrayList<>();
 		this.header = new Label(getTitle());
 		this.infoDialog = new InfoDialog(this);
+		
 		this.xAxis = new NumberAxis();
         this.yAxis = new CategoryAxis();
         yAxis.setVisible(false);
@@ -121,17 +122,24 @@ public abstract class Gate extends VBox {
 	}
 	
 	public void showDialog() {
-		infoDialog.initOwner(getScene().getWindow());
+		try {
+			// Trying to do this twice throws the exception
+			infoDialog.initOwner(getScene().getWindow());
+		}
+		catch(IllegalStateException ignore) {}
         infoDialog.showAndWait();
     }
 	
 	public class ChartClickedHandler implements EventHandler<MouseEvent> {
 		@Override
 		public void handle(MouseEvent arg0) {
-			ComparisonResultsDialog resultsDialog = new ComparisonResultsDialog(Gate.this);
-			resultsDialog.initOwner(Gate.this.getScene().getWindow());
-			resultsDialog.setResizable(true);
-			resultsDialog.showAndWait();
+			showResultsDialog();
+		}	
+	}
+	public class BellActioHandler implements EventHandler<ActionEvent> {
+		@Override
+		public void handle(ActionEvent event) {
+			showResultsDialog();
 		}	
 	}
 	
@@ -152,6 +160,13 @@ public abstract class Gate extends VBox {
 		double barGap  = 5.;
 		chart.setBarGap(barGap);
 		chart.setCategoryGap(120.-nbars*20.);
+	}
+	
+	protected void showResultsDialog() {
+		ComparisonResultsDialog resultsDialog = new ComparisonResultsDialog(Gate.this);
+		resultsDialog.initOwner(Gate.this.getScene().getWindow());
+		resultsDialog.setResizable(true);
+		resultsDialog.showAndWait();
 	}
 	
 	// Update the bars based on computations

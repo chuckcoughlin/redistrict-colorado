@@ -43,11 +43,10 @@ public class NameValueLimitCellFactory implements Callback<TableColumn<NameValue
 	    protected void updateItem(String item, boolean empty) {
 	        super.updateItem(item, empty);
 	        if(item!=null) {
-	        	LOGGER.info(item.getClass().getCanonicalName());
 	        	setText(item);
 	        	if( Math.abs(Double.parseDouble(item))>limit) {
-	        		setTextFill(Color.TOMATO);
-                    setStyle("-fx-background-color: antiquewhite");
+	        		setTextFill(Color.RED);
+                    //setStyle("-fx-background-color: antiquewhite");
 	        	}
 	        }
 	    }

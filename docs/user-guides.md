@@ -49,11 +49,16 @@ comparison screen by selection of the appropriate blue "information" icon.
 
 `Compactness:`
   To measure compactness, we calculate the *Isoperimetric Quotient*
-  of each district. This is obtained by dividing its area by the square of its perimeter. We then normalize by dividing by 0.07216878, the quotient for a hexagonal shape, a theoretical optimum honeycomb shape. In order to obtain a grand total, we average the reciprocals of these for all districts and then take the reciprocal of that. This gives us a weighted average. We want this score to be maximized.
+  of each district. This is obtained by dividing its area by the square of its perimeter. We then normalize by dividing by 0.07216878, the quotient for a hexagonal shape, a theoretical optimum honeycomb shape. In order to obtain a grand total, we average the reciprocals of these for all districts and then take the reciprocal of that. This gives us a weighted average. We want this score to be *maximized*.Â
 
   The normalization step guarantees that the final score is in the range 0-1.
 
 `Population Equality`
+To measure population balance, the program calculates the standard deviation
+of the populations of the districts, normalized by the population and
+multiplied by 100 to give a result in percent. We want this score to be *minimized*.
+
+An alarm indicator is shown if any individual district has over a 1.0% deviation.
 
 `Composite`
 

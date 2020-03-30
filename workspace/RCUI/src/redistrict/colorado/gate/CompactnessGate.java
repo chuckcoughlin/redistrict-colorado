@@ -57,7 +57,7 @@ public class CompactnessGate extends Gate {
 		Text t5 = new Text("In order to obtain a grand total, we add together the reciprocals of this for each district,");
 		Text t6 = new Text("and then take the reciprocal of that. This gives us a weighted average. We want this score to be ");
 		Text t7 = new Text("maximized");
-		t6.setStyle("-fx-font-weight: bold");
+		t7.setStyle("-fx-font-weight: bold");
 		Text t8 = new Text(".");
 		info.getChildren().addAll(t1,t2,t3,t4,t5,t6,t7,t8);
 		return info;

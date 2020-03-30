@@ -16,10 +16,15 @@ import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -42,24 +47,30 @@ public class PopulationEqualityGate extends Gate {
 	private final double MAX_DIFFERENCE_FROM_MEAN = 1.0;   //
 	private final Label detailLabel = new Label("Population Difference from Mean ~ %");
 	private final Map<Long,List<NameValue>> districtScores; 
+	private final Button bell;
 	
 	public PopulationEqualityGate() {
 		this.districtScores = new HashMap<>();
-		xAxis.setUpperBound(0.5);
-		xAxis.setAutoRanging(true);
+		xAxis.setUpperBound(1.1);
+		xAxis.setAutoRanging(false);
+		bell = new Button("",guiu.loadImage("images/bell.png"));
+		bell.setOnAction( new BellActioHandler() );
+		bell.setId(ComponentIds.BUTTON_INFO);
+		StackPane.setAlignment(bell, Pos.BOTTOM_LEFT);
+		body.getChildren().add(bell);
 	}
 	
 	public TextFlow getInfo() { 
 		TextFlow info = new TextFlow();
-		Text t1 = new Text("To measure population balance, the program calculates the statistical variance");
-		Text t2 = new Text(" of the populations of the districts. Since population selection is a Bernoulli process,");
-		Text t3 = new Text(" the populations will take on a Normal distribution. So the variance of the population ");
-		Text t4 = new Text(" is just the square of the standard deviation. We want this score to be ");
+		Text t1 = new Text("To measure population balance, the program calculates the standard deviation");
+		Text t2 = new Text(" of the populations of the districts normalized by the population and");
+		Text t3 = new Text(" multiplied by 100 to give a result in percent. ");
+		Text t4 = new Text(" We want this score to be ");
 		Text t5 = new Text("minimized");
 		t5.setStyle("-fx-font-weight: bold");
-		Text t6 = new Text(".");
+		Text t6 = new Text(". An alarm indicator is shown if any individual district has over a 1.0% deviation.");
 		info.getChildren().addAll(t1,t2,t3,t4,t5,t6);
-		return info;
+		return info; 
 	}
 	public String getTitle() { return "Population Equality"; } 
 	public double getWeight() { return Database.getInstance().getPreferencesTable().getWeight(PreferencesTable.POPULATION_EQUALITY_WEIGHT_KEY);}
@@ -75,6 +86,7 @@ public class PopulationEqualityGate extends Gate {
 	@Override
 	public void evaluate(List<PlanModel> plans) {
 		LOGGER.info("PopulationEqualityGate.evaluating: ...");
+		bell.setVisible(false);
 		StandardDeviation stdDeviation = new StandardDeviation();
 		stdDeviation.setBiasCorrected(false);
 		for(PlanModel plan:plans) {
@@ -89,12 +101,15 @@ public class PopulationEqualityGate extends Gate {
 			int i = 0;
 			for(PlanFeature feat:plan.getMetrics()) {
 				double pop = feat.getPopulation();
-				populations.add(new NameValue(feat.getName(),100.*(pop-mean)/mean));
+				double val = 100.*(pop-mean)/mean;
+				if( Math.abs(val) > MAX_DIFFERENCE_FROM_MEAN) bell.setVisible(true);
+				populations.add(new NameValue(feat.getName(),val));
 				poparray[i] = pop;
 				i++;
 			}
 			
 			double sd = 100.*stdDeviation.evaluate(poparray)/mean;
+			if( Math.abs(sd) > MAX_DIFFERENCE_FROM_MEAN) bell.setVisible(true);
 			scoreMap.put(plan.getId(),sd);
 			districtScores.put(plan.getId(), populations);
 		}
