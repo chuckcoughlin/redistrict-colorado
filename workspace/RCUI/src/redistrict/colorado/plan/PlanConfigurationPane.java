@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.scene.control.Button;
@@ -21,7 +20,6 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import javafx.scene.shape.Rectangle;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.DatasetModel;
 import redistrict.colorado.core.DatasetRole;

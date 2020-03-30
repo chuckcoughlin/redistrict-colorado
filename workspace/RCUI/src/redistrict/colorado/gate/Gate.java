@@ -168,7 +168,7 @@ public abstract class Gate extends VBox {
 		    String style = String.format("-fx-bar-fill: rgb(%d,%d,%d);", (int)(c.getRed()*255),(int)(c.getGreen()*255),(int)(c.getBlue()*255));
 		    data.nodeProperty().addListener(new ChangeListener<Node>() {
 		    	  @Override public void changed(ObservableValue<? extends Node> ov, Node oldNode, Node newNode) {
-		    		 LOGGER.info(String.format("%s.updateChart: bar style = %s",CLSS,style));
+		    		 //LOGGER.info(String.format("%s.updateChart: bar style = %s",CLSS,style));
 		    	    if (newNode != null) {
 		    	      newNode.setStyle(style); 
 		    	    }

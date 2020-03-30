@@ -1,3 +1,9 @@
+/**  
+ * Copyright (C) 2020 Charles Coughlin
+ * 
+ * This program is free software; you may redistribute it and/or
+ * modify it under the terms of the GNU General Public License.
+ */
 package redistrict.colorado.dataset;
 
 import java.util.logging.Logger;
@@ -15,14 +21,14 @@ import redistrict.colorado.ui.ColorTableCell;
  * Render a color cell in the FeatureConfiguration table
  */
 public class FCColorCellFactory implements Callback<TableColumn<FeatureConfiguration, Color>, TableCell<FeatureConfiguration, Color>>,
-														EventHandler<TableColumn.CellEditEvent<FeatureConfiguration, Color>> { 
+											EventHandler<TableColumn.CellEditEvent<FeatureConfiguration, Color>> { 
 	private final static String CLSS = "FCColorCellFactory";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 
-	
+
 	public FCColorCellFactory() {
 	}
-	
+
 	@Override
 	public TableCell<FeatureConfiguration, Color> call(TableColumn<FeatureConfiguration, Color> p) {
 		TableCell<FeatureConfiguration, Color> cell = null;
@@ -34,7 +40,7 @@ public class FCColorCellFactory implements Callback<TableColumn<FeatureConfigura
 		}
 		return cell;
 	}
-	
+
 	// ======================================== Event Handler ========================================
 	@Override
 	public void handle(CellEditEvent<FeatureConfiguration, Color> text) {

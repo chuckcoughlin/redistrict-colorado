@@ -69,6 +69,7 @@ public class GateCache {
 	public List<Gate> getBasicGates() {
 		List<Gate> gates = new ArrayList<>();
 		for(GateType type:GateType.basicTypes()) {
+			LOGGER.info(String.format("%s.getBasicGates: %s = %s", CLSS,type.name(),map.get(type).getTitle()));
 			gates.add(map.get(type));
 		}
 		return gates;
