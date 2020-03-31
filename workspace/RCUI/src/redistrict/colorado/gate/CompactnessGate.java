@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -22,6 +24,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import redistrict.colorado.core.GateType;
+import redistrict.colorado.core.HarmonicMean;
 import redistrict.colorado.core.PlanFeature;
 import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.db.Database;
@@ -35,10 +38,10 @@ import redistrict.colorado.ui.UIConstants;
  */
 public class CompactnessGate extends Gate {
 	// For the results popup
-	private final static double DIALOG_HEIGHT = 500.; 
+	private final static double DIALOG_HEIGHT = 550.; 
 	private final static double DIALOG_WIDTH = 600.;
-	private final double HEX_QUOTIENT = 0.07216878;   // 3*SQRT(3)/72
-	private final Label detailLabel = new Label("Normalized Isoperimetric Quotients by District:");
+	private final Label aggregateLabel = new Label("Harmonic Mean of District Scores");
+	private final Label detailLabel = new Label("Polsby-Popper Score (normalized Isoperimetric Quotient)");
 	private final Map<Long,List<NameValue>> districtScores; 
 	
 	public CompactnessGate() {
@@ -50,12 +53,12 @@ public class CompactnessGate extends Gate {
 	public TextFlow getInfo() { 
 		TextFlow info = new TextFlow();
 		Text t1 = new Text("To measure compactness, we calculate the ");
-		Text t2 = new Text("Isoperimetric Quotient");
+		Text t2 = new Text("Polsby-Popper Test");
 		t2.setStyle("-fx-font-style: italic");
-		Text t3 = new Text(". This is obtained by dividing the area by the square of the length of the perimeter. ");
-		Text t4 = new Text(". We then normalize by dviding by the quotient for a hexagon, leaving the theoretical maximum at 1.0. ");
-		Text t5 = new Text("In order to obtain a grand total, we add together the reciprocals of this for each district,");
-		Text t6 = new Text("and then take the reciprocal of that. This gives us a weighted average. We want this score to be ");
+		Text t3 = new Text(" metric. This value is obtained by dividing the area of each district by the square of its perimeter, ");
+		Text t4 = new Text("and normalizing by dviding by 4pi (the value if it were a circle). This results in a maximum of 1.0. ");
+		Text t5 = new Text("In order to obtain a grand total, we average the reciprocals of this for each district,");
+		Text t6 = new Text("and then take the reciprocal of that. This gives us the harmonic mean. We want this score to be ");
 		Text t7 = new Text("maximized");
 		t7.setStyle("-fx-font-weight: bold");
 		Text t8 = new Text(".");
@@ -69,24 +72,27 @@ public class CompactnessGate extends Gate {
 	public void setWeight(double weight) {Database.getInstance().getPreferencesTable().setWeight(PreferencesTable.COMPACTNESS_WEIGHT_KEY,weight);}
 	public boolean useMaximum() { return true; }
  	/**
-	 * Compute composite the isoperimetric quotient for each plan. 
+	 * Compute the normalized isoperimetric quotient for each plan. 
 	 * The list of plans will be sorted in place by score, best score
 	 * is first. Save the details for each feature for viewing in the popup.
 	 */
 	@Override
 	public void evaluate(List<PlanModel> plans) {
 		LOGGER.info("CompactnessGate.evaluating: ...");
+		StandardDeviation sd = new StandardDeviation();
 		for(PlanModel plan:plans) {
 			List<NameValue> quotients = new ArrayList<>();
-			double sum = 0.0;
+			double vals[] = new double[plan.getMetrics().size()];
+			int index = 0;
 			for(PlanFeature feat:plan.getMetrics()) {
 				double iq = feat.getArea()/(feat.getPerimeter()*feat.getPerimeter());
-				iq = iq/HEX_QUOTIENT;
+				iq = iq*(4.*Math.PI);
 				quotients.add(new NameValue(feat.getName(),iq));
-				sum += 1/iq;
+				vals[index] = iq;
+				index++;
 			}
-			sum = sum/plan.getMetrics().size();
-			scoreMap.put(plan.getId(), 1/sum);
+
+			scoreMap.put(plan.getId(), new NameValue(plan.getName(),HarmonicMean.evaluate(vals),sd.evaluate(vals)));
 			districtScores.put(plan.getId(), quotients);
 		}
 		Collections.sort(plans,compareByScore);  // use .reversed() when minimized is good
@@ -101,6 +107,9 @@ public class CompactnessGate extends Gate {
 		pane.setPrefSize(DIALOG_WIDTH, DIALOG_HEIGHT);
 		pane.setFillWidth(true);
 
+		aggregateLabel.setId(ComponentIds.LABEL_SCORE);
+		pane.getChildren().add(aggregateLabel);
+		
 		// Aggregate table
 		TableView<NameValue> aggregateTable = new TableView<>();
 		double height = UIConstants.TABLE_ROW_HEIGHT*(1.5+sortedPlans.size());
@@ -111,16 +120,20 @@ public class CompactnessGate extends Gate {
 		NameValueCellValueFactory factory = new NameValueCellValueFactory();
 		column = new TableColumn<>("Plan");
 		column.setCellValueFactory(factory);
-		column.prefWidthProperty().bind(aggregateTable.widthProperty().multiply(0.5));
+		column.prefWidthProperty().bind(aggregateTable.widthProperty().multiply(0.33));
 		aggregateTable.getColumns().add(column);
-		column = new TableColumn<>("Score");
+		column = new TableColumn<>("Mean");
 		column.setCellValueFactory(factory);
-		column.prefWidthProperty().bind(aggregateTable.widthProperty().multiply(0.5));
+		column.prefWidthProperty().bind(aggregateTable.widthProperty().multiply(0.33));
+		aggregateTable.getColumns().add(column);
+		column = new TableColumn<>("Std Deviation");
+		column.setCellValueFactory(factory);
+		column.prefWidthProperty().bind(aggregateTable.widthProperty().multiply(0.33));
 		aggregateTable.getColumns().add(column);
 		ObservableList<NameValue> aitems = FXCollections.observableArrayList();
 		for(PlanModel plan:sortedPlans ) {
 			// There is a single row containing the overall score
-			aitems.add(new NameValue(plan.getName(),scoreMap.get(plan.getId())));
+			aitems.add(scoreMap.get(plan.getId()));
 		}
 		aggregateTable.setItems(aitems);
 		pane.getChildren().add(aggregateTable);
@@ -136,6 +149,7 @@ public class CompactnessGate extends Gate {
 		
 		int colno = 0;
 		int maxrows = 0;  // Max districts among plans
+		double widthFactor = 1./(2*sortedPlans.size());
 		for(PlanModel plan:sortedPlans ) {
 			int ndistricts = districtScores.get(plan.getId()).size();
 			if(ndistricts>maxrows) maxrows = ndistricts;
@@ -146,11 +160,11 @@ public class CompactnessGate extends Gate {
 			subcol = new TableColumn<>("Name");
 			subcol.setCellValueFactory(fact);
 			subcol.setUserData(colno);
-			subcol.prefWidthProperty().bind(column.widthProperty().multiply(0.5));
+			subcol.prefWidthProperty().bind(detailTable.widthProperty().multiply(widthFactor));
 			col.getColumns().add(subcol);
-			subcol = new TableColumn<>("IsoQuotient");
+			subcol = new TableColumn<>("Score");
 			subcol.setCellValueFactory(fact);
-			subcol.prefWidthProperty().bind(column.widthProperty().multiply(0.5));
+			subcol.prefWidthProperty().bind(detailTable.widthProperty().multiply(widthFactor));
 			subcol.setUserData(colno);
 			col.getColumns().add(subcol);
 			colno++;

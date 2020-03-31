@@ -7,18 +7,28 @@
 package redistrict.colorado.ui;
 
 /*
- * Hold a name-value pair
+ * Hold a name-value pair. It can be either a simple value, or a mean with
+ * standard deviation, depending on the constructor. 
  */
 public class NameValue {
 	private final String name;
-	private double value;
+	private double mean;
+	private double stdDeviation;
 	public static NameValue EMPTY = new NameValue("",0.);
 	
 	public NameValue(String name,double value) {
 		this.name = name;
-		this.value = value;
+		this.mean = value;
+		this.stdDeviation = 0.;
+	}
+	public NameValue(String name,double ave,double dev) {
+		this.name = name;
+		this.mean = ave;
+		this.stdDeviation = dev;
 	}
 	public String getName() { return this.name; }
-	public double getValue() { return this.value; }
+	public double getMean() { return this.mean; }
+	public double getStandardDeviation() { return this.stdDeviation; }
+	public double getValue() { return this.mean; }
 	
 }

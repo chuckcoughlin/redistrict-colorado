@@ -16,11 +16,8 @@ import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -47,17 +44,16 @@ public class PopulationEqualityGate extends Gate {
 	private final double MAX_DIFFERENCE_FROM_MEAN = 1.0;   //
 	private final Label detailLabel = new Label("Population Difference from Mean ~ %");
 	private final Map<Long,List<NameValue>> districtScores; 
-	private final Button bell;
+	private final Label redX;
 	
 	public PopulationEqualityGate() {
 		this.districtScores = new HashMap<>();
 		xAxis.setUpperBound(1.1);
 		xAxis.setAutoRanging(false);
-		bell = new Button("",guiu.loadImage("images/bell.png"));
-		bell.setOnAction( new BellActioHandler() );
-		bell.setId(ComponentIds.BUTTON_INFO);
-		StackPane.setAlignment(bell, Pos.BOTTOM_LEFT);
-		body.getChildren().add(bell);
+		redX = new Label("",guiu.loadImage("images/red_x.png"));
+		redX.setId(ComponentIds.BUTTON_INFO);
+		StackPane.setAlignment(redX, Pos.BOTTOM_LEFT);
+		body.getChildren().add(redX);
 	}
 	
 	public TextFlow getInfo() { 
@@ -86,7 +82,7 @@ public class PopulationEqualityGate extends Gate {
 	@Override
 	public void evaluate(List<PlanModel> plans) {
 		LOGGER.info("PopulationEqualityGate.evaluating: ...");
-		bell.setVisible(false);
+		redX.setVisible(false);
 		StandardDeviation stdDeviation = new StandardDeviation();
 		stdDeviation.setBiasCorrected(false);
 		for(PlanModel plan:plans) {
@@ -102,15 +98,17 @@ public class PopulationEqualityGate extends Gate {
 			for(PlanFeature feat:plan.getMetrics()) {
 				double pop = feat.getPopulation();
 				double val = 100.*(pop-mean)/mean;
-				if( Math.abs(val) > MAX_DIFFERENCE_FROM_MEAN) bell.setVisible(true);
+				if( Math.abs(val) > MAX_DIFFERENCE_FROM_MEAN) {
+					//redX.setVisible(true);
+				}
 				populations.add(new NameValue(feat.getName(),val));
 				poparray[i] = pop;
 				i++;
 			}
 			
 			double sd = 100.*stdDeviation.evaluate(poparray)/mean;
-			if( Math.abs(sd) > MAX_DIFFERENCE_FROM_MEAN) bell.setVisible(true);
-			scoreMap.put(plan.getId(),sd);
+			if( Math.abs(sd) > MAX_DIFFERENCE_FROM_MEAN) redX.setVisible(true);
+			scoreMap.put(plan.getId(),new NameValue(plan.getName(),sd));
 			districtScores.put(plan.getId(), populations);
 		}
 		Collections.sort(plans,compareByScore);  // use .reversed() when minimized is good
@@ -147,7 +145,7 @@ public class PopulationEqualityGate extends Gate {
 		ObservableList<NameValue> aitems = FXCollections.observableArrayList();
 		for(PlanModel plan:sortedPlans ) {
 			// There is a single row containing the overall score
-			aitems.add(new NameValue(plan.getName(),scoreMap.get(plan.getId())));
+			aitems.add(scoreMap.get(plan.getId()));
 		}
 		aggregateTable.setItems(aitems);
 		pane.getChildren().add(aggregateTable);
@@ -164,6 +162,7 @@ public class PopulationEqualityGate extends Gate {
 		
 		int colno = 0;
 		int maxrows = 0;  // Max districts among plans
+		double widthFactor = 1./(2*sortedPlans.size());
 		for(PlanModel plan:sortedPlans ) {
 			int ndistricts = districtScores.get(plan.getId()).size();
 			if(ndistricts>maxrows) maxrows = ndistricts;
@@ -174,12 +173,12 @@ public class PopulationEqualityGate extends Gate {
 			subcol = new TableColumn<>("Name");
 			subcol.setCellValueFactory(fact);
 			subcol.setUserData(colno);
-			subcol.prefWidthProperty().bind(column.widthProperty().multiply(0.5));
+			subcol.prefWidthProperty().bind(detailTable.widthProperty().multiply(widthFactor));
 			col.getColumns().add(subcol);
 			subcol = new TableColumn<>("% from Mean");
 			subcol.setCellFactory(limitFactory);
 			subcol.setCellValueFactory(fact);
-			subcol.prefWidthProperty().bind(column.widthProperty().multiply(0.5));
+			subcol.prefWidthProperty().bind(detailTable.widthProperty().multiply(widthFactor));
 			subcol.setUserData(colno);
 			col.getColumns().add(subcol);
 			colno++;

@@ -26,8 +26,14 @@ public class NameValueCellValueFactory implements Callback<TableColumn.CellDataF
 		if( columnName.equalsIgnoreCase("Plan") ) {
 			property.setValue(nv.getName());
 		}
-		else if( columnName.equalsIgnoreCase("Score") ) {
+		else if( columnName.contains("Mean") ) {
+			property.setValue(String.format("%2.6f",nv.getMean()));
+		}
+		else if( columnName.contains("Score") ) {
 			property.setValue(String.format("%2.6f",nv.getValue()));
+		}
+		else if( columnName.contains("Deviation") ) {
+			property.setValue(String.format("%2.6f",nv.getStandardDeviation()));
 		}
 		return property;
 	}

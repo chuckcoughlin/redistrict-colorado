@@ -16,8 +16,11 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Bounds;
 import javafx.geometry.Pos;
+import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
@@ -62,7 +65,7 @@ public abstract class Gate extends VBox {
 	private final Rectangle rectangle;
 	protected final EventBindingHub hub; 
 	protected final List<PlanModel>  sortedPlans; // sorted by score
-	protected final Map<Long,Double> scoreMap;    // score by planId
+	protected final Map<Long,NameValue> scoreMap;    // score by planId
 	
 	public Gate() {
 		super(0.);     // No spacing
@@ -148,8 +151,8 @@ public abstract class Gate extends VBox {
 	protected Comparator<PlanModel> compareByScore = new Comparator<PlanModel>() {
 	    @Override
 	    public int compare(PlanModel m1, PlanModel m2) {
-	    	double r1 = scoreMap.get(m1.getId());
-	    	double r2 = scoreMap.get(m2.getId());
+	    	double r1 = scoreMap.get(m1.getId()).getValue();
+	    	double r2 = scoreMap.get(m2.getId()).getValue();
 	        return (r1>r2?1:0);
 	    }
 	};
@@ -162,6 +165,40 @@ public abstract class Gate extends VBox {
 	        return (name1.compareTo(name2));
 	    }
 	};
+
+	/**
+	 * Inside a ChangeListener for a data item's node property, add a label to the top of the bar. In this case we display an alarm icon. It could have been the value.
+	 * @param data
+	 */
+	protected void displayImageForData(XYChart.Data<Number,String> data,Label imageLabel) {
+		final Node node = data.getNode();
+		Bounds bounds = node.getBoundsInParent();
+		imageLabel.setLayoutX(
+						Math.round(bounds.getMinX() + bounds.getWidth() / 2 - imageLabel.prefWidth(-1) / 2)
+						);
+		imageLabel.setLayoutY(
+						Math.round(bounds.getMinY() - imageLabel.prefHeight(-1) * 0.5)
+						);
+		Group parentGroup = (Group) node.getParent();
+		parentGroup.getChildren().add(imageLabel);
+	}
+	/**
+	 * Add a label to the right of the bar. This method is specific to a horizontal bar chart.
+	 * @param data
+	 */
+	protected void displayValueForData(XYChart.Data<Number,String> data) {
+		final Node node = data.getNode();
+		final Text dataText = new Text(data.getXValue() + "");
+		Bounds bounds = node.getBoundsInParent();
+		dataText.setLayoutX(
+				Math.round(bounds.getMinX() + bounds.getWidth() / 2 - dataText.prefWidth(-1) / 2)
+				);
+		dataText.setLayoutY(
+				Math.round(bounds.getMinY() - dataText.prefHeight(-1) * 0.5)
+				);
+		Group parentGroup = (Group) node.getParent();
+	    parentGroup.getChildren().add(dataText);
+	}
 	
 	// Set the bar size to be around 20
 	// This was developed purely by cut and try
@@ -188,20 +225,26 @@ public abstract class Gate extends VBox {
 		for(PlanModel model:sortedPlans) {
 			XYChart.Series<Number,String> series = new XYChart.Series<Number,String>();
 			series.setName(String.valueOf(index));
-		    XYChart.Data<Number,String> data = new XYChart.Data<Number,String> (scoreMap.get(model.getId()),"");
+		    XYChart.Data<Number,String> data = new XYChart.Data<Number,String> (scoreMap.get(model.getId()).getValue(),"");
 		    Color c = model.getFill();
 		    String style = String.format("-fx-bar-fill: rgb(%d,%d,%d);", (int)(c.getRed()*255),(int)(c.getGreen()*255),(int)(c.getBlue()*255));
+		    series.getData().add(data);
 		    data.nodeProperty().addListener(new ChangeListener<Node>() {
 		    	  @Override public void changed(ObservableValue<? extends Node> ov, Node oldNode, Node newNode) {
 		    		 //LOGGER.info(String.format("%s.updateChart: bar style = %s",CLSS,style));
 		    	    if (newNode != null) {
 		    	      newNode.setStyle(style); 
+			  	      Label x = new Label("Hi Mom");
+			  	      Group parentGroup = (Group) data.getNode().getParent();
+			  		  parentGroup.getChildren().add(x);
 		    	    }
 		    	  }
 		    	});
-		    series.getData().add(data);
-		    index++;
+
+		    //displayValueForData(data);
 		    chart.getData().add(series);
+
+		    index++;
 		}
 		
 		LOGGER.info("Gate.updateChart: complete.");
