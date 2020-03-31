@@ -37,6 +37,7 @@ import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.ui.ComponentIds;
 import redistrict.colorado.ui.GuiUtil;
 import redistrict.colorado.ui.InfoDialog;
+import redistrict.colorado.ui.NameValue;
 
 /**
  * This is the base container for gates that display results of comparisons 
@@ -150,6 +151,15 @@ public abstract class Gate extends VBox {
 	    	double r1 = scoreMap.get(m1.getId());
 	    	double r2 = scoreMap.get(m2.getId());
 	        return (r1>r2?1:0);
+	    }
+	};
+	// Compare name-value pairs based on the name.
+	protected Comparator<NameValue> compareByName = new Comparator<NameValue>() {
+	    @Override
+	    public int compare(NameValue nv1, NameValue nv2) {
+	    	String name1 = nv1.getName();
+	    	String name2 = nv2.getName();
+	        return (name1.compareTo(name2));
 	    }
 	};
 	

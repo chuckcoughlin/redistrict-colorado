@@ -161,6 +161,7 @@ public class CompactnessGate extends Gate {
 			List<NameValue> values = new ArrayList<>();
 			for(PlanModel plan:sortedPlans ) {
 				List<NameValue> scores = districtScores.get(plan.getId());
+				Collections.sort(scores,compareByName);
 				if(scores.size()>row ) {
 					values.add(scores.get(row));
 				}
@@ -170,7 +171,6 @@ public class CompactnessGate extends Gate {
 			}
 			ditems.add(values);
 		}
-		
 		detailTable.setItems(ditems);
 		pane.getChildren().add(detailTable);
 
