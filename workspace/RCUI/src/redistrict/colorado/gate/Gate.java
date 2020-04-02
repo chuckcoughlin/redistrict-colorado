@@ -17,10 +17,10 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
@@ -114,7 +114,13 @@ public abstract class Gate extends VBox {
 		node.getChildren().add(flow);
 		return node;
 	}
-	
+	/*
+	 * @return a label to display on top of the bar.
+	 * 			Otherwise return null
+	 */
+	protected Label getBarOverlayLabel(PlanModel model) {
+		return null;
+	}
 	public abstract TextFlow getInfo();  // Display in "info" box.
 	public abstract String getTitle();
 	public abstract double getWeight();
@@ -188,6 +194,7 @@ public abstract class Gate extends VBox {
 	 */
 	protected void displayValueForData(XYChart.Data<Number,String> data) {
 		final Node node = data.getNode();
+		if( node==null)return;
 		final Text dataText = new Text(data.getXValue() + "");
 		Bounds bounds = node.getBoundsInParent();
 		dataText.setLayoutX(
@@ -226,19 +233,30 @@ public abstract class Gate extends VBox {
 			XYChart.Series<Number,String> series = new XYChart.Series<Number,String>();
 			series.setName(String.valueOf(index));
 		    XYChart.Data<Number,String> data = new XYChart.Data<Number,String> (scoreMap.get(model.getId()).getValue(),"");
+
 		    Color c = model.getFill();
 		    String style = String.format("-fx-bar-fill: rgb(%d,%d,%d);", (int)(c.getRed()*255),(int)(c.getGreen()*255),(int)(c.getBlue()*255));
 		    series.getData().add(data);
 		    data.nodeProperty().addListener(new ChangeListener<Node>() {
-		    	  @Override public void changed(ObservableValue<? extends Node> ov, Node oldNode, Node newNode) {
-		    		 //LOGGER.info(String.format("%s.updateChart: bar style = %s",CLSS,style));
-		    	    if (newNode != null) {
-		    	      newNode.setStyle(style); 
-
-		    	    }
-		    	  }
-		    	});
-		    //displayValueForData(data);
+		    	@Override public void changed(ObservableValue<? extends Node> ov, Node oldNode, Node newNode) { 
+		    		// Node is the stack pane.
+		    		if (newNode != null) {
+		    			//LOGGER.info(String.format("%s.updateChart: bar style = %s, node is %s",CLSS,style,newNode.getClass().getCanonicalName()));
+		    			newNode.setStyle(style);
+		    		}
+		    	}
+		    });
+		    
+		    Label overlay = getBarOverlayLabel(model);
+		    if( overlay!=null ) {
+		    	StackPane node = new StackPane();
+		    	Group group = new Group(overlay);
+		    	StackPane.setAlignment(group, Pos.BOTTOM_CENTER);
+		    	StackPane.setMargin(group, new Insets(0, 0, 5, 0));
+		    	node.getChildren().add(group);
+		    	data.setNode(node);
+		    }
+	        
 		    chart.getData().add(series);
 		    index++;
 		}

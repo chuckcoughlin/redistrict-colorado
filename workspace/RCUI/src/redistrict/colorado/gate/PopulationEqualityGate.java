@@ -16,12 +16,10 @@ import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -44,27 +42,24 @@ public class PopulationEqualityGate extends Gate {
 	private final double MAX_DIFFERENCE_FROM_MEAN = 1.0;   //
 	private final Label detailLabel = new Label("Population Difference from Mean ~ %");
 	private final Map<Long,List<NameValue>> districtScores; 
-	private final Label redX;
+	private final Map<Long,Boolean> planInError;
 	
 	public PopulationEqualityGate() {
 		this.districtScores = new HashMap<>();
-		xAxis.setUpperBound(1.1);
+		this.planInError = new HashMap<>();
+		xAxis.setUpperBound(6.);
 		xAxis.setAutoRanging(false);
-		redX = new Label("",guiu.loadImage("images/red_x.png"));
-		redX.setId(ComponentIds.BUTTON_INFO);
-		StackPane.setAlignment(redX, Pos.BOTTOM_LEFT);
-		body.getChildren().add(redX);
 	}
 	
 	public TextFlow getInfo() { 
 		TextFlow info = new TextFlow();
-		Text t1 = new Text("To measure population balance, the program calculates the standard deviation");
-		Text t2 = new Text(" of the populations of the districts normalized by the population and");
+		Text t1 = new Text("The population imbalance is the standard deviation");
+		Text t2 = new Text(" of the populations of the individual districts, normalized by the population and");
 		Text t3 = new Text(" multiplied by 100 to give a result in percent. ");
 		Text t4 = new Text(" We want this score to be ");
 		Text t5 = new Text("minimized");
 		t5.setStyle("-fx-font-weight: bold");
-		Text t6 = new Text(". An alarm indicator is shown if any individual district has over a 1.0% deviation.");
+		Text t6 = new Text(". A red X indicator is shown if any individual district has over a 1.0% deviation.");
 		info.getChildren().addAll(t1,t2,t3,t4,t5,t6);
 		return info; 
 	}
@@ -74,6 +69,18 @@ public class PopulationEqualityGate extends Gate {
 	public void setWeight(double weight) {Database.getInstance().getPreferencesTable().setWeight(PreferencesTable.POPULATION_EQUALITY_WEIGHT_KEY,weight);}
 	public boolean useMaximum() { return false; }
 	
+	protected Label getBarOverlayLabel(PlanModel model) {
+		boolean inError = planInError.get(model.getId());
+		if( inError ) {
+			Label redX = new Label("",guiu.loadImage("images/red_x.png"));
+			redX.setId(ComponentIds.BUTTON_INFO);
+			return redX;
+		}
+		else {
+			return null;
+		}
+
+	}
  	/**
 	 * Compute the standard deviation of the population across districts. 
 	 * The individual scores are difference from the mean. There is a 
@@ -82,32 +89,33 @@ public class PopulationEqualityGate extends Gate {
 	@Override
 	public void evaluate(List<PlanModel> plans) {
 		LOGGER.info("PopulationEqualityGate.evaluating: ...");
-		redX.setVisible(false);
 		StandardDeviation stdDeviation = new StandardDeviation();
 		stdDeviation.setBiasCorrected(false);
 		for(PlanModel plan:plans) {
 			List<NameValue> populations = new ArrayList<>();
 			double[] poparray = new double[plan.getMetrics().size()];
 			double total = 0.0;
+			planInError.put(plan.getId(), false);
 			for(PlanFeature feat:plan.getMetrics()) {
 				total += feat.getPopulation();
 			}
 			double mean = total/plan.getMetrics().size();
-			
+			LOGGER.info(String.format("PopulationEqualityGate.evaluating: %2.0f total, %2.0f mean",mean,total));
 			int i = 0;
 			for(PlanFeature feat:plan.getMetrics()) {
 				double pop = feat.getPopulation();
 				double val = 100.*(pop-mean)/mean;
+				LOGGER.info(String.format("PopulationEqualityGate.evaluating: %2.0f pop, %2.2f val",pop,val));
 				if( Math.abs(val) > MAX_DIFFERENCE_FROM_MEAN) {
-					//redX.setVisible(true);
+					planInError.put(plan.getId(), true);
 				}
 				populations.add(new NameValue(feat.getName(),val));
 				poparray[i] = pop;
 				i++;
 			}
-			
+			// It's impossible for the std deviation to be in error if 
+			// none of the individual districts are out of range.
 			double sd = 100.*stdDeviation.evaluate(poparray)/mean;
-			if( Math.abs(sd) > MAX_DIFFERENCE_FROM_MEAN) redX.setVisible(true);
 			scoreMap.put(plan.getId(),new NameValue(plan.getName(),sd));
 			districtScores.put(plan.getId(), populations);
 		}

@@ -96,7 +96,7 @@ public class PlanListController extends AnchorPane
 		}
 	}
 	/**
-	 * Query the Dataset table and update the list accordingly. Retain the same selection, if any.
+	 * Query the Plan table and update the list accordingly. Retain the same selection, if any.
 	 */
 	private void updateUIFromDatabase() {
 		PlanModel selectedModel = planList.getSelectionModel().getSelectedItem();
@@ -104,7 +104,8 @@ public class PlanListController extends AnchorPane
 		if( selectedModel!=null ) selectedId = selectedModel.getId();
 		selectedModel = null;
 		
-		List<PlanModel> plans = Database.getInstance().getPlanTable().getPlans();
+		List<PlanModel> plans = Database.getInstance().getPlanTable().getPlans();  // WARNING: This creates new olanModel objects.
+		hub.setPlans(plans);
 		planList.getItems().clear();
 		LOGGER.info(String.format("%s.updateUIFromDatabase: cleared plan list", CLSS));
 		for(PlanModel model:plans) {

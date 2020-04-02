@@ -49,13 +49,14 @@ comparison screen by selection of the appropriate blue "information" icon.
 
 `Compactness:`
   To score compactness, we use the *Polsby-Popper Test*, essentially an *Isoperimetric Quotient* normalized to a circle.
- This is obtained by dividing the area of each district by the square of its perimeter. We then divide by 4𝛑, the quotient for a circle. This results in a value between 0.0 and 1.0. In order to obtain a grand total, we take the harmonic average of district scores. We want this to be *maximized*.
+ Specifically, this requires dividing the area of each district by the square of its perimeter. We then divide by 4𝛑, the quotient for a circle. This results in a value between 0.0 and 1.0. In order to obtain a grand total, we take the harmonic average of district scores. We want this value to be *maximized*.
 
 
 `Population Equality`
-To measure population balance, the program calculates the standard deviation
-of the populations of the districts, normalized by the population and
-multiplied by 100 to give a result in percent. We want this score to be *minimized*.
+The population imbalance, is the standard deviation
+of the populations of the districts. We normalize by the population and
+multiplied by 100 to give a result in percent. Court cases have established 1% as
+the maximum allowable deviation.
 
 An alarm indicator is shown if any individual district has over a 1.0% deviation.
 

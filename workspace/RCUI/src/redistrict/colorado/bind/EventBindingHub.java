@@ -39,6 +39,7 @@ public class EventBindingHub  {
 	private final SimpleStringProperty message;
 	private final SimpleObjectProperty<DatasetModel> selectedDataset;
 	private final SimpleObjectProperty<List<PlanModel>> activePlans;
+	private final SimpleObjectProperty<List<PlanModel>> allPlans;
 	private final SimpleObjectProperty<PlanModel> selectedPlan;
 	private final SimpleObjectProperty<DistrictModel> selectedDistrict;
 	private final SimpleObjectProperty<AnalysisModel> analysisModel;
@@ -52,6 +53,7 @@ public class EventBindingHub  {
 		this.selectedDataset = new SimpleObjectProperty<DatasetModel>();
 		this.selectedPlan = new SimpleObjectProperty<PlanModel>();
 		this.activePlans = new SimpleObjectProperty<List<PlanModel>>();
+		this.allPlans = new SimpleObjectProperty<List<PlanModel>>();
 		this.selectedDistrict = new SimpleObjectProperty<DistrictModel>();
 		this.analysisModel = new SimpleObjectProperty<AnalysisModel>();
 	}
@@ -90,14 +92,16 @@ public class EventBindingHub  {
 	public void unselectLeftSide() { leftSideSelection.set(null); }
 	public void addLeftSideSelectionListener(ChangeListener<LeftSelectionEvent> listener) {leftSideSelection.addListener(listener);}
 	public SimpleObjectProperty<LeftSelectionEvent> leftSideSelectionProperty(){return leftSideSelection;}
-	// Selected Layer
+	// Datasets
 	public DatasetModel getSelectedDataset() { return selectedDataset.get(); }
 	public boolean isDatasetSelected() { return (selectedDataset.get()!=null); }
 	public void setSelectedDataset(DatasetModel model) { selectedDataset.set(model); }
 	public void unselectDataset() { selectedDataset.set(null); }
 	public void addDatasetListener(ChangeListener<DatasetModel> listener) {selectedDataset.addListener(listener);}
 	public SimpleObjectProperty<DatasetModel> selectedDatasetProperty(){return selectedDataset;}
-	// Selected Plan(s)
+	// Plans
+	public List<PlanModel> getPlans() { return allPlans.get(); }
+	public void setPlans(List<PlanModel> models) { allPlans.set(models); }
 	public List<PlanModel> getActivePlans() { return activePlans.get(); }
 	public void setActivePlans(List<PlanModel> models) { activePlans.set(models); }
 	public PlanModel getSelectedPlan() { return selectedPlan.get(); }

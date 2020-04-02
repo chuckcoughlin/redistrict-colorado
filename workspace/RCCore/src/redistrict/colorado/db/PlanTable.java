@@ -177,6 +177,8 @@ public class PlanTable {
 	/**
 	 * @return a list of all defined Plans. It may be empty.
 	 * 			The plan metrics, if any, are refreshed from the database.
+	 * 			Since this creates plan instances, it should only be called
+	 * 			when the plan list is originally populated.
 	 */
 	public List<PlanModel> getPlans() {
 		List<PlanModel> list = new ArrayList<>();

@@ -44,7 +44,7 @@ import redistrict.colorado.ui.TableCellCallback;
 import redistrict.colorado.ui.UIConstants;
 import redistrict.colorado.ui.ViewMode;
 
-public class DatasetConfigurationPane extends BasicRightSideNode implements EventHandler<ActionEvent> {
+public class DatasetEditPane extends BasicRightSideNode implements EventHandler<ActionEvent> {
 	private final static String CLSS = "DatasetConfigurationPane";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private final static double GRID0_WIDTH = 100.;    // Grid widths
@@ -72,7 +72,7 @@ public class DatasetConfigurationPane extends BasicRightSideNode implements Even
 	private final TableEventHandler cellHandler;
 	
 
-	public DatasetConfigurationPane() {
+	public DatasetEditPane() {
 		super(ViewMode.DATASET,DisplayOption.DATASET_DEFINITION);
 		this.model = EventBindingHub.getInstance().getSelectedDataset();
 		this.items = FXCollections.observableArrayList();

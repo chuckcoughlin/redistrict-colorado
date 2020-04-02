@@ -33,7 +33,7 @@ import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.UIConstants;
 import redistrict.colorado.ui.ViewMode;
 
-public class PlanConfigurationPane extends BasicRightSideNode implements EventHandler<ActionEvent> {
+public class PlanEditPane extends BasicRightSideNode implements EventHandler<ActionEvent> {
 	private final static String CLSS = "DatasetConfigurationPane";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private final static double GRID0_WIDTH = 100.;    // Grid widths
@@ -54,7 +54,7 @@ public class PlanConfigurationPane extends BasicRightSideNode implements EventHa
 	private PlanModel model;
 	
 
-	public PlanConfigurationPane() {
+	public PlanEditPane() {
 		super(ViewMode.PLAN,DisplayOption.PLAN_DEFINITION);
 		this.model = EventBindingHub.getInstance().getSelectedPlan();
 		
@@ -131,7 +131,7 @@ public class PlanConfigurationPane extends BasicRightSideNode implements EventHa
 	}
 	
 	/**
-	 * Respond to button presses, including "Save"
+	 * Respond to button presses, including "Save". Clear model metrics if the boundary changes.
 	 */
 	@Override
 	public void handle(ActionEvent event) {
@@ -143,7 +143,11 @@ public class PlanConfigurationPane extends BasicRightSideNode implements EventHa
 				model.setDescription(descriptionField.getText());
 				model.setFill(colorPicker.getValue());
 				DatasetModel dm = DatasetCache.getInstance().getDataset(boundaryCombo.getSelectionModel().getSelectedItem());
-				model.setBoundary(dm);
+				if( model.getBoundary()==null || model.getBoundary().getId()!=dm.getId() ) {
+					model.setBoundary(dm);
+					model.setMetrics(null);
+					Database.getInstance().getPlanTable().clearMetrics(model.getId());
+				}
 				Database.getInstance().getPlanTable().updatePlan(model);
 				EventBindingHub.getInstance().unselectPlan();     // Force fire
 				EventBindingHub.getInstance().setSelectedPlan(model);

@@ -26,6 +26,7 @@ import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.AnalysisModel;
 import redistrict.colorado.core.DatasetModel;
 import redistrict.colorado.core.DatasetRole;
+import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.db.DatasetCache;
 import redistrict.colorado.gate.Gate;
@@ -184,26 +185,41 @@ public class PlanSetupPane extends BasicRightSideNode
 	}
 
 	/**
-	 * On a "save", update the model object, the database and then the hub.
+	 * On a "save", update the model object, the database and then the hub. If either affiliation or
+	 * demographics datasets change, invalidate the cached  model metrics.
 	 */
 	@Override
 	public void handle(ActionEvent event) {
 		Object source = event.getSource();
 		if( source instanceof Button && ((Button)source).getId().equals(ComponentIds.BUTTON_SAVE)) {
 			if(model!=null) {
+				EventBindingHub hub = EventBindingHub.getInstance();
 				// Update the model from UI elements
 				String name = affiliationCombo.getSelectionModel().getSelectedItem();
 				DatasetModel affModel = DatasetCache.getInstance().getDataset(name);
 				if( affModel!=null ) {
-					model.setAffiliationId(affModel.getId());
-					model.updateAffiliationFeatures();
+					if( model.getAffiliationId()!=affModel.getId()) {
+						model.setAffiliationId(affModel.getId());
+						model.updateAffiliationFeatures();
+						for(PlanModel plan:hub.getPlans()) {
+							plan.setMetrics(null);
+							Database.getInstance().getPlanTable().clearMetrics(plan.getId());
+						}
+					}
+
 				}
 				
 				name = demographicCombo.getSelectionModel().getSelectedItem();
 				DatasetModel demModel = DatasetCache.getInstance().getDataset(name);
 				if( demModel!=null ) {
-					model.setDemographicId(demModel.getId());
-					model.updateDemographicFeatures();
+					if( model.getDemographicId()!=demModel.getId()) {
+						model.setDemographicId(demModel.getId());
+						model.updateDemographicFeatures();
+						for(PlanModel plan:hub.getPlans()) {
+							plan.setMetrics(null);
+							Database.getInstance().getPlanTable().clearMetrics(plan.getId());
+						}
+					}
 				}
 				// Update model in the database
 				Database.getInstance().getPreferencesTable().updateAnalysisModel(model);
