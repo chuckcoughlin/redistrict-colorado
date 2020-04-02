@@ -48,10 +48,9 @@ The sections below describe calculations made for each of the comparison metrics
 comparison screen by selection of the appropriate blue "information" icon.
 
 `Compactness:`
-  To measure compactness, we calculate the *Isoperimetric Quotient*
-  of each district. This is obtained by dividing its area by the square of its perimeter. We then normalize by dividing by 0.07216878, the quotient for a hexagonal shape, a theoretical optimum honeycomb shape. In order to obtain a grand total, we average the reciprocals of these for all districts and then take the reciprocal of that. This gives us a weighted average. We want this score to be *maximized*.Â
+  To score compactness, we use the *Polsby-Popper Test*, essentially an *Isoperimetric Quotient* normalized to a circle.
+ This is obtained by dividing the area of each district by the square of its perimeter. We then divide by 4𝛑, the quotient for a circle. This results in a value between 0.0 and 1.0. In order to obtain a grand total, we take the harmonic average of district scores. We want this to be *maximized*.
 
-  The normalization step guarantees that the final score is in the range 0-1.
 
 `Population Equality`
 To measure population balance, the program calculates the standard deviation

@@ -234,16 +234,12 @@ public abstract class Gate extends VBox {
 		    		 //LOGGER.info(String.format("%s.updateChart: bar style = %s",CLSS,style));
 		    	    if (newNode != null) {
 		    	      newNode.setStyle(style); 
-			  	      Label x = new Label("Hi Mom");
-			  	      Group parentGroup = (Group) data.getNode().getParent();
-			  		  parentGroup.getChildren().add(x);
+
 		    	    }
 		    	  }
 		    	});
-
 		    //displayValueForData(data);
 		    chart.getData().add(series);
-
 		    index++;
 		}
 		
