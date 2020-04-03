@@ -46,16 +46,11 @@ public class AggregateTask  extends Task<List<PlanFeature>> {
 			if(idName!=null) attribute.setName(feat.getString(idName).toString());
 			this.updateMessage("Aggregating district "+attribute.getName());
 			if(geoName!=null) {
-				try {
-					Geometry geometry = (Geometry)(feat.getAttribute(geoName));
-					attribute.setArea(geometry.getArea());
-					attribute.setPerimeter(geometry.getLength());
-					aggregateAffiliations(attribute, geometry,am);
-					aggregateDemographics(attribute, geometry,am);
-				}
-				catch(ClassCastException cce) {
-					LOGGER.info(String.format("%s.call: Geometry attribute is not a polygon (%s)", CLSS,cce.getLocalizedMessage()));
-				}
+				Geometry geometry = (Geometry)(feat.getAttribute(geoName));
+				attribute.setArea(geometry.getArea());
+				attribute.setPerimeter(geometry.getLength());
+				aggregateAffiliations(attribute, geometry,am);
+				aggregateDemographics(attribute, geometry,am);
 			}
 			attributes.add(attribute);
 			index++;
@@ -76,27 +71,36 @@ public class AggregateTask  extends Task<List<PlanFeature>> {
 			for(Feature feat:fc.getFeatures()) {
 				Geometry geometry = (Geometry)(feat.getAttribute(am.getAffiliationGeometryName()));
 				Geometries type = Geometries.get(geometry);
-				if( geometry.disjoint(polygon)) continue;
-				if( !type.equals(Geometries.POLYGON)) continue;
+				// If the shapes don't intersect, ignore.
+				if( geometry.disjoint(polygon)) {
+					continue; 
+				}
+				if( !type.equals(Geometries.POLYGON) && !type.equals(Geometries.MULTIPOLYGON))  {
+					LOGGER.warning(String.format("%s.aggregateAffiliations: Geometry not a polygon (%s)", CLSS,type.getName()));
+					continue;
+				}
+				double areaRatio = 1.0;
 				try {
 					Geometry intersect = polygon.intersection(geometry);
 					if( intersect!=null && intersect.getEnvelope()!=null && !intersect.isEmpty() ) {
-						double areaRatio = intersect.getArea() / geometry.getArea();
-						long increment = FeatureUtil.castToLong(feat.getAttribute(am.getAttributeForDemocrat()));
-						planFeat.incrementDemocrat(areaRatio*increment);
-						increment = FeatureUtil.castToLong(feat.getAttribute(am.getAttributeForRepublican()));
-						planFeat.incrementRepublican(areaRatio*increment);
-						count++;
+						areaRatio = intersect.getArea() / geometry.getArea();
+					}
+					else {
+						areaRatio = 0.;
 					}
 				}
 				catch(Exception ex) {
 					LOGGER.warning(String.format("%s.aggregateAffiliations: Intersect exception (%s)", CLSS,ex.getLocalizedMessage()));
 				}
+				long increment = FeatureUtil.castToLong(feat.getAttribute(am.getAttributeForDemocrat()));
+				planFeat.incrementDemocrat(areaRatio*increment);
+				increment = FeatureUtil.castToLong(feat.getAttribute(am.getAttributeForRepublican()));
+				planFeat.incrementRepublican(areaRatio*increment);
+				count++;
 			}
 			LOGGER.info(String.format("%s.aggregateAffiliations: %d features of %d intersect", CLSS,count,fc.getFeatures().size()));
 		}
 	}
-
 
 	/**
 	 * Augment a single polygon with values from an demographic dataset.
@@ -113,36 +117,47 @@ public class AggregateTask  extends Task<List<PlanFeature>> {
 			for(Feature feat:fc.getFeatures()) {
 				Geometry geometry = (Geometry)(feat.getAttribute(am.getDemographicGeometryName()));
 				Geometries type = Geometries.get(geometry);
-				if( geometry.disjoint(polygon)) continue;
-				if( !type.equals(Geometries.POLYGON)) continue;
+				if( geometry.disjoint(polygon)) {
+					continue;
+				}
+				if( !type.equals(Geometries.POLYGON) && !type.equals(Geometries.MULTIPOLYGON)) {
+					LOGGER.warning(String.format("%s.aggregateDemographics: Geometry not a polygon (%s)", CLSS,type.getName()));
+					continue;
+				}
+				double areaRatio = 1.0;
 				try {
 					Geometry intersect = polygon.intersection(geometry);
 					if( intersect!=null && intersect.getEnvelope()!=null && !intersect.isEmpty() ) {
-						double areaRatio = intersect.getArea() / geometry.getArea();
-						long increment = FeatureUtil.castToLong(feat.getAttribute(am.getAttributeForBlack()));
-						planFeat.incrementBlack(areaRatio*increment);
-						increment = FeatureUtil.castToLong(feat.getAttribute(am.getAttributeForHispanic()));
-						planFeat.incrementHispanic(areaRatio*increment);
-						increment = FeatureUtil.castToLong(feat.getAttribute(am.getAttributeForWhite()));
-						planFeat.incrementWhite(areaRatio*increment);
-						if(am.getAttributeForPopulation()==null) { // Use male+female
-							increment = FeatureUtil.castToLong(feat.getAttribute(am.getAttributeForFemale()));
-							planFeat.incrementPopulation(areaRatio*increment);
-							increment = FeatureUtil.castToLong(feat.getAttribute(am.getAttributeForMale()));
-							planFeat.incrementPopulation(areaRatio*increment);
-						}
-						else {
-							increment = FeatureUtil.castToLong(feat.getAttribute(am.getAttributeForPopulation()));
-							planFeat.incrementPopulation(areaRatio*increment);
-						}
-						count++;
+						areaRatio = intersect.getArea() / geometry.getArea();
+					}
+					else {
+						areaRatio = 0.;
 					}
 				}
 				catch(Exception ex) {
 					LOGGER.warning(String.format("%s.aggregateDemographics: Intersect exception (%s)", CLSS,ex.getLocalizedMessage()));
 				}
+
+				long increment = FeatureUtil.castToLong(feat.getAttribute(am.getAttributeForBlack()));
+				planFeat.incrementBlack(areaRatio*increment);
+				increment = FeatureUtil.castToLong(feat.getAttribute(am.getAttributeForHispanic()));
+				planFeat.incrementHispanic(areaRatio*increment);
+				increment = FeatureUtil.castToLong(feat.getAttribute(am.getAttributeForWhite()));
+				planFeat.incrementWhite(areaRatio*increment);
+				if(am.getAttributeForPopulation()==null) { // Use male+female
+					increment = FeatureUtil.castToLong(feat.getAttribute(am.getAttributeForFemale()));
+					planFeat.incrementPopulation(areaRatio*increment);
+					increment = FeatureUtil.castToLong(feat.getAttribute(am.getAttributeForMale()));
+					planFeat.incrementPopulation(areaRatio*increment);
+				}
+				else {
+					increment = FeatureUtil.castToLong(feat.getAttribute(am.getAttributeForPopulation()));
+					planFeat.incrementPopulation(areaRatio*increment);
+				}
+				count++;
 			}
 			LOGGER.info(String.format("%s.aggregateDemographics: %d features of %d intersect", CLSS,count,fc.getFeatures().size()));
 		}
-	}
+	}	
 }
+

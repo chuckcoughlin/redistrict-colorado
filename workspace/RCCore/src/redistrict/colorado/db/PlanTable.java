@@ -245,7 +245,12 @@ public class PlanTable {
 			statement.setInt(1,(model.isActive()?1:0));
 			statement.setString(2, model.getName());
 			statement.setString(3, model.getDescription());
-			statement.setLong(4, model.getBoundary().getId());
+			if( model.getBoundary()!=null) {
+				statement.setLong(4, model.getBoundary().getId());
+			}
+			else {
+				statement.setLong(4, -1);
+			}
 			int r = (int)(model.getFill().getRed()*255);
 			int g = (int)(model.getFill().getGreen()*255);
 			int b = (int)(model.getFill().getBlue()*255);

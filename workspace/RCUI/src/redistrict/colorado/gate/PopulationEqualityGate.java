@@ -35,11 +35,13 @@ import redistrict.colorado.ui.UIConstants;
 /**
  * Compare plans based on the populations of each district.  Values must be within 
  * 1% of each other. The explanation is from autoredistrict.org.
+ * We call it "imbalance" to emphasize that we want to minimize.
  */
 public class PopulationEqualityGate extends Gate {
 	private final static double DIALOG_HEIGHT = 500.; 
 	private final static double DIALOG_WIDTH = 600.;
 	private final double MAX_DIFFERENCE_FROM_MEAN = 1.0;   //
+	private final Label aggregateLabel = new Label("Standard Deviation of District Populations");
 	private final Label detailLabel = new Label("Population Difference from Mean ~ %");
 	private final Map<Long,List<NameValue>> districtScores; 
 	private final Map<Long,Boolean> planInError;
@@ -47,8 +49,7 @@ public class PopulationEqualityGate extends Gate {
 	public PopulationEqualityGate() {
 		this.districtScores = new HashMap<>();
 		this.planInError = new HashMap<>();
-		xAxis.setUpperBound(6.);
-		xAxis.setAutoRanging(false);
+		xAxis.setAutoRanging(true);
 	}
 	
 	public TextFlow getInfo() { 
@@ -63,7 +64,7 @@ public class PopulationEqualityGate extends Gate {
 		info.getChildren().addAll(t1,t2,t3,t4,t5,t6);
 		return info; 
 	}
-	public String getTitle() { return "Population Equality"; } 
+	public String getTitle() { return "Population Imbalance"; } 
 	public double getWeight() { return Database.getInstance().getPreferencesTable().getWeight(PreferencesTable.POPULATION_EQUALITY_WEIGHT_KEY);}
 	public GateType getType() { return GateType.POPULATION_EQUALITY; }
 	public void setWeight(double weight) {Database.getInstance().getPreferencesTable().setWeight(PreferencesTable.POPULATION_EQUALITY_WEIGHT_KEY,weight);}
@@ -131,6 +132,9 @@ public class PopulationEqualityGate extends Gate {
 		VBox pane =  new VBox(10);
 		pane.setPrefSize(DIALOG_WIDTH, DIALOG_HEIGHT);
 		pane.setFillWidth(true);
+		
+		aggregateLabel.setId(ComponentIds.LABEL_SCORE);
+		pane.getChildren().add(aggregateLabel);
 
 		// Aggregate table
 		TableView<NameValue> aggregateTable = new TableView<>();

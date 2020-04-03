@@ -101,6 +101,7 @@ public abstract class Gate extends VBox {
 		StackPane.setAlignment(header, Pos.TOP_CENTER);
 		StackPane.setAlignment(rectangle, Pos.CENTER);
 		StackPane.setAlignment(chart, Pos.CENTER);
+		StackPane.setMargin(chart, new Insets(0, 10, 5, 0));  // top right bottom left
 		StackPane.setAlignment(info, Pos.BOTTOM_RIGHT);
 		body.getChildren().addAll(rectangle,chart,header,info);
 		getChildren().addAll(body);	
