@@ -41,6 +41,7 @@ import redistrict.colorado.ui.ComponentIds;
 import redistrict.colorado.ui.GuiUtil;
 import redistrict.colorado.ui.InfoDialog;
 import redistrict.colorado.ui.NameValue;
+import redistrict.colorado.ui.TwoPartyValue;
 
 /**
  * This is the base container for gates that display results of comparisons 
@@ -65,7 +66,7 @@ public abstract class Gate extends VBox {
 	private final Rectangle rectangle;
 	protected final EventBindingHub hub; 
 	protected final List<PlanModel>  sortedPlans; // sorted by score
-	protected final Map<Long,NameValue> scoreMap;    // score by planId
+	protected final Map<Long,NameValue> scoreMap; // score by planId
 	
 	public Gate() {
 		super(0.);     // No spacing
@@ -167,6 +168,15 @@ public abstract class Gate extends VBox {
 	protected Comparator<NameValue> compareByName = new Comparator<NameValue>() {
 	    @Override
 	    public int compare(NameValue nv1, NameValue nv2) {
+	    	String name1 = nv1.getName();
+	    	String name2 = nv2.getName();
+	        return (name1.compareTo(name2));
+	    }
+	};
+	// Compare two-party-value pairs based on the name.
+	protected Comparator<TwoPartyValue> compare2ByName = new Comparator<TwoPartyValue>() {
+	    @Override
+	    public int compare(TwoPartyValue nv1, TwoPartyValue nv2) {
 	    	String name1 = nv1.getName();
 	    	String name2 = nv2.getName();
 	        return (name1.compareTo(name2));

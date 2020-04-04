@@ -64,7 +64,7 @@ public class PopulationEqualityGate extends Gate {
 		info.getChildren().addAll(t1,t2,t3,t4,t5,t6);
 		return info; 
 	}
-	public String getTitle() { return "Population Imbalance"; } 
+	public String getTitle() { return "Population Equality"; } 
 	public double getWeight() { return Database.getInstance().getPreferencesTable().getWeight(PreferencesTable.POPULATION_EQUALITY_WEIGHT_KEY);}
 	public GateType getType() { return GateType.POPULATION_EQUALITY; }
 	public void setWeight(double weight) {Database.getInstance().getPreferencesTable().setWeight(PreferencesTable.POPULATION_EQUALITY_WEIGHT_KEY,weight);}

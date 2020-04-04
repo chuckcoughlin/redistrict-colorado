@@ -26,6 +26,7 @@ public class PreferencesTable {
 	private static final long MODEL_ID = 42;
 	private static final String AFFILIATION_KEY = "AffiliationId";
 	private static final String DEMOGRAPHIC_KEY = "DemographicID";
+	public static final String COMETITIVENESS_THRESHOLD_KEY = "CompetitivenessThreshold";
 	// These weighting keys are initialized in the database when it is created
 	public static final String COMPACTNESS_WEIGHT_KEY = "CompactnessWeight";
 	public static final String COMPETITIVENESS_WEIGHT_KEY = "CompetitivenessWeight";
@@ -86,6 +87,32 @@ public class PreferencesTable {
 	/*
 	 * We assume that the existence of the row is ensured by the original creation of the database
 	 */
+	public String getParameter(String key) {
+		String value = ""; 
+		String SQL = String.format("SELECT value FROM Preferences WHERE name = '%s'",key);
+		Statement statement = null;
+		ResultSet rs = null;
+		try {
+			statement = cxn.createStatement();
+			statement.setQueryTimeout(10);     // set timeout to 10 sec.
+			rs = statement.executeQuery(SQL); 
+			while(rs.next()) {
+				value = rs.getString(1);
+				break; 
+			}
+		}
+		catch(NumberFormatException nfe) {
+			LOGGER.severe(String.format("%s.getParameter: Error (%s)",CLSS,nfe.getMessage()));
+		}
+		catch(SQLException e) {
+			LOGGER.severe(String.format("%s.getParameter: Error (%s)",CLSS,e.getMessage()));
+		}
+		return value;
+	}
+	
+	/*
+	 * We assume that the existence of the row is ensured by the original creation of the database
+	 */
 	public double getWeight(String key) {
 		double weight = 0.;
 		String SQL = String.format("SELECT value FROM Preferences WHERE name = '%s'",key);
@@ -108,6 +135,19 @@ public class PreferencesTable {
 			LOGGER.severe(String.format("%s.getWeight: Error (%s)",CLSS,e.getMessage()));
 		}
 		return weight;
+	}
+	
+	public void setParameter(String key,String value) {
+		String SQL = String.format("UPDATE Preferences SET value = %s WHERE name = '%s'",value,key);
+		Statement statement = null;
+		try {
+			statement = cxn.createStatement();
+			statement.setQueryTimeout(10);     // set timeout to 10 sec.
+			statement.executeUpdate(SQL); 
+		}
+		catch(SQLException e) {
+			LOGGER.severe(String.format("%s.setParameter: Error (%s)",CLSS,e.getMessage()));
+		}
 	}
 	public void setWeight(String key,double value) {
 		String SQL = String.format("UPDATE Preferences SET value = %s WHERE name = '%s'",String.valueOf(value),key);

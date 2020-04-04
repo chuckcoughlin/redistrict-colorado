@@ -19,6 +19,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
@@ -29,6 +31,7 @@ import redistrict.colorado.core.DatasetRole;
 import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.db.DatasetCache;
+import redistrict.colorado.db.PreferencesTable;
 import redistrict.colorado.gate.Gate;
 import redistrict.colorado.gate.GateCache;
 import redistrict.colorado.pane.BasicRightSideNode;
@@ -59,6 +62,8 @@ public class PlanSetupPane extends BasicRightSideNode
 	private final GridPane grid;
 	private final Label affiliationLabel = new Label("Affiliation: ");
 	private final Label demographicsLabel = new Label("Demographics: ");
+	private final Label competitivenessLabel = new Label("Competitive Threshold: ");
+	private final TextField competitivenessField = new TextField();
 	private final ComboBox<String> affiliationCombo;
 	private final ComboBox<String> demographicCombo;
 	private final ObservableList<Gate> items;  // Array displayed in table
@@ -83,6 +88,9 @@ public class PlanSetupPane extends BasicRightSideNode
         affiliationCombo.setPrefWidth(COL1_WIDTH);
         demographicCombo.setPrefWidth(COL1_WIDTH);
         
+	    Tooltip tt = new Tooltip("The threshold is the vote differential between parties ~ percent. Valid ranges is 1. to 60.");
+	    Tooltip.install(competitivenessLabel, tt);
+        
 		table = new TableView<Gate>();
 		table.setEditable(true);
 		//table.setPrefSize(SETUP_TABLE_WIDTH,SETUP_TABLE_HEIGHT);
@@ -104,6 +112,8 @@ public class PlanSetupPane extends BasicRightSideNode
 		grid.add(affiliationCombo, 1, 0);
 		grid.add(demographicsLabel, 0, 1);
 		grid.add(demographicCombo, 1, 1);
+		grid.add(competitivenessLabel, 0, 2);
+		grid.add(competitivenessField, 1, 2);
 		
 		getChildren().add(grid);
 		setTopAnchor(grid,UIConstants.DETAIL_HEADER_SPACING);
@@ -171,8 +181,10 @@ public class PlanSetupPane extends BasicRightSideNode
 			items.addAll(GateCache.getInstance().getBasicGates());
 		}
 	}
-	private void configureTable() {	
-        table.setItems(items);
+	private void configureTable() {
+		competitivenessField.setText(Database.getInstance().getPreferencesTable().getParameter(PreferencesTable.COMETITIVENESS_THRESHOLD_KEY));
+		LOGGER.info(String.format("%s.configureTable = %s",CLSS,competitivenessField.getText()));
+		table.setItems(items);
 	}
 
 	// ====================================== BasicRightSideNode =====================================
@@ -223,6 +235,9 @@ public class PlanSetupPane extends BasicRightSideNode
 				}
 				// Update model in the database
 				Database.getInstance().getPreferencesTable().updateAnalysisModel(model);
+				LOGGER.info(String.format("%s.save = %s",CLSS,competitivenessField.getText()));
+				Database.getInstance().getPreferencesTable().setParameter(PreferencesTable.COMETITIVENESS_THRESHOLD_KEY, competitivenessField.getText());
+				
 			}
 		}
 	}

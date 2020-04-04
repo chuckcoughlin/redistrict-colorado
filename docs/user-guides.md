@@ -49,16 +49,33 @@ comparison screen by selection of the appropriate blue "information" icon.
 
 `Compactness:`
   To score compactness, we use the *Polsby-Popper Test*, essentially an *Isoperimetric Quotient* normalized to a circle.
- Specifically, this requires dividing the area of each district by the square of its perimeter. We then divide by 4𝛑, the quotient for a circle. This results in a value between 0.0 and 1.0. In order to obtain a grand total, we take the harmonic average of district scores. We want this value to be *maximized*.
+ Specifically, this requires dividing the area of each district by the square of its perimeter. We then divide by 4𝛑, the quotient for a circle. This results in a value between 0.0 and 1.0. In order to obtain a district-wide score, we take the harmonic average of individual district scores. We want this value to be *maximized*.
 
+`Competitive Districts`
+The number of "safe" or "non-competitive" districts
+should be minimized.
+In a non-competitive district, the minority party may not field
+a serious candidate. This leaves voters with no real choices at election time. The score is simply the number of districts that are considered competitive.
+
+On the setup page, the value "Competitiveness Threshold" specifies the
+maximum party differential for a competitive district. This is nominally 15%.
 
 `Population Equality`
-The population imbalance, is the standard deviation
-of the populations of the districts. We normalize by the population and
-multiplied by 100 to give a result in percent. Court cases have established 1% as
+Population equality or it opposite, population imbalance, is the standard deviation
+of the populations of the districts. We normalize by the total population,
+multiplied by 100 to give a result in percent. This value should be *minimized*.
+
+A red X indicator is drawn on the bar if any individual district has over a 1.0% deviation. Court cases have established 1% as
 the maximum allowable deviation.
 
-An alarm indicator is shown if any individual district has over a 1.0% deviation.
+`Proportionality`
+Proportionality is the concept that the party mix of the elected officials
+should match the mix of the population as a whole. This metric compares
+the actual number of seats won by the dominant party versus the number of seats that were "deserved".  Any values greater than 1 are flagged
+with the a party symbol on the bar, meaning that the results are skewed
+in favor of that party.
+
+
 
 `Composite`
 
