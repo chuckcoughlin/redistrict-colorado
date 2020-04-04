@@ -33,7 +33,7 @@ import redistrict.colorado.ui.UIConstants;
  * Maximized the number of districts that are balanced in party affiliations
  */
 public class CompetitiveDistrictsGate extends Gate {
-	private final static double DIALOG_HEIGHT = 500.; 
+	private final static double DIALOG_HEIGHT = 550.; 
 	private final static double DIALOG_WIDTH = 600.;
 	private final double DEFAULT_THRESHOLD = 15.0;   //
 	private final Label aggregateLabel = new Label("Competitive Districts");
@@ -70,7 +70,8 @@ public class CompetitiveDistrictsGate extends Gate {
 
 		double threshold = DEFAULT_THRESHOLD;
 		try {
-			threshold = Double.parseDouble(Database.getInstance().getPreferencesTable().getParameter(PreferencesTable.COMETITIVENESS_THRESHOLD_KEY));
+			String val = Database.getInstance().getPreferencesTable().getParameter(PreferencesTable.COMPETITIVENESS_THRESHOLD_KEY);
+			if( !val.isEmpty()) threshold = Double.parseDouble(val);
 		}
 		catch(NumberFormatException nfe) {
 			LOGGER.warning("CompetitiveDistrictsGate.evaluating: Error converting threshold to double. Using 15%. ("+nfe.getLocalizedMessage()+")");

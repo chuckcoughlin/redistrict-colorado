@@ -182,7 +182,7 @@ public class PlanSetupPane extends BasicRightSideNode
 		}
 	}
 	private void configureTable() {
-		competitivenessField.setText(Database.getInstance().getPreferencesTable().getParameter(PreferencesTable.COMETITIVENESS_THRESHOLD_KEY));
+		competitivenessField.setText(Database.getInstance().getPreferencesTable().getParameter(PreferencesTable.COMPETITIVENESS_THRESHOLD_KEY));
 		LOGGER.info(String.format("%s.configureTable = %s",CLSS,competitivenessField.getText()));
 		table.setItems(items);
 	}
@@ -236,7 +236,7 @@ public class PlanSetupPane extends BasicRightSideNode
 				// Update model in the database
 				Database.getInstance().getPreferencesTable().updateAnalysisModel(model);
 				LOGGER.info(String.format("%s.save = %s",CLSS,competitivenessField.getText()));
-				Database.getInstance().getPreferencesTable().setParameter(PreferencesTable.COMETITIVENESS_THRESHOLD_KEY, competitivenessField.getText());
+				Database.getInstance().getPreferencesTable().setParameter(PreferencesTable.COMPETITIVENESS_THRESHOLD_KEY, competitivenessField.getText());
 				
 			}
 		}

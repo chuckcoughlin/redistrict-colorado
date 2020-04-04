@@ -38,7 +38,7 @@ import redistrict.colorado.ui.UIConstants;
  * We call it "imbalance" to emphasize that we want to minimize.
  */
 public class PopulationEqualityGate extends Gate {
-	private final static double DIALOG_HEIGHT = 500.; 
+	private final static double DIALOG_HEIGHT = 550.; 
 	private final static double DIALOG_WIDTH = 600.;
 	private final double MAX_DIFFERENCE_FROM_MEAN = 1.0;   //
 	private final Label aggregateLabel = new Label("Standard Deviation of District Populations");

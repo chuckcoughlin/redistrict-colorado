@@ -36,7 +36,7 @@ import redistrict.colorado.ui.UIConstants;
  * population as a whole.
  */
 public class ProportionalityGate extends Gate {
-	private final static double DIALOG_HEIGHT = 500.; 
+	private final static double DIALOG_HEIGHT = 550.; 
 	private final static double DIALOG_WIDTH = 600.;
 	private final static int BIASED_DEMOCRAT = -1;
 	private final static int BIASED_REPUBLICAN = 1;
@@ -61,7 +61,7 @@ public class ProportionalityGate extends Gate {
 	}
 	public String getTitle() { return "Proportionality"; } 
 	public double getWeight() { return Database.getInstance().getPreferencesTable().getWeight(PreferencesTable.POPULATION_EQUALITY_WEIGHT_KEY);}
-	public GateType getType() { return GateType.POPULATION_EQUALITY; }
+	public GateType getType() { return GateType.PROPORTIONALITY; }
 	public void setWeight(double weight) {Database.getInstance().getPreferencesTable().setWeight(PreferencesTable.POPULATION_EQUALITY_WEIGHT_KEY,weight);}
 	public boolean useMaximum() { return false; }
 	
@@ -108,7 +108,7 @@ public class ProportionalityGate extends Gate {
 			double deserved = nSeats*demVotes/voters; 
 			if( deserved - demSeats > 1 ) planBiased.put(plan.getId(), BIASED_REPUBLICAN);
 			else if( deserved - demSeats < -1 ) planBiased.put(plan.getId(), BIASED_DEMOCRAT);
-			scoreMap.put(plan.getId(),new NameValue(plan.getName(),deserved - demSeats));
+			scoreMap.put(plan.getId(),new NameValue(plan.getName(),Math.abs(deserved- demSeats)));
 		}
 		Collections.sort(plans,compareByScore);  // use .reversed() when minimized is good
 		Collections.reverse(plans);   // Because minimum is best.
@@ -163,7 +163,6 @@ public class ProportionalityGate extends Gate {
 		int maxrows = 0;  // Max districts among plans
 		double widthFactor = 1./(2*sortedPlans.size());
 		for(PlanModel plan:sortedPlans ) {
-		
 			// These columns have no cells, just sub-columns.
 			col = new TableColumn<>(plan.getName());
 			col.setPrefWidth(DIALOG_WIDTH);
