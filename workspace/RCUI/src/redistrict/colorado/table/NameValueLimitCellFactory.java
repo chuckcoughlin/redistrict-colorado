@@ -1,4 +1,4 @@
-package redistrict.colorado.gate;
+package redistrict.colorado.table;
 
 import java.util.logging.Logger;
 
@@ -8,7 +8,6 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
-import redistrict.colorado.ui.NameValue;
 
 /**
  * Render a string type cell in the FeatureMetric table

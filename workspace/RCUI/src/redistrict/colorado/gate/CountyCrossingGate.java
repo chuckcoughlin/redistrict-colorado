@@ -17,6 +17,7 @@ import redistrict.colorado.db.PreferencesTable;
  * cross county lines.
  */
 public class CountyCrossingGate extends Gate {
+	private final static String KEY_SCORE = "Score";
 	public TextFlow getInfo() { 
 		TextFlow info = new TextFlow();
 		Text t1 = new Text("This is essentially a trade-off with compactness. To measure split reduction, ");
@@ -28,6 +29,7 @@ public class CountyCrossingGate extends Gate {
 		info.getChildren().addAll(t1,t2,t3,t4,t5);
 		return info;
 	}
+	public String getScoreAttribute() { return KEY_SCORE; };
 	public String getTitle() { return "County Line Crossings"; }
 	public double getWeight() { return Database.getInstance().getPreferencesTable().getWeight(PreferencesTable.COUNTY_CROSSING_WEIGHT_KEY);}
 	public GateType getType() { return GateType.COUNTY_CROSSINGS; }

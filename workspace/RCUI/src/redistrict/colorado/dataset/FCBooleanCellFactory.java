@@ -6,8 +6,8 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.util.Callback;
 import redistrict.colorado.core.FeatureConfiguration;
+import redistrict.colorado.table.TableCellCallback;
 import redistrict.colorado.ui.BooleanTableCell;
-import redistrict.colorado.ui.TableCellCallback;
 
 /**
  * Render a boolean cell in the FeatureConfiguration table

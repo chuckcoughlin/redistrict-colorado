@@ -37,11 +37,10 @@ import javafx.scene.text.TextFlow;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.GateType;
 import redistrict.colorado.core.PlanModel;
+import redistrict.colorado.table.NameValue;
 import redistrict.colorado.ui.ComponentIds;
 import redistrict.colorado.ui.GuiUtil;
 import redistrict.colorado.ui.InfoDialog;
-import redistrict.colorado.ui.NameValue;
-import redistrict.colorado.ui.TwoPartyValue;
 
 /**
  * This is the base container for gates that display results of comparisons 
@@ -55,7 +54,7 @@ public abstract class Gate extends VBox {
 	private static final double CHART_HEIGHT = 160.;
 	private static final double WIDTH = 180.;
 	private static final double CHART_WIDTH = 150.;
-	public static final double AGGREGATE_TABLE_WIDTH  = 180; 
+	public static final double AGGREGATE_TABLE_WIDTH  = 180;
 	private final Label header;
 	private final Button info;
 	private final InfoDialog infoDialog;
@@ -124,6 +123,7 @@ public abstract class Gate extends VBox {
 		return null;
 	}
 	public abstract TextFlow getInfo();  // Display in "info" box.
+	public abstract String getScoreAttribute();
 	public abstract String getTitle();
 	public abstract double getWeight();
 	public abstract GateType getType();
@@ -148,22 +148,23 @@ public abstract class Gate extends VBox {
 			showResultsDialog();
 		}	
 	}
-	public class BellActioHandler implements EventHandler<ActionEvent> {
-		@Override
-		public void handle(ActionEvent event) {
-			showResultsDialog();
-		}	
-	}
 	
-	// Compare plans based on the composite score for this gate.
+	// Compare plans based on the scoring attribute for this gate. The attribute
+	// must be numeric.
 	protected Comparator<PlanModel> compareByScore = new Comparator<PlanModel>() {
-	    @Override
-	    public int compare(PlanModel m1, PlanModel m2) {
-	    	double r1 = scoreMap.get(m1.getId()).getValue();
-	    	double r2 = scoreMap.get(m2.getId()).getValue();
-	        return (r1>r2?1:0);
-	    }
+		@Override
+		public int compare(PlanModel m1, PlanModel m2) {
+			String att = getScoreAttribute();
+			if( scoreMap.get(m1.getId()).getValue(att) != null &&
+					scoreMap.get(m2.getId()).getValue(att) != null   ) {
+				double r1 = Double.parseDouble(scoreMap.get(m1.getId()).getValue(att).toString());
+				double r2 = Double.parseDouble(scoreMap.get(m2.getId()).getValue(att).toString());
+				return (r1>r2?1:0);
+			}
+			return 0;
+		}
 	};
+	
 	// Compare name-value pairs based on the name.
 	protected Comparator<NameValue> compareByName = new Comparator<NameValue>() {
 	    @Override
@@ -173,50 +174,6 @@ public abstract class Gate extends VBox {
 	        return (name1.compareTo(name2));
 	    }
 	};
-	// Compare two-party-value pairs based on the name.
-	protected Comparator<TwoPartyValue> compare2ByName = new Comparator<TwoPartyValue>() {
-	    @Override
-	    public int compare(TwoPartyValue nv1, TwoPartyValue nv2) {
-	    	String name1 = nv1.getName();
-	    	String name2 = nv2.getName();
-	        return (name1.compareTo(name2));
-	    }
-	};
-
-	/**
-	 * Inside a ChangeListener for a data item's node property, add a label to the top of the bar. In this case we display an alarm icon. It could have been the value.
-	 * @param data
-	 */
-	protected void displayImageForData(XYChart.Data<Number,String> data,Label imageLabel) {
-		final Node node = data.getNode();
-		Bounds bounds = node.getBoundsInParent();
-		imageLabel.setLayoutX(
-						Math.round(bounds.getMinX() + bounds.getWidth() / 2 - imageLabel.prefWidth(-1) / 2)
-						);
-		imageLabel.setLayoutY(
-						Math.round(bounds.getMinY() - imageLabel.prefHeight(-1) * 0.5)
-						);
-		Group parentGroup = (Group) node.getParent();
-		parentGroup.getChildren().add(imageLabel);
-	}
-	/**
-	 * Add a label to the right of the bar. This method is specific to a horizontal bar chart.
-	 * @param data
-	 */
-	protected void displayValueForData(XYChart.Data<Number,String> data) {
-		final Node node = data.getNode();
-		if( node==null)return;
-		final Text dataText = new Text(data.getXValue() + "");
-		Bounds bounds = node.getBoundsInParent();
-		dataText.setLayoutX(
-				Math.round(bounds.getMinX() + bounds.getWidth() / 2 - dataText.prefWidth(-1) / 2)
-				);
-		dataText.setLayoutY(
-				Math.round(bounds.getMinY() - dataText.prefHeight(-1) * 0.5)
-				);
-		Group parentGroup = (Group) node.getParent();
-	    parentGroup.getChildren().add(dataText);
-	}
 	
 	// Set the bar size to be around 20
 	// This was developed purely by cut and try
@@ -240,10 +197,11 @@ public abstract class Gate extends VBox {
 		setBarWidth(sortedPlans.size());
 
 		int index = 1;
+		String att = getScoreAttribute();
 		for(PlanModel model:sortedPlans) {
 			XYChart.Series<Number,String> series = new XYChart.Series<Number,String>();
 			series.setName(String.valueOf(index));
-		    XYChart.Data<Number,String> data = new XYChart.Data<Number,String> (scoreMap.get(model.getId()).getValue(),"");
+		    XYChart.Data<Number,String> data = new XYChart.Data<Number,String> (guiu.toDouble(scoreMap.get(model.getId()).getValue(att)),"");
 
 		    Color c = model.getFill();
 		    String style = String.format("-fx-bar-fill: rgb(%d,%d,%d);", (int)(c.getRed()*255),(int)(c.getGreen()*255),(int)(c.getBlue()*255));

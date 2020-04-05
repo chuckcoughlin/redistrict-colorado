@@ -37,10 +37,10 @@ import redistrict.colorado.core.FeatureConfiguration;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.pane.BasicRightSideNode;
 import redistrict.colorado.pane.SavePane;
+import redistrict.colorado.table.TableCellCallback;
 import redistrict.colorado.ui.ComponentIds;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.GuiUtil;
-import redistrict.colorado.ui.TableCellCallback;
 import redistrict.colorado.ui.UIConstants;
 import redistrict.colorado.ui.ViewMode;
 

@@ -17,6 +17,7 @@ import redistrict.colorado.db.PreferencesTable;
  * 1% of each other.
  */
 public class VotingPowerGate extends Gate {
+	private final static String KEY_SCORE = "Score";
 	public TextFlow getInfo() { 
 		TextFlow info = new TextFlow();
 		Text t1 = new Text("We define voting power as the ability to elect a candidate of one's choosing. ");
@@ -36,6 +37,7 @@ public class VotingPowerGate extends Gate {
 		info.getChildren().addAll(t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13);
 		return info;
 	}
+	public String getScoreAttribute() { return KEY_SCORE; };
 	public String getTitle() { return "Voting Power"; } 
 	public double getWeight() { return Database.getInstance().getPreferencesTable().getWeight(PreferencesTable.VOTING_POWER_WEIGHT_KEY);}
 	public GateType getType() { return GateType.VOTING_POWER; }

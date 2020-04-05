@@ -49,7 +49,7 @@ comparison screen by selection of the appropriate blue "information" icon.
 
 `Compactness:`
   To score compactness, we use the *Polsby-Popper Test*, essentially an *Isoperimetric Quotient* normalized to a circle.
- Specifically, this requires dividing the area of each district by the square of its perimeter. We then divide by 4𝛑, the quotient for a circle. This results in a value between 0.0 and 1.0. In order to obtain a district-wide score, we take the harmonic average of individual district scores. We want this value to be *maximized*.
+ Specifically, this requires dividing the area of each district by the square of its perimeter and then dividing by 4𝛑, the isoperimetric quotient for a circle. This results in a value between 0.0 and 1.0. In order to obtain a district-wide score, we compute the harmonic mean of individual district scores. We want this value to be *maximized*.
 
 `Competitive Districts`
 The number of "safe" or "non-competitive" districts
@@ -66,13 +66,13 @@ of the populations of the districts. We normalize by the total population,
 multiplied by 100 to give a result in percent. This value should be *minimized*.
 
 A red X indicator is drawn on the bar if any individual district has over a 1.0% deviation. Court cases have established 1% as
-the maximum allowable deviation.
+the maximum allowable difference between any district population and the mean.
 
 `Proportionality`
 Proportionality is the concept that the party mix of the elected officials
 should match the mix of the population as a whole. This metric compares
-the actual number of seats won by the dominant party versus the number of seats that were "deserved".  Any values greater than 1 are flagged
-with the a party symbol on the bar, meaning that the results are skewed
+the actual number of seats won by the dominant party versus the number of seats that were "deserved".  Any discrepancies greater than rounding error are flagged
+with the  symbol of the benefiting party on the bar, meaning that the results are skewed
 in favor of that party.
 
 

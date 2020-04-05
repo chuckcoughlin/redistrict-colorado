@@ -15,6 +15,7 @@ import redistrict.colorado.core.GateType;
  * 1% of each other.
  */
 public class CompositeGate extends Gate {
+	private final static String KEY_SCORE = "Score";
 	public TextFlow getInfo() { 
 		TextFlow info = new TextFlow();
 		Text t1 = new Text(" Each of these scores will have vastly different ranges. For instance, compactness varies from 0 to 1, ");
@@ -31,6 +32,7 @@ public class CompositeGate extends Gate {
 		info.getChildren().addAll(t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11);
 		return info;
 	}
+	public String getScoreAttribute() { return KEY_SCORE; };
 	public String getTitle() { return "Composite Score"; }
 	public double getWeight() { return 0.; }
 	public GateType getType() { return GateType.COMPOSITE; }

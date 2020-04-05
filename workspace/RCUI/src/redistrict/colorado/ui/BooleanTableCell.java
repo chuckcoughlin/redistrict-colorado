@@ -8,6 +8,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.TableCell;
+import redistrict.colorado.table.TableCellCallback;
 
 
 public class BooleanTableCell<T> extends TableCell<T, Boolean> {

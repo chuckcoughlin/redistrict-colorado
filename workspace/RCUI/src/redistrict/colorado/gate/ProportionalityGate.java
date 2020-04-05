@@ -26,9 +26,10 @@ import redistrict.colorado.core.PlanFeature;
 import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.db.PreferencesTable;
+import redistrict.colorado.table.NameValue;
+import redistrict.colorado.table.NameValueCellValueFactory;
+import redistrict.colorado.table.NameValueListCellValueFactory;
 import redistrict.colorado.ui.ComponentIds;
-import redistrict.colorado.ui.NameValue;
-import redistrict.colorado.ui.TwoPartyValue;
 import redistrict.colorado.ui.UIConstants;
 
 /**
@@ -38,6 +39,14 @@ import redistrict.colorado.ui.UIConstants;
 public class ProportionalityGate extends Gate {
 	private final static double DIALOG_HEIGHT = 550.; 
 	private final static double DIALOG_WIDTH = 600.;
+	private final static String KEY_NAME = "Name";
+	private final static String KEY_PLAN = "Plan";
+	private final static String KEY_PARTY = "Party";
+	private final static String KEY_EXTRA_SEATS = "Extra Seats";
+	private final static String KEY_SEAT_PCNT = "Seat %";
+	private final static String KEY_PROPORTION = "Vote %";
+	private final static String KEY_DEM_PCNT = "% Dem";
+	private final static String KEY_REP_PCNT = "% Rep";
 	private final static int BIASED_DEMOCRAT = -1;
 	private final static int BIASED_REPUBLICAN = 1;
 	private final Label aggregateLabel = new Label("Democrat/Republican Results: Seats/Overall/Ratio");
@@ -59,6 +68,7 @@ public class ProportionalityGate extends Gate {
 		info.getChildren().addAll(t1,t2,t3,t4);
 		return info;
 	}
+	public String getScoreAttribute() { return KEY_EXTRA_SEATS; };
 	public String getTitle() { return "Proportionality"; } 
 	public double getWeight() { return Database.getInstance().getPreferencesTable().getWeight(PreferencesTable.POPULATION_EQUALITY_WEIGHT_KEY);}
 	public GateType getType() { return GateType.PROPORTIONALITY; }
@@ -106,9 +116,28 @@ public class ProportionalityGate extends Gate {
 			}
 			// Score map is the fractional seat differential of seats deserved - actual seats. (use the absolute value)
 			double deserved = nSeats*demVotes/voters; 
-			if( deserved - demSeats > 1 ) planBiased.put(plan.getId(), BIASED_REPUBLICAN);
-			else if( deserved - demSeats < -1 ) planBiased.put(plan.getId(), BIASED_DEMOCRAT);
-			scoreMap.put(plan.getId(),new NameValue(plan.getName(),Math.abs(deserved- demSeats)));
+			if( deserved - demSeats > 1 ) {
+				planBiased.put(plan.getId(), BIASED_REPUBLICAN);
+			}
+			else if( deserved - demSeats < -1 ) {
+				planBiased.put(plan.getId(), BIASED_DEMOCRAT);
+			}
+			NameValue nv = new NameValue(plan.getName());
+			nv.setValue(KEY_PLAN,plan.getName());
+			if( deserved - demSeats > 0 ) {
+				nv.setValue(KEY_PARTY, "Rep");
+			}
+			else if( deserved - demSeats < 0 ) {
+				nv.setValue(KEY_PARTY, "Dem");
+			}
+			else {
+				nv.setValue(KEY_PARTY, "");
+			}
+			nv.setValue(KEY_EXTRA_SEATS, Math.abs(deserved- demSeats));
+			nv.setValue(KEY_SEAT_PCNT, 100.*demSeats/nSeats);
+			nv.setValue(KEY_PROPORTION, 100.*demVotes/voters);
+			
+			scoreMap.put(plan.getId(),nv);
 		}
 		Collections.sort(plans,compareByScore);  // use .reversed() when minimized is good
 		Collections.reverse(plans);   // Because minimum is best.
@@ -131,16 +160,31 @@ public class ProportionalityGate extends Gate {
 		double height = UIConstants.TABLE_ROW_HEIGHT*(1.5+sortedPlans.size());
 		aggregateTable.setPrefSize(AGGREGATE_TABLE_WIDTH, height);
 		aggregateTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+		NameValueCellValueFactory factory = new NameValueCellValueFactory();
+		factory.setFormat(KEY_EXTRA_SEATS,"%2.1f");
+		factory.setFormat(KEY_SEAT_PCNT,"%2.1f");
+		factory.setFormat(KEY_PROPORTION,"%2.1f");
 		
 		TableColumn<NameValue,String> column;
-		NameValueCellValueFactory factory = new NameValueCellValueFactory();
-		column = new TableColumn<>("Plan");
+		column = new TableColumn<>(KEY_PLAN);
 		column.setCellValueFactory(factory);
-		column.prefWidthProperty().bind(aggregateTable.widthProperty().multiply(0.5));
+		column.prefWidthProperty().bind(aggregateTable.widthProperty().multiply(0.2));
 		aggregateTable.getColumns().add(column);
-		column = new TableColumn<>("Score");
+		column = new TableColumn<>(KEY_EXTRA_SEATS);
 		column.setCellValueFactory(factory);
-		column.prefWidthProperty().bind(aggregateTable.widthProperty().multiply(0.5));
+		column.prefWidthProperty().bind(aggregateTable.widthProperty().multiply(0.2));
+		aggregateTable.getColumns().add(column);
+		column = new TableColumn<>(KEY_SEAT_PCNT);
+		column.setCellValueFactory(factory);
+		column.prefWidthProperty().bind(aggregateTable.widthProperty().multiply(0.2));
+		aggregateTable.getColumns().add(column);
+		column = new TableColumn<>(KEY_PROPORTION);
+		column.setCellValueFactory(factory);
+		column.prefWidthProperty().bind(aggregateTable.widthProperty().multiply(0.2));
+		aggregateTable.getColumns().add(column);
+		column = new TableColumn<>(KEY_PARTY);
+		column.setCellValueFactory(factory);
+		column.prefWidthProperty().bind(aggregateTable.widthProperty().multiply(0.2));
 		aggregateTable.getColumns().add(column);
 		ObservableList<NameValue> aitems = FXCollections.observableArrayList();
 		for(PlanModel plan:sortedPlans ) {
@@ -154,55 +198,68 @@ public class ProportionalityGate extends Gate {
 		pane.getChildren().add(detailLabel);
 		
 		// Detail table
-		TableView<List<TwoPartyValue>> detailTable = new TableView<>();
-		TableColumn<List<TwoPartyValue>,String> col;
-		TableColumn<List<TwoPartyValue>,String> subcol;
-		TwoPartyListCellValueFactory fact = new TwoPartyListCellValueFactory();
-		
+		TableView<List<NameValue>> detailTable = new TableView<>();
+		TableColumn<List<NameValue>,String> col;
+		TableColumn<List<NameValue>,String> subcol;
+		NameValueListCellValueFactory fact = new NameValueListCellValueFactory();
+		fact.setFormat(KEY_DEM_PCNT, "%2.1f");
+		fact.setFormat(KEY_REP_PCNT, "%2.1f");
+
 		int colno = 0;
 		int maxrows = 0;  // Max districts among plans
-		double widthFactor = 1./(2*sortedPlans.size());
+		double widthFactor = 1./(3*sortedPlans.size());
 		for(PlanModel plan:sortedPlans ) {
+			int ndistricts = plan.getMetrics().size();
+			if(ndistricts>maxrows) maxrows = ndistricts;
 			// These columns have no cells, just sub-columns.
 			col = new TableColumn<>(plan.getName());
 			col.setPrefWidth(DIALOG_WIDTH);
 			detailTable.getColumns().add(col);
-			subcol = new TableColumn<>("Name");
+			subcol = new TableColumn<>(KEY_NAME);
 			subcol.setCellValueFactory(fact);
 			subcol.setUserData(colno);
 			subcol.prefWidthProperty().bind(detailTable.widthProperty().multiply(widthFactor));
 			col.getColumns().add(subcol);
-			subcol = new TableColumn<>("Party");
+			subcol = new TableColumn<>(KEY_DEM_PCNT);
+			subcol.setCellValueFactory(fact);
+			subcol.prefWidthProperty().bind(detailTable.widthProperty().multiply(widthFactor));
+			subcol.setUserData(colno);
+			col.getColumns().add(subcol);
+			subcol = new TableColumn<>(KEY_REP_PCNT);
 			subcol.setCellValueFactory(fact);
 			subcol.prefWidthProperty().bind(detailTable.widthProperty().multiply(widthFactor));
 			subcol.setUserData(colno);
 			col.getColumns().add(subcol);
 			colno++;
 		}
-		
-		ObservableList<List<TwoPartyValue>> ditems = FXCollections.observableArrayList();
+
+		ObservableList<List<NameValue>> ditems = FXCollections.observableArrayList();
 		for( int row=0;row<maxrows;row++ ) {
-			List<TwoPartyValue> values = new ArrayList<>();
+			List<NameValue> values = new ArrayList<>();
 			for(PlanModel plan:sortedPlans ) {
-				List<TwoPartyValue> scores = new ArrayList<>();
+				List<NameValue> scores = new ArrayList<>();
 				for(PlanFeature feat:plan.getMetrics()) {
 					double totalVoters = 0.;
-					values.add(new TwoPartyValue(feat.getName(),feat.getDemocrat(),feat.getRepublican()));
+					totalVoters += feat.getDemocrat();
+					totalVoters += feat.getRepublican();
+					NameValue nv = new NameValue(feat.getName());
+					nv.setValue(KEY_DEM_PCNT, 100.*feat.getDemocrat()/totalVoters);
+					nv.setValue(KEY_REP_PCNT, 100.*feat.getRepublican()/totalVoters);
+					scores.add(nv);
 				}
-				Collections.sort(scores,compare2ByName);
+				Collections.sort(scores,compareByName);
 				if(scores.size()>row ) {
 					values.add(scores.get(row));
 				}
 				else {
-					values.add(TwoPartyValue.EMPTY);
+					values.add(NameValue.EMPTY);
 				}
 			}
 			ditems.add(values);
 		}
-		
+
 		detailTable.setItems(ditems);
 		pane.getChildren().add(detailTable);
-
 		return pane;
 	}
 }

@@ -29,8 +29,10 @@ import redistrict.colorado.core.PlanFeature;
 import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.db.PreferencesTable;
+import redistrict.colorado.table.NameValue;
+import redistrict.colorado.table.NameValueCellValueFactory;
+import redistrict.colorado.table.NameValueListCellValueFactory;
 import redistrict.colorado.ui.ComponentIds;
-import redistrict.colorado.ui.NameValue;
 import redistrict.colorado.ui.UIConstants;
 
 /**
@@ -40,6 +42,11 @@ public class CompactnessGate extends Gate {
 	// For the results popup
 	private final static double DIALOG_HEIGHT = 550.; 
 	private final static double DIALOG_WIDTH = 600.;
+	private final static String KEY_DEVIATION = "Std Deviation";
+	private final static String KEY_SCORE = "Score";
+	private final static String KEY_MEAN = "Mean";
+	private final static String KEY_NAME = "Name";
+	private final static String KEY_PLAN = "Plan";
 	private final Label aggregateLabel = new Label("Harmonic Mean of District Scores");
 	private final Label detailLabel = new Label("Polsby-Popper Score (normalized Isoperimetric Quotient)");
 	private final Map<Long,List<NameValue>> districtScores; 
@@ -56,7 +63,7 @@ public class CompactnessGate extends Gate {
 		Text t2 = new Text("Polsby-Popper Test");
 		t2.setStyle("-fx-font-style: italic");
 		Text t3 = new Text(" metric. This value is obtained by dividing the area of each district by the square of its perimeter, ");
-		Text t4 = new Text("and normalizing by dviding by 4pi (the value if it were a circle). This results in a maximum of 1.0. ");
+		Text t4 = new Text("and normalizing by dviding by 4pi (the value if it were a circle). The metric has a maximum value of 1.0. ");
 		Text t5 = new Text("In order to obtain a grand total, we average the reciprocals of this for each district,");
 		Text t6 = new Text("and then take the reciprocal of that. This gives us the harmonic mean. We want this score to be ");
 		Text t7 = new Text("maximized");
@@ -65,7 +72,7 @@ public class CompactnessGate extends Gate {
 		info.getChildren().addAll(t1,t2,t3,t4,t5,t6,t7,t8);
 		return info;
 	}
-
+	public String getScoreAttribute() { return KEY_MEAN; };
 	public String getTitle() { return "Compactness"; } 
 	public double getWeight() { return Database.getInstance().getPreferencesTable().getWeight(PreferencesTable.COMPACTNESS_WEIGHT_KEY);}
 	public GateType getType() { return GateType.COMPACTNESS; }
@@ -87,15 +94,20 @@ public class CompactnessGate extends Gate {
 			for(PlanFeature feat:plan.getMetrics()) {
 				double iq = feat.getArea()/(feat.getPerimeter()*feat.getPerimeter());
 				iq = iq*(4.*Math.PI);
-				quotients.add(new NameValue(feat.getName(),iq));
+				NameValue nv = new NameValue(feat.getName());
+				nv.setValue(KEY_SCORE,iq);
+				quotients.add(nv);
 				vals[index] = iq;
 				index++;
 			}
-
-			scoreMap.put(plan.getId(), new NameValue(plan.getName(),HarmonicMean.evaluate(vals),sd.evaluate(vals)));
-			districtScores.put(plan.getId(), quotients);
+			NameValue score = new NameValue(plan.getName());
+			score.setValue(KEY_PLAN,plan.getName());
+			score.setValue(KEY_MEAN,HarmonicMean.evaluate(vals));
+			score.setValue(KEY_DEVIATION,sd.evaluate(vals));
+			scoreMap.put(plan.getId(),score);
+			districtScores.put(plan.getId(),quotients);
 		}
-		Collections.sort(plans,compareByScore);  // use .reversed() when minimized is good
+		Collections.sort(plans,compareByScore);
 		sortedPlans.clear();
 		sortedPlans.addAll(plans);
 		updateChart();
@@ -118,15 +130,18 @@ public class CompactnessGate extends Gate {
 		
 		TableColumn<NameValue,String> column;
 		NameValueCellValueFactory factory = new NameValueCellValueFactory();
-		column = new TableColumn<>("Plan");
+		factory.setFormat(KEY_DEVIATION, "%2.6f");
+		factory.setFormat(KEY_MEAN, "%2.6f");
+		factory.setFormat(KEY_SCORE, "%2.6f");
+		column = new TableColumn<>(KEY_PLAN);
 		column.setCellValueFactory(factory);
 		column.prefWidthProperty().bind(aggregateTable.widthProperty().multiply(0.33));
 		aggregateTable.getColumns().add(column);
-		column = new TableColumn<>("Mean");
+		column = new TableColumn<>(KEY_MEAN);
 		column.setCellValueFactory(factory);
 		column.prefWidthProperty().bind(aggregateTable.widthProperty().multiply(0.33));
 		aggregateTable.getColumns().add(column);
-		column = new TableColumn<>("Std Deviation");
+		column = new TableColumn<>(KEY_DEVIATION);
 		column.setCellValueFactory(factory);
 		column.prefWidthProperty().bind(aggregateTable.widthProperty().multiply(0.33));
 		aggregateTable.getColumns().add(column);
@@ -146,6 +161,7 @@ public class CompactnessGate extends Gate {
 		TableColumn<List<NameValue>,String> col;
 		TableColumn<List<NameValue>,String> subcol;
 		NameValueListCellValueFactory fact = new NameValueListCellValueFactory();
+		fact.setFormat(KEY_SCORE, "%2.4f");
 		
 		int colno = 0;
 		int maxrows = 0;  // Max districts among plans
@@ -157,12 +173,12 @@ public class CompactnessGate extends Gate {
 			col = new TableColumn<>(plan.getName());
 			col.setPrefWidth(DIALOG_WIDTH);
 			detailTable.getColumns().add(col);
-			subcol = new TableColumn<>("Name");
+			subcol = new TableColumn<>(KEY_NAME);
 			subcol.setCellValueFactory(fact);
 			subcol.setUserData(colno);
 			subcol.prefWidthProperty().bind(detailTable.widthProperty().multiply(widthFactor));
 			col.getColumns().add(subcol);
-			subcol = new TableColumn<>("Score");
+			subcol = new TableColumn<>(KEY_SCORE);
 			subcol.setCellValueFactory(fact);
 			subcol.prefWidthProperty().bind(detailTable.widthProperty().multiply(widthFactor));
 			subcol.setUserData(colno);

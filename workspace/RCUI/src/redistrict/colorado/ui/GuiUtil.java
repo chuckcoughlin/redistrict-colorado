@@ -56,4 +56,35 @@ public class GuiUtil {
 		}
 		return iv;
 	}
+	
+	/*
+	 * Perform a best-effort conversion of the val to a double
+	 */
+	public double toDouble(Object val) {
+		double dbl = Double.NaN;
+		if( val==null ) {
+			dbl = 0.;
+		}
+		else if( val instanceof Double) {
+
+			dbl = (Double)val;
+		}
+		else if( val instanceof String) {
+			try {
+				if( val.toString().isBlank() ) dbl = 0.;
+				else dbl = Double.parseDouble(val.toString());
+			}
+			catch(NumberFormatException nfe) {
+				LOGGER.warning(String.format("%s.toDouble: Failed to convert %s (%s)",CLSS,val.toString(),nfe.getLocalizedMessage()));
+			}
+		}
+		else if( val instanceof Integer) {
+			dbl = (Integer)val;
+		}
+		else if( val instanceof Long) {
+			dbl = (Long)val;
+		}
+		
+		return dbl;
+	}
 }

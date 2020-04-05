@@ -28,8 +28,12 @@ import redistrict.colorado.core.PlanFeature;
 import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.db.PreferencesTable;
+import redistrict.colorado.table.NameValue;
+import redistrict.colorado.table.NameValueCellValueFactory;
+import redistrict.colorado.table.NameValueLimitCellFactory;
+import redistrict.colorado.table.NameValueListCellValueFactory;
+import redistrict.colorado.table.NameValueListLimitCellFactory;
 import redistrict.colorado.ui.ComponentIds;
-import redistrict.colorado.ui.NameValue;
 import redistrict.colorado.ui.UIConstants;
 
 /**
@@ -40,6 +44,10 @@ import redistrict.colorado.ui.UIConstants;
 public class PopulationEqualityGate extends Gate {
 	private final static double DIALOG_HEIGHT = 550.; 
 	private final static double DIALOG_WIDTH = 600.;
+	private final static String KEY_NAME = "Name";
+	private final static String KEY_PLAN = "Plan";
+	private final static String KEY_SCORE = "% from Mean";
+	private final static String SCORE_FORMAT = "%2.4f";
 	private final double MAX_DIFFERENCE_FROM_MEAN = 1.0;   //
 	private final Label aggregateLabel = new Label("Standard Deviation of District Populations");
 	private final Label detailLabel = new Label("Population Difference from Mean ~ %");
@@ -54,9 +62,9 @@ public class PopulationEqualityGate extends Gate {
 	
 	public TextFlow getInfo() { 
 		TextFlow info = new TextFlow();
-		Text t1 = new Text("The population imbalance is the standard deviation");
-		Text t2 = new Text(" of the populations of the individual districts, normalized by the population and");
-		Text t3 = new Text(" multiplied by 100 to give a result in percent. ");
+		Text t1 = new Text("Ppopulation imbalance is the standard deviation");
+		Text t2 = new Text(" of the populations of the individual districts, normalized by the total population and");
+		Text t3 = new Text(" multiplied by 100, giving a result in percent. ");
 		Text t4 = new Text(" We want this score to be ");
 		Text t5 = new Text("minimized");
 		t5.setStyle("-fx-font-weight: bold");
@@ -64,6 +72,7 @@ public class PopulationEqualityGate extends Gate {
 		info.getChildren().addAll(t1,t2,t3,t4,t5,t6);
 		return info; 
 	}
+	public String getScoreAttribute() { return KEY_SCORE; };
 	public String getTitle() { return "Population Equality"; } 
 	public double getWeight() { return Database.getInstance().getPreferencesTable().getWeight(PreferencesTable.POPULATION_EQUALITY_WEIGHT_KEY);}
 	public GateType getType() { return GateType.POPULATION_EQUALITY; }
@@ -110,17 +119,23 @@ public class PopulationEqualityGate extends Gate {
 				if( Math.abs(val) > MAX_DIFFERENCE_FROM_MEAN) {
 					planInError.put(plan.getId(), true);
 				}
-				populations.add(new NameValue(feat.getName(),val));
+				NameValue nv = new NameValue(feat.getName());
+				nv.setValue(KEY_PLAN, plan.getName());
+				nv.setValue(KEY_SCORE, val);
+				populations.add(nv);
 				poparray[i] = pop;
 				i++;
 			}
-			// It's impossible for the std deviation to be in error if 
+			// It's impossible for the std deviation to be out of range if 
 			// none of the individual districts are out of range.
 			double sd = 100.*stdDeviation.evaluate(poparray)/mean;
-			scoreMap.put(plan.getId(),new NameValue(plan.getName(),sd));
+			NameValue nv = new NameValue(plan.getName());
+			nv.setValue(KEY_PLAN, plan.getName());
+			nv.setValue(KEY_SCORE, sd);
+			scoreMap.put(plan.getId(),nv);
 			districtScores.put(plan.getId(), populations);
 		}
-		Collections.sort(plans,compareByScore);  // use .reversed() when minimized is good
+		Collections.sort(plans,compareByScore); 
 		Collections.reverse(plans);   // Because minimum is best.
 		sortedPlans.clear();
 		sortedPlans.addAll(plans);
@@ -145,11 +160,12 @@ public class PopulationEqualityGate extends Gate {
 		TableColumn<NameValue,String> column;
 		NameValueLimitCellFactory limFactory = new NameValueLimitCellFactory( MAX_DIFFERENCE_FROM_MEAN);
 		NameValueCellValueFactory factory = new NameValueCellValueFactory();
-		column = new TableColumn<>("Plan");
+		factory.setFormat(KEY_SCORE, SCORE_FORMAT);
+		column = new TableColumn<>(KEY_PLAN);
 		column.setCellValueFactory(factory);
 		column.prefWidthProperty().bind(aggregateTable.widthProperty().multiply(0.5));
 		aggregateTable.getColumns().add(column);
-		column = new TableColumn<>("Score");
+		column = new TableColumn<>(KEY_SCORE);
 		column.setCellFactory(limFactory);
 		column.setCellValueFactory(factory);
 		column.prefWidthProperty().bind(aggregateTable.widthProperty().multiply(0.5));
@@ -171,6 +187,7 @@ public class PopulationEqualityGate extends Gate {
 		TableColumn<List<NameValue>,String> subcol;
 		NameValueListLimitCellFactory limitFactory = new NameValueListLimitCellFactory( MAX_DIFFERENCE_FROM_MEAN);
 		NameValueListCellValueFactory fact = new NameValueListCellValueFactory();
+		fact.setFormat(KEY_SCORE, SCORE_FORMAT);
 		
 		int colno = 0;
 		int maxrows = 0;  // Max districts among plans
@@ -182,12 +199,12 @@ public class PopulationEqualityGate extends Gate {
 			col = new TableColumn<>(plan.getName());
 			col.setPrefWidth(DIALOG_WIDTH);
 			detailTable.getColumns().add(col);
-			subcol = new TableColumn<>("Name");
+			subcol = new TableColumn<>(KEY_NAME);
 			subcol.setCellValueFactory(fact);
 			subcol.setUserData(colno);
 			subcol.prefWidthProperty().bind(detailTable.widthProperty().multiply(widthFactor));
 			col.getColumns().add(subcol);
-			subcol = new TableColumn<>("% from Mean");
+			subcol = new TableColumn<>(KEY_SCORE);
 			subcol.setCellFactory(limitFactory);
 			subcol.setCellValueFactory(fact);
 			subcol.prefWidthProperty().bind(detailTable.widthProperty().multiply(widthFactor));

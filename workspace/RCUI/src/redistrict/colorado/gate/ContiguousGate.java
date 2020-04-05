@@ -16,6 +16,7 @@ import redistrict.colorado.db.PreferencesTable;
  * Compare plans based on the contiguity of the districts.
  */
 public class ContiguousGate extends Gate {
+	private final static String KEY_SCORE = "Score";
 	public TextFlow getInfo() { 
 		TextFlow info = new TextFlow();
 		Text t1 = new Text("To measure contiguity, or the amount of disconnected population, we count the total population ");
@@ -26,6 +27,7 @@ public class ContiguousGate extends Gate {
 		info.getChildren().addAll(t1,t2,t3,t4);
 		return info;
 	}
+	public String getScoreAttribute() { return KEY_SCORE; };
 	public String getTitle() { return "Contiguity"; } 
 	public double getWeight() { return Database.getInstance().getPreferencesTable().getWeight(PreferencesTable.CONTIGUITY_WEIGHT_KEY);}
 	public GateType getType() { return GateType.CONTIGUITY; }
