@@ -27,7 +27,7 @@ public class VoteEfficiencyGate extends Gate {
 		Text t4 = new Text("minimized");
 		t4.setStyle("-fx-font-weight: bold");
 		Text t5 = new Text(".");
-		info.getChildren().addAll(t1,t2,t3,t4,t5);
+		info.getChildren().addAll(t1,t3,t4,t5);
 		return info;
 	}
 	public String getScoreAttribute() { return KEY_SCORE; };

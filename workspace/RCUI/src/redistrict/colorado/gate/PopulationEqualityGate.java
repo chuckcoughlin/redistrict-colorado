@@ -98,6 +98,14 @@ public class PopulationEqualityGate extends Gate {
 	 */
 	@Override
 	public void evaluate(List<PlanModel> plans) {
+		double threshold = DEFAULT_THRESHOLD;
+		try {
+			String val = Database.getInstance().getPreferencesTable().getParameter(PreferencesTable.POPULATION_EQUALITY_THRESHOLD_KEY);
+			if( !val.isEmpty()) threshold = Double.parseDouble(val);
+		}
+		catch(NumberFormatException nfe) {
+			LOGGER.warning("PopulationEqualityGate.evaluating: Error converting threshold to double. Using 15%. ("+nfe.getLocalizedMessage()+")");
+		}
 		LOGGER.info("PopulationEqualityGate.evaluating: ...");
 		StandardDeviation stdDeviation = new StandardDeviation();
 		stdDeviation.setBiasCorrected(false);
@@ -116,7 +124,7 @@ public class PopulationEqualityGate extends Gate {
 				double pop = feat.getPopulation();
 				double val = 100.*(pop-mean)/mean;
 				LOGGER.info(String.format("PopulationEqualityGate.evaluating: %2.0f pop, %2.2f val",pop,val));
-				if( Math.abs(val) > DEFAULT_THRESHOLD) {
+				if( Math.abs(val) > threshold) {
 					planInError.put(plan.getId(), true);
 				}
 				NameValue nv = new NameValue(feat.getName());

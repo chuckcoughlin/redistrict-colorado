@@ -53,9 +53,7 @@ public class PlanSetupPane extends BasicRightSideNode
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private final static double COL0_WIDTH = 100.;    // margin
 	private final static double COL1_WIDTH = 400.;
-	private final double SETUP_TABLE_HEIGHT = 200.; // Preferred
-	private final double SETUP_TABLE_WIDTH  = 200.; 
-	private final static double TABLE_OFFSET_TOP = 150.;
+	private final static double TABLE_OFFSET_TOP = 210.;
 	private Label headerLabel = new Label("Analysis Setup");
 	private final SavePane savePane = new SavePane(this);
 	private AnalysisModel model;
@@ -94,6 +92,10 @@ public class PlanSetupPane extends BasicRightSideNode
         
 	    Tooltip tt = new Tooltip("The threshold is the vote differential between parties ~ percent. Valid ranges is 1. to 60.");
 	    Tooltip.install(competitivenessLabel, tt);
+	    tt = new Tooltip("The threshold marks the maximum efficiency gap considered to be non-gerrymandered.");
+	    Tooltip.install(efficiencyGapLabel, tt);
+	    tt = new Tooltip("This value is the maximum allowed differential between a district's population and the mean.");
+	    Tooltip.install(populationEqualityLabel, tt);
         
 		table = new TableView<Gate>();
 		table.setEditable(true);
@@ -121,7 +123,7 @@ public class PlanSetupPane extends BasicRightSideNode
 		grid.add(efficiencyGapLabel, 0, 3);
 		grid.add(efficiencyGapField, 1, 3);
 		grid.add(populationEqualityLabel, 0, 4);
-		grid.add(populationEqualityField, 1, 5);
+		grid.add(populationEqualityField, 1, 4);
 		
 		getChildren().add(grid);
 		setTopAnchor(grid,UIConstants.DETAIL_HEADER_SPACING);
