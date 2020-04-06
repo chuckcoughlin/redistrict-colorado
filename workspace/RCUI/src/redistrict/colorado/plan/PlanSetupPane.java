@@ -63,7 +63,11 @@ public class PlanSetupPane extends BasicRightSideNode
 	private final Label affiliationLabel = new Label("Affiliation: ");
 	private final Label demographicsLabel = new Label("Demographics: ");
 	private final Label competitivenessLabel = new Label("Competitive Threshold: ");
+	private final Label efficiencyGapLabel = new Label("Efficiency Gap Threshold: ");
+	private final Label populationEqualityLabel = new Label("Population Equality Threshold: ");
 	private final TextField competitivenessField = new TextField();
+	private final TextField efficiencyGapField = new TextField();
+	private final TextField populationEqualityField = new TextField();
 	private final ComboBox<String> affiliationCombo;
 	private final ComboBox<String> demographicCombo;
 	private final ObservableList<Gate> items;  // Array displayed in table
@@ -114,6 +118,10 @@ public class PlanSetupPane extends BasicRightSideNode
 		grid.add(demographicCombo, 1, 1);
 		grid.add(competitivenessLabel, 0, 2);
 		grid.add(competitivenessField, 1, 2);
+		grid.add(efficiencyGapLabel, 0, 3);
+		grid.add(efficiencyGapField, 1, 3);
+		grid.add(populationEqualityLabel, 0, 4);
+		grid.add(populationEqualityField, 1, 5);
 		
 		getChildren().add(grid);
 		setTopAnchor(grid,UIConstants.DETAIL_HEADER_SPACING);
@@ -183,7 +191,8 @@ public class PlanSetupPane extends BasicRightSideNode
 	}
 	private void configureTable() {
 		competitivenessField.setText(Database.getInstance().getPreferencesTable().getParameter(PreferencesTable.COMPETITIVENESS_THRESHOLD_KEY));
-		LOGGER.info(String.format("%s.configureTable = %s",CLSS,competitivenessField.getText()));
+		efficiencyGapField.setText(Database.getInstance().getPreferencesTable().getParameter(PreferencesTable.EFFICIENCY_GAP_THRESHOLD_KEY));
+		populationEqualityField.setText(Database.getInstance().getPreferencesTable().getParameter(PreferencesTable.POPULATION_EQUALITY_THRESHOLD_KEY));
 		table.setItems(items);
 	}
 
@@ -237,6 +246,8 @@ public class PlanSetupPane extends BasicRightSideNode
 				Database.getInstance().getPreferencesTable().updateAnalysisModel(model);
 				LOGGER.info(String.format("%s.save = %s",CLSS,competitivenessField.getText()));
 				Database.getInstance().getPreferencesTable().setParameter(PreferencesTable.COMPETITIVENESS_THRESHOLD_KEY, competitivenessField.getText());
+				Database.getInstance().getPreferencesTable().setParameter(PreferencesTable.EFFICIENCY_GAP_THRESHOLD_KEY, efficiencyGapField.getText());
+				Database.getInstance().getPreferencesTable().setParameter(PreferencesTable.POPULATION_EQUALITY_THRESHOLD_KEY, populationEqualityField.getText());
 				
 			}
 		}

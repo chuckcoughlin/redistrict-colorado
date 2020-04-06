@@ -27,6 +27,8 @@ public class PreferencesTable {
 	private static final String AFFILIATION_KEY = "AffiliationId";
 	private static final String DEMOGRAPHIC_KEY = "DemographicID";
 	public static final String COMPETITIVENESS_THRESHOLD_KEY = "CompetitivenessThreshold";
+	public static final String EFFICIENCY_GAP_THRESHOLD_KEY = "EfficiencyGapThreshold";
+	public static final String POPULATION_EQUALITY_THRESHOLD_KEY = "PopulationEqualtyThreshold";
 	// These weighting keys are initialized in the database when it is created
 	public static final String COMPACTNESS_WEIGHT_KEY = "CompactnessWeight";
 	public static final String COMPETITIVENESS_WEIGHT_KEY = "CompetitivenessWeight";

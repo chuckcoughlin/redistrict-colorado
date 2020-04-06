@@ -48,7 +48,7 @@ public class PopulationEqualityGate extends Gate {
 	private final static String KEY_PLAN = "Plan";
 	private final static String KEY_SCORE = "% from Mean";
 	private final static String SCORE_FORMAT = "%2.4f";
-	private final double MAX_DIFFERENCE_FROM_MEAN = 1.0;   //
+	private final double DEFAULT_THRESHOLD = 1.0;   // Max difference from mean
 	private final Label aggregateLabel = new Label("Standard Deviation of District Populations");
 	private final Label detailLabel = new Label("Population Difference from Mean ~ %");
 	private final Map<Long,List<NameValue>> districtScores; 
@@ -116,7 +116,7 @@ public class PopulationEqualityGate extends Gate {
 				double pop = feat.getPopulation();
 				double val = 100.*(pop-mean)/mean;
 				LOGGER.info(String.format("PopulationEqualityGate.evaluating: %2.0f pop, %2.2f val",pop,val));
-				if( Math.abs(val) > MAX_DIFFERENCE_FROM_MEAN) {
+				if( Math.abs(val) > DEFAULT_THRESHOLD) {
 					planInError.put(plan.getId(), true);
 				}
 				NameValue nv = new NameValue(feat.getName());
@@ -158,7 +158,7 @@ public class PopulationEqualityGate extends Gate {
 		aggregateTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
 		
 		TableColumn<NameValue,String> column;
-		NameValueLimitCellFactory limFactory = new NameValueLimitCellFactory( MAX_DIFFERENCE_FROM_MEAN);
+		NameValueLimitCellFactory limFactory = new NameValueLimitCellFactory( DEFAULT_THRESHOLD);
 		NameValueCellValueFactory factory = new NameValueCellValueFactory();
 		factory.setFormat(KEY_SCORE, SCORE_FORMAT);
 		column = new TableColumn<>(KEY_PLAN);
@@ -185,7 +185,7 @@ public class PopulationEqualityGate extends Gate {
 		TableView<List<NameValue>> detailTable = new TableView<>();
 		TableColumn<List<NameValue>,String> col;
 		TableColumn<List<NameValue>,String> subcol;
-		NameValueListLimitCellFactory limitFactory = new NameValueListLimitCellFactory( MAX_DIFFERENCE_FROM_MEAN);
+		NameValueListLimitCellFactory limitFactory = new NameValueListLimitCellFactory( DEFAULT_THRESHOLD);
 		NameValueListCellValueFactory fact = new NameValueListCellValueFactory();
 		fact.setFormat(KEY_SCORE, SCORE_FORMAT);
 		

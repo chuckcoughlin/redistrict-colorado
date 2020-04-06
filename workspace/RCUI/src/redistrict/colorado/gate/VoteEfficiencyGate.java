@@ -18,11 +18,12 @@ import redistrict.colorado.db.PreferencesTable;
  */
 public class VoteEfficiencyGate extends Gate {
 	private final static String KEY_SCORE = "Score";
+	private final double DEFAULT_THRESHOLD = 8.0;
+	
 	public TextFlow getInfo() { 
 		TextFlow info = new TextFlow();
-		Text t1 = new Text("To measure wasted votes, we count the number of votes above the amount necessary to win, ");
-		Text t2 = new Text("for each district and each party. The more wasted votes an election had, the less competitive ");
-		Text t3 = new Text("it was. We want this score to be ");
+		Text t1 = new Text("The efficiency gap is the sum of the differences of wasted votes for the two parties divied by the total number of votes. A wasted vote is a ");
+		Text t3 = new Text("vote that does not help elect a candidate (Over 50% for the winning side, all votes for the losing side. We want this score to be ");
 		Text t4 = new Text("minimized");
 		t4.setStyle("-fx-font-weight: bold");
 		Text t5 = new Text(".");
