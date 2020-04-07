@@ -37,6 +37,8 @@ import javafx.scene.text.TextFlow;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.GateType;
 import redistrict.colorado.core.PlanModel;
+import redistrict.colorado.db.Database;
+import redistrict.colorado.db.PreferencesTable;
 import redistrict.colorado.table.NameValue;
 import redistrict.colorado.ui.ComponentIds;
 import redistrict.colorado.ui.GuiUtil;
@@ -174,6 +176,19 @@ public abstract class Gate extends VBox {
 	        return (name1.compareTo(name2));
 	    }
 	};
+	
+	// Read a preferences string and convert to a double. The default is there just in case of error.
+	protected double getThreshold(String key,double defaultThreshold) {
+		double threshold = defaultThreshold;
+		try {
+			String val = Database.getInstance().getPreferencesTable().getParameter(key);
+			if( !val.isEmpty()) threshold = Double.parseDouble(val);
+		}
+		catch(NumberFormatException nfe) {
+			LOGGER.warning(String.format("%s.getThreshold: Error converting %s to double. Using %d. (%s)",CLSS,key,defaultThreshold,nfe.getLocalizedMessage()));
+		}
+		return threshold;
+	}
 	
 	// Set the bar size to be around 20
 	// This was developed purely by cut and try

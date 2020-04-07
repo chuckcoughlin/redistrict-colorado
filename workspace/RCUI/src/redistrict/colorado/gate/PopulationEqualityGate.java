@@ -62,7 +62,7 @@ public class PopulationEqualityGate extends Gate {
 	
 	public TextFlow getInfo() { 
 		TextFlow info = new TextFlow();
-		Text t1 = new Text("Ppopulation imbalance is the standard deviation");
+		Text t1 = new Text("Population imbalance is the standard deviation");
 		Text t2 = new Text(" of the populations of the individual districts, normalized by the total population and");
 		Text t3 = new Text(" multiplied by 100, giving a result in percent. ");
 		Text t4 = new Text(" We want this score to be ");
@@ -98,15 +98,8 @@ public class PopulationEqualityGate extends Gate {
 	 */
 	@Override
 	public void evaluate(List<PlanModel> plans) {
-		double threshold = DEFAULT_THRESHOLD;
-		try {
-			String val = Database.getInstance().getPreferencesTable().getParameter(PreferencesTable.POPULATION_EQUALITY_THRESHOLD_KEY);
-			if( !val.isEmpty()) threshold = Double.parseDouble(val);
-		}
-		catch(NumberFormatException nfe) {
-			LOGGER.warning("PopulationEqualityGate.evaluating: Error converting threshold to double. Using 15%. ("+nfe.getLocalizedMessage()+")");
-		}
 		LOGGER.info("PopulationEqualityGate.evaluating: ...");
+		double threshold = getThreshold(PreferencesTable.POPULATION_EQUALITY_THRESHOLD_KEY,DEFAULT_THRESHOLD);
 		StandardDeviation stdDeviation = new StandardDeviation();
 		stdDeviation.setBiasCorrected(false);
 		for(PlanModel plan:plans) {
@@ -152,6 +145,7 @@ public class PopulationEqualityGate extends Gate {
 	// Create contents that allow viewing the details of the calculation
 	@Override
 	protected Node getResultsContents() { 
+		double threshold = getThreshold(PreferencesTable.POPULATION_EQUALITY_THRESHOLD_KEY,DEFAULT_THRESHOLD);
 		VBox pane =  new VBox(10);
 		pane.setPrefSize(DIALOG_WIDTH, DIALOG_HEIGHT);
 		pane.setFillWidth(true);
@@ -166,7 +160,7 @@ public class PopulationEqualityGate extends Gate {
 		aggregateTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
 		
 		TableColumn<NameValue,String> column;
-		NameValueLimitCellFactory limFactory = new NameValueLimitCellFactory( DEFAULT_THRESHOLD);
+		NameValueLimitCellFactory limFactory = new NameValueLimitCellFactory( threshold);
 		NameValueCellValueFactory factory = new NameValueCellValueFactory();
 		factory.setFormat(KEY_SCORE, SCORE_FORMAT);
 		column = new TableColumn<>(KEY_PLAN);
@@ -193,7 +187,7 @@ public class PopulationEqualityGate extends Gate {
 		TableView<List<NameValue>> detailTable = new TableView<>();
 		TableColumn<List<NameValue>,String> col;
 		TableColumn<List<NameValue>,String> subcol;
-		NameValueListLimitCellFactory limitFactory = new NameValueListLimitCellFactory( DEFAULT_THRESHOLD);
+		NameValueListLimitCellFactory limitFactory = new NameValueListLimitCellFactory(threshold);
 		NameValueListCellValueFactory fact = new NameValueListCellValueFactory();
 		fact.setFormat(KEY_SCORE, SCORE_FORMAT);
 		

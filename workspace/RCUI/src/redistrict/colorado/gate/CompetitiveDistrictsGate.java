@@ -76,14 +76,8 @@ public class CompetitiveDistrictsGate extends Gate {
 	public void evaluate(List<PlanModel> plans) {
 		LOGGER.info("CompetitiveDistrictsGate.evaluating: ...");
 
-		double threshold = DEFAULT_THRESHOLD;
-		try {
-			String val = Database.getInstance().getPreferencesTable().getParameter(PreferencesTable.COMPETITIVENESS_THRESHOLD_KEY);
-			if( !val.isEmpty()) threshold = Double.parseDouble(val);
-		}
-		catch(NumberFormatException nfe) {
-			LOGGER.warning("CompetitiveDistrictsGate.evaluating: Error converting threshold to double. Using 15%. ("+nfe.getLocalizedMessage()+")");
-		}
+		double threshold = getThreshold(PreferencesTable.COMPETITIVENESS_THRESHOLD_KEY,DEFAULT_THRESHOLD);
+
 		for(PlanModel plan:plans) {
 			double competitiveCount = 0.;
 			for(PlanFeature feat:plan.getMetrics()) {
@@ -108,14 +102,7 @@ public class CompetitiveDistrictsGate extends Gate {
 	// Create contents that allow viewing the details of the calculation
 	@Override
 	protected Node getResultsContents() { 
-		double threshold = DEFAULT_THRESHOLD;
-		try {
-			String val = Database.getInstance().getPreferencesTable().getParameter(PreferencesTable.COMPETITIVENESS_THRESHOLD_KEY);
-			if( !val.isEmpty()) threshold = Double.parseDouble(val);
-		}
-		catch(NumberFormatException nfe) {
-			LOGGER.warning("CompetitiveDistrictsGate.evaluating: Error converting threshold to double. Using 15%. ("+nfe.getLocalizedMessage()+")");
-		}
+		double threshold = getThreshold(PreferencesTable.COMPETITIVENESS_THRESHOLD_KEY,DEFAULT_THRESHOLD);
 		VBox pane =  new VBox(10);
 		pane.setPrefSize(DIALOG_WIDTH, DIALOG_HEIGHT);
 		pane.setFillWidth(true);
