@@ -1,8 +1,10 @@
 ## Redistrict Colorado
 ## User Guide
-This guide walks through the use and installation of the *RCAnalyzer* application. *RCAnalyzer* computes metrics for redistricting plans based on a collection of datasets which contain
+*FairnessAnalyzer* is designed to answer the question "Which is better?" when dealing with competing redistricting plans. The user configures plans and controls their analysis based on a collection of datasets which contain
 district geometries, voter
-affiliation and demographic information based on publicly available shapefiles. The purpose of the application is to compare two or more redistricting plans for fairness. The criteria used are largely based on the work of Kevin Baas and his [autoredistrict](http://autoredistrict.org/index.php) project.
+affiliation and demographic information. This guide walks through the use and installation of the application.  
+
+ The application computes an array of metrics for the purpose of comparing two or more redistricting plans for fairness. The criteria used are largely based on the work of Kevin Baas and his [autoredistrict](http://autoredistrict.org/index.php) project.
 
 ### Overview
 
@@ -60,9 +62,9 @@ a serious candidate. This leaves voters with no real choices at election time. T
 On the setup page, the value "Competitiveness Threshold" specifies the
 maximum party differential for a competitive district. This is nominally 15%.
 
-`Population Equality`
-Population equality or it opposite, population imbalance, is the standard deviation
-of the populations of the districts. We normalize by the total population,
+`Population Balance`
+The constitutionally-mandated purpose of redistricting is to balance the number of people within the districts. A measure of population balance is simply the standard deviation
+of the population of the districts. We normalize by the total population,
 multiplied by 100 to give a result in percent. This value should be *minimized*.
 
 A red X indicator is drawn on the bar if any individual district has over a 1.0% deviation. Court cases have established 1% as

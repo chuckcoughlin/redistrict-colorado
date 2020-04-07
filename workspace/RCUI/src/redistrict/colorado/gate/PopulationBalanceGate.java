@@ -41,7 +41,7 @@ import redistrict.colorado.ui.UIConstants;
  * 1% of each other. The explanation is from autoredistrict.org.
  * We call it "imbalance" to emphasize that we want to minimize.
  */
-public class PopulationEqualityGate extends Gate {
+public class PopulationBalanceGate extends Gate {
 	private final static double DIALOG_HEIGHT = 550.; 
 	private final static double DIALOG_WIDTH = 600.;
 	private final static String KEY_NAME = "Name";
@@ -49,12 +49,12 @@ public class PopulationEqualityGate extends Gate {
 	private final static String KEY_SCORE = "% from Mean";
 	private final static String SCORE_FORMAT = "%2.4f";
 	private final double DEFAULT_THRESHOLD = 1.0;   // Max difference from mean
-	private final Label aggregateLabel = new Label("Standard Deviation of District Populations");
+	private final Label aggregateLabel = new Label("Standard Deviation of Total District Populations");
 	private final Label detailLabel = new Label("Population Difference from Mean ~ %");
 	private final Map<Long,List<NameValue>> districtScores; 
 	private final Map<Long,Boolean> planInError;
 	
-	public PopulationEqualityGate() {
+	public PopulationBalanceGate() {
 		this.districtScores = new HashMap<>();
 		this.planInError = new HashMap<>();
 		xAxis.setAutoRanging(true);
@@ -63,7 +63,7 @@ public class PopulationEqualityGate extends Gate {
 	public TextFlow getInfo() { 
 		TextFlow info = new TextFlow();
 		Text t1 = new Text("Population imbalance is the standard deviation");
-		Text t2 = new Text(" of the populations of the individual districts, normalized by the total population and");
+		Text t2 = new Text(" of the population of the individual districts, normalized by the total population and");
 		Text t3 = new Text(" multiplied by 100, giving a result in percent. ");
 		Text t4 = new Text(" We want this score to be ");
 		Text t5 = new Text("minimized");
@@ -73,9 +73,9 @@ public class PopulationEqualityGate extends Gate {
 		return info; 
 	}
 	public String getScoreAttribute() { return KEY_SCORE; };
-	public String getTitle() { return "Population Equality"; } 
+	public String getTitle() { return "Population Balance"; } 
 	public double getWeight() { return Database.getInstance().getPreferencesTable().getWeight(PreferencesTable.POPULATION_EQUALITY_WEIGHT_KEY);}
-	public GateType getType() { return GateType.POPULATION_EQUALITY; }
+	public GateType getType() { return GateType.POPULATION_BALANCE; }
 	public void setWeight(double weight) {Database.getInstance().getPreferencesTable().setWeight(PreferencesTable.POPULATION_EQUALITY_WEIGHT_KEY,weight);}
 	public boolean useMaximum() { return false; }
 	
@@ -98,8 +98,8 @@ public class PopulationEqualityGate extends Gate {
 	 */
 	@Override
 	public void evaluate(List<PlanModel> plans) {
-		LOGGER.info("PopulationEqualityGate.evaluating: ...");
-		double threshold = getThreshold(PreferencesTable.POPULATION_EQUALITY_THRESHOLD_KEY,DEFAULT_THRESHOLD);
+		LOGGER.info("PopulationBalanceGate.evaluating: ...");
+		double threshold = getThreshold(PreferencesTable.POPULATION_BALANCE_THRESHOLD_KEY,DEFAULT_THRESHOLD);
 		StandardDeviation stdDeviation = new StandardDeviation();
 		stdDeviation.setBiasCorrected(false);
 		for(PlanModel plan:plans) {
@@ -111,12 +111,12 @@ public class PopulationEqualityGate extends Gate {
 				total += feat.getPopulation();
 			}
 			double mean = total/plan.getMetrics().size();
-			LOGGER.info(String.format("PopulationEqualityGate.evaluating: %2.0f total, %2.0f mean",mean,total));
+			LOGGER.info(String.format("PopulationBalanceGate.evaluating: %2.0f total, %2.0f mean",mean,total));
 			int i = 0;
 			for(PlanFeature feat:plan.getMetrics()) {
 				double pop = feat.getPopulation();
 				double val = 100.*(pop-mean)/mean;
-				LOGGER.info(String.format("PopulationEqualityGate.evaluating: %2.0f pop, %2.2f val",pop,val));
+				LOGGER.info(String.format("PopulationBalanceGate.evaluating: %2.0f pop, %2.2f val",pop,val));
 				if( Math.abs(val) > threshold) {
 					planInError.put(plan.getId(), true);
 				}
@@ -145,7 +145,7 @@ public class PopulationEqualityGate extends Gate {
 	// Create contents that allow viewing the details of the calculation
 	@Override
 	protected Node getResultsContents() { 
-		double threshold = getThreshold(PreferencesTable.POPULATION_EQUALITY_THRESHOLD_KEY,DEFAULT_THRESHOLD);
+		double threshold = getThreshold(PreferencesTable.POPULATION_BALANCE_THRESHOLD_KEY,DEFAULT_THRESHOLD);
 		VBox pane =  new VBox(10);
 		pane.setPrefSize(DIALOG_WIDTH, DIALOG_HEIGHT);
 		pane.setFillWidth(true);

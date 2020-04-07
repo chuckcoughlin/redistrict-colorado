@@ -28,11 +28,11 @@ import redistrict.colorado.ui.MainMenuBar;
 import redistrict.colorado.ui.StatusPane;
 import redistrict.colorado.ui.UIConstants;
 
-public class MapAnalyzer extends Application {
-	private final static String CLSS = "MapAnalyzer";
+public class FairnessAnalyzer extends Application {
+	private final static String CLSS = "FairnessAnalyzer";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private static final String LOG_ROOT = CLSS.toLowerCase();
-	public final static String TITLE  = "Map Analyzer";
+	public final static String TITLE  = "Fairness Analyzer";
 
 	/**
 	 * Create the root stage and add left and right scenes in a split pane. Add scroll bars both sides

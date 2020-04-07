@@ -159,7 +159,8 @@ public class PlanEditPane extends BasicRightSideNode implements EventHandler<Act
 	@Override
 	public void updateModel() {
 		this.model = EventBindingHub.getInstance().getSelectedPlan();
-		configureDefinition();
 		configureComboBox();
+		configureDefinition();
+
 	}
 }

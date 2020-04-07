@@ -194,7 +194,7 @@ public class PlanSetupPane extends BasicRightSideNode
 	private void configureTable() {
 		competitivenessField.setText(Database.getInstance().getPreferencesTable().getParameter(PreferencesTable.COMPETITIVENESS_THRESHOLD_KEY));
 		efficiencyGapField.setText(Database.getInstance().getPreferencesTable().getParameter(PreferencesTable.EFFICIENCY_GAP_THRESHOLD_KEY));
-		populationEqualityField.setText(Database.getInstance().getPreferencesTable().getParameter(PreferencesTable.POPULATION_EQUALITY_THRESHOLD_KEY));
+		populationEqualityField.setText(Database.getInstance().getPreferencesTable().getParameter(PreferencesTable.POPULATION_BALANCE_THRESHOLD_KEY));
 		table.setItems(items);
 	}
 
@@ -249,7 +249,7 @@ public class PlanSetupPane extends BasicRightSideNode
 				LOGGER.info(String.format("%s.save = %s",CLSS,competitivenessField.getText()));
 				Database.getInstance().getPreferencesTable().setParameter(PreferencesTable.COMPETITIVENESS_THRESHOLD_KEY, competitivenessField.getText());
 				Database.getInstance().getPreferencesTable().setParameter(PreferencesTable.EFFICIENCY_GAP_THRESHOLD_KEY, efficiencyGapField.getText());
-				Database.getInstance().getPreferencesTable().setParameter(PreferencesTable.POPULATION_EQUALITY_THRESHOLD_KEY, populationEqualityField.getText());
+				Database.getInstance().getPreferencesTable().setParameter(PreferencesTable.POPULATION_BALANCE_THRESHOLD_KEY, populationEqualityField.getText());
 				
 			}
 		}

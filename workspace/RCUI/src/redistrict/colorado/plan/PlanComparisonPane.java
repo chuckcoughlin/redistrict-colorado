@@ -33,7 +33,7 @@ public class PlanComparisonPane extends BasicRightSideNode {
 	private final static String CLSS = "PlanComparisonPane";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private static final double HEADER_HEIGHT = 20.;
-	private Label headerLabel = new Label("Plan Comparison");
+	private Label headerLabel = new Label("Fairness Comparison");
 	private List<PlanModel> models;
 	private final GridPane grid;
 	private final Legend legend;
@@ -92,7 +92,7 @@ public class PlanComparisonPane extends BasicRightSideNode {
 	private void populateGrid() {
 		GateCache cache = GateCache.getInstance();
 		grid.getChildren().clear();
-		grid.add(cache.getGate(GateType.POPULATION_EQUALITY),0, 0);  // column row
+		grid.add(cache.getGate(GateType.POPULATION_BALANCE),0, 0);  // column row
 		grid.add(cache.getGate(GateType.COMPACTNESS), 1, 0);
 		grid.add(cache.getGate(GateType.CONTIGUITY), 2, 0);
 		grid.add(cache.getGate(GateType.VOTING_POWER), 0, 1);
