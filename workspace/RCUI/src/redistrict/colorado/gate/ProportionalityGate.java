@@ -24,8 +24,6 @@ import javafx.scene.text.TextFlow;
 import redistrict.colorado.core.GateType;
 import redistrict.colorado.core.PlanFeature;
 import redistrict.colorado.core.PlanModel;
-import redistrict.colorado.db.Database;
-import redistrict.colorado.db.PreferencesTable;
 import redistrict.colorado.table.NameValue;
 import redistrict.colorado.table.NameValueCellValueFactory;
 import redistrict.colorado.table.NameValueListCellValueFactory;
@@ -70,10 +68,7 @@ public class ProportionalityGate extends Gate {
 	}
 	public String getScoreAttribute() { return KEY_EXTRA_SEATS; };
 	public String getTitle() { return "Proportionality"; } 
-	public double getWeight() { return Database.getInstance().getPreferencesTable().getWeight(PreferencesTable.POPULATION_EQUALITY_WEIGHT_KEY);}
 	public GateType getType() { return GateType.PROPORTIONALITY; }
-	public void setWeight(double weight) {Database.getInstance().getPreferencesTable().setWeight(PreferencesTable.POPULATION_EQUALITY_WEIGHT_KEY,weight);}
-	public boolean useMaximum() { return false; }
 	
 	protected Label getBarOverlayLabel(PlanModel model) {
 		int biased = planBiased.get(model.getId());

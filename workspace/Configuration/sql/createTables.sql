@@ -40,6 +40,18 @@ CREATE TABLE FeatureAttribute (
 	PRIMARY KEY(datasetId,name),
 	FOREIGN KEY (datasetId) references Dataset(id) ON DELETE CASCADE
 );
+-- The Gate properties table defines weight and numeric range for 
+-- calculation "gates". The "fair" value is the one that gives a "10"
+-- on the overall metric.
+DROP TABLE IF EXISTS GateProperties;
+CREATE TABLE GateProperties (
+	id	INTEGER  PRIMARY KEY,
+	name TEXT NOT NULL,
+	weight real DEFAULT 1.0,
+	unfair real DEFAULT 0.0,
+	fair real DEFAULT 10.,
+	PRIMARY KEY(name)
+);
 -- The Plan table links a plan to a boundary dataset. The dataset must
 -- have a role of BOUNDARIES. We compute metrics on plans using the
 -- environment provided by a AnalysisModel.
@@ -70,6 +82,7 @@ CREATE TABLE PlanFeature (
 	black		real DEFAULT 0.,
 	hispanic	real DEFAULT 0.,
 	white		real DEFAULT 0.,
+	crossings	integer DEFAULT 0.,
 	PRIMARY KEY(planId,featureId),
 	FOREIGN KEY (planId) references Plan(id) ON DELETE CASCADE
 );

@@ -17,8 +17,10 @@ public class AnalysisModel {
 	private final long id;
 	private long affiliationId;
 	private long demographicId;
+	private long countyBoundariesId;   // Or other political boundary
 	private String affGeoName = null;
 	private String blackName = null;
+	private String countyGeoName = null;
 	private String demoGeoName = null;
 	private String democratName = null;
 	private String hispanicName = null;
@@ -32,10 +34,13 @@ public class AnalysisModel {
 		this.id = id;
 		this.demographicId = -1;
 		this.affiliationId = -1;
+		this.countyBoundariesId = -1;
 	}
 	
 	public long getAffiliationId() { return this.affiliationId; }
 	public String getAffiliationGeometryName() { return this.affGeoName; }
+	public long getCountyBoundariesId() { return this.countyBoundariesId; }
+	public String getCountyGeometryName() { return this.countyGeoName; }
 	public long getDemographicId() { return this.demographicId; }
 	public String getDemographicGeometryName() { return this.demoGeoName; }
 	public String getAttributeForBlack() { return blackName; }
@@ -50,6 +55,7 @@ public class AnalysisModel {
 	// When we change the affiliations dataset, re-query for the alias names
 	public void setAffiliationId(long aid) { this.affiliationId = aid; }
 	public void setDemographicId(long did) { this.demographicId = did; }
+	public void setCountyBoundariesId(long cbid) { this.countyBoundariesId = cbid; }
 	public void updateAffiliationFeatures() { 
 		DatasetModel dm = DatasetCache.getInstance().getDataset(affiliationId);
 		if(dm==null) return;
@@ -57,9 +63,15 @@ public class AnalysisModel {
 		this.democratName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.DEMOCRAT.name());
 		this.republicanName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.REPUBLICAN.name());
 	}
+	public void updateCountyFeatures() { 
+		DatasetModel dm = DatasetCache.getInstance().getDataset(countyBoundariesId);
+		if(dm==null) return;
+		this.countyGeoName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.GEOMETRY.name());
+	}
 	public void updateDemographicFeatures() {  
 		DatasetModel dm = DatasetCache.getInstance().getDataset(demographicId);
 		if(dm==null) return;
+		this.countyGeoName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.GEOMETRY.name());
 		this.demoGeoName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.GEOMETRY.name());
 		this.blackName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.BLACK.name());
 		this.hispanicName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.HISPANIC.name());

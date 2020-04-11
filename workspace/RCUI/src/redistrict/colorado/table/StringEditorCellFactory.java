@@ -1,4 +1,4 @@
-package redistrict.colorado.plan;
+package redistrict.colorado.table;
 
 import java.util.logging.Logger;
 
@@ -15,19 +15,19 @@ import redistrict.colorado.gate.Gate;
 /**
  * Render a String cell in the PlanLayer table
  */
-public class PreferenceStringCellFactory implements Callback<TableColumn<Gate, String>, TableCell<Gate, String>>,
+public class StringEditorCellFactory implements Callback<TableColumn<NameValue, String>, TableCell<NameValue, String>>,
 											EventHandler<TableColumn.CellEditEvent<Pair<String,String>, String>> { 
-	private final static String CLSS = "PreferenceStringCellFactory";
+	private final static String CLSS = "StringEditorCellFactory";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 
-	public PreferenceStringCellFactory() {
+	public StringEditorCellFactory() {
 	}
 	
 	@Override
-	public TableCell<Gate, String> call(TableColumn<Gate, String> p) {
+	public TableCell<NameValue, String> call(TableColumn<NameValue, String> p) {
 		//LOGGER.info(String.format("%s:TableCell.call: %s",CLSS,p.getText()));
-		TableCell<Gate, String> cell = null;
-		TextFieldTableCell<Gate, String> textCell = new TextFieldTableCell<>();
+		TableCell<NameValue, String> cell = null;
+		TextFieldTableCell<NameValue, String> textCell = new TextFieldTableCell<>();
 		textCell.setConverter(new PreferenceStringConverter());
 		cell = textCell;
 		return cell;

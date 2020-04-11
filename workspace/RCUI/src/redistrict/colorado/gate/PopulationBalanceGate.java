@@ -23,6 +23,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import redistrict.colorado.core.GateProperty;
 import redistrict.colorado.core.GateType;
 import redistrict.colorado.core.PlanFeature;
 import redistrict.colorado.core.PlanModel;
@@ -74,10 +75,7 @@ public class PopulationBalanceGate extends Gate {
 	}
 	public String getScoreAttribute() { return KEY_SCORE; };
 	public String getTitle() { return "Population Balance"; } 
-	public double getWeight() { return Database.getInstance().getPreferencesTable().getWeight(PreferencesTable.POPULATION_EQUALITY_WEIGHT_KEY);}
 	public GateType getType() { return GateType.POPULATION_BALANCE; }
-	public void setWeight(double weight) {Database.getInstance().getPreferencesTable().setWeight(PreferencesTable.POPULATION_EQUALITY_WEIGHT_KEY,weight);}
-	public boolean useMaximum() { return false; }
 	
 	protected Label getBarOverlayLabel(PlanModel model) {
 		boolean inError = planInError.get(model.getId());
@@ -99,7 +97,8 @@ public class PopulationBalanceGate extends Gate {
 	@Override
 	public void evaluate(List<PlanModel> plans) {
 		LOGGER.info("PopulationBalanceGate.evaluating: ...");
-		double threshold = getThreshold(PreferencesTable.POPULATION_BALANCE_THRESHOLD_KEY,DEFAULT_THRESHOLD);
+		GateProperty gp = Database.getInstance().getGateTable().getGateProperty(getType());
+		double threshold = gp.getUnfairValue();
 		StandardDeviation stdDeviation = new StandardDeviation();
 		stdDeviation.setBiasCorrected(false);
 		for(PlanModel plan:plans) {
@@ -145,7 +144,8 @@ public class PopulationBalanceGate extends Gate {
 	// Create contents that allow viewing the details of the calculation
 	@Override
 	protected Node getResultsContents() { 
-		double threshold = getThreshold(PreferencesTable.POPULATION_BALANCE_THRESHOLD_KEY,DEFAULT_THRESHOLD);
+		GateProperty gp = Database.getInstance().getGateTable().getGateProperty(getType());
+		double threshold = gp.getUnfairValue();
 		VBox pane =  new VBox(10);
 		pane.setPrefSize(DIALOG_WIDTH, DIALOG_HEIGHT);
 		pane.setFillWidth(true);

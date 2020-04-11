@@ -25,19 +25,9 @@ public class PreferencesTable {
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private static final long MODEL_ID = 42;
 	private static final String AFFILIATION_KEY = "AffiliationId";
-	private static final String DEMOGRAPHIC_KEY = "DemographicID";
+	private static final String DEMOGRAPHIC_KEY = "DemographicId";
+	private static final String COUNTY_BOUNDARIES_KEY = "CountyBoundariesId";
 	public static final String COMPETITIVENESS_THRESHOLD_KEY = "CompetitivenessThreshold";
-	public static final String EFFICIENCY_GAP_THRESHOLD_KEY = "EfficiencyGapThreshold";
-	public static final String POPULATION_BALANCE_THRESHOLD_KEY = "PopulationEqualityThreshold";
-	// These weighting keys are initialized in the database when it is created
-	public static final String COMPACTNESS_WEIGHT_KEY = "CompactnessWeight";
-	public static final String COMPETITIVENESS_WEIGHT_KEY = "CompetitivenessWeight";
-	public static final String CONTIGUITY_WEIGHT_KEY = "ContiguityWeight";
-	public static final String COUNTY_CROSSING_WEIGHT_KEY = "CountyCrossingWeight";
-	public static final String POPULATION_EQUALITY_WEIGHT_KEY = "PopulationEqualityWeight";
-	public static final String PROPORTIONALITY_WEIGHT_KEY = "ProportionalityWeight";
-	public static final String VOTE_EFFICIENCY_WEIGHT_KEY = "VoteEfficiencyWeight";
-	public static final String VOTING_POWER_WEIGHT_KEY = "VotingPowerWeight";
 	
 	private Connection cxn = null;
 	/** 
@@ -64,6 +54,7 @@ public class PreferencesTable {
 				if( text!=null && !text.isEmpty()) {
 					if( name.equalsIgnoreCase(AFFILIATION_KEY)) model.setAffiliationId(Long.parseLong(text));
 					else if( name.equalsIgnoreCase(DEMOGRAPHIC_KEY)) model.setDemographicId(Long.parseLong(text));
+					else if( name.equalsIgnoreCase(COUNTY_BOUNDARIES_KEY)) model.setCountyBoundariesId(Long.parseLong(text));
 				}
 			}
 		}

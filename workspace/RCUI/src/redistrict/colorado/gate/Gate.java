@@ -61,10 +61,10 @@ public abstract class Gate extends VBox {
 	private final Button info;
 	private final InfoDialog infoDialog;
 	protected final StackPane body;
-	protected final NumberAxis xAxis;
-    protected final CategoryAxis yAxis;
-    private BarChart<Number,String> chart;
-	private final Rectangle rectangle;
+	protected NumberAxis xAxis = null;
+    protected CategoryAxis yAxis = null;
+    private BarChart<Number,String> chart = null;
+	private Rectangle rectangle = null;
 	protected final EventBindingHub hub; 
 	protected final List<PlanModel>  sortedPlans; // sorted by score
 	protected final Map<Long,NameValue> scoreMap; // score by planId
@@ -76,7 +76,21 @@ public abstract class Gate extends VBox {
 		this.sortedPlans = new ArrayList<>();
 		this.header = new Label(getTitle());
 		this.infoDialog = new InfoDialog(this);
-		
+		info = new Button("",guiu.loadImage("images/information.png"));
+		info.setOnAction( new EventHandler<ActionEvent>() {
+	        @Override public void handle( ActionEvent e ) {
+	        	showDialog(); 
+	        }
+	    } );
+		info.setId(ComponentIds.BUTTON_INFO);
+		this.body = new StackPane();
+		init();
+	}
+	
+	/**
+	 * Initialize the main UI. This works for all except the composite.
+	 */
+	protected void init() {
 		this.xAxis = new NumberAxis();
         this.yAxis = new CategoryAxis();
         yAxis.setVisible(false);
@@ -89,14 +103,8 @@ public abstract class Gate extends VBox {
 		header.setAlignment(Pos.CENTER);
 		header.setPrefWidth(WIDTH+1);
 		header.getStyleClass().add("graph-header");
-		info = new Button("",guiu.loadImage("images/information.png"));
-		info.setOnAction( new EventHandler<ActionEvent>() {
-	        @Override public void handle( ActionEvent e ) {
-	        	showDialog(); 
-	        }
-	    } );
-		info.setId(ComponentIds.BUTTON_INFO);
-		this.body = new StackPane();
+
+		
 		body.setAlignment(Pos.CENTER);
 		rectangle = new Rectangle(WIDTH,HEIGHT);
 		rectangle.getStyleClass().add("graph-rectangle");
@@ -125,12 +133,11 @@ public abstract class Gate extends VBox {
 		return null;
 	}
 	public abstract TextFlow getInfo();  // Display in "info" box.
+	public abstract GateType getType();
 	public abstract String getScoreAttribute();
 	public abstract String getTitle();
-	public abstract double getWeight();
-	public abstract GateType getType();
-	public abstract void setWeight(double weight);
-	public abstract boolean useMaximum();
+	
+
 	
 	public void evaluate(List<PlanModel> models) {	
 	}

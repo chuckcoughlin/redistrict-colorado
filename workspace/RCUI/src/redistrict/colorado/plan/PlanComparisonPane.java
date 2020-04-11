@@ -93,14 +93,13 @@ public class PlanComparisonPane extends BasicRightSideNode {
 		GateCache cache = GateCache.getInstance();
 		grid.getChildren().clear();
 		grid.add(cache.getGate(GateType.POPULATION_BALANCE),0, 0);  // column row
-		grid.add(cache.getGate(GateType.COMPACTNESS), 1, 0);
-		grid.add(cache.getGate(GateType.CONTIGUITY), 2, 0);
-		grid.add(cache.getGate(GateType.VOTING_POWER), 0, 1);
+		grid.add(cache.getGate(GateType.COMPACTNESS), 0, 1);
+		grid.add(cache.getGate(GateType.VOTING_POWER), 0, 2);
 		grid.add(cache.getGate(GateType.PROPORTIONALITY), 1, 1);
 		grid.add(cache.getGate(GateType.COMPETIVENESS), 2, 1);
-		grid.add(cache.getGate(GateType.VOTING_EFFICIENCY), 0, 2);
-		grid.add(cache.getGate(GateType.COUNTY_CROSSINGS), 1, 2);
-		grid.add(cache.getGate(GateType.COMPOSITE), 2, 2);
+		grid.add(cache.getGate(GateType.VOTING_EFFICIENCY), 1, 2);
+		grid.add(cache.getGate(GateType.COUNTY_CROSSINGS), 2, 2);
+		grid.add(cache.getGate(GateType.COMPOSITE),1,0,2,1);
 	}
 
 	/**

@@ -17,6 +17,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -42,13 +44,15 @@ public class PlanRow extends ListCell<PlanModel>   {
 	private final static double COL2_WIDTH = 120.;
 	private final static double COL3_WIDTH = 65.;
 	private final static double COL4_WIDTH = 40.;
-	private final static double COL5_WIDTH = 80.;
+	private final static double COL5_WIDTH = 50.;
+	private final static double COL6_WIDTH = 80.;
 	private final static double ROW1_HEIGHT = 40.;
 	private static final GuiUtil guiu = new GuiUtil();
 	private final static String ACTIVE = "active";
-	private final static String ATTRIBUTES = "attributes";
 	private final static String EDIT = "edit";
 	private final static String NAME = "name";
+	private final static String MAP_DATA = "map";
+	private final static String PROPERTIES_DATA = "properties";
 	private GridPane grid = new GridPane();
 	private long id = -1;      // model identifier
     private final Label tag;   // Identifies the pane class
@@ -56,7 +60,9 @@ public class PlanRow extends ListCell<PlanModel>   {
     private final Label description;
     private final CheckBox active;
     private final Button edit;
-    private final Button metrics;
+    private final ToggleButton propertiesButton;
+    private final ToggleButton mapButton;
+    private final ToggleGroup toggleGroup;
     private final EditEventHandler handler;
     private final PlanChangeListener listener;
     
@@ -72,11 +78,17 @@ public class PlanRow extends ListCell<PlanModel>   {
 	    active.setUserData(ACTIVE);
 	    edit = new Button("",guiu.loadImage("images/edit.png"));
 	    edit.setUserData(EDIT);
-	    metrics =new Button("Properties");
-	    metrics.setId(ComponentIds.BUTTON_METRICS);
-	    metrics.setUserData(ATTRIBUTES);
-	    Tooltip tt = new Tooltip("Display a table of aggregated feature attributes for this plan.");
-	    Tooltip.install(metrics, tt);
+	    toggleGroup = new ToggleGroup();
+	    mapButton =new ToggleButton("Map");
+	    mapButton.setUserData(MAP_DATA);
+	    mapButton.setToggleGroup(toggleGroup);
+	    propertiesButton =new ToggleButton("Properties");
+	    propertiesButton.setUserData(PROPERTIES_DATA);
+	    propertiesButton.setToggleGroup(toggleGroup);
+	    Tooltip tt = new Tooltip("Show the boundary map for this button.");
+	    Tooltip.install(mapButton, tt);
+	    tt = new Tooltip("Display a table of aggregated feature attributes for this plan.");
+	    Tooltip.install(propertiesButton, tt);
         
         configureGrid();
         configureLabels();
@@ -85,7 +97,7 @@ public class PlanRow extends ListCell<PlanModel>   {
         addControlsToGrid(); 
         
         active.setOnAction(handler);
-        metrics.setOnAction(handler);
+        propertiesButton.setOnAction(handler);
         edit.setOnAction(handler);
         
         setContent(getItem());
@@ -106,7 +118,8 @@ public class PlanRow extends ListCell<PlanModel>   {
         grid.getColumnConstraints().add(col2);
         grid.getColumnConstraints().add(new ColumnConstraints(COL3_WIDTH)); 					// active
         grid.getColumnConstraints().add(new ColumnConstraints(COL4_WIDTH)); 					// edit
-        grid.getColumnConstraints().add(new ColumnConstraints(COL5_WIDTH)); 					// metrics
+        grid.getColumnConstraints().add(new ColumnConstraints(COL5_WIDTH)); 					// map
+        grid.getColumnConstraints().add(new ColumnConstraints(COL6_WIDTH)); 					// metrics
         grid.getRowConstraints().add(new RowConstraints(ROW1_HEIGHT)); // column 0 is 40 wide
     }
 	
@@ -123,8 +136,9 @@ public class PlanRow extends ListCell<PlanModel>   {
     }
     private void addControlsToGrid() {
     	grid.add(active, 2,0);
-    	grid.add(edit, 3, 0);                   
-        grid.add(metrics, 4, 0);        
+    	grid.add(edit, 3, 0);   
+    	grid.add(mapButton, 4, 0); 
+        grid.add(propertiesButton, 5, 0);        
     }
 	
     @Override
@@ -178,9 +192,12 @@ public class PlanRow extends ListCell<PlanModel>   {
     		PlanModel model = getItem();
     		hub.setSelectedPlan(model);
     		LOGGER.info(String.format("%s.handle: processing event from %s", CLSS,(model==null?"null":(model.getBoundary()==null?"null":model.getBoundary().getName()))));
-    		if( data.equals(ATTRIBUTES)) {
+    		if( data.equals(PROPERTIES_DATA)) {
     			hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.PLAN_FEATURES));
     		}
+    		else if( data.toString().equalsIgnoreCase(MAP_DATA)) {
+				EventBindingHub.getInstance().setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.MODEL_MAP));
+			}
     		else if( data.equals(ACTIVE)) {
     			model.setActive(active.isSelected());
     			Database.getInstance().getPlanTable().updatePlan(model);

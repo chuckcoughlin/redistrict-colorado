@@ -4,7 +4,7 @@
  * This program is free software; you may redistribute it and/or
  * modify it under the terms of the GNU General Public License.
  */
-package redistrict.colorado.plan;
+package redistrict.colorado.table;
 
 import java.util.logging.Logger;
 
@@ -52,6 +52,9 @@ public class FMIntegerValueFactory implements Callback<TableColumn.CellDataFeatu
 		}
 		else if( name.equalsIgnoreCase("Republican")) {
 			property.setValue(fm.getRepublican());
+		}
+		else if( name.equalsIgnoreCase("Crossings")) {
+			property.setValue(fm.getCrossings());
 		}
 		return property;
 	}

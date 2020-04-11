@@ -9,8 +9,6 @@ package redistrict.colorado.gate;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import redistrict.colorado.core.GateType;
-import redistrict.colorado.db.Database;
-import redistrict.colorado.db.PreferencesTable;
 
 /**
  * Compare plans based on the number of times district boundaries
@@ -31,8 +29,5 @@ public class CountyCrossingGate extends Gate {
 	}
 	public String getScoreAttribute() { return KEY_SCORE; };
 	public String getTitle() { return "County Line Crossings"; }
-	public double getWeight() { return Database.getInstance().getPreferencesTable().getWeight(PreferencesTable.COUNTY_CROSSING_WEIGHT_KEY);}
 	public GateType getType() { return GateType.COUNTY_CROSSINGS; }
-	public void setWeight(double weight) {Database.getInstance().getPreferencesTable().setWeight(PreferencesTable.COUNTY_CROSSING_WEIGHT_KEY,weight);}
-	public boolean useMaximum() { return false; }
 }

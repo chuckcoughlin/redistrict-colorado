@@ -1,4 +1,4 @@
-package redistrict.colorado.plan;
+package redistrict.colorado.table;
 
 import java.util.logging.Logger;
 

@@ -19,6 +19,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import redistrict.colorado.core.GateProperty;
 import redistrict.colorado.core.GateType;
 import redistrict.colorado.core.PlanFeature;
 import redistrict.colorado.core.PlanModel;
@@ -65,10 +66,7 @@ public class VoteEfficiencyGate extends Gate {
 	}
 	public String getScoreAttribute() { return KEY_GAP; };
 	public String getTitle() { return "Vote Efficiency"; } 
-	public double getWeight() { return Database.getInstance().getPreferencesTable().getWeight(PreferencesTable.VOTE_EFFICIENCY_WEIGHT_KEY);}
 	public GateType getType() { return GateType.VOTING_EFFICIENCY; }
-	public void setWeight(double weight) {Database.getInstance().getPreferencesTable().setWeight(PreferencesTable.VOTE_EFFICIENCY_WEIGHT_KEY,weight);}
-	public boolean useMaximum() { return false; }
 	
 	/**
 	 * Sort the districts by name and save the % democrat score.
@@ -112,7 +110,8 @@ public class VoteEfficiencyGate extends Gate {
 	// Create contents that allow viewing the details of the calculation
 	@Override
 	protected Node getResultsContents() { 
-		double threshold = getThreshold(PreferencesTable.EFFICIENCY_GAP_THRESHOLD_KEY,DEFAULT_THRESHOLD);
+		GateProperty gp = Database.getInstance().getGateTable().getGateProperty(getType());
+		double threshold = gp.getUnfairValue();
 		VBox pane =  new VBox(10);
 		pane.setPrefSize(DIALOG_WIDTH, DIALOG_HEIGHT);
 		pane.setFillWidth(true);

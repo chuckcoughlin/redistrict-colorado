@@ -34,7 +34,6 @@ public class GateCache {
 		map.put(GateType.COMPACTNESS, new CompactnessGate());
 		map.put(GateType.COMPETIVENESS, new CompetitiveDistrictsGate());
 		map.put(GateType.COMPOSITE, new CompositeGate());
-		map.put(GateType.CONTIGUITY, new ContiguousGate());
 		map.put(GateType.COUNTY_CROSSINGS, new CountyCrossingGate());
 		map.put(GateType.POPULATION_BALANCE, new PopulationBalanceGate());
 		map.put(GateType.PROPORTIONALITY, new ProportionalityGate());

@@ -1,4 +1,4 @@
-package redistrict.colorado.dataset;
+package redistrict.colorado.table;
 
 import java.util.logging.Logger;
 
@@ -6,7 +6,6 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.util.Callback;
 import redistrict.colorado.core.FeatureConfiguration;
-import redistrict.colorado.table.TableCellCallback;
 import redistrict.colorado.ui.BooleanTableCell;
 
 /**

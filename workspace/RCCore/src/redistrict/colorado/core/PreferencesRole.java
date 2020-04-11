@@ -16,6 +16,8 @@ public enum PreferencesRole
 {
 	ID,
 	KEY,
+	MINIMUM,
+	MAXIMUM,
 	WEIGHT
 	;
 

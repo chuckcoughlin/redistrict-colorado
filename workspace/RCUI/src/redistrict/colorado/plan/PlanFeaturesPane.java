@@ -25,6 +25,9 @@ import redistrict.colorado.core.PlanFeature;
 import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.pane.BasicRightSideNode;
+import redistrict.colorado.table.FMDoubleValueFactory;
+import redistrict.colorado.table.FMIntegerValueFactory;
+import redistrict.colorado.table.FMStringValueFactory;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.UIConstants;
 import redistrict.colorado.ui.ViewMode;
@@ -150,7 +153,7 @@ public class PlanFeaturesPane extends BasicRightSideNode{
 		FMStringValueFactory stringValueFactory = new FMStringValueFactory();
 
 		TableColumn<PlanFeature,String> column = new TableColumn<>("Name");
-		column.prefWidthProperty().bind(table.widthProperty().multiply(0.15));
+		column.prefWidthProperty().bind(table.widthProperty().multiply(0.125));
 		column.setResizable(true);
 		column.setEditable(false);
 		column.setCellValueFactory(stringValueFactory);
@@ -158,14 +161,14 @@ public class PlanFeaturesPane extends BasicRightSideNode{
 
 		if(showGeometry.isSelected()) {
 			TableColumn<PlanFeature,Number> dcol = new TableColumn<>("Area");
-			dcol.prefWidthProperty().bind(table.widthProperty().multiply(0.15));
+			dcol.prefWidthProperty().bind(table.widthProperty().multiply(0.125));
 			dcol.setResizable(true);
 			dcol.setEditable(false);
 			dcol.setCellValueFactory(dblValueFactory);
 			table.getColumns().add(dcol);
 
 			dcol = new TableColumn<>("Perimeter");
-			dcol.prefWidthProperty().bind(table.widthProperty().multiply(0.15));
+			dcol.prefWidthProperty().bind(table.widthProperty().multiply(0.125));
 			dcol.setResizable(true);
 			dcol.setEditable(false);
 			dcol.setCellValueFactory(dblValueFactory);
@@ -173,28 +176,35 @@ public class PlanFeaturesPane extends BasicRightSideNode{
 		}
 		if(showDemographics.isSelected()) {
 			TableColumn<PlanFeature,Number> dcol = new TableColumn<>("Population");
-			dcol.prefWidthProperty().bind(table.widthProperty().multiply(0.15));
+			dcol.prefWidthProperty().bind(table.widthProperty().multiply(0.125));
 			dcol.setResizable(true);
 			dcol.setEditable(false);
 			dcol.setCellValueFactory(intValueFactory);
 			table.getColumns().add(dcol);
 
 			dcol = new TableColumn<>("Black");
-			dcol.prefWidthProperty().bind(table.widthProperty().multiply(0.15));
+			dcol.prefWidthProperty().bind(table.widthProperty().multiply(0.125));
 			dcol.setResizable(true);
 			dcol.setEditable(false);
 			dcol.setCellValueFactory(intValueFactory);
 			table.getColumns().add(dcol);
 
 			dcol = new TableColumn<>("Hispanic");
-			dcol.prefWidthProperty().bind(table.widthProperty().multiply(0.15));
+			dcol.prefWidthProperty().bind(table.widthProperty().multiply(0.125));
 			dcol.setResizable(true);
 			dcol.setEditable(false);
 			dcol.setCellValueFactory(intValueFactory);
 			table.getColumns().add(dcol);
 
 			dcol = new TableColumn<>("White");
-			dcol.prefWidthProperty().bind(table.widthProperty().multiply(0.15));
+			dcol.prefWidthProperty().bind(table.widthProperty().multiply(0.125));
+			dcol.setResizable(true);
+			dcol.setEditable(false);
+			dcol.setCellValueFactory(intValueFactory);
+			table.getColumns().add(dcol);
+			
+			dcol = new TableColumn<>("Crossings");
+			dcol.prefWidthProperty().bind(table.widthProperty().multiply(0.125));
 			dcol.setResizable(true);
 			dcol.setEditable(false);
 			dcol.setCellValueFactory(intValueFactory);
@@ -203,14 +213,14 @@ public class PlanFeaturesPane extends BasicRightSideNode{
 
 		if(showAffilations.isSelected()) {
 			TableColumn<PlanFeature,Number> dcol = new TableColumn<>("Democrat");
-			dcol.prefWidthProperty().bind(table.widthProperty().multiply(0.15));
+			dcol.prefWidthProperty().bind(table.widthProperty().multiply(0.125));
 			dcol.setResizable(true);
 			dcol.setEditable(false);
 			dcol.setCellValueFactory(intValueFactory);
 			table.getColumns().add(dcol);
 
 			dcol = new TableColumn<>("Republican");
-			dcol.prefWidthProperty().bind(table.widthProperty().multiply(0.15));
+			dcol.prefWidthProperty().bind(table.widthProperty().multiply(0.125));
 			dcol.setResizable(true);
 			dcol.setEditable(false);
 			dcol.setCellValueFactory(intValueFactory);

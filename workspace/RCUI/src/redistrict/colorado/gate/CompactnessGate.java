@@ -74,10 +74,7 @@ public class CompactnessGate extends Gate {
 	}
 	public String getScoreAttribute() { return KEY_MEAN; };
 	public String getTitle() { return "Compactness"; } 
-	public double getWeight() { return Database.getInstance().getPreferencesTable().getWeight(PreferencesTable.COMPACTNESS_WEIGHT_KEY);}
 	public GateType getType() { return GateType.COMPACTNESS; }
-	public void setWeight(double weight) {Database.getInstance().getPreferencesTable().setWeight(PreferencesTable.COMPACTNESS_WEIGHT_KEY,weight);}
-	public boolean useMaximum() { return true; }
  	/**
 	 * Compute the normalized isoperimetric quotient for each plan. 
 	 * The list of plans will be sorted in place by score, best score

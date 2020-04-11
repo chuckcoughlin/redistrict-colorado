@@ -20,11 +20,11 @@ public class VotingPowerGate extends Gate {
 	private final static String KEY_SCORE = "Score";
 	public TextFlow getInfo() { 
 		TextFlow info = new TextFlow();
-		Text t1 = new Text("We define voting power as the ability to elect a candidate of one's choosing. ");
-		Text t2 = new Text("Another way to state this is the ability to effect the outcome of one or more elections. ");
-		Text t3 = new Text("For a single district, this can be summarized by taking the margin of victory (in votes) and ");
-		Text t4 = new Text("dividing it by the total votes cast. To total this up by ethnicity, we take the weighted sum of this over ");
-		Text t5 = new Text("all elections. For example, for hispanics, we take the total number of votes in an election, multiply by the ");
+		Text t1 = new Text("Voting power is the ability to elect a candidate of one's choosing, ");
+		Text t2 = new Text("that is the ability to effect the outcome of an election. We want to make sure that this power in not diluted by ");
+		Text t3 = new Text("artifically spredding votes of one ethnicity across multiple districts. For a single district, voting power is the margin of victory (in votes) ");
+		Text t4 = new Text("divided by the total votes cast. To total this up by ethnicity, we take the weighted sum of this over ");
+		Text t5 = new Text("all districts. For example, for hispanics, we take the total number of votes in an election, multiply by the ");
 		Text t6 = new Text("fraction of that district that is hispanic, and total that up over all districts. Then we do the same for margin ");
 		Text t7 = new Text("of victory. Then we divide the margin of victory total by the votes cast total, and that gives us an estimate ");
 		Text t8 = new Text("of the average voting power for that ethnicity. We want to minimize how much this varies between ethnicities, ");
@@ -39,8 +39,6 @@ public class VotingPowerGate extends Gate {
 	}
 	public String getScoreAttribute() { return KEY_SCORE; };
 	public String getTitle() { return "Voting Power"; } 
-	public double getWeight() { return Database.getInstance().getPreferencesTable().getWeight(PreferencesTable.VOTING_POWER_WEIGHT_KEY);}
 	public GateType getType() { return GateType.VOTING_POWER; }
-	public void setWeight(double weight) {Database.getInstance().getPreferencesTable().setWeight(PreferencesTable.VOTING_POWER_WEIGHT_KEY,weight);}
-	public boolean useMaximum() { return false; }
+	
 }

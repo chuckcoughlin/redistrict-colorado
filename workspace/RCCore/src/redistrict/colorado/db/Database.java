@@ -34,6 +34,7 @@ public class Database {
 	private final AttributeAliasTable attributeAliasTable;
 	private final FeatureAttributeTable featureAttributeTable;
 	private final DatasetTable datasetTable;
+	private final GatePropertyTable gateTable;
 	private final PlanTable planTable;
 	private final PreferencesTable preferencesTable;
 
@@ -44,6 +45,7 @@ public class Database {
 		this.attributeAliasTable = new AttributeAliasTable();
 		this.featureAttributeTable = new FeatureAttributeTable();
 		this.datasetTable = new DatasetTable();
+		this.gateTable = new GatePropertyTable();
 		this.planTable = new PlanTable();
 		this.preferencesTable = new PreferencesTable();
 	}
@@ -60,9 +62,10 @@ public class Database {
 	}
 	public boolean isConnected() { return connection!=null; }
 	public AttributeAliasTable getAttributeAliasTable() { return this.attributeAliasTable; }
-	public FeatureAttributeTable getFeatureAttributeTable() { return this.featureAttributeTable; }
-	public PreferencesTable getPreferencesTable() { return this.preferencesTable; }
 	public DatasetTable getDatasetTable() { return this.datasetTable; }
+	public FeatureAttributeTable getFeatureAttributeTable() { return this.featureAttributeTable; }
+	public GatePropertyTable getGateTable() { return this.gateTable; }
+	public PreferencesTable getPreferencesTable() { return this.preferencesTable; }
 	public PlanTable getPlanTable() { return this.planTable; }
 	
 	/**
@@ -80,8 +83,9 @@ public class Database {
 		try {
 			connection = DriverManager.getConnection(connectPath);
 			attributeAliasTable.setConnection(connection);
-			featureAttributeTable.setConnection(connection);
 			datasetTable.setConnection(connection);
+			featureAttributeTable.setConnection(connection);
+			gateTable.setConnection(connection);
 			planTable.setConnection(connection);
 			preferencesTable.setConnection(connection);
 			

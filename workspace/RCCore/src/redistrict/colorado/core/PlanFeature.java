@@ -42,6 +42,7 @@ public class PlanFeature  {
     private final long planId; // Layer ID
     private String  name = "";
     private double 	area = 0.;
+    private double 	crossings= 0.;
     private double 	perimeter = 0.;
     private double 	population = 0.;
     private double 	democrat = 0.;
@@ -49,6 +50,7 @@ public class PlanFeature  {
     private double 	black = 0.;
     private double 	hispanic = 0.;
     private double 	white	 = 0.;
+  
 
     /**
      * Define a layer within a plan.
@@ -72,7 +74,9 @@ public class PlanFeature  {
     public double getBlack() { return this.black; }
     public double getHispanic() { return this.hispanic ; }
     public double getWhite() { return this.white; }
+    public double getCrossings() { return this.crossings; }
 
+    public void incrementCrossings(double val) { this.crossings += val; }
     public void incrementPopulation(double val) { this.population += val; }
     public void incrementDemocrat(double val) { this.democrat += val; }
     public void incrementRepublican(double val) { this.republican += val; }
@@ -82,6 +86,7 @@ public class PlanFeature  {
     
     public void setName(String nam) { this.name = nam; }
     public void setArea(double val) { this.area = val; }
+    public void setCrossings(double val) { this.crossings = val; }
     public void setPerimeter(double val) { this.perimeter = val; }
     public void setPopulation(double val) { this.population = val; }
     public void setDemocrat(double val) { this.democrat = val; }

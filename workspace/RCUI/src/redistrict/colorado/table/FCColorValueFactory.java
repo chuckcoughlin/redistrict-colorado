@@ -4,7 +4,7 @@
  * This program is free software; you may redistribute it and/or
  * modify it under the terms of the GNU General Public License.
  */
-package redistrict.colorado.dataset;
+package redistrict.colorado.table;
 
 import java.util.logging.Logger;
 

@@ -1,4 +1,4 @@
-package redistrict.colorado.dataset;
+package redistrict.colorado.table;
 
 import java.util.logging.Logger;
 

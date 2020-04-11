@@ -28,6 +28,7 @@ import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.AnalysisModel;
 import redistrict.colorado.core.DatasetModel;
 import redistrict.colorado.core.DatasetRole;
+import redistrict.colorado.core.GateProperty;
 import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.db.DatasetCache;
@@ -36,6 +37,9 @@ import redistrict.colorado.gate.Gate;
 import redistrict.colorado.gate.GateCache;
 import redistrict.colorado.pane.BasicRightSideNode;
 import redistrict.colorado.pane.SavePane;
+import redistrict.colorado.table.NameValue;
+import redistrict.colorado.table.NameValueCellValueFactory;
+import redistrict.colorado.table.StringEditorCellFactory;
 import redistrict.colorado.ui.ComponentIds;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.UIConstants;
@@ -53,23 +57,27 @@ public class PlanSetupPane extends BasicRightSideNode
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private final static double COL0_WIDTH = 100.;    // margin
 	private final static double COL1_WIDTH = 400.;
-	private final static double TABLE_OFFSET_TOP = 210.;
+	private final static double TABLE_OFFSET_TOP = 230.;
+	// Column names for the table
+	private final static String KEY_NAME = "Name";
+	private final static String KEY_FAIR = "Fair";
+	private final static String KEY_UNFAIR = "Unfair";
+	private final static String KEY_WEIGHT = "Weight";
+	
 	private Label headerLabel = new Label("Analysis Setup");
 	private final SavePane savePane = new SavePane(this);
 	private AnalysisModel model;
 	private final GridPane grid;
 	private final Label affiliationLabel = new Label("Affiliation: ");
 	private final Label demographicsLabel = new Label("Demographics: ");
+	private final Label countyBoundariesLabel = new Label("County Boundaries: ");
 	private final Label competitivenessLabel = new Label("Competitive Threshold: ");
-	private final Label efficiencyGapLabel = new Label("Efficiency Gap Threshold: ");
-	private final Label populationEqualityLabel = new Label("Population Equality Threshold: ");
 	private final TextField competitivenessField = new TextField();
-	private final TextField efficiencyGapField = new TextField();
-	private final TextField populationEqualityField = new TextField();
 	private final ComboBox<String> affiliationCombo;
+	private final ComboBox<String> countyCombo;
 	private final ComboBox<String> demographicCombo;
-	private final ObservableList<Gate> items;  // Array displayed in table
-	private final TableView<Gate> table;
+	private final ObservableList<NameValue> items;  // Array displayed in table
+	private final TableView<NameValue> table;
 	private final TableEventHandler cellHandler;
 
 
@@ -86,18 +94,16 @@ public class PlanSetupPane extends BasicRightSideNode
 		setRightAnchor(headerLabel,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 		
         affiliationCombo  = new ComboBox<>();
+        countyCombo = new ComboBox<>();
         demographicCombo = new ComboBox<>();
         affiliationCombo.setPrefWidth(COL1_WIDTH);
+        countyCombo.setPrefWidth(COL1_WIDTH);
         demographicCombo.setPrefWidth(COL1_WIDTH);
         
 	    Tooltip tt = new Tooltip("The threshold is the vote differential between parties ~ percent. Valid ranges is 1. to 60.");
 	    Tooltip.install(competitivenessLabel, tt);
-	    tt = new Tooltip("The threshold marks the maximum efficiency gap considered to be non-gerrymandered.");
-	    Tooltip.install(efficiencyGapLabel, tt);
-	    tt = new Tooltip("This value is the maximum allowed differential between a district's population and the mean.");
-	    Tooltip.install(populationEqualityLabel, tt);
         
-		table = new TableView<Gate>();
+		table = new TableView<NameValue>();
 		table.setEditable(true);
 		//table.setPrefSize(SETUP_TABLE_WIDTH,SETUP_TABLE_HEIGHT);
 		table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
@@ -118,31 +124,50 @@ public class PlanSetupPane extends BasicRightSideNode
 		grid.add(affiliationCombo, 1, 0);
 		grid.add(demographicsLabel, 0, 1);
 		grid.add(demographicCombo, 1, 1);
-		grid.add(competitivenessLabel, 0, 2);
-		grid.add(competitivenessField, 1, 2);
-		grid.add(efficiencyGapLabel, 0, 3);
-		grid.add(efficiencyGapField, 1, 3);
-		grid.add(populationEqualityLabel, 0, 4);
-		grid.add(populationEqualityField, 1, 4);
+		grid.add(countyBoundariesLabel, 0, 2);
+		grid.add(countyCombo, 1, 2);
+		grid.add(competitivenessLabel, 0, 3);
+		grid.add(competitivenessField, 1, 3);
 		
 		getChildren().add(grid);
 		setTopAnchor(grid,UIConstants.DETAIL_HEADER_SPACING);
 		setLeftAnchor(grid,UIConstants.LIST_PANEL_LEFT_MARGIN);
 		setRightAnchor(grid,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 		
-		TableColumn<Gate,String> column;
-		PreferenceStringValueFactory valueFactory = new PreferenceStringValueFactory();
-		PreferenceStringCellFactory cellFactory = new PreferenceStringCellFactory();
+		TableColumn<NameValue,String> column;
+		NameValueCellValueFactory valueFactory = new NameValueCellValueFactory();
+		valueFactory.setFormat(KEY_WEIGHT, "%2.1f");
+		valueFactory.setFormat(KEY_UNFAIR, "%2.3f");
+		valueFactory.setFormat(KEY_FAIR, "%2.3f");
+		StringEditorCellFactory cellFactory = new StringEditorCellFactory();
 
-		column = new TableColumn<>("Metric");
-		column.prefWidthProperty().bind(table.widthProperty().multiply(0.7));
+		column = new TableColumn<>(KEY_NAME);
+		column.prefWidthProperty().bind(table.widthProperty().multiply(0.4));
         column.setResizable(true);
 		column.setEditable(false);
 		column.setCellValueFactory(valueFactory);
 		table.getColumns().add(column);
 
-		column = new TableColumn<>("Weight");
-		column.prefWidthProperty().bind(table.widthProperty().multiply(0.3));
+		column = new TableColumn<>(KEY_WEIGHT);
+		column.prefWidthProperty().bind(table.widthProperty().multiply(0.2));
+        column.setResizable(true);
+		column.setEditable(true);
+		column.setCellFactory(cellFactory);
+		column.setCellValueFactory(valueFactory);
+		column.setOnEditCommit(cellHandler);
+		table.getColumns().add(column);
+		
+		column = new TableColumn<>(KEY_UNFAIR);
+		column.prefWidthProperty().bind(table.widthProperty().multiply(0.2));
+        column.setResizable(true);
+		column.setEditable(true);
+		column.setCellFactory(cellFactory);
+		column.setCellValueFactory(valueFactory);
+		column.setOnEditCommit(cellHandler);
+		table.getColumns().add(column);
+		
+		column = new TableColumn<>(KEY_FAIR);
+		column.prefWidthProperty().bind(table.widthProperty().multiply(0.2));
         column.setResizable(true);
 		column.setEditable(true);
 		column.setCellFactory(cellFactory);
@@ -172,6 +197,9 @@ public class PlanSetupPane extends BasicRightSideNode
 		List<String> demographics = Database.getInstance().getDatasetTable().getDatasetNamesForRole(DatasetRole.DEMOGRAPHICS);
 		demographicCombo.getItems().clear();
 		demographicCombo.getItems().addAll(demographics);
+		List<String> boundaries = Database.getInstance().getDatasetTable().getDatasetNamesForRole(DatasetRole.BOUNDARIES);
+		countyCombo.getItems().clear();
+		countyCombo.getItems().addAll(boundaries);
 	}
 	/**
 	 * Update the table's dataset list from the model. If the model has no datasets, read them from the database.
@@ -188,13 +216,24 @@ public class PlanSetupPane extends BasicRightSideNode
 			if( demModel!=null ) {
 				demographicCombo.getSelectionModel().select(demModel.getName());
 			}
-			items.addAll(GateCache.getInstance().getBasicGates());
+			DatasetModel countyModel = DatasetCache.getInstance().getDataset(model.getCountyBoundariesId());
+			if( countyModel!=null ) {
+				countyCombo.getSelectionModel().select(countyModel.getName());
+			}
+			List<GateProperty> gateProperties = Database.getInstance().getGateTable().getGateProperties();
+			for( GateProperty gp:gateProperties ) {
+				Gate gate = GateCache.getInstance().getGate(gp.getType());
+				NameValue nv = new NameValue(gate.getTitle());
+				nv.setValue(KEY_WEIGHT, gp.getWeight());
+				nv.setValue(KEY_FAIR, gp.getFairValue());
+				nv.setValue(KEY_UNFAIR, gp.getUnfairValue());
+				items.add(nv);
+			}
+			
 		}
 	}
 	private void configureTable() {
 		competitivenessField.setText(Database.getInstance().getPreferencesTable().getParameter(PreferencesTable.COMPETITIVENESS_THRESHOLD_KEY));
-		efficiencyGapField.setText(Database.getInstance().getPreferencesTable().getParameter(PreferencesTable.EFFICIENCY_GAP_THRESHOLD_KEY));
-		populationEqualityField.setText(Database.getInstance().getPreferencesTable().getParameter(PreferencesTable.POPULATION_BALANCE_THRESHOLD_KEY));
 		table.setItems(items);
 	}
 
@@ -229,9 +268,7 @@ public class PlanSetupPane extends BasicRightSideNode
 							Database.getInstance().getPlanTable().clearMetrics(plan.getId());
 						}
 					}
-
 				}
-				
 				name = demographicCombo.getSelectionModel().getSelectedItem();
 				DatasetModel demModel = DatasetCache.getInstance().getDataset(name);
 				if( demModel!=null ) {
@@ -244,38 +281,46 @@ public class PlanSetupPane extends BasicRightSideNode
 						}
 					}
 				}
+				name = countyCombo.getSelectionModel().getSelectedItem();
+				DatasetModel cbModel = DatasetCache.getInstance().getDataset(name);
+				if( cbModel!=null ) {
+					if( model.getCountyBoundariesId()!=cbModel.getId()) {
+						model.setCountyBoundariesId(cbModel.getId());
+						model.updateCountyFeatures();
+						for(PlanModel plan:hub.getPlans()) {
+							plan.setMetrics(null);
+							Database.getInstance().getPlanTable().clearMetrics(plan.getId());
+						}
+					}
+				}
 				// Update model in the database
 				Database.getInstance().getPreferencesTable().updateAnalysisModel(model);
 				LOGGER.info(String.format("%s.save = %s",CLSS,competitivenessField.getText()));
 				Database.getInstance().getPreferencesTable().setParameter(PreferencesTable.COMPETITIVENESS_THRESHOLD_KEY, competitivenessField.getText());
-				Database.getInstance().getPreferencesTable().setParameter(PreferencesTable.EFFICIENCY_GAP_THRESHOLD_KEY, efficiencyGapField.getText());
-				Database.getInstance().getPreferencesTable().setParameter(PreferencesTable.POPULATION_BALANCE_THRESHOLD_KEY, populationEqualityField.getText());
-				
 			}
 		}
 	}
 	// ================================================= Event Handler ============================================
-	public class TableEventHandler implements EventHandler<TableColumn.CellEditEvent<Gate,String>>  {
+	public class TableEventHandler implements EventHandler<TableColumn.CellEditEvent<NameValue,String>>  {
 		/**
 		 * The event source is a table column ... A cell edit requires a <ENTER> to complete.
 		 * Loss of focus is not enough.
 		 */
 		@Override
-		public void handle(CellEditEvent<Gate, String> event) {
+		public void handle(CellEditEvent<NameValue, String> event) {
 			int row = event.getTablePosition().getRow();
 			String column = event.getTableColumn().getText();
 			String newValue = event.getNewValue();
-			List<Gate> items = event.getTableView().getItems();
+			List<NameValue> items = event.getTableView().getItems();
 			LOGGER.info(String.format("%s.handle %s: row %d = %s",CLSS,column,row,newValue));
-			
-			Gate item = items.get(row);
-			if( column.equalsIgnoreCase("Weight") ) {
-				try {
-					item.setWeight(Double.parseDouble(newValue));
-				}
-				catch(NumberFormatException nfe) {
-					LOGGER.warning(String.format("%s.handle %s is not a double (%s)",CLSS,newValue,nfe.getLocalizedMessage()));
-				}
+
+			NameValue item = items.get(row);
+			try {
+				item.setValue(column,Double.parseDouble(newValue));
+			}
+			catch(NumberFormatException nfe) {
+				LOGGER.warning(String.format("%s.handle %s=%s is not a double (%s)",CLSS,column,newValue,nfe.getLocalizedMessage()));
+
 			}
 		}
 	}

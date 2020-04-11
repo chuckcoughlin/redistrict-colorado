@@ -1,6 +1,6 @@
 ## Redistrict Colorado
 ## User Guide
-*FairnessAnalyzer* is designed to answer the question "Which is better?" when dealing with competing redistricting plans. The user configures plans and controls their analysis based on a collection of datasets which contain
+*FairnessAnalyzer* is designed to answer the question "Which is fairer?" when dealing with competing redistricting plans. The user configures plans and controls their evaluation based on a collection of datasets which contain
 district geometries, voter
 affiliation and demographic information. This guide walks through the use and installation of the application.  
 
@@ -14,9 +14,9 @@ affiliation and demographic information. This guide walks through the use and in
 
 The application's main interface is a split pane with
 actions in the left side controlling what is displayed on the right. A *View* menu controls which of three contexts is displayed. The contexts are:
- * Plans - these are the redistricting plans. Each plan is based on a dataset containing boundaries. This context also includes a setup pane for configuration of the weightings, affiliation and demographic datasets that are necessary for plan evaluation.
+ * Plans - these are the redistricting plans. Each plan is based on a dataset containing voting district boundaries. The plan context includes a setup pane for configuration of the weightings, affiliation and demographic datasets that are necessary for plan evaluation. Most importantly, the context includes an analysis screen which shows the result of side-by-side comparisons.
  * Datasets - a dataset holds information necessary for the construction and evaluation of a plan. Datasets are not part of the application as distributed, but are loaded in from files downloaded independently. Datasets correspond to a "shapefile" and contain geographic and other information.
- * Districts - a district is one of the regions of a dataset. The purpose of the *district* screens is to view details of a dataset.
+ * Districts - a voting district is one of the regions of a dataset. The purpose of the *district* screens is to view boundary details of a dataset.
 
 ![Menu](/images/view_menu.png)
 
@@ -60,26 +60,40 @@ In a non-competitive district, the minority party may not field
 a serious candidate. This leaves voters with no real choices at election time. The score is simply the number of districts that are considered competitive.
 
 On the setup page, the value "Competitiveness Threshold" specifies the
-maximum party differential for a competitive district. This is nominally 15%.
+maximum differential between party affiliations for a competitive district. 15% is often taken to be a reasonable value .
+
+`County Crossings`
+This metric is simply a count of the times a
+district crosses county boundaries.
+The same metric could also use municipal boundaries.
 
 `Population Balance`
 The constitutionally-mandated purpose of redistricting is to balance the number of people within the districts. A measure of population balance is simply the standard deviation
 of the population of the districts. We normalize by the total population,
 multiplied by 100 to give a result in percent. This value should be *minimized*.
 
-A red X indicator is drawn on the bar if any individual district has over a 1.0% deviation. Court cases have established 1% as
-the maximum allowable difference between any district population and the mean.
+Colorado sets the "unfair" limit of the difference between any district population and the mean at 5%. Some court cases have specified 1%.
+A red X indicator is drawn on the bar if any individual district has a deviation greater that the specified "unfair" limit.
 
 `Proportionality`
 Proportionality is the concept that the party mix of the elected officials
 should match the mix of the population as a whole. This metric compares
-the actual number of seats won by the dominant party versus the number of seats that were "deserved".  Any discrepancies greater than rounding error are flagged
+the projected number of seats won by the dominant party versus the number of seats that were "deserved".  Any discrepancies greater than rounding error are flagged
 with the  symbol of the benefiting party on the bar, meaning that the results are skewed
 in favor of that party.
 
+The numerical value of the metric is the number of seats in excess of the "deserved" number for the dominant party. Ideally this is less than 1.
 
+`Vote Efficiency`
+
+The "unfair" value on the settings page  maximum efficiency gap for a plan considered to be non-gerrymandered.
+
+`Voting Power`
+We define voting power as the ability to elect a candidate of one's choosing. Another way to state this is the ability to effect the outcome of one or more elections. For a single district, this can be summarized by taking the margin of victory (in votes) and dividing it by the total votes cast. To total this up by ethnicity, we take the weighted sum of this over all elections. For example, for hispanics, we take the total number of votes in an election, multiply by the fraction of that district that is hispanic, and total that up over all districts. Then we do the same for margin of victory. Then we divide the margin of victory total by the votes cast total, and that gives us an estimate of the average voting power for that ethnicity. We want to minimize how much this varies between ethnicities, so we take the average of this over the entire population, and calculate the mean absolute deviation (M.A.D.) of the ethnicities from this. This gives us a summary of how uneven voting power is distributed among the ethnicities. We want this score to be minimized.
 
 `Composite`
+The composite or overall metric is a compendium of all the other measures with
+a weighting applied. The result is a number between 0 and 10. A score of 10 means that the plan meets all criteria.
 
 ### Datasets
 
