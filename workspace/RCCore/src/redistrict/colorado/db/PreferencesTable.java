@@ -155,7 +155,7 @@ public class PreferencesTable {
 		}
 	}
 	/**
-	 * Update preferences based on the model object.
+	 * Update preferences based on the analysis model object.
 	 */
 	public void updateAnalysisModel(AnalysisModel model) {
 		PreparedStatement statement = null;
@@ -167,6 +167,9 @@ public class PreferencesTable {
 			statement.executeUpdate();
 			statement.setString(1,DEMOGRAPHIC_KEY);
 			statement.setString(2, String.valueOf(model.getDemographicId()));
+			statement.executeUpdate();
+			statement.setString(1,COUNTY_BOUNDARIES_KEY);
+			statement.setString(2, String.valueOf(model.getCountyBoundariesId()));
 			statement.executeUpdate();
 		}
 		catch(SQLException e) {

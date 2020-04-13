@@ -55,7 +55,8 @@ public class AnalysisModel {
 	// When we change the affiliations dataset, re-query for the alias names
 	public void setAffiliationId(long aid) { this.affiliationId = aid; }
 	public void setDemographicId(long did) { this.demographicId = did; }
-	public void setCountyBoundariesId(long cbid) { this.countyBoundariesId = cbid; }
+	public void setCountyBoundariesId(long cbid) { 
+		this.countyBoundariesId = cbid; }
 	public void updateAffiliationFeatures() { 
 		DatasetModel dm = DatasetCache.getInstance().getDataset(affiliationId);
 		if(dm==null) return;
@@ -71,7 +72,6 @@ public class AnalysisModel {
 	public void updateDemographicFeatures() {  
 		DatasetModel dm = DatasetCache.getInstance().getDataset(demographicId);
 		if(dm==null) return;
-		this.countyGeoName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.GEOMETRY.name());
 		this.demoGeoName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.GEOMETRY.name());
 		this.blackName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.BLACK.name());
 		this.hispanicName = Database.getInstance().getAttributeAliasTable().nameForAlias(dm.getId(), StandardAttributes.HISPANIC.name());

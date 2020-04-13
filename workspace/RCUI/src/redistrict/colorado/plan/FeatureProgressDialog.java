@@ -33,8 +33,8 @@ import redistrict.colorado.ui.ComponentIds;
  * @author chuckc
  *
  */
-public class PlanFeatureDialog extends Dialog<List<PlanFeature>> {
-	private final static String CLSS = "PlanFeatureDialog";
+public class FeatureProgressDialog extends Dialog<List<PlanFeature>> {
+	private final static String CLSS = "FeatureProgressDialog";
 	private final static Logger LOGGER = Logger.getLogger(CLSS);
 	private final double LABEL_WIDTH = 250.;
 	private final double PROGRESS_WIDTH = 200.;
@@ -45,7 +45,7 @@ public class PlanFeatureDialog extends Dialog<List<PlanFeature>> {
 	private final Label statusLabel;
 	private final ProgressBar progressBar; 
 	
-	public PlanFeatureDialog(PlanModel model,AnalysisModel am) {
+	public FeatureProgressDialog(PlanModel model,AnalysisModel am) {
 		this.task = new AggregateTask(model,am);
 		
 		this.setTitle("Aggregating Feature Information");

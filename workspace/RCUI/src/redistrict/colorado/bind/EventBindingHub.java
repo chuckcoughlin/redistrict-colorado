@@ -115,6 +115,9 @@ public class EventBindingHub  {
 		AnalysisModel am =  analysisModel.get();
 		if( am==null ) {
 			am = Database.getInstance().getPreferencesTable().getAnalysisModel();
+			am.updateAffiliationFeatures();
+			am.updateDemographicFeatures();
+			am.updateCountyFeatures();
 		}
 		return am;
 	}

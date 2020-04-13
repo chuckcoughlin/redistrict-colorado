@@ -165,7 +165,7 @@ public class DatasetRow extends ListCell<DatasetModel> implements ChangeListener
             hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.DATASET,DisplayOption.DATASET_DEFINITION));
         }
     }
-
+    // ============================================ Change Listener(Toggle) ==================================================
     /**
      * The toggle group has changed. Inform the binding hub. If the user clicks on a button in a non-selected row,
      * the model will have changed also.

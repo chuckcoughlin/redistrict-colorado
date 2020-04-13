@@ -51,6 +51,7 @@ public class AggregateTask  extends Task<List<PlanFeature>> {
 				attribute.setPerimeter(geometry.getLength());
 				aggregateAffiliations(attribute, geometry,am);
 				aggregateDemographics(attribute, geometry,am);
+				aggregateCountyBoundaries(attribute,geometry,am);
 			}
 			attributes.add(attribute);
 			index++;
@@ -157,6 +158,44 @@ public class AggregateTask  extends Task<List<PlanFeature>> {
 				count++;
 			}
 			LOGGER.info(String.format("%s.aggregateDemographics: %d features of %d intersect", CLSS,count,fc.getFeatures().size()));
+		}
+	}	
+	/**
+	 * Augment a single polygon (district) with values from a county (or municipal) boundaries dataset.
+	 * Simply sum the number of times there is a partial mapping.
+	 */
+	public void aggregateCountyBoundaries(PlanFeature planFeat, Geometry polygon,AnalysisModel am) {
+		if( am == null ) return;
+		DatasetModel dm = DatasetCache.getInstance().getDataset(am.getCountyBoundariesId());
+		if( dm!=null ) {
+			FeatureCollection fc = dm.getFeatures();
+			if( fc==null ) return;
+			int count = 0;
+			for(Feature feat:fc.getFeatures()) {
+				Geometry geometry = (Geometry)(feat.getAttribute(am.getCountyGeometryName()));
+				Geometries type = Geometries.get(geometry);
+				// Disjoint means there is no overlap.
+				if( geometry.disjoint(polygon)) {
+					continue;
+				}
+				if( !type.equals(Geometries.POLYGON) && !type.equals(Geometries.MULTIPOLYGON)) {
+					LOGGER.warning(String.format("%s.aggregateCountyBoundaries: Geometry not a polygon (%s)", CLSS,type.getName()));
+					continue;
+				}
+				try {
+					Geometry intersect = polygon.intersection(geometry);
+					if( intersect!=null && intersect.getEnvelope()!=null && !intersect.isEmpty() &&
+						intersect.getArea() / geometry.getArea()<0.999) {
+						planFeat.incrementCrossings(1.);
+					}
+				}
+				catch(Exception ex) {
+					LOGGER.warning(String.format("%s.aggregateCountyBoundaries: Intersect exception (%s)", CLSS,ex.getLocalizedMessage()));
+				}
+
+				count++;
+			}
+			LOGGER.info(String.format("%s.aggregateCountyBoundaries: %d features of %d intersect", CLSS,count,fc.getFeatures().size()));
 		}
 	}	
 }

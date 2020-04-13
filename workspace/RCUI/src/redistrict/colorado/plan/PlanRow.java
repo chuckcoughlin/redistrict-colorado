@@ -17,6 +17,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
+import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.Tooltip;
@@ -37,7 +38,7 @@ import redistrict.colorado.ui.ViewMode;
 /**
  * This is the UI element for a list view that represents a Plan.
  */
-public class PlanRow extends ListCell<PlanModel>   {
+public class PlanRow extends ListCell<PlanModel> implements ChangeListener<Toggle>   {
 	private static final String CLSS = "PlanRow";
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
 	private final static double COL1_WIDTH = 40.;
@@ -100,6 +101,7 @@ public class PlanRow extends ListCell<PlanModel>   {
         propertiesButton.setOnAction(handler);
         edit.setOnAction(handler);
         
+        toggleGroup.selectedToggleProperty().addListener(this);
         setContent(getItem());
 
     } 
@@ -176,37 +178,57 @@ public class PlanRow extends ListCell<PlanModel>   {
 			}
 		}
 	}
-    
+    // ============================================ Change Listener(Toggle) ==================================================
     /**
-     * Handle an event from one of the buttons.
+     * The toggle group has changed. Inform the binding hub. If the user clicks on a button in a non-selected row,
+     * the model will have changed also.
+     * @param source
+     * @param oldValue
+     * @param newValue
      */
-    public class EditEventHandler implements EventHandler<ActionEvent> {
-    	@Override public void handle(ActionEvent e) {
-    		String data = ACTIVE;
-    		if( e.getSource() instanceof Button ) {
-    			Button source = (Button)e.getSource();
-    			data = source.getUserData().toString();
-    		}
-
-    		EventBindingHub hub = EventBindingHub.getInstance();
-    		PlanModel model = getItem();
-    		hub.setSelectedPlan(model);
-    		LOGGER.info(String.format("%s.handle: processing event from %s", CLSS,(model==null?"null":(model.getBoundary()==null?"null":model.getBoundary().getName()))));
+	@Override
+	public void changed(ObservableValue<? extends Toggle> source, Toggle oldValue, Toggle newValue) {
+		if( newValue==null ) {
+			LOGGER.info(String.format("%s.changed: toggle button no new value", CLSS));
+		}
+		else {
+			EventBindingHub hub = EventBindingHub.getInstance();
+			hub.setSelectedPlan(getItem());
+			Object data = newValue.getUserData();
+			if( data==null ) data = "null";
     		if( data.equals(PROPERTIES_DATA)) {
     			hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.PLAN_FEATURES));
     		}
     		else if( data.toString().equalsIgnoreCase(MAP_DATA)) {
-				EventBindingHub.getInstance().setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.MODEL_MAP));
+				hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.MODEL_MAP));
 			}
-    		else if( data.equals(ACTIVE)) {
+    	
+			
+		}
+	}
+	
+    /**
+     * Handle an event from one of the buttons - either the active checkbox, or edit button.
+     */
+    public class EditEventHandler implements EventHandler<ActionEvent> {
+    	@Override public void handle(ActionEvent e) {
+    		EventBindingHub hub = EventBindingHub.getInstance();
+    		PlanModel model = getItem();
+    		hub.setSelectedPlan(model);
+    		LOGGER.info(String.format("%s.handle: processing event from %s", CLSS,(model==null?"null":(model.getBoundary()==null?"null":model.getBoundary().getName()))));
+    		if( e.getSource() instanceof Button ) {
+    			Button source = (Button)e.getSource();
+    			String data = source.getUserData().toString();
+    			if( data.equals(EDIT)) {
+       	         hub.setSelectedPlan(model);
+       	         hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.PLAN_DEFINITION));
+    			}
+    		}
+    		else if(e.getSource() instanceof CheckBox) {
     			model.setActive(active.isSelected());
     			Database.getInstance().getPlanTable().updatePlan(model);
     			hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.NONE));
     		}
-    		else if( data.equals(EDIT)) {
-    	         hub.setSelectedPlan(model);
-    	         hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.PLAN_DEFINITION));
-    		}
     	}
-    }
+    } 
 }

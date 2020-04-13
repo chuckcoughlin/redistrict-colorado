@@ -4,7 +4,7 @@
  * This program is free software; you may redistribute it and/or
  * modify it under the terms of the GNU General Public License.
  */
-package redistrict.colorado.dataset;
+package redistrict.colorado.pane;
 import java.util.logging.Logger;
 
 import javafx.beans.value.ChangeListener;
@@ -14,8 +14,6 @@ import javafx.event.EventHandler;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Label;
 import redistrict.colorado.core.DatasetModel;
-import redistrict.colorado.pane.BasicRightSideNode;
-import redistrict.colorado.pane.NavigationPane;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.UIConstants;
 import redistrict.colorado.ui.ViewMode;
@@ -31,9 +29,9 @@ import redistrict.colorado.ui.ViewMode;
 		private final ModelMapRenderer map;
 		private DatasetModel model;
 		
-		
-		public ModelMapPane() {
-			super(ViewMode.DATASET,DisplayOption.MODEL_MAP);
+		// This same screen is used in two contexts.
+		public ModelMapPane(ViewMode vm, DisplayOption dopt) {
+			super(vm,dopt);
 			this.model = hub.getSelectedDataset();
 			headerLabel.getStyleClass().add("list-header-label");
 			getChildren().add(headerLabel);

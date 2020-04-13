@@ -45,7 +45,6 @@ CREATE TABLE FeatureAttribute (
 -- on the overall metric.
 DROP TABLE IF EXISTS GateProperties;
 CREATE TABLE GateProperties (
-	id	INTEGER  PRIMARY KEY,
 	name TEXT NOT NULL,
 	weight real DEFAULT 1.0,
 	unfair real DEFAULT 0.0,

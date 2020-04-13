@@ -19,8 +19,6 @@ public class ShapeIndexFile {
 	private final RecordReference[] records;
 	private final ShapefileHeader header;  // Same header as Shpefile
 
-
-
 	/**
 	 * @param file file name
 	 */

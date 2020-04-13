@@ -33,10 +33,10 @@ import redistrict.colorado.ui.UIConstants;
 import redistrict.colorado.ui.ViewMode;
 
 /**
- * Display metrics by feature
+ * Display metrics by feature where a "feature" is a geometric area.
  */
-public class PlanFeaturesPane extends BasicRightSideNode{
-	private final static String CLSS = "PlanFeaturesPane";
+public class PlanPropertiesPane extends BasicRightSideNode{
+	private final static String CLSS = "PlanPropertiesPane";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	public static final double FEATURE_TABLE_HEIGHT = 500; // Preferred
 	public static final double FEATURE_TABLE_WIDTH  = 600; 
@@ -49,7 +49,7 @@ public class PlanFeaturesPane extends BasicRightSideNode{
 	private final Label headerLabel = new Label("Plan Features");
 	private final TableView<PlanFeature> table;
 
-	public PlanFeaturesPane() {
+	public PlanPropertiesPane() {
 		super(ViewMode.PLAN,DisplayOption.PLAN_FEATURES);
 		this.model = hub.getSelectedPlan();
 		this.items = FXCollections.observableArrayList();
@@ -109,11 +109,11 @@ public class PlanFeaturesPane extends BasicRightSideNode{
 				LOGGER.warning(String.format("%s.updateModel: Model has no associated boundary dataset", CLSS));
 				return;
 			}
-			this.headerLabel.setText(boundaryDataset.getName()+" Feature Attributes");
+			this.headerLabel.setText(boundaryDataset.getName()+" Properties");
 			if(model.getMetrics()==null || model.getMetrics().isEmpty()) {
 				AnalysisModel am = hub.getAnalysisModel();
-				if( am.getAffiliationId()>=0 && am.getDemographicId()>=0 ) {
-					PlanFeatureDialog dialog = new PlanFeatureDialog(model,am);
+				if( am.getAffiliationId()>=0 && am.getDemographicId()>=0 && am.getCountyBoundariesId()>=0 ) {
+					FeatureProgressDialog dialog = new FeatureProgressDialog(model,am);
 					dialog.initOwner(getScene().getWindow());
 					Optional<List<PlanFeature>> result = dialog.showAndWait();
 					if (result.isPresent() ) {
