@@ -23,15 +23,20 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.StackPane;
 import redistrict.colorado.bind.BasicEventDispatcher;
+import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.bind.EventReceiver;
+import redistrict.colorado.bind.LeftSelectionEvent;
 import redistrict.colorado.core.DatasetModel;
 import redistrict.colorado.core.DatasetRole;
 import redistrict.colorado.core.StandardAttributes;
 import redistrict.colorado.db.Database;
+import redistrict.colorado.db.DatasetCache;
+import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.GuiUtil;
+import redistrict.colorado.ui.ViewMode;
 
 public class DistrictTreeController extends StackPane implements EventReceiver<ActionEvent>,ChangeListener<TreeItem<String>> {
-	private final static String CLSS = "DistrictListController";
+	private final static String CLSS = "DistrictTreeController";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private static final GuiUtil guiu = new GuiUtil();
 	private Label headerLabel = new Label("Districts");
@@ -39,12 +44,12 @@ public class DistrictTreeController extends StackPane implements EventReceiver<A
 	private final TreeItem<String> root;
     private final BasicEventDispatcher<ActionEvent> auxEventDispatcher;
 	private final ExpansionListener  expansionListener;
-	private final EventHandler<ActionEvent> auxEventHandler;
+	private final EventHandler<ActionEvent> regionEventHandler;
 	private final ReadOnlyObjectProperty<TreeItem<String>> selectionModel;
 	
 	public DistrictTreeController() {
-		this.auxEventHandler = new RegionListHolderEventHandler();
-		this.auxEventDispatcher = new BasicEventDispatcher<ActionEvent>(auxEventHandler);
+		this.regionEventHandler = new RegionListHolderEventHandler();
+		this.auxEventDispatcher = new BasicEventDispatcher<ActionEvent>(regionEventHandler);
 		this.expansionListener = new ExpansionListener();
 		this.root = new TreeItem<String> ("Datasets",guiu.loadImage("images/folder_closed.png"));
         root.setExpanded(false);       
@@ -52,7 +57,7 @@ public class DistrictTreeController extends StackPane implements EventReceiver<A
         this.selectionModel = tree.getSelectionModel().selectedItemProperty();
         selectionModel.addListener(this);
         tree.setEditable(false);
-        tree.addEventHandler(ActionEvent.ACTION, auxEventHandler);
+        tree.addEventHandler(ActionEvent.ACTION, regionEventHandler);
         root.expandedProperty().addListener(expansionListener); 
         populateDatasets();
         getChildren().add(tree);
@@ -77,6 +82,7 @@ public class DistrictTreeController extends StackPane implements EventReceiver<A
 						for(Feature feature:collection.getFeatures() ) {
 							TreeItem<String> leaf = new TreeItem<String> (feature.getAttribute(nameAttribute).toString());
 							item.getChildren().add(leaf);
+							leaf.addEventHandler(ActionEvent.ACTION, regionEventHandler);
 						}
 					}
 					else {
@@ -88,10 +94,17 @@ public class DistrictTreeController extends StackPane implements EventReceiver<A
 	}
 
 	// ================================================ Change Listener =========================================
+	// This is what is triggered on select of a leaf node. We inform the hub of the current dataset and leaf name
 	@Override
 	public void changed(ObservableValue<? extends TreeItem<String>> observable, TreeItem<String> oldValue,TreeItem<String> newValue) {
-		TreeItem<String> selectedItem = (TreeItem<String>) newValue;
-		LOGGER.info(String.format("%s.changed %s: Arg 1 = %s Arg2 = %s", CLSS,observable,oldValue,newValue));
+		if( observable==null || newValue==null ) return;
+		//LOGGER.info(String.format("%s.changed %s:%s", CLSS,observable.getValue().getParent().getValue(),newValue.getValue()));
+		EventBindingHub hub = EventBindingHub.getInstance();
+		String datasetName = observable.getValue().getParent().getValue();
+		DatasetModel dm = DatasetCache.getInstance().getDataset(datasetName);
+		hub.setSelectedDataset(dm);
+		hub.setSelectedRegion(newValue.getValue());
+		hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.DISTRICT,DisplayOption.MODEL_MAP));
 	}
 
 

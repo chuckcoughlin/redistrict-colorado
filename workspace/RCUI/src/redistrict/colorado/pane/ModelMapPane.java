@@ -25,7 +25,7 @@ import redistrict.colorado.ui.ViewMode;
 		private final static String CLSS = "ModelMapPane";
 		private static Logger LOGGER = Logger.getLogger(CLSS);
 		private final NavigationPane navPane = new NavigationPane(this,this);
-		private final Label headerLabel = new Label("Map");
+		private final Label headerLabel = new Label("District Map");
 		private final ModelMapRenderer map;
 		private DatasetModel model;
 		

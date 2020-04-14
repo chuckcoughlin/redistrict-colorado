@@ -26,10 +26,7 @@ import org.openjump.feature.Feature;
 import org.openjump.feature.FeatureCollection;
 
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.transform.Scale;
-import javafx.scene.transform.Translate;
 
 /**
  * A renderer designed specifically for shapefiles. There is no label caching.

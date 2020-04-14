@@ -136,7 +136,7 @@ public class PlanTable {
 		List<PlanFeature> list = new ArrayList<>();
 		Statement statement = null;
 		ResultSet rs = null;
-		String SQL = "SELECT featureId,name,area,perimeter,population,democrat,republican,black,hispanic,white "+
+		String SQL = "SELECT featureId,name,area,perimeter,population,democrat,republican,black,hispanic,white,crossings "+
 					  String.format("FROM PlanFeature WHERE planId=%d",plan.getId()); 
 		try {
 			statement = cxn.createStatement();
@@ -154,6 +154,7 @@ public class PlanTable {
 				pfeat.setBlack(rs.getDouble("black"));
 				pfeat.setHispanic(rs.getDouble("hispanic"));
 				pfeat.setWhite(rs.getDouble("white"));
+				pfeat.setCrossings(rs.getDouble("crossings"));
 				list.add(pfeat);
 				//LOGGER.info(String.format("%s.getMetrics for %d: name = %s",CLSS,fid,pfeat.getName()));
 			}
@@ -279,8 +280,8 @@ public class PlanTable {
 	public boolean updatePlanMetrics(PlanModel model) {
 		clearMetrics(model.getId());
 		PreparedStatement statement = null;
-		String SQL = "INSERT INTO PlanFeature(planId,featureId,name,area,perimeter,population,democrat,republican,black,hispanic,white)"+
-					 " VALUES(?,?,?,?,?,?,?,?,?,?,?)";
+		String SQL = "INSERT INTO PlanFeature(planId,featureId,name,area,perimeter,population,democrat,republican,black,hispanic,white,crossings)"+
+					 " VALUES(?,?,?,?,?,?,?,?,?,?,?,?)";
 		boolean success = true;
 		try {
 			statement = cxn.prepareStatement(SQL);
@@ -298,6 +299,7 @@ public class PlanTable {
 				statement.setDouble(9, pfeat.getBlack());
 				statement.setDouble(10, pfeat.getHispanic());
 				statement.setDouble(11, pfeat.getWhite());
+				statement.setDouble(12, pfeat.getCrossings());
 				statement.executeUpdate();
 				featureId++;
 			}

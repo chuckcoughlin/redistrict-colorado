@@ -182,17 +182,8 @@ public class AggregateTask  extends Task<List<PlanFeature>> {
 					LOGGER.warning(String.format("%s.aggregateCountyBoundaries: Geometry not a polygon (%s)", CLSS,type.getName()));
 					continue;
 				}
-				try {
-					Geometry intersect = polygon.intersection(geometry);
-					if( intersect!=null && intersect.getEnvelope()!=null && !intersect.isEmpty() &&
-						intersect.getArea() / geometry.getArea()<0.999) {
-						planFeat.incrementCrossings(1.);
-					}
-				}
-				catch(Exception ex) {
-					LOGGER.warning(String.format("%s.aggregateCountyBoundaries: Intersect exception (%s)", CLSS,ex.getLocalizedMessage()));
-				}
-
+				// It's not disjoint so it shares area.
+				planFeat.incrementCrossings(1.);
 				count++;
 			}
 			LOGGER.info(String.format("%s.aggregateCountyBoundaries: %d features of %d intersect", CLSS,count,fc.getFeatures().size()));

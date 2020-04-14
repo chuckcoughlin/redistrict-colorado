@@ -14,7 +14,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import redistrict.colorado.core.AnalysisModel;
 import redistrict.colorado.core.DatasetModel;
-import redistrict.colorado.core.DistrictModel;
 import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.ui.ViewMode;
@@ -41,7 +40,7 @@ public class EventBindingHub  {
 	private final SimpleObjectProperty<List<PlanModel>> activePlans;
 	private final SimpleObjectProperty<List<PlanModel>> allPlans;
 	private final SimpleObjectProperty<PlanModel> selectedPlan;
-	private final SimpleObjectProperty<DistrictModel> selectedDistrict;
+	private final SimpleStringProperty selectedRegion;
 	private final SimpleObjectProperty<AnalysisModel> analysisModel;
 	/**
 	 * Constructor is private per Singleton pattern.
@@ -54,7 +53,7 @@ public class EventBindingHub  {
 		this.selectedPlan = new SimpleObjectProperty<PlanModel>();
 		this.activePlans = new SimpleObjectProperty<List<PlanModel>>();
 		this.allPlans = new SimpleObjectProperty<List<PlanModel>>();
-		this.selectedDistrict = new SimpleObjectProperty<DistrictModel>();
+		this.selectedRegion = new SimpleStringProperty();
 		this.analysisModel = new SimpleObjectProperty<AnalysisModel>();
 	}
 	/**
@@ -124,10 +123,10 @@ public class EventBindingHub  {
 	public SimpleObjectProperty<AnalysisModel> analysisModelProperty(){return analysisModel; }
 	
 	// Selected District
-	public DistrictModel getSelectedDistrict() { return selectedDistrict.get(); }
-	public boolean isDistrictSelected() { return (selectedDistrict.get()!=null); }
-	public void setSelectedDistrict(DistrictModel model) { selectedDistrict.set(model); }
-	public void unselectDistrict() { selectedDistrict.set(null); }
-	public void addDistrictListener(ChangeListener<DistrictModel> listener) {selectedDistrict.addListener(listener);}
-	public SimpleObjectProperty<DistrictModel> selectedDistrictProperty(){return selectedDistrict;}
+	public String getSelectedRegion() { return selectedRegion.get(); }
+	public boolean isDistrictSelected() { return (selectedRegion.get()!=null); }
+	public void setSelectedRegion(String regionName) { selectedRegion.set(regionName); }
+	public void unselectDistrict() { selectedRegion.set(null); }
+	public void addDistrictListener(ChangeListener<String> listener) {selectedRegion.addListener(listener);}
+	public SimpleStringProperty selectedRegionProperty(){return selectedRegion;}
 }

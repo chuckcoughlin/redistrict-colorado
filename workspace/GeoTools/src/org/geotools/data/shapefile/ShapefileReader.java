@@ -46,8 +46,9 @@ public class ShapefileReader {
 
     
     /**
-     * Test whether or not a path represents a legal Shapefile. It must be an archive
-     * file with .shp, .dbf and .shx components. 
+     * Test whether or not a path represents a legal Shapefile or uncomressed .dbf. 
+     * To be legal, the shapefile must be an archive file with .shp, .dbf and .shx components.
+     * To be useful, the uncompressed .dbf file must include geometry. 
      * @param fname
      * @return
      */
@@ -60,13 +61,29 @@ public class ShapefileReader {
     			success = true;
     		}
     	}
+    	else {
+    		if( fname.endsWith(".dbf")) success = true;
+    	}
     	return success;
     }
-    
+    /**
+     * Test whether or not a path represents a legal Shapefile or uncomressed .dbf. 
+     * To be legal, the shapefile must be an archive file with .shp, .dbf and .shx components.
+     * To be useful, the uncompressed .dbf file must include geometry. 
+     * @param fname
+     * @return
+     */
+    public static boolean isUncompressedDbFile(String fname) throws Exception {
+    	boolean success = false;
+    	if( fname.endsWith(".dbf")) success = true;
+    	return success;
+    }
    
     /**
      * Main method to read a compressed shape-file. The .zip file may contain both
      * .shp and .dbf files. Most of the work is done in the org.geotools.* package.
+     * 
+     * This method also work if given a "loose" uncompressed dbfile. 
      *
      * @param shpFileName path to the compressed shapefile.
      * @return a FeatureCollection created from .shp and .dbf (dbf is optional)
@@ -78,19 +95,26 @@ public class ShapefileReader {
     	if(!isShapefile(shpFileName)) {
     		throw new IllegalArgumentException(String.format("%s.read: File %s is not a shapefile", CLSS,shpFileName));
     	}
-
-    	// Read the .cpg file, if it exists. It is the character set for DbFile. Else use default.
-    	String charsetName = readCharset(shpFileName);   
-    	DbaseFile dbfFile = getDbfFile(shpFileName,Charset.forName(charsetName));
-    	Shapefile shapefile = getShapefile(shpFileName,dbfFile);
-		FeatureSchema fs;
     	FeatureCollection featureCollection = null;
+    	
+    	Shapefile shapefile = null;
+    	DbaseFile dbfFile = null;
+    	if( isUncompressedDbFile(shpFileName)) {
+    		dbfFile = getDbfFile(shpFileName,Charset.defaultCharset());
+    	}
+    	else {  
+    		// Read the .cpg file, if it exists. It is the character set for DbFile. Else use default.
+        	String charsetName = readCharset(shpFileName);   
+        	dbfFile = getDbfFile(shpFileName,Charset.forName(charsetName));
+        	shapefile = getShapefile(shpFileName,dbfFile);
+    	}
+    	FeatureSchema fs;
     	if( shapefile!=null ) {
     		GeometryCollection collection = shapefile.getGeometryCollection();
     		// handle shapefiles without .dbf files. Ignore the index file.
     		if ( dbfFile == null ) {
     			fs = new FeatureSchema();
-    	    	featureCollection =  new FeatureDataset(fs);
+    			featureCollection =  new FeatureDataset(fs);
     			// Minimal schema for FeatureCollection (if no dbf is provided)  
     			fs.addAttribute("GEOMETRY", AttributeType.GEOMETRY);
     			int numGeometries = collection.getNumGeometries();
@@ -127,6 +151,14 @@ public class ShapefileReader {
     				}
     			}
     		}
+    	}
+    	// Shapefile is null, so we need to get the geometries from the DbfFile
+    	// This doesn't work ... the lone dbfFiles that I've found don't have 
+    	// geometries.
+    	else if(dbfFile!=null) {
+    		fs = dbfFile.getFeatureSchema();
+			featureCollection =  new FeatureDataset(fs);
+			int recordCount = dbfFile.getHeader().getLastRecord();
     	}
     	return featureCollection;
     }

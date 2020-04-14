@@ -14,6 +14,8 @@ import javafx.event.EventHandler;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Label;
 import redistrict.colorado.core.DatasetModel;
+import redistrict.colorado.core.StandardAttributes;
+import redistrict.colorado.db.Database;
 import redistrict.colorado.pane.BasicRightSideNode;
 import redistrict.colorado.pane.NavigationPane;
 import redistrict.colorado.ui.DisplayOption;
@@ -61,11 +63,12 @@ public class FeatureMapPane extends BasicRightSideNode implements EventHandler<A
 	@Override
 	public void updateModel() {
 		DatasetModel selectedModel = hub.getSelectedDataset();
+		String region = hub.getSelectedRegion();
 		if( selectedModel!=null) {
 			model = selectedModel;
 			headerLabel.setText(model.getName());
 			LOGGER.info(String.format("%s.updateModel: selected = %s", CLSS,model.getName()));
-			map.updateModel(model);
+			map.updateModel(model,region);
 		}
 	}
 

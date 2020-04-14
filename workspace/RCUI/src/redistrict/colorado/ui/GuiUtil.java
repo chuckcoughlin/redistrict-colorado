@@ -60,7 +60,7 @@ public class GuiUtil {
 	/*
 	 * Perform a best-effort conversion of the val to a double
 	 */
-	public double toDouble(Object val) {
+	public static double toDouble(Object val) {
 		double dbl = Double.NaN;
 		if( val==null ) {
 			dbl = 0.;
@@ -71,7 +71,7 @@ public class GuiUtil {
 		}
 		else if( val instanceof String) {
 			try {
-				if( val.toString().isBlank() ) dbl = 0.;
+				if( val.toString().isEmpty() ) dbl = 0.;
 				else dbl = Double.parseDouble(val.toString());
 			}
 			catch(NumberFormatException nfe) {

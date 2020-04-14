@@ -14,11 +14,11 @@ import org.openjump.feature.FeatureCollection;
 import redistrict.colorado.db.Database;
 
 /**
- * A Layer is on overlay on the map defined by a Shapefile. 
+ * A dataset powers an overlay on the map defined by a Shapefile. 
  * The features are always read from the file, never the database. 
  */
 public class DatasetModel  {
-	private final static String CLSS = "LayerModel";
+	private final static String CLSS = "DatasetModel";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private final long id;
 	private String name;
@@ -49,13 +49,21 @@ public class DatasetModel  {
 	public FeatureCollection getFeatures() { 
 		if(features==null && shapefilePath!=null && !shapefilePath.isEmpty() ) {
 			try {
-				setFeatures(ShapefileReader.read(shapefilePath));
+				FeatureCollection fc = ShapefileReader.read(shapefilePath);
+				setFeatures(fc);
+				if( fc!=null) {
+					Database.getInstance().getFeatureAttributeTable().synchronizeFeatureAttributes(id, features.getFeatureSchema().getAttributeNames());
+				}
+				else {
+					String msg = String.format("%s: Failed to parse shapefile %s (No features found)",CLSS,shapefilePath);
+					LOGGER.warning(msg);
+				}
 			}
 			catch( Exception ex) {
 				String msg = String.format("%s: Failed to parse shapefile %s (%s)",CLSS,shapefilePath,ex.getLocalizedMessage());
 				LOGGER.warning(msg);
 			}
-			Database.getInstance().getFeatureAttributeTable().synchronizeFeatureAttributes(id, features.getFeatureSchema().getAttributeNames());
+			
 		}
 		return this.features; 
 	}

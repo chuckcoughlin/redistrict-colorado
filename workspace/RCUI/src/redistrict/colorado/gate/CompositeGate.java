@@ -6,36 +6,251 @@
  */
 package redistrict.colorado.gate;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Group;
+import javafx.scene.Node;
+import javafx.scene.chart.XYChart;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import redistrict.colorado.core.GateProperty;
 import redistrict.colorado.core.GateType;
+import redistrict.colorado.core.HarmonicMean;
+import redistrict.colorado.core.PlanFeature;
+import redistrict.colorado.core.PlanModel;
+import redistrict.colorado.db.Database;
+import redistrict.colorado.plan.Legend;
+import redistrict.colorado.table.NameValue;
+import redistrict.colorado.table.NameValueListCellValueFactory;
+import redistrict.colorado.ui.ComponentIds;
+import redistrict.colorado.ui.GuiUtil;
 
 /**
- * Compare plans based on the populations of each district are within 
- * 1% of each other.
+ * Compare plans based on the harmonic mean of the normalized
+ * and weighted composite of all other plans. 
  */
 public class CompositeGate extends Gate {
+	private final static double DIALOG_HEIGHT = 550.; 
+	private final static double DIALOG_WIDTH = 600.;
+	private final static String KEY_NAME = "Name";
 	private final static String KEY_SCORE = "Score";
+	private final static String KEY_FAIR = "Fair";
+	private final static String KEY_UNFAIR = "Unfair";
+	private final static String KEY_WEIGHT = "Weight";
+	private final Label detailLabel = new Label("Individual Metric Results"); 
+	private Legend legend;
+	private final Map<Long,List<NameValue>> planScores; // List is ordered by gate type
+
+	public CompositeGate() {
+		this.planScores = new HashMap<>();
+		this.setAlignment(Pos.CENTER_LEFT);
+	}
+
+	/**
+	 * Initialize the main UI. This is the only class where we override
+	 */
+	protected void init() {
+		double width = 2*WIDTH + 40;  // Empirical
+		header.setAlignment(Pos.CENTER);
+		header.setPrefWidth(width+1);
+		header.getStyleClass().add("graph-header");
+
+		this.legend = new Legend();
+		legend.setAlignment(Pos.CENTER_LEFT);
+		legend.setPadding(new Insets(10, 120, 10, 10));  // top, right,bottom,left
+		body.setAlignment(Pos.CENTER);
+		body.setPrefWidth(width-40);
+		rectangle = new Rectangle(width,HEIGHT);
+		rectangle.getStyleClass().add("graph-rectangle");
+		StackPane.setAlignment(header, Pos.TOP_CENTER);
+		//StackPane.setAlignment(legend, Pos.CENTER_LEFT);
+		StackPane.setAlignment(rectangle, Pos.CENTER);
+		StackPane.setAlignment(info, Pos.BOTTOM_RIGHT);
+		body.getChildren().addAll(rectangle,legend,header,info);
+		getChildren().addAll(body);	
+	}
+
 	public TextFlow getInfo() { 
 		TextFlow info = new TextFlow();
-		Text t1 = new Text(" Each of these scores will have vastly different ranges. For instance, compactness varies from 0 to 1, ");
-		Text t2 = new Text("while population imbalance could be in the tens of thousands. But we want each score to be \"weighed\" ");
-		Text t3 = new Text("about the same, or, rather, in proportion to where the sliders are set. So we have to get them all on ");
-		Text t4 = new Text("the same scale. We call this \"normalizing\" the scores.\n\n");
-		Text t5 = new Text("To normalize a score, we first sort the population according to one criteria, then we replace each score ");
-		Text t6 = new Text("with their \"rank\" in the sorted list, and divide by the size of the population. We use this as the new, ");
-		Text t7 = new Text("normalized score for that criteria. Another way to say this is that we replace a raw score with it's ");
-		Text t8 = new Text("\"percentile\". We do this one at a time for all criteria.\n\n");
-		Text t9 = new Text("Then we multiply each score by where its corresponding slider is set, and then again by where the ");
-		Text t10= new Text("geometry/fairness slider is set (starting from left or right, depending on whether it's a geometry score ");
-		Text t11= new Text("or a fairness score). We then add these all together, and this gives us a final single-number score for a map." );
-		info.getChildren().addAll(t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11);
+		Text t1 = new Text(" Each of the constituent scores is constrained to limits on the setup page.  ");
+		Text t2 = new Text(" A score at the \"unfair\" limit is assigned a value of zero. A score at ");
+		Text t3 = new Text("\"fair\" limit is assigned a 10. Scores in between are evaluated accordingly. ");
+		Text t4 = new Text("The final metric is a weighed harmonic mean of the individual scores." );
+		info.getChildren().addAll(t1,t2,t3,t4);
 		return info;
 	}
 	public String getScoreAttribute() { return KEY_SCORE; };
 	public String getTitle() { return "Composite Score"; }
-	public double getWeight() { return 0.; }
 	public GateType getType() { return GateType.COMPOSITE; }
-	public void setWeight(double weight) {}
-	public boolean useMaximum() { return true; }
+
+	/**
+	 * Compute the overall score, place into the score-map. Along the way we save
+	 * results for the individual gates for display in the detail table.
+	 * This must evaluate after al the other gates.
+	 */
+	@Override
+	public void evaluate(List<PlanModel> plans) {
+		LOGGER.info("CompositeGate.evaluating: ...");
+		// First normalize the weightings - the weightings must total to 1.
+		List<GateProperty> properties = Database.getInstance().getGateTable().getGateProperties();
+		double sum = 0.;
+		for(GateProperty prop:properties) {
+			if(prop.getType().equals(GateType.COMPOSITE)) continue;
+			sum += prop.getWeight();
+		}
+		if( sum==0.) sum=1.;
+		double fact = 1./sum;
+		for(PlanModel plan:plans) {
+			double [] scores = new double[properties.size()];
+			// Now tally the individual normalized score.
+			int row = 0;
+			for(Gate gate:GateCache.getInstance().getBasicGates()) {
+				GateProperty prop = Database.getInstance().getGateTable().getGateProperty(gate.getType());
+				NameValue nv = new NameValue(gate.getTitle());
+				double weight = prop.getWeight()*fact;
+				double unfair = prop.getUnfairValue();
+				double fair   = prop.getFairValue();
+				nv.setValue(KEY_FAIR, fair);
+				nv.setValue(KEY_UNFAIR, unfair);
+				nv.setValue(KEY_WEIGHT, weight);
+				LOGGER.info("CompositeGate: evaluating "+ gate.getTitle());
+				double raw = gate.getScore(plan.getId());
+				nv.setValue(KEY_SCORE, raw);
+				if( fair>unfair) {
+					if(raw<unfair) raw = 0.;
+					else if(raw>unfair) raw = 10;
+					else {
+						raw = (raw - unfair)/(fair-unfair);
+					}
+				}
+				else {    // fair<unfair  (small is good)
+					if(raw<fair) raw = 10.;
+					else if(raw>unfair) raw = 0;
+					else {
+						raw = (unfair - raw)/(unfair-fair);
+					}
+				}
+				scores[row] = raw;
+				row++;
+			}
+			double score = HarmonicMean.evaluate(scores);
+			NameValue nv = new NameValue(plan.getName());
+			nv.setValue(KEY_SCORE, score);
+			scoreMap.put(plan.getId(), nv);
+		}
+
+		Collections.sort(plans,compareByScore);  // use .reversed() when minimized is good
+		sortedPlans.clear();
+		sortedPlans.addAll(plans);
+		updateChart();
+	}
+	// Create contents that allow viewing the details of the calculation.
+	// Display a single table with weight, lower limit, upper limit, score for each plan.
+	@Override
+	protected Node getResultsContents() { 
+		VBox pane =  new VBox(10);
+		pane.setPrefSize(DIALOG_WIDTH, DIALOG_HEIGHT);
+		pane.setFillWidth(true);
+
+		detailLabel.setId(ComponentIds.LABEL_SCORE);
+		pane.getChildren().add(detailLabel);
+
+		// Detail table
+		TableView<List<NameValue>> detailTable = new TableView<>();
+		TableColumn<List<NameValue>,String> col;
+		TableColumn<List<NameValue>,String> subcol;
+		NameValueListCellValueFactory fact = new NameValueListCellValueFactory();
+		fact.setFormat(KEY_WEIGHT, "%2.1f");
+		fact.setFormat(KEY_FAIR, "%2.1f");
+		fact.setFormat(KEY_UNFAIR, "%2.1f");
+		fact.setFormat(KEY_SCORE, "%2.1f");
+
+		int colno = 0;
+		double widthFactor = 1./(5*sortedPlans.size());
+
+		for(PlanModel plan:sortedPlans ) {
+			// These columns have no cells, just sub-columns.
+			col = new TableColumn<>(plan.getName());
+			col.setPrefWidth(DIALOG_WIDTH);
+			detailTable.getColumns().add(col);
+			subcol = new TableColumn<>(KEY_NAME);
+			subcol.setCellValueFactory(fact);
+			subcol.setUserData(colno);
+			subcol.prefWidthProperty().bind(detailTable.widthProperty().multiply(widthFactor));
+			col.getColumns().add(subcol);
+			subcol = new TableColumn<>(KEY_WEIGHT);
+			subcol.setCellValueFactory(fact);
+			subcol.prefWidthProperty().bind(detailTable.widthProperty().multiply(widthFactor));
+			subcol.setUserData(colno);
+			col.getColumns().add(subcol);
+			subcol = new TableColumn<>(KEY_UNFAIR);
+			subcol.setCellValueFactory(fact);
+			subcol.prefWidthProperty().bind(detailTable.widthProperty().multiply(widthFactor));
+			subcol.setUserData(colno);
+			col.getColumns().add(subcol);
+			subcol = new TableColumn<>(KEY_FAIR);
+			subcol.setCellValueFactory(fact);
+			subcol.prefWidthProperty().bind(detailTable.widthProperty().multiply(widthFactor));
+			subcol.setUserData(colno);
+			col.getColumns().add(subcol);
+			subcol = new TableColumn<>(KEY_SCORE);
+			subcol.setCellValueFactory(fact);
+			subcol.prefWidthProperty().bind(detailTable.widthProperty().multiply(widthFactor));
+			subcol.setUserData(colno);
+			col.getColumns().add(subcol);
+			colno++;
+		}
+
+		int maxrows = Database.getInstance().getGateTable().getGateProperties().size();
+		ObservableList<List<NameValue>> ditems = FXCollections.observableArrayList();
+		for( int row=0;row<maxrows;row++ ) {
+			List<NameValue> values = new ArrayList<>();
+			for(PlanModel plan:sortedPlans ) {
+				List<NameValue> scores = planScores.get(plan.getId());
+				Collections.sort(scores,compareByName);
+				if(scores.size()>row ) {
+					values.add(scores.get(row));
+				}
+				else {
+					values.add(NameValue.EMPTY);
+				}
+			}
+			ditems.add(values);
+		}
+
+		detailTable.setItems(ditems);
+		pane.getChildren().add(detailTable);
+
+		return pane;
+	}
+
+
+	// Update the legend and result labels based on computations
+	// List is already sorted.
+	protected void updateChart() {
+		legend.display(sortedPlans);
+		for(Long id:scoreMap.keySet() ) {
+			NameValue nv = scoreMap.get(id);
+			legend.setValue(id,GuiUtil.toDouble(nv.getValue(KEY_SCORE)));
+		}
+
+		LOGGER.info("CompositeGate.updateChart: complete.");
+	}
 }

@@ -159,6 +159,7 @@ public class DbaseFile  {
                 break;
 
             default:
+            	LOGGER.warning(String.format("%s.getFieldType: Unexpected field type %c", CLSS,type));
                 realtype = "STRING";
                 break;
         }

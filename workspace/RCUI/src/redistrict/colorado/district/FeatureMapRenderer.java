@@ -53,9 +53,11 @@ import redistrict.colorado.core.DatasetModel;
 		 * If the model has not been refreshed from the file yet this session, then do so now.
 		 * @param m the model
 		 */
-		public void updateModel(DatasetModel m) {
+		public void updateModel(DatasetModel m,String region) {
 			this.model = m;
 			if(  model.getFeatures()!=null ) {
+				// Make a "layer" with only a single feature
+				
 				MapLayer layer = new MapLayer(model.getFeatures());
 				layer.setTitle(model.getName());
 				this.renderer = new ShapefileRenderer(layer);

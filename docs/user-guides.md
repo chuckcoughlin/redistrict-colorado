@@ -63,9 +63,12 @@ On the setup page, the value "Competitiveness Threshold" specifies the
 maximum differential between party affiliations for a competitive district. 15% is often taken to be a reasonable value .
 
 `County Crossings`
-This metric is simply a count of the times a
-district crosses county boundaries.
-The same metric could also use municipal boundaries.
+This metric is tracks the number of countries
+that are split across districts. It is computed
+by tallying the number of counties contained
+or partially contained in a district and then
+subtracting the number of counties. We want this score to be minimized.
+The same metric could be computed using municipal boundaries instead of counties.
 
 `Population Balance`
 The constitutionally-mandated purpose of redistricting is to balance the number of people within the districts. A measure of population balance is simply the standard deviation
@@ -89,11 +92,16 @@ The numerical value of the metric is the number of seats in excess of the "deser
 The "unfair" value on the settings page  maximum efficiency gap for a plan considered to be non-gerrymandered.
 
 `Voting Power`
-We define voting power as the ability to elect a candidate of one's choosing. Another way to state this is the ability to effect the outcome of one or more elections. For a single district, this can be summarized by taking the margin of victory (in votes) and dividing it by the total votes cast. To total this up by ethnicity, we take the weighted sum of this over all elections. For example, for hispanics, we take the total number of votes in an election, multiply by the fraction of that district that is hispanic, and total that up over all districts. Then we do the same for margin of victory. Then we divide the margin of victory total by the votes cast total, and that gives us an estimate of the average voting power for that ethnicity. We want to minimize how much this varies between ethnicities, so we take the average of this over the entire population, and calculate the mean absolute deviation (M.A.D.) of the ethnicities from this. This gives us a summary of how uneven voting power is distributed among the ethnicities. We want this score to be minimized.
+We define voting power as the ability to elect a candidate of one's choosing. Another way to state this is the ability to effect the outcome of one or more elections. For a single district, this can be summarized by taking the margin of victory (in votes) and dividing it by the total votes cast. To total this up by ethnicity, we take the sum of this over all elections weighted by the population percentage for all ethnicities. For example, for hispanics, we take the total number of votes in an election, multiply by the fraction of that district that is hispanic, and total that up over all districts. Then we do the same for margin of victory. Then we divide the margin of victory total by the votes cast total, and that gives us an estimate of the average voting power for that ethnicity. We want to minimize how much this varies between ethnicities, so we take the average of this over the entire population, and calculate the mean absolute deviation (M.A.D.) of the ethnicities from this. This gives us a summary of how uneven voting power is distributed among the ethnicities. We want this score to be minimized.
 
 `Composite`
 The composite or overall metric is a compendium of all the other measures with
-a weighting applied. The result is a number between 0 and 10. A score of 10 means that the plan meets all criteria.
+a weighting applied. The result is a number between 0 and 10. A score of 10 means that the plan is as fair as possible The setup page
+contains the weighting as well as range limits
+from unfair-to-fair.
+
+The overall metric calculation assigns a value
+From 0-10 for each of the other metrics depending on how the score falls within the range. The final result is the harmonic mean of the individual scores.  
 
 ### Datasets
 

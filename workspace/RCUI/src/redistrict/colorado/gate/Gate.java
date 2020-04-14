@@ -52,19 +52,19 @@ public abstract class Gate extends VBox {
 	private final static String CLSS = "Gate";
 	protected static Logger LOGGER = Logger.getLogger(CLSS);
 	protected static final GuiUtil guiu = new GuiUtil();
-	private static final double HEIGHT = 190.;
+	protected static final double HEIGHT = 190.;
 	private static final double CHART_HEIGHT = 160.;
-	private static final double WIDTH = 180.;
+	protected static final double WIDTH = 180.;
 	private static final double CHART_WIDTH = 150.;
 	public static final double AGGREGATE_TABLE_WIDTH  = 180;
-	private final Label header;
-	private final Button info;
-	private final InfoDialog infoDialog;
+	protected final Label header;
+	protected final Button info;
+	protected final InfoDialog infoDialog;
 	protected final StackPane body;
 	protected NumberAxis xAxis = null;
     protected CategoryAxis yAxis = null;
     private BarChart<Number,String> chart = null;
-	private Rectangle rectangle = null;
+	protected Rectangle rectangle = null;
 	protected final EventBindingHub hub; 
 	protected final List<PlanModel>  sortedPlans; // sorted by score
 	protected final Map<Long,NameValue> scoreMap; // score by planId
@@ -96,6 +96,7 @@ public abstract class Gate extends VBox {
         yAxis.setVisible(false);
         this.chart = new BarChart<Number,String>(xAxis,yAxis);
         chart.setPrefWidth(CHART_WIDTH);
+        chart.setMaxWidth(CHART_WIDTH);
         chart.setPrefHeight(CHART_HEIGHT);
         chart.setLegendVisible(false);
         chart.setOnMouseClicked(new ChartClickedHandler ());
@@ -136,9 +137,12 @@ public abstract class Gate extends VBox {
 	public abstract GateType getType();
 	public abstract String getScoreAttribute();
 	public abstract String getTitle();
-	
+	public double getScore(long planId) {
+		NameValue nv = scoreMap.get(planId);
+		Object val = nv.getValue(getScoreAttribute());
+		return GuiUtil.toDouble(val);
+	}
 
-	
 	public void evaluate(List<PlanModel> models) {	
 	}
 	
@@ -159,13 +163,14 @@ public abstract class Gate extends VBox {
 	}
 	
 	// Compare plans based on the scoring attribute for this gate. The attribute
-	// must be numeric.
+	// must be numeric. The scoreMap must be pre-populated with name-value objects
+	// containing that attribute.
 	protected Comparator<PlanModel> compareByScore = new Comparator<PlanModel>() {
 		@Override
 		public int compare(PlanModel m1, PlanModel m2) {
 			String att = getScoreAttribute();
 			if( scoreMap.get(m1.getId()).getValue(att) != null &&
-					scoreMap.get(m2.getId()).getValue(att) != null   ) {
+				scoreMap.get(m2.getId()).getValue(att) != null   ) {
 				double r1 = Double.parseDouble(scoreMap.get(m1.getId()).getValue(att).toString());
 				double r2 = Double.parseDouble(scoreMap.get(m2.getId()).getValue(att).toString());
 				return (r1>r2?1:0);

@@ -36,7 +36,6 @@ public class PlanComparisonPane extends BasicRightSideNode {
 	private Label headerLabel = new Label("Fairness Comparison");
 	private List<PlanModel> models;
 	private final GridPane grid;
-	private final Legend legend;
 
 	public PlanComparisonPane() {
 		super(ViewMode.PLAN,DisplayOption.PLAN_COMPARISON);
@@ -47,28 +46,19 @@ public class PlanComparisonPane extends BasicRightSideNode {
 		setLeftAnchor(headerLabel,UIConstants.LIST_PANEL_LEFT_MARGIN);
 		setRightAnchor(headerLabel,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 		int nmodels = models.size();
-		this.legend = new Legend();
-		legend.setAlignment(Pos.CENTER);
-		getChildren().add(legend);
-		setTopAnchor(legend,HEADER_HEIGHT);
-		setLeftAnchor(legend,UIConstants.LIST_PANEL_LEFT_MARGIN);
-		setRightAnchor(legend,UIConstants.LIST_PANEL_RIGHT_MARGIN);
-		
-        
+		      
         grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(4);
         grid.setAlignment(Pos.CENTER);
 		grid.getColumnConstraints().clear();
 		ColumnConstraints col0 = new ColumnConstraints();
-		col0.setMinWidth(30.);
-		grid.getColumnConstraints().add(col0);
+		col0.setPercentWidth(30.);
 		ColumnConstraints col1 = new ColumnConstraints();
-		col1.setMinWidth(30.);
-		grid.getColumnConstraints().addAll(col1); 
+		col1.setPercentWidth(30.);
 		ColumnConstraints col2 = new ColumnConstraints();
-		col2.setPercentWidth(25.);
-		grid.getColumnConstraints().addAll(col2);
+		col2.setPercentWidth(30.);
+		grid.getColumnConstraints().addAll(col0,col1,col2);
 		
 		grid.getRowConstraints().clear();
 		RowConstraints row0 = new RowConstraints();
@@ -92,14 +82,16 @@ public class PlanComparisonPane extends BasicRightSideNode {
 	private void populateGrid() {
 		GateCache cache = GateCache.getInstance();
 		grid.getChildren().clear();
-		grid.add(cache.getGate(GateType.POPULATION_BALANCE),0, 0);  // column row
+		Gate composite = cache.getGate(GateType.COMPOSITE);
+		composite.setAlignment(Pos.CENTER_LEFT);
+		grid.add(cache.getGate(GateType.POPULATION_BALANCE),2, 0);  // column row
 		grid.add(cache.getGate(GateType.COMPACTNESS), 0, 1);
 		grid.add(cache.getGate(GateType.VOTING_POWER), 0, 2);
 		grid.add(cache.getGate(GateType.PROPORTIONALITY), 1, 1);
 		grid.add(cache.getGate(GateType.COMPETIVENESS), 2, 1);
 		grid.add(cache.getGate(GateType.VOTING_EFFICIENCY), 1, 2);
 		grid.add(cache.getGate(GateType.COUNTY_CROSSINGS), 2, 2);
-		grid.add(cache.getGate(GateType.COMPOSITE),1,0,2,1);
+		grid.add(composite,0,0,2,1);
 	}
 
 	/**

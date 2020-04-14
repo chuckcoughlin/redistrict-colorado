@@ -95,7 +95,7 @@ public class DatasetRow extends ListCell<DatasetModel> implements ChangeListener
 	private void configureGrid() {
         grid.setHgap(0);
         grid.setVgap(4);
-        grid.setPadding(new Insets(10, 10, 10, 10));
+        grid.setPadding(new Insets(10, 10, 10, 10));  // top, right,bottom,left
         grid.getColumnConstraints().add(new ColumnConstraints(COL1_WIDTH)); 					// tag
         ColumnConstraints col2 = new ColumnConstraints(COL2_WIDTH,COL2_WIDTH,Double.MAX_VALUE); // name
         col2.setHgrow(Priority.ALWAYS);

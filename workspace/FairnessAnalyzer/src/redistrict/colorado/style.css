@@ -40,7 +40,9 @@
 	-fx-border-insets: 3; 
 	-fx-border-radius: 3;
 }
-
+.gate-pane {
+    -fx-background-color:red;
+}
 .graph-box {
 	-fx-background-color:-ma-light-background; 
 	-fx-alignment: center;

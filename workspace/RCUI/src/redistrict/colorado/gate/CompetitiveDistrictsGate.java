@@ -22,7 +22,6 @@ import javafx.scene.text.TextFlow;
 import redistrict.colorado.core.GateType;
 import redistrict.colorado.core.PlanFeature;
 import redistrict.colorado.core.PlanModel;
-import redistrict.colorado.db.Database;
 import redistrict.colorado.db.PreferencesTable;
 import redistrict.colorado.table.NameValue;
 import redistrict.colorado.table.NameValueCellValueFactory;
@@ -63,7 +62,6 @@ public class CompetitiveDistrictsGate extends Gate {
 	public String getScoreAttribute() { return KEY_COUNT; };
 	public String getTitle() { return "Competitive Districts"; } 
 	public GateType getType() { return GateType.COMPETIVENESS; }
-	public boolean useMaximum() { return true; }
 
 
 	/**
