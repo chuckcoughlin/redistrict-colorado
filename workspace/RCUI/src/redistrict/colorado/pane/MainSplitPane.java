@@ -39,7 +39,7 @@ import redistrict.colorado.ui.ViewMode;
 public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode> {
 	private static final String CLSS = "MainSplitPane";
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
-	private final static int N_CHILDREN_RIGHT = 10;
+	private final static int N_CHILDREN_RIGHT = 11;
 	private final static int N_CHILDREN_LEFT = 3;
 	private final EventHandler<ActionEvent> eventHandler;
 	private final StackPane left;
@@ -71,6 +71,7 @@ public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode>
 		rightChildren[7] = new PlanComparisonPane();
 		rightChildren[8] = new PlanPropertiesPane();
 		rightChildren[9] = new PlanEditPane();
+		rightChildren[10] = new RegionMapPane();
 		
 		this.rightController = new RightSideController(rightChildren);
 		this.init();

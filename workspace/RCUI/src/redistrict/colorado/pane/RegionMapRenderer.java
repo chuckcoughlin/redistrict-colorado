@@ -14,7 +14,6 @@ import org.geotools.style.Style;
 import org.openjump.feature.Feature;
 import org.openjump.feature.FeatureCollection;
 import org.openjump.feature.FeatureDataset;
-import org.openjump.feature.FeatureSchema;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.paint.Color;
@@ -41,7 +40,7 @@ import redistrict.colorado.db.Database;
 			this.renderer = null;
 			
 			// LineColor, LineWidth, FillColor
-			this.style = new Style(Color.BLACK,0.01,Color.BLANCHEDALMOND);  // Initially
+			this.style = new Style(Color.BLACK,0.001,Color.BLANCHEDALMOND);  // Initially
 			this.filter = new FeatureFilter();
 		}
 
@@ -91,6 +90,7 @@ import redistrict.colorado.db.Database;
 		private void drawMap() {
 			if( renderer!=null) {
 				Rectangle screenArea = new Rectangle((int)canvas.getWidth(), (int)canvas.getHeight());
+				canvas.getGraphicsContext2D().fillRect(0,0,screenArea.getWidth(),screenArea.getHeight());
 				renderer.paint(canvas.getGraphicsContext2D(),screenArea,style,filter);
 			}
 		}
