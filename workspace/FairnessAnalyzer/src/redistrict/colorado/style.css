@@ -40,8 +40,8 @@
 	-fx-border-insets: 3; 
 	-fx-border-radius: 3;
 }
-.gate-pane {
-    -fx-background-color:red;
+.composite-gate {
+    -fx-alignment: center-left;
 }
 .graph-box {
 	-fx-background-color:-ma-light-background; 
@@ -66,6 +66,7 @@
 	-fx-text-alignment: center;
 	-fx-text-overrun: ellipsis;
 }
+
 .layer-edit-diagram {
     -fx-font-size: 18px;
     -fx-font-weight: bold;

@@ -8,6 +8,7 @@ package redistrict.colorado.plan;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -53,11 +54,11 @@ public class PlanComparisonPane extends BasicRightSideNode {
         grid.setAlignment(Pos.CENTER);
 		grid.getColumnConstraints().clear();
 		ColumnConstraints col0 = new ColumnConstraints();
-		col0.setPercentWidth(30.);
+		col0.setPercentWidth(25.);
 		ColumnConstraints col1 = new ColumnConstraints();
-		col1.setPercentWidth(30.);
+		col1.setPercentWidth(25.);
 		ColumnConstraints col2 = new ColumnConstraints();
-		col2.setPercentWidth(30.);
+		col2.setPercentWidth(25.);
 		grid.getColumnConstraints().addAll(col0,col1,col2);
 		
 		grid.getRowConstraints().clear();
@@ -83,7 +84,7 @@ public class PlanComparisonPane extends BasicRightSideNode {
 		GateCache cache = GateCache.getInstance();
 		grid.getChildren().clear();
 		Gate composite = cache.getGate(GateType.COMPOSITE);
-		composite.setAlignment(Pos.CENTER_LEFT);
+		grid.add(composite,0,0,2,1);
 		grid.add(cache.getGate(GateType.POPULATION_BALANCE),2, 0);  // column row
 		grid.add(cache.getGate(GateType.COMPACTNESS), 0, 1);
 		grid.add(cache.getGate(GateType.VOTING_POWER), 0, 2);
@@ -91,7 +92,7 @@ public class PlanComparisonPane extends BasicRightSideNode {
 		grid.add(cache.getGate(GateType.COMPETIVENESS), 2, 1);
 		grid.add(cache.getGate(GateType.VOTING_EFFICIENCY), 1, 2);
 		grid.add(cache.getGate(GateType.COUNTY_CROSSINGS), 2, 2);
-		grid.add(composite,0,0,2,1);
+
 	}
 
 	/**
