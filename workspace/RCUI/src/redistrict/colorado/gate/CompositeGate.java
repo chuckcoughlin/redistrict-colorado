@@ -12,28 +12,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import org.apache.commons.math3.stat.descriptive.moment.Mean;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import redistrict.colorado.core.GateProperty;
 import redistrict.colorado.core.GateType;
-import redistrict.colorado.core.HarmonicMean;
-import redistrict.colorado.core.PlanFeature;
 import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.plan.Legend;
@@ -85,16 +80,16 @@ public class CompositeGate extends Gate {
 		StackPane.setAlignment(rectangle, Pos.CENTER);
 		StackPane.setAlignment(info, Pos.BOTTOM_CENTER);
 		body.getChildren().addAll(rectangle,legend,header,info);
-		//info.setAlignment(Pos.BOTTOM_RIGHT);
+		info.setPadding(new Insets(0,0,8,250));  // top,right,bottom,left
 		getChildren().addAll(body);	
 	}
 
 	public TextFlow getInfo() { 
 		TextFlow info = new TextFlow();
-		Text t1 = new Text(" Each of the constituent scores is constrained to limits on the setup page.  ");
+		Text t1 = new Text("The composite score is a number from 0-10. Each of the constituent scores is constrained to limits on the setup page.  ");
 		Text t2 = new Text(" A score at the \"unfair\" limit is assigned a value of zero. A score at ");
-		Text t3 = new Text("\"fair\" limit is assigned a 10. Scores in between are evaluated accordingly. ");
-		Text t4 = new Text("The final metric is a weighed harmonic mean of the individual scores." );
+		Text t3 = new Text("\"fair\" limit is assigned a 10. Scores in between are evaluated proportionally. ");
+		Text t4 = new Text("The final metric is a weighed mean of the individual scores." );
 		info.getChildren().addAll(t1,t2,t3,t4);
 		return info;
 	}
@@ -110,49 +105,46 @@ public class CompositeGate extends Gate {
 	@Override
 	public void evaluate(List<PlanModel> plans) {
 		LOGGER.info("CompositeGate.evaluating: ...");
+		Mean mean = new Mean();
 		// First normalize the weightings - the weightings must total to 1.
 		List<GateProperty> properties = Database.getInstance().getGateTable().getGateProperties();
-		double sum = 0.;
-		for(GateProperty prop:properties) {
-			if(prop.getType().equals(GateType.COMPOSITE)) continue;
-			sum += prop.getWeight();
-		}
-		if( sum==0.) sum=1.;
-		double fact = 1./sum;
 		for(PlanModel plan:plans) {
 			double [] scores = new double[properties.size()];
+			double [] weights = new double[properties.size()];
 			// Now tally the individual normalized score.
 			int row = 0;
 			for(Gate gate:GateCache.getInstance().getBasicGates()) {
 				GateProperty prop = Database.getInstance().getGateTable().getGateProperty(gate.getType());
 				NameValue nv = new NameValue(gate.getTitle());
-				double weight = prop.getWeight()*fact;
+				double weight = prop.getWeight();
 				double unfair = prop.getUnfairValue();
 				double fair   = prop.getFairValue();
 				nv.setValue(KEY_FAIR, fair);
 				nv.setValue(KEY_UNFAIR, unfair);
 				nv.setValue(KEY_WEIGHT, weight);
-				LOGGER.info("CompositeGate: evaluating "+ gate.getTitle());
 				double raw = gate.getScore(plan.getId());
+				double fairness = 0.;
 				nv.setValue(KEY_SCORE, raw);
-				if( fair>unfair) {
-					if(raw<unfair) raw = 0.;
-					else if(raw>unfair) raw = 10;
+				if( fair>unfair) {  // (large is good)
+					if(raw<unfair) fairness = 0.;
+					else if(raw>unfair) fairness = 10;
 					else {
-						raw = (raw - unfair)/(fair-unfair);
+						fairness = 10.*(raw - unfair)/(fair-unfair);
 					}
 				}
 				else {    // fair<unfair  (small is good)
-					if(raw<fair) raw = 10.;
-					else if(raw>unfair) raw = 0;
+					if(raw<fair) fairness = 10.;
+					else if(raw>unfair) fairness = 0;
 					else {
-						raw = (unfair - raw)/(unfair-fair);
+						fairness = 10.*(unfair - raw)/(unfair-fair);
 					}
 				}
-				scores[row] = raw;
+				LOGGER.info(String.format("CompositeGate: evaluating %s (%2.2f->%2.2f)",gate.getTitle(), raw,fairness));
+				scores[row] = fairness;
+				weights[row]= weight;
 				row++;
 			}
-			double score = HarmonicMean.evaluate(scores);
+			double score = mean.evaluate(scores,weights);
 			NameValue nv = new NameValue(plan.getName());
 			nv.setValue(KEY_SCORE, score);
 			scoreMap.put(plan.getId(), nv);

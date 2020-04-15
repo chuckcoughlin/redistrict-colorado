@@ -71,6 +71,17 @@
     -fx-font-size: 18px;
     -fx-font-weight: bold;
 }
+.legend-score-label {
+	-fx-background-color: transparent;
+	-fx-border-color: transparent;
+	-fx-text-fill: black;
+	-fx-font-size: 12pt;
+	-fx-font-weight: bold;
+	-fx-text-alignment: right;
+	-fx-text-overrun: ellipsis;
+	-fx-pref-height: 20;
+	-fx-max-height:20;
+}
 .list-cell-name {
     -fx-font-size: 18px;
     -fx-font-weight: bold;

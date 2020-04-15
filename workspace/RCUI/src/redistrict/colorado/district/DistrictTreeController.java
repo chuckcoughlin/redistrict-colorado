@@ -97,7 +97,7 @@ public class DistrictTreeController extends StackPane implements EventReceiver<A
 	// This is what is triggered on select of a leaf node. We inform the hub of the current dataset and leaf name
 	@Override
 	public void changed(ObservableValue<? extends TreeItem<String>> observable, TreeItem<String> oldValue,TreeItem<String> newValue) {
-		if( observable==null || newValue==null ) return;
+		if( observable==null || observable.getValue()==null || observable.getValue().getParent()==null || newValue==null ) return;
 		//LOGGER.info(String.format("%s.changed %s:%s", CLSS,observable.getValue().getParent().getValue(),newValue.getValue()));
 		EventBindingHub hub = EventBindingHub.getInstance();
 		String datasetName = observable.getValue().getParent().getValue();

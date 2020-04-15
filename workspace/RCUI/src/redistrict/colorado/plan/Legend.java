@@ -59,6 +59,7 @@ public class Legend extends GridPane   {
 			add(nameLabel, 0, row);                    
 		    add(rect, 1, row);
 		    Label scoreLabel = new Label("");
+		    scoreLabel.getStyleClass().add("legend-score-label");
 		    labelMap.put(model.getId(), scoreLabel);
 		    add(scoreLabel,2,row);
 			row++;
@@ -67,6 +68,6 @@ public class Legend extends GridPane   {
 	
 	public void setValue(long planId,double val) {
 		Label lab = labelMap.get(planId);
-		lab.setText(String.valueOf(val));
+		lab.setText(String.format("%2.1f",val));
 	}
 }
