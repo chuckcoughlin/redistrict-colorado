@@ -22,7 +22,6 @@ affiliation and demographic information. This guide walks through the use and in
 ### Overview <a id="overview"></a>
 
 ![SplitPane](/images/application_plans.png)
-
 ```                  Splash Screen     ```
 
 The application's main interface is a split pane with
@@ -32,8 +31,8 @@ actions in the left side controlling what is displayed on the right. A *View* me
  * Districts - a voting district is one of the regions of a dataset. The purpose of the *district* screen is to view boundary details of a dataset.
 
 ![Menu](/images/view_menu.png)
-
 ```                  View Menu     ```
+
 ### Plans <a id="plans"></a>
 The figure below shows the plan context after selection of a "Properties" button. The screen shows aggregated quantities by district
 based on the boundary, affiliation and demographics datasets selected for the analysis. When this page is first selected,
@@ -42,7 +41,6 @@ process and may take as long as a minute or two. Once the
 calculations have been made, results are cached for speedy access.
 
 ![Plan Properties](/images/plan_properties.png)
-
 ```                  Plan Properties     ```
 
 The next image shows the configuration screen for a plan.
@@ -55,7 +53,6 @@ bar color that will be used to identify this plan on the
 plan comparison page.
 
 ![Plan Definition](/images/plan_definition.png)
-
 ```                  Plan Definition     ```
 
 ##### Calculations <a id="calculations"></a>
@@ -66,10 +63,9 @@ comparison screen by selection of the appropriate blue "information" icon.
 Before the comparison can be made, the criteria for making that comparison must be configured. The datasets used to evaluate demographics and affiliations are set on the `Setup` screen shown below.
 
 ![Setup](/images/metric_setup.png)
-
 ```                  Comparison Setup    ```
 
-Additionally, parameters are defined for each of the separate metrics (with the exception of the `Composite`). This includes a weighting that defines the relative importance of the particular metric. A range is also set to define the best and worst possibnle numeric values for the metric. This allows the values to be reasonably scaled with respect to each other.
+Additionally, parameters are defined for each of the separate metrics (with the exception of the `Composite`). This includes a weighting that defines the relative importance of the particular metric. A range is also set to define the best and worst possible numeric values for the metric. This allows the values to be reasonably scaled with respect to each other.
 
 ###### Metrics <a id="metrics"></a>
 `Compactness:`
@@ -126,11 +122,9 @@ From 0-10 for each of the other metrics depending on how the score falls within 
 
 ### Datasets <a id="datasets"></a>
 
-![Datasets](/images/application_datasets.png)
-
 The following screen show the Dataset context in a state just after
 pressing the "Edit" button for one of its entries.
-
+![Datasets](/images/application_datasets.png)
 ```                  Dataset List     ```
 
 On the right side, are components which allow us to change the properties of a dataset, its name, description, shapefile path and role. The role refers to the usage of the dataset in evaluation of a plan.
