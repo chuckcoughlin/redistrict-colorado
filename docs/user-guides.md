@@ -1,12 +1,25 @@
 ## Redistrict Colorado
 ## User Guide
-*FairnessAnalyzer* is designed to answer the question "Which is fairer?" when dealing with competing redistricting plans. The user configures plans and controls their evaluation based on a collection of datasets which contain
+*FairnessAnalyzer* is designed to answer the question "Which is fairer?" when dealing with competing redistricting plans. The user configures plans and controls their evaluation based on a collection of external datasets which contain
 district geometries, voter
 affiliation and demographic information. This guide walks through the use and installation of the application.  
 
  The application computes an array of metrics for the purpose of comparing two or more redistricting plans for fairness. The criteria used are largely based on the work of Kevin Baas and his [autoredistrict](http://autoredistrict.org/index.php) project.
 
-### Overview
+ ### Table of Contents <a id="table-of-contents"></a>
+
+ * [Overview](#overview)
+ * [Plans](#plans)
+    * [Calculations](#calculations)
+      * [Setup](#setup)
+      * [Metrics](#metrics)
+ * [Datasets](#datasets)
+    * [Aliases](#aliases)
+    * [Sources](#sources)
+ * [Districts](#districts)
+ * [Installation](#installation)
+
+### Overview <a id="overview"></a>
 
 ![SplitPane](/images/application_plans.png)
 
@@ -21,7 +34,7 @@ actions in the left side controlling what is displayed on the right. A *View* me
 ![Menu](/images/view_menu.png)
 
 ```                  View Menu     ```
-### Plans
+### Plans <a id="plans"></a>
 The figure below shows the application after selection of a "Properties" button. The screen shows aggregated quantities by district
 based on the boundary, affiliation and demographics datasets selected for the analysis. When this page is first selected,
 application computes the aggregated values. This is a compute-intensive
@@ -152,10 +165,10 @@ Datasets
 of interest must be downloaded and stored locally. The application re-reads the files each time it accesses them for the first time
 in a new session.
 
-### Districts
+### Districts <a id="districts"></a>
 
-### Preparation and Installation
-The installation of the application consists of three components:
+### Installation <a id="installation"></a>
+The application consists of three components:
   * Application - the application is a Java desktop application
    requiring Java 13 or higher. It is distributed as an executable
    *jar* file.
