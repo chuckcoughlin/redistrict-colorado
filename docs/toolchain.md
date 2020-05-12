@@ -55,7 +55,7 @@ The purpose of this section is to identify sources and give attribution to the v
 Calculations used to compare redistricting plans are largely based on [auto-redistrict](http://autoredistrict.org/) by Kevin Baas.
 
 #### GIS  <a id="jump"></a>
-Handling of GIS is based on several open source projects,
+Processing of Geographic Information System (GIS) files is based on, inspired by the open source projects
 [OpenJUMP](http://www.openjump.org) and  [GeoTools](https://sourceforge.net/projects/geotools).
 Code in both of these projects has been extensively modified and culled for simplicity.
 Modifications include:

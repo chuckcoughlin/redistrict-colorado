@@ -42,5 +42,5 @@ Other resources:
 * [Data.Census.gov](https://www.census.gov/data/academy/data-gems/2018/shapefiles.html) - This video shows how to download shapefiles from the US Census Bureau's American Factfinder. The data available include political boundaries and demographical information.
 
 ### GeoDatabase
-The application does not handle ESRI GeoDatabase files. The following site converts the files to shapefiles. The cost is <$10 per conversion. 
+The application does not handle ESRI GeoDatabase files directly. However, these files may be converted to shapefiles using the link below. The cost is <$10 per conversion. 
 https://mygeodata.cloud/converter/gdb-to-shp
