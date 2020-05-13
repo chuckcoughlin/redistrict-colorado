@@ -47,7 +47,7 @@ public class PopulationBalanceGate extends Gate {
 	private final static double DIALOG_WIDTH = 600.;
 	private final static String KEY_NAME = "Name";
 	private final static String KEY_PLAN = "Plan";
-	private final static String KEY_SCORE = "% from Mean";
+	private final static String KEY_SCORE = "Standard Deviation ~ %";
 	private final static String SCORE_FORMAT = "%2.4f";
 	private final double DEFAULT_THRESHOLD = 1.0;   // Max difference from mean
 	private final Label aggregateLabel = new Label("Standard Deviation of Total District Populations");

@@ -29,6 +29,7 @@ import redistrict.colorado.core.AnalysisModel;
 import redistrict.colorado.core.DatasetModel;
 import redistrict.colorado.core.DatasetRole;
 import redistrict.colorado.core.GateProperty;
+import redistrict.colorado.core.GateType;
 import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.db.DatasetCache;
@@ -222,6 +223,7 @@ public class PlanSetupPane extends BasicRightSideNode
 			}
 			List<GateProperty> gateProperties = Database.getInstance().getGateTable().getGateProperties();
 			for( GateProperty gp:gateProperties ) {
+				if(gp.getType().equals(GateType.COMPOSITE) ) continue;
 				Gate gate = GateCache.getInstance().getGate(gp.getType());
 				NameValue nv = new NameValue(gate.getTitle());
 				nv.setValue(KEY_WEIGHT, gp.getWeight());

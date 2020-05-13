@@ -89,7 +89,7 @@ public class CompositeGate extends Gate {
 		Text t1 = new Text("The composite score is a number from 0-10. Each of the constituent scores is constrained to limits on the setup page.  ");
 		Text t2 = new Text(" A score at the \"unfair\" limit is assigned a value of zero. A score at ");
 		Text t3 = new Text("\"fair\" limit is assigned a 10. Scores in between are evaluated proportionally. ");
-		Text t4 = new Text("The final metric is a weighed mean of the individual scores." );
+		Text t4 = new Text("The final metric is a weighted mean of the individual scores." );
 		info.getChildren().addAll(t1,t2,t3,t4);
 		return info;
 	}
