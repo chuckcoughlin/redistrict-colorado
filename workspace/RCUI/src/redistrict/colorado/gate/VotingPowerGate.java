@@ -85,13 +85,14 @@ public class VotingPowerGate extends Gate {
 	@Override
 	public void evaluate(List<PlanModel> plans) {
 		LOGGER.info("VotingPowerGate.evaluating: ...");
-		double voteMargin = 0.;
-		double totalVotes = 0.;
-		double weightedBlack  = 0.;
-		double weightedHispanic  = 0.;
-		double weightedWhite  = 0.;
+
 		for(PlanModel plan:plans) {
 			List<NameValue> powers = new ArrayList<>();
+			double voteMargin = 0.;
+			double totalVotes = 0.;
+			double weightedBlack  = 0.;
+			double weightedHispanic  = 0.;
+			double weightedWhite  = 0.;
 			for(PlanFeature feat:plan.getMetrics()) {
 				double population = feat.getPopulation();
 				double votes = feat.getDemocrat()+feat.getRepublican();
