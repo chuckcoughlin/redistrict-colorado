@@ -8,9 +8,11 @@ package redistrict.colorado.core;
 
 import redistrict.colorado.db.Database;
 import redistrict.colorado.db.DatasetCache;
+import redistrict.colorado.db.PreferencesTable;
 
 /**
  * The analysis model holds the current parameters for running the comparison.
+ * These are all configured on the SetupPane
  * Parameter values are stored in the Preferences table.
  */
 public class AnalysisModel {
@@ -29,16 +31,21 @@ public class AnalysisModel {
 	private String populationName= null;
 	private String republicanName= null;
 	private String whiteName = null;
+	private double competitiveThreshold = 0.;;
+	private PartisanMetric partisanMetric = null;
 	
 	public AnalysisModel(long id) {
 		this.id = id;
 		this.demographicId = -1;
 		this.affiliationId = -1;
 		this.countyBoundariesId = -1;
+		this.competitiveThreshold = PreferencesTable.DEFAULT_COMETITIVE_THRESHOLD;
+		this.partisanMetric = PartisanMetric.MEAN_MEDIAN;
 	}
 	
 	public long getAffiliationId() { return this.affiliationId; }
 	public String getAffiliationGeometryName() { return this.affGeoName; }
+	public double getCompetitiveThreshold() { return this.competitiveThreshold; }
 	public long getCountyBoundariesId() { return this.countyBoundariesId; }
 	public String getCountyGeometryName() { return this.countyGeoName; }
 	public long getDemographicId() { return this.demographicId; }
@@ -51,12 +58,16 @@ public class AnalysisModel {
 	public String getAttributeForPopulation() { return populationName; }
 	public String getAttributeForRepublican() { return republicanName; }
 	public String getAttributeForWhite() { return whiteName; }
+	public PartisanMetric getPartisanMetric() { return this.partisanMetric; }
+
 	
 	// When we change the affiliations dataset, re-query for the alias names
 	public void setAffiliationId(long aid) { this.affiliationId = aid; }
 	public void setDemographicId(long did) { this.demographicId = did; }
+	public void setCompetitiveThreshold(double threshold) { this.competitiveThreshold=threshold; }
 	public void setCountyBoundariesId(long cbid) { 
 		this.countyBoundariesId = cbid; }
+	public void setPartisanMetric(PartisanMetric metric) { this.partisanMetric=metric; }
 	public void updateAffiliationFeatures() { 
 		DatasetModel dm = DatasetCache.getInstance().getDataset(affiliationId);
 		if(dm==null) return;

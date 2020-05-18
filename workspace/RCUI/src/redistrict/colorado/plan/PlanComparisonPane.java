@@ -90,7 +90,7 @@ public class PlanComparisonPane extends BasicRightSideNode {
 		grid.add(cache.getGate(GateType.VOTING_POWER), 0, 2);
 		grid.add(cache.getGate(GateType.PROPORTIONALITY), 1, 1);
 		grid.add(cache.getGate(GateType.COMPETIVENESS), 2, 1);
-		grid.add(cache.getGate(GateType.VOTING_EFFICIENCY), 1, 2);
+		grid.add(cache.getGate(GateType.PARTISAN_ASYMMETRY), 1, 2);
 		grid.add(cache.getGate(GateType.COUNTY_CROSSINGS), 2, 2);
 
 	}

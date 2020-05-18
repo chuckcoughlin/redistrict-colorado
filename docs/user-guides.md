@@ -55,7 +55,7 @@ plan comparison page.
 ![Plan Definition](/images/plan_definition.png)
 ```                  Plan Definition     ```
 
-##### Calculations <a id="calculations"></a>
+#### Calculations <a id="calculations"></a>
 The sections below describe calculations made for each of the comparison metrics. These are largely described in the application's
 comparison screen by selection of the appropriate blue "information" icon.
 
@@ -67,29 +67,29 @@ Before the comparison can be made, the criteria for making that comparison must 
 
 Additionally, parameters are defined for each of the separate metrics (with the exception of the `Composite`). This includes a weighting that defines the relative importance of the particular metric. A range is also set to define the best and worst possible numeric values for the metric. This allows the values to be reasonably scaled with respect to each other.
 
-###### Metrics <a id="metrics"></a>
-`Compactness:`
+##### Metrics <a id="metrics"></a>
+###### Compactness:
   To score compactness, we use the *Polsby-Popper Test*, essentially an *Isoperimetric Quotient* normalized to a circle.
  Specifically, this requires dividing the area of each district by the square of its perimeter and then dividing by 4𝛑, the isoperimetric quotient for a circle. This results in a value between 0.0 and 1.0. In order to obtain a district-wide score, we compute the harmonic mean of individual district scores. We want this value to be *maximized*.
 
-`Competitive Districts`
+###### Competitive Districts:
 The number of "safe" or "non-competitive" districts
 should be minimized.
 In a non-competitive district, the minority party may not field
 a serious candidate. This leaves voters with no real choices at election time. The score is simply the number of districts that are considered competitive.
 
 On the setup page, the value "Competitiveness Threshold" specifies the
-maximum differential between party affiliations for a competitive district. 15% is often taken to be a reasonable value .
+maximum differential between party affiliations for a district to be considered competitive. 15% is often taken to be a reasonable value .
 
-`County Crossings`
-This metric is tracks the number of countries
-that are split across districts. It is computed
+###### County Crossings:
+This metric tracks the number of countries
+that are split across political boundaries. It is a crude measure of how well the plan preserves communities of interest. It is computed
 by tallying the number of counties contained
 or partially contained in a district and then
-subtracting the number of counties. We want this score to be minimized.
-The same metric could be computed using municipal boundaries instead of counties if so desired.
+subtracting the total number of counties. We want this score to be minimized.
+The same metric could be computed using municipal or other boundaries instead of counties if so desired. The limiting factor is the availability of appropriate shapefiles.
 
-`Population Balance`
+###### Population Balance:
 The constitutionally-mandated purpose of redistricting is to balance the number of people within districts. A measure of population balance is simply the standard deviation
 of the population of the districts. We normalize by the total population,
 multiplied by 100 to give a result in percent. This value should be *minimized*.
@@ -97,28 +97,36 @@ multiplied by 100 to give a result in percent. This value should be *minimized*.
 Colorado sets the "unfair" limit of the difference between any district population and the mean at 5%. Some court cases have specified 1%.
 A red X indicator is drawn on the bar if any individual district has a deviation greater that the specified "unfair" limit.
 
-`Proportionality`
+###### Proportionality:
 Proportionality is the concept that the party mix of the elected officials
 should match the mix of the population as a whole. This metric compares
 the projected number of seats won by the dominant party versus the number of seats that were "deserved".  Any discrepancies greater than rounding error are flagged
-with the  symbol of the benefiting party on the bar, meaning that the results are skewed
+by putting the  symbol of the benefiting party on the bar, meaning that the results are skewed
 in favor of that party.
 
 The numerical value of the metric is the number of seats in excess of the "deserved" number for the dominant party. Ideally this is less than 1.
 
-`Vote Efficiency`
+###### Partisan Asymmetry:
+Partisan asymmetry is a measure of the extent to which boundaries favor one party or the other. The application provides 4 different algorithms for this metric.
+`Mean-median`
+
+`Partisan-bias`
+
+`Declination`
+
+`Efficiency Gap`
 The "unfair" value on the settings page is the maximum efficiency gap for a plan considered to be non-gerrymandered. Efficiency gap is the sum of the differences between parties of "wasted" votes divided by the total number of projected votes. A "wasted" vote is any vote that does not help elect a candidate. This includes all the votes for the losing party and any votes over 50% for the winning party.
 
-`Voting Power`
+###### Voting Power:
 We define voting power as the ability to elect a candidate of one's choosing. Another way to state this is the ability to effect the outcome of one or more elections. For a single district, this can be summarized by taking the margin of victory (in votes) and dividing it by the total votes cast. To total this up by ethnicity, we take the sum of this over all elections weighted by the population percentage for all ethnicities. For example, for hispanics, we take the total number of votes in an election, multiply by the fraction of that district that is hispanic, and total that up over all districts. Then we do the same for margin of victory. Then we divide the margin of victory total by the votes cast total, and that gives us an estimate of the average voting power for that ethnicity. We want to minimize the variance between ethnicities, so we take the average of this over the entire population, and calculate the mean absolute deviation (M.A.D.) of the ethnicities from this. This gives us a summary of how uneven voting power is distributed among the ethnicities. We want this score to be minimized.
 
-`Composite`
+###### Composite:
 The composite or overall metric is a compendium of all the other measures with
 a weighting applied. The result is a number between 0 and 10. A score of 10 means that the plan is as fair as possible. Weighting and range limits
 from unfair-to-fair are taken from the setup screen.
 
 The overall metric calculation assigns a value
-From 0-10 for each of the other metrics depending on how the score falls within the range. The composite result is the harmonic mean of the individual scores.  
+From 0-10 for each of the other metrics depending on how the score falls within the specified range. The composite result is simply the weighted average of the individual scores.  
 
 ### Datasets <a id="datasets"></a>
 

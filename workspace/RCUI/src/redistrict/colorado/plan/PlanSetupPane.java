@@ -26,6 +26,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.AnalysisModel;
+import redistrict.colorado.core.PartisanMetric;
 import redistrict.colorado.core.DatasetModel;
 import redistrict.colorado.core.DatasetRole;
 import redistrict.colorado.core.GateProperty;
@@ -36,6 +37,7 @@ import redistrict.colorado.db.DatasetCache;
 import redistrict.colorado.db.PreferencesTable;
 import redistrict.colorado.gate.Gate;
 import redistrict.colorado.gate.GateCache;
+import redistrict.colorado.gate.PartisanAsymmetryGate;
 import redistrict.colorado.pane.BasicRightSideNode;
 import redistrict.colorado.pane.SavePane;
 import redistrict.colorado.table.NameValue;
@@ -43,6 +45,8 @@ import redistrict.colorado.table.NameValueCellValueFactory;
 import redistrict.colorado.table.StringEditorCellFactory;
 import redistrict.colorado.ui.ComponentIds;
 import redistrict.colorado.ui.DisplayOption;
+import redistrict.colorado.ui.GuiUtil;
+import redistrict.colorado.ui.InfoDialog;
 import redistrict.colorado.ui.UIConstants;
 import redistrict.colorado.ui.ViewMode;
 
@@ -55,6 +59,7 @@ import redistrict.colorado.ui.ViewMode;
 public class PlanSetupPane extends BasicRightSideNode 
 									implements EventHandler<ActionEvent> {
 	private final static String CLSS = "PlanSetupPane";
+	private static final GuiUtil guiu = new GuiUtil();
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private final static double COL0_WIDTH = 100.;    // margin
 	private final static double COL1_WIDTH = 400.;
@@ -67,16 +72,20 @@ public class PlanSetupPane extends BasicRightSideNode
 	
 	private Label headerLabel = new Label("Analysis Setup");
 	private final SavePane savePane = new SavePane(this);
+	private final Button info;
+	protected final SettingsDialog infoDialog;
 	private AnalysisModel model;
 	private final GridPane grid;
 	private final Label affiliationLabel = new Label("Affiliation: ");
 	private final Label demographicsLabel = new Label("Demographics: ");
 	private final Label countyBoundariesLabel = new Label("County Boundaries: ");
 	private final Label competitivenessLabel = new Label("Competitive Threshold: ");
+	private final Label partisanAsymmetryLabel = new Label("Partisan Asymmetry Metric: ");
 	private final TextField competitivenessField = new TextField();
 	private final ComboBox<String> affiliationCombo;
 	private final ComboBox<String> countyCombo;
 	private final ComboBox<String> demographicCombo;
+	private final ComboBox<String> partisanCombo;
 	private final ObservableList<NameValue> items;  // Array displayed in table
 	private final TableView<NameValue> table;
 	private final TableEventHandler cellHandler;
@@ -87,6 +96,14 @@ public class PlanSetupPane extends BasicRightSideNode
 		this.model = EventBindingHub.getInstance().getAnalysisModel();
 		this.items = FXCollections.observableArrayList();
 		this.cellHandler = new TableEventHandler();
+		this.infoDialog = new SettingsDialog();
+		info = new Button("",guiu.loadImage("images/information.png"));
+		info.setOnAction( new EventHandler<ActionEvent>() {
+	        @Override public void handle( ActionEvent e ) {
+	        	showDialog(); 
+	        }
+	    } );
+		info.setId(ComponentIds.BUTTON_INFO);
 		
 		headerLabel.getStyleClass().add("list-header-label");
 		getChildren().add(headerLabel);
@@ -97,9 +114,11 @@ public class PlanSetupPane extends BasicRightSideNode
         affiliationCombo  = new ComboBox<>();
         countyCombo = new ComboBox<>();
         demographicCombo = new ComboBox<>();
+        partisanCombo = new ComboBox<>();
         affiliationCombo.setPrefWidth(COL1_WIDTH);
         countyCombo.setPrefWidth(COL1_WIDTH);
         demographicCombo.setPrefWidth(COL1_WIDTH);
+        partisanCombo.setPrefWidth(COL1_WIDTH);
         
 	    Tooltip tt = new Tooltip("The threshold is the vote differential between parties ~ percent. Valid ranges is 1. to 60.");
 	    Tooltip.install(competitivenessLabel, tt);
@@ -127,8 +146,10 @@ public class PlanSetupPane extends BasicRightSideNode
 		grid.add(demographicCombo, 1, 1);
 		grid.add(countyBoundariesLabel, 0, 2);
 		grid.add(countyCombo, 1, 2);
-		grid.add(competitivenessLabel, 0, 3);
-		grid.add(competitivenessField, 1, 3);
+		grid.add(partisanAsymmetryLabel, 0, 3);
+		grid.add(partisanCombo, 1, 3);
+		grid.add(competitivenessLabel, 0, 4);
+		grid.add(competitivenessField, 1, 4);
 		
 		getChildren().add(grid);
 		setTopAnchor(grid,UIConstants.DETAIL_HEADER_SPACING);
@@ -181,6 +202,9 @@ public class PlanSetupPane extends BasicRightSideNode
 		setLeftAnchor(table,4*UIConstants.LIST_PANEL_LEFT_MARGIN);
 		setRightAnchor(table,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 		setBottomAnchor(table,4*UIConstants.BUTTON_PANEL_HEIGHT);
+		getChildren().add(info);
+		setRightAnchor(info,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+		setTopAnchor(info,TABLE_OFFSET_TOP);
 		getChildren().add(savePane);
 		setLeftAnchor(savePane,UIConstants.LIST_PANEL_LEFT_MARGIN);
 		setRightAnchor(savePane,UIConstants.LIST_PANEL_RIGHT_MARGIN);
@@ -201,9 +225,11 @@ public class PlanSetupPane extends BasicRightSideNode
 		List<String> boundaries = Database.getInstance().getDatasetTable().getDatasetNamesForRole(DatasetRole.BOUNDARIES);
 		countyCombo.getItems().clear();
 		countyCombo.getItems().addAll(boundaries);
+		partisanCombo.getItems().clear();
+		partisanCombo.getItems().addAll(PartisanMetric.labels());
 	}
 	/**
-	 * Update the table's dataset list from the model. If the model has no datasets, read them from the database.
+	 * Update the table's combo boxes from the database and caches. If the model has no datasets, read them from the database.
 	 * Next update the weights.
 	 */
 	private void updateDatasets() {
@@ -231,14 +257,23 @@ public class PlanSetupPane extends BasicRightSideNode
 				nv.setValue(KEY_UNFAIR, gp.getUnfairValue());
 				items.add(nv);
 			}
-			
+			PartisanMetric metric = model.getPartisanMetric();
+			partisanCombo.getSelectionModel().select(PartisanMetric.labelForMetric(metric));
 		}
 	}
 	private void configureTable() {
-		competitivenessField.setText(Database.getInstance().getPreferencesTable().getParameter(PreferencesTable.COMPETITIVENESS_THRESHOLD_KEY));
+		competitivenessField.setText(String.valueOf(model.getCompetitiveThreshold()));
 		table.setItems(items);
 	}
-
+	
+	public void showDialog() {
+		try {
+			// Trying to do this twice throws the exception
+			infoDialog.initOwner(getScene().getWindow());
+		}
+		catch(IllegalStateException ignore) {}
+        infoDialog.showAndWait();
+    }
 	// ====================================== BasicRightSideNode =====================================
 	@Override
 	public void updateModel() {
@@ -295,10 +330,19 @@ public class PlanSetupPane extends BasicRightSideNode
 						}
 					}
 				}
+				name = partisanCombo.getSelectionModel().getSelectedItem();
+				PartisanMetric metric = PartisanMetric.metricForLabel(name);
+				model.setPartisanMetric(metric);
+				try {
+					model.setCompetitiveThreshold(Double.parseDouble(competitivenessField.getText()));
+				}
+				catch(NumberFormatException nfe) {
+					LOGGER.severe(String.format("%s.save: Failed to save competetiveness field %s (%s)",CLSS,competitivenessField.getText(),nfe.getLocalizedMessage()));
+				}
+				
 				// Update model in the database
 				Database.getInstance().getPreferencesTable().updateAnalysisModel(model);
 				LOGGER.info(String.format("%s.save = %s",CLSS,competitivenessField.getText()));
-				Database.getInstance().getPreferencesTable().setParameter(PreferencesTable.COMPETITIVENESS_THRESHOLD_KEY, competitivenessField.getText());
 			}
 		}
 	}

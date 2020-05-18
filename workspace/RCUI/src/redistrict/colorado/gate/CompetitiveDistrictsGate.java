@@ -19,6 +19,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.GateType;
 import redistrict.colorado.core.PlanFeature;
 import redistrict.colorado.core.PlanModel;
@@ -41,7 +42,6 @@ public class CompetitiveDistrictsGate extends Gate {
 	private final static String KEY_PLAN = "Plan";
 	private final static String KEY_DEM_PCNT = "% Dem";
 	private final static String KEY_REP_PCNT = "% Rep";
-	private final double DEFAULT_THRESHOLD = 15.0;   //
 	private final Label aggregateLabel = new Label("Competitive Districts");
 	private final Label detailLabel = new Label("District Results by Party ~ %");
 
@@ -72,7 +72,7 @@ public class CompetitiveDistrictsGate extends Gate {
 	public void evaluate(List<PlanModel> plans) {
 		LOGGER.info("CompetitiveDistrictsGate.evaluating: ...");
 
-		double threshold = getThreshold(PreferencesTable.COMPETITIVENESS_THRESHOLD_KEY,DEFAULT_THRESHOLD);
+		double threshold = EventBindingHub.getInstance().getAnalysisModel().getCompetitiveThreshold();
 
 		for(PlanModel plan:plans) {
 			double competitiveCount = 0.;
@@ -98,7 +98,7 @@ public class CompetitiveDistrictsGate extends Gate {
 	// Create contents that allow viewing the details of the calculation
 	@Override
 	protected Node getResultsContents() { 
-		double threshold = getThreshold(PreferencesTable.COMPETITIVENESS_THRESHOLD_KEY,DEFAULT_THRESHOLD);
+		double threshold = EventBindingHub.getInstance().getAnalysisModel().getCompetitiveThreshold();
 		VBox pane =  new VBox(10);
 		pane.setPrefSize(DIALOG_WIDTH, DIALOG_HEIGHT);
 		pane.setFillWidth(true);

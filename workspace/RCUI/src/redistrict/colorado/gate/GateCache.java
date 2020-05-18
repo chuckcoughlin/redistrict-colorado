@@ -37,7 +37,7 @@ public class GateCache {
 		map.put(GateType.COUNTY_CROSSINGS, new CountyCrossingGate());
 		map.put(GateType.POPULATION_BALANCE, new PopulationBalanceGate());
 		map.put(GateType.PROPORTIONALITY, new ProportionalityGate());
-		map.put(GateType.VOTING_EFFICIENCY, new VoteEfficiencyGate());
+		map.put(GateType.PARTISAN_ASYMMETRY, new PartisanAsymmetryGate());
 		map.put(GateType.VOTING_POWER, new VotingPowerGate());
 		
 	}

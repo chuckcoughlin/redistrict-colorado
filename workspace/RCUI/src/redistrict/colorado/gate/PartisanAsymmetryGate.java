@@ -19,6 +19,8 @@ import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import redistrict.colorado.core.PartisanMetric;
+import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.GateProperty;
 import redistrict.colorado.core.GateType;
 import redistrict.colorado.core.PlanFeature;
@@ -29,7 +31,6 @@ import redistrict.colorado.table.NameValue;
 import redistrict.colorado.table.NameValueCellValueFactory;
 import redistrict.colorado.table.NameValueLimitCellFactory;
 import redistrict.colorado.table.NameValueListCellValueFactory;
-import redistrict.colorado.table.NameValueListLimitCellFactory;
 import redistrict.colorado.ui.ComponentIds;
 import redistrict.colorado.ui.UIConstants;
 
@@ -37,7 +38,7 @@ import redistrict.colorado.ui.UIConstants;
  * Compare plans based on the populations of each district are within 
  * 1% of each other.
  */
-public class VoteEfficiencyGate extends Gate {
+public class PartisanAsymmetryGate extends Gate {
 	private final static double DIALOG_HEIGHT = 550.; 
 	private final static double DIALOG_WIDTH = 600.;
 	private final static String KEY_GAP = "Efficiency Gap";
@@ -46,27 +47,68 @@ public class VoteEfficiencyGate extends Gate {
 	private final static String KEY_PARTY = "Party";
 	private final static String KEY_DEM_WASTED = "Wasted Dem";
 	private final static String KEY_REP_WASTED = "Wasted Rep";
-	private final double DEFAULT_THRESHOLD = 8.0;   //
 	private final Label aggregateLabel = new Label("Efficiency Gap ~ % / Party with Most Wasted Votes");
 	private final Label detailLabel = new Label("Wasted Votes by Party");
 	
-	public VoteEfficiencyGate() {
+	public PartisanAsymmetryGate() {
 		xAxis.setAutoRanging(true);
 	}
-	
+
 	public TextFlow getInfo() { 
 		TextFlow info = new TextFlow();
+		PartisanMetric metric = EventBindingHub.getInstance().getAnalysisModel().getPartisanMetric();
+		switch(metric) {
+			case DECLINATION:
+				updateDeclinationInfo(info);
+				break;
+			case EFFICIENCY_GAP: 
+				updateEfficiencyGapInfo(info);
+				break;
+			case MEAN_MEDIAN:
+				updateMeanMedianInfo(info);
+				break;
+			case PARTISAN_BIAS:
+				updatePartisanBiasInfo(info);;
+				break;
+		}
+		return info;
+	}
+	private void updateDeclinationInfo(TextFlow info) {
+		Text t1 = new Text("Declinationp is the sum of the differences of wasted votes for the two parties divided by the total number of votes. A wasted vote is a ");
+		Text t3 = new Text("vote that does not help elect a candidate (over 50% for the winning side, all votes for the losing side). We want this score to be ");
+		Text t4 = new Text("minimized");
+		t4.setStyle("-fx-font-weight: bold");
+		Text t5 = new Text(".");
+		info.getChildren().addAll(t1,t3,t4,t5);
+	}
+	private void updateEfficiencyGapInfo(TextFlow info) {
 		Text t1 = new Text("Efficiency gap is the sum of the differences of wasted votes for the two parties divided by the total number of votes. A wasted vote is a ");
 		Text t3 = new Text("vote that does not help elect a candidate (over 50% for the winning side, all votes for the losing side). We want this score to be ");
 		Text t4 = new Text("minimized");
 		t4.setStyle("-fx-font-weight: bold");
 		Text t5 = new Text(".");
 		info.getChildren().addAll(t1,t3,t4,t5);
-		return info;
+	}
+	private void updateMeanMedianInfo(TextFlow info) {
+		Text t1 = new Text("Declinationp is the sum of the differences of wasted votes for the two parties divided by the total number of votes. A wasted vote is a ");
+		Text t3 = new Text("vote that does not help elect a candidate (over 50% for the winning side, all votes for the losing side). We want this score to be ");
+		Text t4 = new Text("minimized");
+		t4.setStyle("-fx-font-weight: bold");
+		Text t5 = new Text(".");
+		info.getChildren().addAll(t1,t3,t4,t5);
+	}
+	private void updatePartisanBiasInfo(TextFlow info) {
+		Text t1 = new Text("Declinationp is the sum of the differences of wasted votes for the two parties divided by the total number of votes. A wasted vote is a ");
+		Text t3 = new Text("vote that does not help elect a candidate (over 50% for the winning side, all votes for the losing side). We want this score to be ");
+		Text t4 = new Text("minimized");
+		t4.setStyle("-fx-font-weight: bold");
+		Text t5 = new Text(".");
+		info.getChildren().addAll(t1,t3,t4,t5);
 	}
 	public String getScoreAttribute() { return KEY_GAP; };
-	public String getTitle() { return "Vote Efficiency"; } 
-	public GateType getType() { return GateType.VOTING_EFFICIENCY; }
+	public String getTitle() { return "Partisan Asymmetry"; } 
+	public GateType getType() { return GateType.PARTISAN_ASYMMETRY; }
+
 	
 	/**
 	 * Sort the districts by name and save the % democrat score.
@@ -74,14 +116,13 @@ public class VoteEfficiencyGate extends Gate {
 	 */
 	@Override
 	public void evaluate(List<PlanModel> plans) {
-		LOGGER.info("VoteEfficiencyGate.evaluating: ...");
-		
+		LOGGER.info("PartisanAsymmetryGate.evaluating: ...");
+		PartisanMetric metric = EventBindingHub.getInstance().getAnalysisModel().getPartisanMetric();
 		for(PlanModel plan:plans) {
 			double totalVotes = 0.;
 			double wastedDem = 0.;
 			double wastedRep = 0.;
 			for(PlanFeature feat:plan.getMetrics()) {
-
 				double total = feat.getDemocrat()+feat.getRepublican();
 				if( total<=0.) continue;
 				if( feat.getDemocrat()>feat.getRepublican() ) {

@@ -14,6 +14,7 @@ import java.sql.Statement;
 import java.util.logging.Logger;
 
 import redistrict.colorado.core.AnalysisModel;
+import redistrict.colorado.core.PartisanMetric;
 
 /**
  * The preferences table holds name/value pairs for "well-known"
@@ -25,9 +26,12 @@ public class PreferencesTable {
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private static final long MODEL_ID = 42;
 	private static final String AFFILIATION_KEY = "AffiliationId";
+	public static final String PARTISAN_METRIC_KEY = "PartisanAsymmetryMetric";
 	private static final String DEMOGRAPHIC_KEY = "DemographicId";
 	private static final String COUNTY_BOUNDARIES_KEY = "CountyBoundariesId";
 	public static final String COMPETITIVENESS_THRESHOLD_KEY = "CompetitivenessThreshold";
+	
+	public static final double DEFAULT_COMETITIVE_THRESHOLD = 15.0;   // Store as string, convert when extracted
 	
 	private Connection cxn = null;
 	/** 
@@ -55,6 +59,8 @@ public class PreferencesTable {
 					if( name.equalsIgnoreCase(AFFILIATION_KEY)) model.setAffiliationId(Long.parseLong(text));
 					else if( name.equalsIgnoreCase(DEMOGRAPHIC_KEY)) model.setDemographicId(Long.parseLong(text));
 					else if( name.equalsIgnoreCase(COUNTY_BOUNDARIES_KEY)) model.setCountyBoundariesId(Long.parseLong(text));
+					else if( name.equalsIgnoreCase(COMPETITIVENESS_THRESHOLD_KEY)) model.setCompetitiveThreshold(Double.parseDouble(text));
+					else if( name.equalsIgnoreCase(PARTISAN_METRIC_KEY)) model.setPartisanMetric(PartisanMetric.valueOf(text));
 				}
 			}
 		}
@@ -76,7 +82,6 @@ public class PreferencesTable {
 		model.updateDemographicFeatures();
 		return model;
 	}
-	
 	/*
 	 * We assume that the existence of the row is ensured by the original creation of the database
 	 */
@@ -131,7 +136,7 @@ public class PreferencesTable {
 	}
 	
 	public void setParameter(String key,String value) {
-		String SQL = String.format("UPDATE Preferences SET value = %s WHERE name = '%s'",value,key);
+		String SQL = String.format("UPDATE Preferences SET value = '%s' WHERE name = '%s'",value,key);
 		Statement statement = null;
 		try {
 			statement = cxn.createStatement();
@@ -170,6 +175,10 @@ public class PreferencesTable {
 			statement.executeUpdate();
 			statement.setString(1,COUNTY_BOUNDARIES_KEY);
 			statement.setString(2, String.valueOf(model.getCountyBoundariesId()));
+			statement.setString(1,COMPETITIVENESS_THRESHOLD_KEY);
+			statement.setString(2, String.valueOf(model.getCompetitiveThreshold()));
+			statement.setString(1,PARTISAN_METRIC_KEY);
+			statement.setString(2, model.getPartisanMetric().name());
 			statement.executeUpdate();
 		}
 		catch(SQLException e) {

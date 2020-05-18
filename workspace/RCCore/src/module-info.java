@@ -15,4 +15,5 @@ module rc.core {
 	
 	exports redistrict.colorado.core;
 	exports redistrict.colorado.db;
+	exports redistrict.colorado.pref;
 }

@@ -1,5 +1,5 @@
 /**
- *   (c) 2019  Charles Coughlin. All rights reserved.
+ *   (c) 2019-2020  Charles Coughlin. All rights reserved.
  *   GNU GENERAL PUBLIC LICENSE.
  */
 package redistrict.colorado.pref;
@@ -10,7 +10,7 @@ package redistrict.colorado.pref;
  */
 public interface PreferenceKeys   {
 	public final static String DATABASE_PATH = "DatabasePath";     // SQLite 
-	public final static String GOOGLE_MAP_KEY = "GoogleMapKey";    // 
+	public final static String GOOGLE_API_KEY = "GoogleKey";    // 
 	
 	public final static String PREFERENCES_NAME = "RedistricColoradoPreferences"; 
 

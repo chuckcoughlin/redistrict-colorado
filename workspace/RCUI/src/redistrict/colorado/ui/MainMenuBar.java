@@ -10,10 +10,14 @@ import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.control.Button;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import redistrict.colorado.bind.EventBindingHub;
+import redistrict.colorado.plan.SettingsDialog;
+import redistrict.colorado.system.About;
+import redistrict.colorado.system.KeyEntry;
 
 /**
  * Create the menu hierarchy for the menubar.
@@ -25,6 +29,7 @@ public class MainMenuBar extends MenuBar  {
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
 	private final EventHandler<ActionEvent> eventHandler;
 	private final GuiUtil guiu = new GuiUtil();
+	private final KeyEntry keyEntryDialog;
 	
 	private MenuItem plans;
 	private MenuItem datasets;
@@ -33,6 +38,7 @@ public class MainMenuBar extends MenuBar  {
 	
 	public MainMenuBar() {
 		this.eventHandler = new MenuBarEventHandler();
+		this.keyEntryDialog = new KeyEntry();
 		setUseSystemMenuBar(false);
 		getMenus().add(systemMenu());
 		getMenus().add(leftMenu());
@@ -42,9 +48,11 @@ public class MainMenuBar extends MenuBar  {
 		Menu menu =  new Menu("",guiu.loadImage("images/ColoradoFlag.png"));
 		MenuItem about = new MenuItem("About");
 		about.setOnAction(e -> About.display() );
+		MenuItem key = new MenuItem("Google Maps");
+		key.setOnAction(e -> KeyEntry.display() );
 		MenuItem quit  = new MenuItem("Quit");
 		quit.setOnAction(e -> Platform.exit() );
-		menu.getItems().addAll(about,quit);
+		menu.getItems().addAll(about,key,quit);
 		return menu;
 	}
 	public Menu leftMenu() {
@@ -64,7 +72,6 @@ public class MainMenuBar extends MenuBar  {
 		menu.getItems().addAll(plans,datasets,districts);
 		return menu;
 	}
-	
 	
 	/**
 	 * One of the menu items has been selected. The source of the event is the item.
