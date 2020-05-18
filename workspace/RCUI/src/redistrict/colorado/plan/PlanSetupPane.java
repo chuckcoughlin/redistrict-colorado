@@ -333,6 +333,7 @@ public class PlanSetupPane extends BasicRightSideNode
 				name = partisanCombo.getSelectionModel().getSelectedItem();
 				PartisanMetric metric = PartisanMetric.metricForLabel(name);
 				model.setPartisanMetric(metric);
+				LOGGER.info(String.format("%s.save: metric = %s",CLSS,metric.name()));
 				try {
 					model.setCompetitiveThreshold(Double.parseDouble(competitivenessField.getText()));
 				}

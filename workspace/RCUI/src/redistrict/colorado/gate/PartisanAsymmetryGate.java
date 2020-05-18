@@ -19,19 +19,19 @@ import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-import redistrict.colorado.core.PartisanMetric;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.GateProperty;
 import redistrict.colorado.core.GateType;
+import redistrict.colorado.core.PartisanMetric;
 import redistrict.colorado.core.PlanFeature;
 import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.db.Database;
-import redistrict.colorado.db.PreferencesTable;
 import redistrict.colorado.table.NameValue;
 import redistrict.colorado.table.NameValueCellValueFactory;
 import redistrict.colorado.table.NameValueLimitCellFactory;
 import redistrict.colorado.table.NameValueListCellValueFactory;
 import redistrict.colorado.ui.ComponentIds;
+import redistrict.colorado.ui.InfoDialog;
 import redistrict.colorado.ui.UIConstants;
 
 /**
@@ -73,13 +73,22 @@ public class PartisanAsymmetryGate extends Gate {
 		}
 		return info;
 	}
+	@Override
+	public void showDialog() {
+		try {
+			// Trying to do this twice throws the exception
+			infoDialog = new InfoDialog(this);
+			infoDialog.initOwner(getScene().getWindow());
+		}
+		catch(IllegalStateException ignore) {}
+        infoDialog.showAndWait();
+    }
 	private void updateDeclinationInfo(TextFlow info) {
-		Text t1 = new Text("Declinationp is the sum of the differences of wasted votes for the two parties divided by the total number of votes. A wasted vote is a ");
-		Text t3 = new Text("vote that does not help elect a candidate (over 50% for the winning side, all votes for the losing side). We want this score to be ");
+		Text t1 = new Text("The declination function treats asymmetry in the vote distribution as indicative of gerrymandering.");
+		Text t2 = new Text("When plotted the function shows a geometric angle that can be easily visualized. ");
+		Text t3 = new Text("In our usage a negative angle indicates an unfair Democratic advantage and a positive angle indicates a Republican advantage. An angle of more than 0.3 radians indicates probable manipulation.");
 		Text t4 = new Text("minimized");
-		t4.setStyle("-fx-font-weight: bold");
-		Text t5 = new Text(".");
-		info.getChildren().addAll(t1,t3,t4,t5);
+		info.getChildren().addAll(t1,t2,t3);
 	}
 	private void updateEfficiencyGapInfo(TextFlow info) {
 		Text t1 = new Text("Efficiency gap is the sum of the differences of wasted votes for the two parties divided by the total number of votes. A wasted vote is a ");
@@ -90,7 +99,7 @@ public class PartisanAsymmetryGate extends Gate {
 		info.getChildren().addAll(t1,t3,t4,t5);
 	}
 	private void updateMeanMedianInfo(TextFlow info) {
-		Text t1 = new Text("Declinationp is the sum of the differences of wasted votes for the two parties divided by the total number of votes. A wasted vote is a ");
+		Text t1 = new Text("MeanMedian is the sum of the differences of wasted votes for the two parties divided by the total number of votes. A wasted vote is a ");
 		Text t3 = new Text("vote that does not help elect a candidate (over 50% for the winning side, all votes for the losing side). We want this score to be ");
 		Text t4 = new Text("minimized");
 		t4.setStyle("-fx-font-weight: bold");
@@ -98,7 +107,7 @@ public class PartisanAsymmetryGate extends Gate {
 		info.getChildren().addAll(t1,t3,t4,t5);
 	}
 	private void updatePartisanBiasInfo(TextFlow info) {
-		Text t1 = new Text("Declinationp is the sum of the differences of wasted votes for the two parties divided by the total number of votes. A wasted vote is a ");
+		Text t1 = new Text("PartisanBias is the sum of the differences of wasted votes for the two parties divided by the total number of votes. A wasted vote is a ");
 		Text t3 = new Text("vote that does not help elect a candidate (over 50% for the winning side, all votes for the losing side). We want this score to be ");
 		Text t4 = new Text("minimized");
 		t4.setStyle("-fx-font-weight: bold");
@@ -116,8 +125,8 @@ public class PartisanAsymmetryGate extends Gate {
 	 */
 	@Override
 	public void evaluate(List<PlanModel> plans) {
-		LOGGER.info("PartisanAsymmetryGate.evaluating: ...");
 		PartisanMetric metric = EventBindingHub.getInstance().getAnalysisModel().getPartisanMetric();
+		LOGGER.info("PartisanAsymmetryGate.evaluating: ..."+metric.name());
 		for(PlanModel plan:plans) {
 			double totalVotes = 0.;
 			double wastedDem = 0.;

@@ -89,6 +89,29 @@ or partially contained in a district and then
 subtracting the total number of counties. We want this score to be minimized.
 The same metric could be computed using municipal or other boundaries instead of counties if so desired. The limiting factor is the availability of appropriate shapefiles.
 
+
+###### Partisan Asymmetry:
+Partisan asymmetry is a measure of the extent to which boundaries favor one party or the other. The application provides 4 different algorithms for this metric.
+
+`Mean-median`
+
+`Partisan-bias`
+
+`Declination`
+The declination function is described [here](https://observablehq.com/@sahilchinoy/gerrymandering-the-declination-function). It is a measure of partisan symmetry that does not assume any particular seats-votes proportionality.
+It is sensitive to either packing or cracking distortions.
+When plotted it results in a geometric angle that can be easily visualized. In our usage a negative angle indicates an unfair Democratic advantage and a positive angle indicates a Republican advantage. An angle of more than 0.3 radians indicates probable manipulation.
+
+  * Plot the Democratic district vote shares in increasing order
+  * Plot point `R`, horizontally centered on the Republican districts, whose vertical position is the average Democratic vote share of all the Republican districts
+  * Plot point `D`, which is the same as point `R` but for the Democratic districts
+  * Plot point `M`, which is horizontally halfway at the transition between the Democratic and Republican districts, and vertically at 50% Democratic vote share
+  * Draw line segments `RM` and `MD`, and compute the angle between them
+  * Multiply the angle by a normalization factor of 2/π to get the declination. Its range is [-1,1].
+
+`Efficiency Gap`
+Efficiency gap is the sum of the differences between parties of "wasted" votes divided by the total number of projected votes. A "wasted" vote is any vote that does not help elect a candidate. This includes all the votes for the losing party and any votes over 50% for the winning party.
+
 ###### Population Balance:
 The constitutionally-mandated purpose of redistricting is to balance the number of people within districts. A measure of population balance is simply the standard deviation
 of the population of the districts. We normalize by the total population,
@@ -105,17 +128,6 @@ by putting the  symbol of the benefiting party on the bar, meaning that the resu
 in favor of that party.
 
 The numerical value of the metric is the number of seats in excess of the "deserved" number for the dominant party. Ideally this is less than 1.
-
-###### Partisan Asymmetry:
-Partisan asymmetry is a measure of the extent to which boundaries favor one party or the other. The application provides 4 different algorithms for this metric.
-`Mean-median`
-
-`Partisan-bias`
-
-`Declination`
-
-`Efficiency Gap`
-The "unfair" value on the settings page is the maximum efficiency gap for a plan considered to be non-gerrymandered. Efficiency gap is the sum of the differences between parties of "wasted" votes divided by the total number of projected votes. A "wasted" vote is any vote that does not help elect a candidate. This includes all the votes for the losing party and any votes over 50% for the winning party.
 
 ###### Voting Power:
 We define voting power as the ability to elect a candidate of one's choosing. Another way to state this is the ability to effect the outcome of one or more elections. For a single district, this can be summarized by taking the margin of victory (in votes) and dividing it by the total votes cast. To total this up by ethnicity, we take the sum of this over all elections weighted by the population percentage for all ethnicities. For example, for hispanics, we take the total number of votes in an election, multiply by the fraction of that district that is hispanic, and total that up over all districts. Then we do the same for margin of victory. Then we divide the margin of victory total by the votes cast total, and that gives us an estimate of the average voting power for that ethnicity. We want to minimize the variance between ethnicities, so we take the average of this over the entire population, and calculate the mean absolute deviation (M.A.D.) of the ethnicities from this. This gives us a summary of how uneven voting power is distributed among the ethnicities. We want this score to be minimized.

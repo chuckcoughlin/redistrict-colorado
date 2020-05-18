@@ -59,7 +59,7 @@ public abstract class Gate extends VBox {
 	public static final double AGGREGATE_TABLE_WIDTH  = 180;
 	protected final Label header;
 	protected final Button info;
-	protected final InfoDialog infoDialog;
+	protected InfoDialog infoDialog;
 	protected final StackPane body;
 	protected NumberAxis xAxis = null;
     protected CategoryAxis yAxis = null;

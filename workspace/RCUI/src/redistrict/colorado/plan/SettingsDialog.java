@@ -83,6 +83,24 @@ public class SettingsDialog extends Dialog {
 		info.getChildren().add(header);
 		info.getChildren().add(new Text(System.lineSeparator()));
 		
+		header = new Text("Partisan Asymmetry (declination):");
+		header.setStyle("-fx-font-weight: bold");
+		info.getChildren().add(header);
+		info.getChildren().add(new Text(System.lineSeparator()));
+		unfair = new Text("   unfair: 0.3   (absolute value, radians)");
+		info.getChildren().add(unfair); info.getChildren().add(new Text(System.lineSeparator()));
+		fair   = new Text("      fair: 0  ");
+		info.getChildren().add(fair); info.getChildren().add(new Text(System.lineSeparator()));
+		
+		header = new Text("Partisan Asymmetry (efficiency gap):");
+		header.setStyle("-fx-font-weight: bold");
+		info.getChildren().add(header);
+		info.getChildren().add(new Text(System.lineSeparator()));
+		unfair = new Text("   unfair: 15   (maximum percentage for a plan to be considered non-gerrymandered)");
+		info.getChildren().add(unfair); info.getChildren().add(new Text(System.lineSeparator()));
+		fair   = new Text("      fair: 0   (equal numbers of wasted votes)");
+		info.getChildren().add(fair); info.getChildren().add(new Text(System.lineSeparator()));
+		
 		return info;
 	}
 	
