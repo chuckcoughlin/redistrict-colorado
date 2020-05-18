@@ -109,6 +109,7 @@ When plotted it results in a geometric angle that can be easily visualized. In o
   * Draw line segments `RM` and `MD`, and compute the angle between them
   * Multiply the angle by a normalization factor of 2/π to get the declination. Its range is [-1,1].
 
+Multiplying the declination by half the total number of seats in the state gives the approximate number of seats expected to be misallocated due to the gerrymander.
 `Efficiency Gap`
 Efficiency gap is the sum of the differences between parties of "wasted" votes divided by the total number of projected votes. A "wasted" vote is any vote that does not help elect a candidate. This includes all the votes for the losing party and any votes over 50% for the winning party.
 

@@ -161,7 +161,17 @@ public abstract class Gate extends VBox {
 			showResultsDialog();
 		}	
 	}
-	
+
+
+	// Compare name-value pairs based on the name.
+	protected Comparator<NameValue> compareByName = new Comparator<NameValue>() {
+	    @Override
+	    public int compare(NameValue nv1, NameValue nv2) {
+	    	String name1 = nv1.getName();
+	    	String name2 = nv2.getName();
+	        return (name1.compareTo(name2));
+	    }
+	};
 	// Compare plans based on the scoring attribute for this gate. The attribute
 	// must be numeric. The scoreMap must be pre-populated with name-value objects
 	// containing that attribute.
@@ -179,13 +189,11 @@ public abstract class Gate extends VBox {
 		}
 	};
 	
-	// Compare name-value pairs based on the name.
-	protected Comparator<NameValue> compareByName = new Comparator<NameValue>() {
+	// Compare double values in a list
+	protected Comparator<Double> compareByValue = new Comparator<Double>() {
 	    @Override
-	    public int compare(NameValue nv1, NameValue nv2) {
-	    	String name1 = nv1.getName();
-	    	String name2 = nv2.getName();
-	        return (name1.compareTo(name2));
+	    public int compare(Double dbl1, Double dbl2) {
+	        return(dbl1>dbl2?1:0);
 	    }
 	};
 	

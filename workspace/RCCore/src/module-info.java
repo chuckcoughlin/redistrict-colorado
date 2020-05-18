@@ -12,6 +12,7 @@ module rc.core {
 	requires transitive sqlite.jdbc;
 	requires transitive org.geotools;
 	requires org.locationtech.jts;
+	requires commons.math3;
 	
 	exports redistrict.colorado.core;
 	exports redistrict.colorado.db;
