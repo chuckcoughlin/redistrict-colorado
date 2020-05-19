@@ -14,6 +14,9 @@ import java.util.List;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -169,7 +172,19 @@ public class PartisanAsymmetryGate extends Gate {
 			Declination decl = new Declination(demFractions);
 			decl.generate();
 			declinations.add(decl);
+			
+			NameValue nv = new NameValue(plan.getName());
+			nv.setValue(KEY_SCORE, Math.abs(decl.getDeclination()));
+			nv.setValue(KEY_PLAN, plan.getName());
+			String party = "Democrat";
+			if( decl.getDeclination() > 0. ) party = "Republican";
+			nv.setValue(KEY_PARTY,party); // Party with advantage
+			scoreMap.put(plan.getId(),nv);
 		}
+		Collections.sort(plans,compareByScore);  // 
+		sortedPlans.clear();
+		sortedPlans.addAll(plans);
+		updateChart();
 	}
 	/**
 	 * Sort the districts by name and save the % democrat score.
@@ -302,7 +317,22 @@ public class PartisanAsymmetryGate extends Gate {
 	 * Compute overall results.
 	 */
 	private void getResultsForDeclination(VBox pane) {
+		int size = declinations.get(0).getSize();
+		NumberAxis xAxis = new NumberAxis(0,size,size/2);
+		xAxis.setTickMarkVisible(false);
+		xAxis.setTickLabelsVisible(false);
+		NumberAxis yAxis = new NumberAxis(0,1.0,0.1);
+		yAxis.setLabel("Fraction Dem Vote");
+		yAxis.setTickLabelsVisible(false);
+		LineChart<Number,Number> chart = new LineChart<>(xAxis,yAxis);
+		chart.setTitle("Declination Comparison");
 		
+		XYChart.Series<Number,Number> series = new XYChart.Series<>();
+        //Draw horizontal line at midpoint
+        series.getData().add(new XYChart.Data<Number,Number>(0., 0.5));
+        series.getData().add(new XYChart.Data<Number,Number>((double)size, 0.5));
+        chart.getData().add(series);
+		pane.getChildren().add(chart);
 	}
 	// Create contents that allow viewing the details of the calculation
 	private void getResultsForEfficiencyGap(VBox pane) { 

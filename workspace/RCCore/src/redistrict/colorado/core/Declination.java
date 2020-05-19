@@ -10,16 +10,19 @@ import org.apache.commons.math3.stat.descriptive.moment.Mean;
 public class Declination {
 	private double declination = 0.;
 	private final double[]demFractions;
+	private final int size;
 	
 	/**
 	 * @param fracs ordered list of Democratic vote percentages.
 	 */
 	public Declination(double[] fracs) {
-		demFractions = fracs;
+		this.demFractions = fracs;
+		this.size = fracs.length;
 	}
 	
 	public double getDeclination() { return this.declination; }
-
+	public int getSize() { return this.size; }
+	
 	/**
 	 * Calculate the declination and series to plot;
 	 * @return true if computation was successful
@@ -38,11 +41,10 @@ public class Declination {
 		double repMean = mean.evaluate(demFractions,0,repCount);
 		double demMean = mean.evaluate(demFractions,repCount,demFractions.length-repCount);
 		
-		double theta = Math.arctan((1-2*repMean)*demFractions.length/repCount);
-		double gamma = Math.arctan(2*demMean-1)*demFractions.length/(demFractions.length-repCount));
+		double theta = Math.atan((1-2*repMean)*demFractions.length/repCount);
+		double gamma = Math.atan((2*demMean-1)*demFractions.length/(demFractions.length-repCount));
 		// Convert to range [-1,1]
 		declination =  2.0*(gamma-theta)/Math.PI;
-
 		return true;
 	}
 }
