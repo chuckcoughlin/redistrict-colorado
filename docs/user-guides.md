@@ -94,8 +94,13 @@ The same metric could be computed using municipal or other boundaries instead of
 Partisan asymmetry is a measure of the extent to which boundaries favor one party or the other. The application provides 4 different algorithms for this metric.
 
 `Mean-median`
+The mean-median difference is a party’s median vote share minus its mean vote share, across all of a plan’s districts. The difference is expressed as a percentage. Mean-median is a measure of vote-bias, whereas the
+partisan-bias metric below measures seat-bias.
 
 `Partisan-bias`
+Pasrtisan bias is the difference between a 50-50 split in seats and the number of seats the party would get if the votes were evenly divided.
+To calculate partisan bias, the observed vote share in each district is shifted by the amount necessary to simulate a tied statewide election.
+The answer is expressed as a percentage of the total number of seats. The calculation is made from a vote-seats curve.
 
 `Declination`
 The declination function is described [here](https://observablehq.com/@sahilchinoy/gerrymandering-the-declination-function). It is a measure of partisan symmetry that does not assume any particular seats-votes proportionality.
@@ -109,7 +114,8 @@ When plotted it results in a geometric angle that can be easily visualized. In o
   * Draw line segments `RM` and `MD`, and compute the angle between them
   * Multiply the angle by a normalization factor of 2/π to get the declination. Its range is [-1,1].
 
-Multiplying the declination by half the total number of seats in the state gives the approximate number of seats expected to be misallocated due to the gerrymander.
+Multiplying the declination by half the total number of seats in the state gives the approximate number of seats expected to be misallocatedMultiplying the declination by half the total number of seats in the state gives the approximate number of seats expected to be misallocated due to gerrymander..
+
 `Efficiency Gap`
 Efficiency gap is the sum of the differences between parties of "wasted" votes divided by the total number of projected votes. A "wasted" vote is any vote that does not help elect a candidate. This includes all the votes for the losing party and any votes over 50% for the winning party.
 

@@ -96,20 +96,22 @@ public class PartisanAsymmetryGate extends Gate {
 		info.getChildren().addAll(t1,t3,t4,t5);
 	}
 	private void updateMeanMedianInfo(TextFlow info) {
-		Text t1 = new Text("MeanMedian is the sum of the differences of wasted votes for the two parties divided by the total number of votes. A wasted vote is a ");
-		Text t3 = new Text("vote that does not help elect a candidate (over 50% for the winning side, all votes for the losing side). We want this score to be ");
+		Text t1 = new Text("Mean-median is a measure of vote bias. ");
+		Text t2 = new Text("The mean-median difference is a party’s median vote share minus its mean vote share across all districts. ");
+		Text t3 = new Text("The difference is expressed as a percentage.  We want this score to be ");
 		Text t4 = new Text("minimized");
 		t4.setStyle("-fx-font-weight: bold");
 		Text t5 = new Text(".");
-		info.getChildren().addAll(t1,t3,t4,t5);
+		info.getChildren().addAll(t1,t2,t3,t4,t5);
 	}
 	private void updatePartisanBiasInfo(TextFlow info) {
-		Text t1 = new Text("PartisanBias is the sum of the differences of wasted votes for the two parties divided by the total number of votes. A wasted vote is a ");
-		Text t3 = new Text("vote that does not help elect a candidate (over 50% for the winning side, all votes for the losing side). We want this score to be ");
+		Text t1 = new Text("Partisan bias is a measure of seat bias. ");
+		Text t2 = new Text("It is the difference between each party’s seat share and 50% in a hypothetical, perfectly tied election.");
+		Text t3 = new Text("We want this score to be ");
 		Text t4 = new Text("minimized");
 		t4.setStyle("-fx-font-weight: bold");
 		Text t5 = new Text(".");
-		info.getChildren().addAll(t1,t3,t4,t5);
+		info.getChildren().addAll(t1,t2,t3,t4,t5);
 	}
 	@Override
 	public void showDialog() {
