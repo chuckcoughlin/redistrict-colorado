@@ -63,7 +63,7 @@ public abstract class Gate extends VBox {
 	protected final StackPane body;
 	protected NumberAxis xAxis = null;
     protected CategoryAxis yAxis = null;
-    private BarChart<Number,String> chart = null;
+    private BarChart<Number,String> barChart = null;
 	protected Rectangle rectangle = null;
 	protected final EventBindingHub hub; 
 	protected final List<PlanModel>  sortedPlans; // sorted by score
@@ -94,12 +94,12 @@ public abstract class Gate extends VBox {
 		this.xAxis = new NumberAxis();
         this.yAxis = new CategoryAxis();
         yAxis.setVisible(false);
-        this.chart = new BarChart<Number,String>(xAxis,yAxis);
-        chart.setPrefWidth(CHART_WIDTH);
-        chart.setMaxWidth(CHART_WIDTH);
-        chart.setPrefHeight(CHART_HEIGHT);
-        chart.setLegendVisible(false);
-        chart.setOnMouseClicked(new ChartClickedHandler ());
+        this.barChart = new BarChart<Number,String>(xAxis,yAxis);
+        barChart.setPrefWidth(CHART_WIDTH);
+        barChart.setMaxWidth(CHART_WIDTH);
+        barChart.setPrefHeight(CHART_HEIGHT);
+        barChart.setLegendVisible(false);
+        barChart.setOnMouseClicked(new ChartClickedHandler ());
        
 		header.setAlignment(Pos.CENTER);
 		header.setPrefWidth(WIDTH+1);
@@ -111,13 +111,13 @@ public abstract class Gate extends VBox {
 		rectangle.getStyleClass().add("graph-rectangle");
 		StackPane.setAlignment(header, Pos.TOP_CENTER);
 		StackPane.setAlignment(rectangle, Pos.CENTER);
-		StackPane.setAlignment(chart, Pos.CENTER);
-		StackPane.setMargin(chart, new Insets(0, 10, 5, 0));  // top right bottom left
+		StackPane.setAlignment(barChart, Pos.CENTER);
+		StackPane.setMargin(barChart, new Insets(0, 10, 5, 0));  // top right bottom left
 		StackPane.setAlignment(info, Pos.BOTTOM_RIGHT);
-		body.getChildren().addAll(rectangle,chart,header,info);
+		body.getChildren().addAll(rectangle,barChart,header,info);
 		getChildren().addAll(body);	
 	}
-	protected BarChart<Number,String> getChart() { return this.chart; }
+	protected BarChart<Number,String> getChart() { return this.barChart; }
 	protected Node getResultsContents() { 
 		StackPane node =  new StackPane(); 
 		Text text = new Text("Unimplemented");
@@ -215,8 +215,8 @@ public abstract class Gate extends VBox {
 	// The chart is made up of series, one bar each
 	private void setBarWidth(int nbars) {
 		double barGap  = 5.;
-		chart.setBarGap(barGap);
-		chart.setCategoryGap(120.-nbars*20.);
+		barChart.setBarGap(barGap);
+		barChart.setCategoryGap(120.-nbars*20.);
 	}
 	
 	protected void showResultsDialog() {
@@ -228,7 +228,7 @@ public abstract class Gate extends VBox {
 	
 	// Update the bars based on computations
 	protected void updateChart() {
-		chart.getData().clear();  // Remove existing series.
+		barChart.getData().clear();  // Remove existing series.
 		setBarWidth(sortedPlans.size());
 
 		int index = 1;
@@ -261,7 +261,7 @@ public abstract class Gate extends VBox {
 		    	data.setNode(node);
 		    }
 	        
-		    chart.getData().add(series);
+		    barChart.getData().add(series);
 		    index++;
 		}
 		

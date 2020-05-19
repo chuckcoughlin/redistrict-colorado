@@ -1,5 +1,7 @@
 package redistrict.colorado.core;
 
+import java.util.logging.Logger;
+
 /**
  * Seats-votes curve generator
  * Calculated using uniform partisan swing
@@ -8,7 +10,8 @@ package redistrict.colorado.core;
  */
 
 public class VoteSeatCurve {
-	
+	private final static String CLSS = "VoteSeatCurve";
+	private static Logger LOGGER = Logger.getLogger(CLSS);
 	public VoteSeatCurve() {
 		
 	}

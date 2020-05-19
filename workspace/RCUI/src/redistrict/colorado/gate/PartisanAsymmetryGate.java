@@ -14,9 +14,6 @@ import java.util.List;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -24,6 +21,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import redistrict.colorado.bind.EventBindingHub;
+import redistrict.colorado.chart.DeclinationChart;
 import redistrict.colorado.core.Declination;
 import redistrict.colorado.core.GateProperty;
 import redistrict.colorado.core.GateType;
@@ -51,7 +49,7 @@ public class PartisanAsymmetryGate extends Gate {
 	private final static String KEY_SCORE = "Score";  // Value appropriate to metric
 	private final static String KEY_NAME = "Name";
 	private final static String KEY_PLAN = "Plan";
-	private final static String KEY_PARTY = "Party";
+	private final static String KEY_PARTY = "Advantaged Party";
 	private final static String KEY_DEM_WASTED = "Wasted Dem";
 	private final static String KEY_REP_WASTED = "Wasted Rep";
 	private Label aggregateLabel = new Label();
@@ -123,11 +121,12 @@ public class PartisanAsymmetryGate extends Gate {
 		catch(IllegalStateException ignore) {}
         infoDialog.showAndWait();
     }
+	// This is the attribute of the name-value dictionary used to compare plans
 	public String getScoreAttribute() { 
 		String key = KEY_SCORE;
 		PartisanMetric metric = EventBindingHub.getInstance().getAnalysisModel().getPartisanMetric();
 		switch(metric) {
-			case DECLINATION: 	 key =  KEY_SCORE; break;
+			case DECLINATION: 	 key =  KEY_DECLINATION; break;
 			case EFFICIENCY_GAP: key =  KEY_GAP;   break;
 			case MEAN_MEDIAN:    key = KEY_SCORE;  break;
 			case PARTISAN_BIAS:  key = KEY_SCORE;  break;
@@ -166,15 +165,17 @@ public class PartisanAsymmetryGate extends Gate {
 			double[] demFractions = new double[plan.getMetrics().size()];
 			int index = 0;
 			for(PlanFeature feat:plan.getMetrics()) {
-				demFractions[index] = feat.getDemocrat()/feat.getRepublican();
+				demFractions[index] = feat.getDemocrat()/(feat.getRepublican()+feat.getDemocrat());
+				index++;
 			}
 			Arrays.sort(demFractions);
 			Declination decl = new Declination(demFractions);
+			decl.setColor(plan.getFill());
 			decl.generate();
 			declinations.add(decl);
 			
 			NameValue nv = new NameValue(plan.getName());
-			nv.setValue(KEY_SCORE, Math.abs(decl.getDeclination()));
+			nv.setValue(KEY_DECLINATION, Math.abs(decl.getDeclination()));
 			nv.setValue(KEY_PLAN, plan.getName());
 			String party = "Democrat";
 			if( decl.getDeclination() > 0. ) party = "Republican";
@@ -213,7 +214,7 @@ public class PartisanAsymmetryGate extends Gate {
 			NameValue nv = new NameValue(plan.getName());
 			nv.setValue(KEY_GAP, percent);
 			nv.setValue(KEY_PLAN, plan.getName());
-			nv.setValue(KEY_PARTY, (wastedDem>wastedRep?"Democrat":"Republican")); // Party with most wasted votes
+			nv.setValue(KEY_PARTY, (wastedDem>wastedRep?"Republican":"Democrat")); // Party with least votes
 			scoreMap.put(plan.getId(),nv);
 		}
 		Collections.sort(plans,compareByScore);  // 
@@ -264,6 +265,7 @@ public class PartisanAsymmetryGate extends Gate {
 		NameValueCellValueFactory factory = new NameValueCellValueFactory();
 		NameValueLimitCellFactory limFactory = new NameValueLimitCellFactory( threshold);
 		factory.setFormat(colTitle, "%2.1f");
+		if( metric.equals(PartisanMetric.DECLINATION)) factory.setFormat(colTitle, "%1.2f");
 		column = new TableColumn<>(KEY_PLAN);
 		column.setCellValueFactory(factory);
 		column.prefWidthProperty().bind(aggregateTable.widthProperty().multiply(0.33));
@@ -284,10 +286,6 @@ public class PartisanAsymmetryGate extends Gate {
 		aggregateTable.setItems(aitems);
 		pane.getChildren().add(aggregateTable);
 
-		detailLabel.setId(ComponentIds.LABEL_SCORE);
-		pane.getChildren().add(detailLabel);
-		
-
 		switch(metric) {
 			case DECLINATION:
 				aggregateLabel.setText("Declination ~ radians / Advantaged Party");
@@ -295,7 +293,7 @@ public class PartisanAsymmetryGate extends Gate {
 				getResultsForDeclination(pane);
 				break;
 			case EFFICIENCY_GAP: 
-				aggregateLabel.setText("Efficiency Gap ~ % / Party with Most Wasted Votes");
+				aggregateLabel.setText("Efficiency Gap ~ % / Party with Least Wasted Votes");
 				detailLabel.setText("Wasted Votes by Party");
 				getResultsForEfficiencyGap(pane);
 				break;
@@ -317,25 +315,15 @@ public class PartisanAsymmetryGate extends Gate {
 	 * Compute overall results.
 	 */
 	private void getResultsForDeclination(VBox pane) {
-		int size = declinations.get(0).getSize();
-		NumberAxis xAxis = new NumberAxis(0,size,size/2);
-		xAxis.setTickMarkVisible(false);
-		xAxis.setTickLabelsVisible(false);
-		NumberAxis yAxis = new NumberAxis(0,1.0,0.1);
-		yAxis.setLabel("Fraction Dem Vote");
-		yAxis.setTickLabelsVisible(false);
-		LineChart<Number,Number> chart = new LineChart<>(xAxis,yAxis);
-		chart.setTitle("Declination Comparison");
-		
-		XYChart.Series<Number,Number> series = new XYChart.Series<>();
-        //Draw horizontal line at midpoint
-        series.getData().add(new XYChart.Data<Number,Number>(0., 0.5));
-        series.getData().add(new XYChart.Data<Number,Number>((double)size, 0.5));
-        chart.getData().add(series);
-		pane.getChildren().add(chart);
+		DeclinationChart dc = new DeclinationChart(declinations);
+		pane.getChildren().add(dc.getChart());
 	}
 	// Create contents that allow viewing the details of the calculation
 	private void getResultsForEfficiencyGap(VBox pane) { 
+		
+		detailLabel.setId(ComponentIds.LABEL_SCORE);
+		pane.getChildren().add(detailLabel);
+		
 		// Detail table
 		TableView<List<NameValue>> detailTable = new TableView<>();
 		TableColumn<List<NameValue>,String> col;

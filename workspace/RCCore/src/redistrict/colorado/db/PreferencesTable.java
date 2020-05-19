@@ -175,8 +175,10 @@ public class PreferencesTable {
 			statement.executeUpdate();
 			statement.setString(1,COUNTY_BOUNDARIES_KEY);
 			statement.setString(2, String.valueOf(model.getCountyBoundariesId()));
+			statement.executeUpdate();
 			statement.setString(1,COMPETITIVENESS_THRESHOLD_KEY);
 			statement.setString(2, String.valueOf(model.getCompetitiveThreshold()));
+			statement.executeUpdate();
 			statement.setString(1,PARTISAN_METRIC_KEY);
 			statement.setString(2, model.getPartisanMetric().name());
 			statement.executeUpdate();

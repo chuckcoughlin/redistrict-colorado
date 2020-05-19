@@ -5,6 +5,7 @@
  * modify it under the terms of the GNU General Public License.
  */
 package redistrict.colorado.plan;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -26,18 +27,16 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.AnalysisModel;
-import redistrict.colorado.core.PartisanMetric;
 import redistrict.colorado.core.DatasetModel;
 import redistrict.colorado.core.DatasetRole;
 import redistrict.colorado.core.GateProperty;
 import redistrict.colorado.core.GateType;
+import redistrict.colorado.core.PartisanMetric;
 import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.db.DatasetCache;
-import redistrict.colorado.db.PreferencesTable;
 import redistrict.colorado.gate.Gate;
 import redistrict.colorado.gate.GateCache;
-import redistrict.colorado.gate.PartisanAsymmetryGate;
 import redistrict.colorado.pane.BasicRightSideNode;
 import redistrict.colorado.pane.SavePane;
 import redistrict.colorado.table.NameValue;
@@ -46,7 +45,6 @@ import redistrict.colorado.table.StringEditorCellFactory;
 import redistrict.colorado.ui.ComponentIds;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.GuiUtil;
-import redistrict.colorado.ui.InfoDialog;
 import redistrict.colorado.ui.UIConstants;
 import redistrict.colorado.ui.ViewMode;
 
@@ -68,6 +66,7 @@ public class PlanSetupPane extends BasicRightSideNode
 	private final static String KEY_NAME = "Name";
 	private final static String KEY_FAIR = "Fair";
 	private final static String KEY_UNFAIR = "Unfair";
+	private final static String KEY_TYPE = "Type";
 	private final static String KEY_WEIGHT = "Weight";
 	
 	private Label headerLabel = new Label("Analysis Setup");
@@ -252,6 +251,7 @@ public class PlanSetupPane extends BasicRightSideNode
 				if(gp.getType().equals(GateType.COMPOSITE) ) continue;
 				Gate gate = GateCache.getInstance().getGate(gp.getType());
 				NameValue nv = new NameValue(gate.getTitle());
+				nv.setValue(KEY_TYPE, gp.getType());
 				nv.setValue(KEY_WEIGHT, gp.getWeight());
 				nv.setValue(KEY_FAIR, gp.getFairValue());
 				nv.setValue(KEY_UNFAIR, gp.getUnfairValue());
@@ -340,10 +340,20 @@ public class PlanSetupPane extends BasicRightSideNode
 				catch(NumberFormatException nfe) {
 					LOGGER.severe(String.format("%s.save: Failed to save competetiveness field %s (%s)",CLSS,competitivenessField.getText(),nfe.getLocalizedMessage()));
 				}
-				
+
 				// Update model in the database
 				Database.getInstance().getPreferencesTable().updateAnalysisModel(model);
 				LOGGER.info(String.format("%s.save = %s",CLSS,competitivenessField.getText()));
+				// Update gate properties
+				List<NameValue> properties = table.getItems();
+				for(NameValue nv:properties) {
+					GateType type = (GateType)nv.getValue(KEY_TYPE);
+					GateProperty gp = new GateProperty(type,
+							(Double)nv.getValue(KEY_WEIGHT),
+							(Double)nv.getValue(KEY_FAIR),
+							(Double)nv.getValue(KEY_UNFAIR) );
+					Database.getInstance().getGateTable().updateGateProperties(gp);	
+				}
 			}
 		}
 	}
