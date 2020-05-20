@@ -11,6 +11,7 @@ This document describes the tools involved in building the "FairnessAnalyzer" ap
     * [GIS](#jump)
     * [Third party modules](#jarfiles)
     * [Shapefiles](#shapefiles)  
+  * [Google Maps](#maps)
   * [Validation](#validation)
     * [DRA2020](#DRA2020)
 
@@ -78,12 +79,15 @@ Java 13.
 * http://www.openjump.org/jpp.html OpenJUMP 1.14. This GIS package is extremely comprehensive consisting of over 1600 source files. We have simplified it drastically, using perhaps 50.
 * https://github.com/unitsofmeasurement/jsr-275 JSR-275 units of measure.
 * https://sourceforge.net/projects/geographiclib/files/distrib/GeographicLib-1.50.zip/download GeographicLib, a Java library of routines for converting between geographic and geocentric coordinates.
+* https://github.com/rterp/GMapsFX GMapsFX, a java wrapper for the Google Maps javascript API.
 
 #### Shapefiles <a id="shapefiles"></a>
 [toc](#table-of-contents)
 
 Code for analyzing ESRI shape files is derived from the Unified Mapping Platform, [OpenJump](https://sourceforge.net/projects/jump-pilot/files/latest/download). Code at version 1.14.1 was simplified and upgraded for Java 13.
 ***
+## Google Maps <a id="maps"/>
+[toc](#table-of-contents)
 
 ## Validation <a id="validation"/>
 [toc](#table-of-contents)

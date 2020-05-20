@@ -1,4 +1,4 @@
-==== The following license applies to original project code in this repository. It also applies to code 
+==== The following license applies to original project code in this repository. It also applies to code
 attributed to Kevin Baas (autoredistrict)
 
                    GNU GENERAL PUBLIC LICENSE
@@ -743,3 +743,8 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 ====
 Other attribution:
 Colorado Capitol backdrop from Intermountain Rural Electric Association web site.
+
+Also, please be aware, in order to use the Google Maps features of this application,
+you must accept the [Google Terms of Service]
+(https://cloud.google.com/maps-platform/terms) and obtain your own developer key. Refer
+to the [Toolchain Manual](http://github.com/chuckcoughlin/redistrict-colorado/tree/master/docs/toolchain.md) for further instructions.

@@ -22,12 +22,14 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.chart.DeclinationChart;
+import redistrict.colorado.chart.VoteSeatChart;
 import redistrict.colorado.core.Declination;
 import redistrict.colorado.core.GateProperty;
 import redistrict.colorado.core.GateType;
 import redistrict.colorado.core.PartisanMetric;
 import redistrict.colorado.core.PlanFeature;
 import redistrict.colorado.core.PlanModel;
+import redistrict.colorado.core.VoteSeatCurve;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.table.NameValue;
 import redistrict.colorado.table.NameValueCellValueFactory;
@@ -56,6 +58,7 @@ public class PartisanAsymmetryGate extends Gate {
 	private Label detailLabel = new Label();
 	
 	private final List<Declination> declinations = new ArrayList<>();
+	private final List<VoteSeatCurve> voteSeatCurves = new ArrayList<>();
 	
 	public PartisanAsymmetryGate() {
 		xAxis.setAutoRanging(true);
@@ -229,14 +232,48 @@ public class PartisanAsymmetryGate extends Gate {
 	 * Compute overall results.
 	 */
 	private void evaluateMeanMedian(List<PlanModel> plans) {
-		
+		voteSeatCurves.clear();
+		for(PlanModel plan:plans) {
+			VoteSeatCurve vsc = new VoteSeatCurve(plan.getMetrics());
+			vsc.generate();
+			voteSeatCurves.add(vsc);
+			
+			NameValue nv = new NameValue(plan.getName());
+			nv.setValue(KEY_SCORE, Math.abs(vsc.getVoteImbalance()));
+			nv.setValue(KEY_PLAN, plan.getName());
+			String party = "Democrat";
+			if( vsc.getVoteImbalance() > 0. ) party = "Republican";
+			nv.setValue(KEY_PARTY,party); // Party with advantage
+			scoreMap.put(plan.getId(),nv);
+		}
+		Collections.sort(plans,compareByScore);  // 
+		sortedPlans.clear();
+		sortedPlans.addAll(plans);
+		updateChart();
 	}
 	/**
 	 * Sort the districts by name and save the % democrat score.
 	 * Compute overall results.
 	 */
 	private void evaluatePartisanBias(List<PlanModel> plans) {
-		
+		voteSeatCurves.clear();
+		for(PlanModel plan:plans) {
+			VoteSeatCurve vsc = new VoteSeatCurve(plan.getMetrics());
+			vsc.generate();
+			voteSeatCurves.add(vsc);
+			
+			NameValue nv = new NameValue(plan.getName());
+			nv.setValue(KEY_SCORE, Math.abs(vsc.getSeatImbalance()));
+			nv.setValue(KEY_PLAN, plan.getName());
+			String party = "Democrat";
+			if( vsc.getSeatImbalance() > 0. ) party = "Republican";
+			nv.setValue(KEY_PARTY,party); // Party with advantage
+			scoreMap.put(plan.getId(),nv);
+		}
+		Collections.sort(plans,compareByScore);  // 
+		sortedPlans.clear();
+		sortedPlans.addAll(plans);
+		updateChart();
 	}
 	
 	
@@ -322,7 +359,6 @@ public class PartisanAsymmetryGate extends Gate {
 	}
 	// Create contents that allow viewing the details of the calculation
 	private void getResultsForEfficiencyGap(VBox pane) { 
-		
 		detailLabel.setId(ComponentIds.LABEL_SCORE);
 		pane.getChildren().add(detailLabel);
 		
@@ -400,13 +436,15 @@ public class PartisanAsymmetryGate extends Gate {
 	 * Compute overall results.
 	 */
 	private void getResultsForMeanMedian(VBox pane) {
-		
+		VoteSeatChart vc = new VoteSeatChart(voteSeatCurves);
+		pane.getChildren().add(vc.getChart());
 	}
 	/**
 	 * Sort the districts by name and save the % democrat score.
 	 * Compute overall results.
 	 */
 	private void getResultsForPartisanBias(VBox pane) {
-		
+		VoteSeatChart vc = new VoteSeatChart(voteSeatCurves);
+		pane.getChildren().add(vc.getChart());
 	}
 }

@@ -36,7 +36,7 @@ public class DeclinationChart {
 		chart.setLegendVisible(false);
 		
 		XYChart.Series<Number,Number> series;
-		// Draw the raw number serias
+		// Draw the raw number series
 		for(Declination dec: declinations) {
 			series = new XYChart.Series<>();
 			double[] raw = dec.getDemFractions();
