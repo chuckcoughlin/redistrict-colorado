@@ -6,12 +6,9 @@
  */
 package redistrict.colorado.core;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /*
- * Hold values for use in table cells. By convention, the hash map keys
- * match table column names.
+ * Hold values for use in seat-votes curves. 
+ * By convention the values are both percentages.
  */
 public class SeatVote {
 	private final double seats;
