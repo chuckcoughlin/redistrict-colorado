@@ -13,6 +13,7 @@ module rc.ui {
 	requires org.geotools;
 	requires org.locationtech.jts;
 	requires commons.math3;
+	requires gmapsfx;
 	
 	exports redistrict.colorado.bind;
 	exports redistrict.colorado.district;

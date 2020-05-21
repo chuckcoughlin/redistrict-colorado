@@ -12,6 +12,7 @@
 	<property name="geolib-jar" value="geolib-1.50.jar" />
 	<property name="geotools-jar" value="geotools-22.1.jar" />
 	<property name="jsr-275-jar" value="jsr275-0.9.5.jar" />
+	<property name="gmapsfx-jar" value="gmapsfx.jar" />
 	<property name="open-jump-jar" value="open-jump-1.14.jar" />
 	<property name="rc-core-jar" value="rc-core.jar" />
 	<property name="rc-ui-jar" value="rc-ui.jar" />

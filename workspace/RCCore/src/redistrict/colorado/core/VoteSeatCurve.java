@@ -28,7 +28,7 @@ public class VoteSeatCurve {
 		this.votingByDistrict = feats;
 		this.seatsVotesDem = new ArrayList<>();
 		this.seatsVotesRep = new ArrayList<>();
-		this.normal = new NormalDistribution(0.,5.);  // 5% deviation.
+		this.normal = new NormalDistribution(0.,.05);  // 5% deviation.
 	}
 	
 	// The seat-vote objects in these lists contain percentages.
@@ -98,7 +98,6 @@ public class VoteSeatCurve {
 				totalDemVotes += demVotes;
  			}
 			seatsVotesDem.add(new SeatVote(demSeats/totalSeats,totalDemVotes/totalVotes));
-		}
-			
+		}	
 	}
 }
