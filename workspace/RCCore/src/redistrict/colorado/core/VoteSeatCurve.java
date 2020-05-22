@@ -23,12 +23,14 @@ public class VoteSeatCurve {
 	private double republicanSeatImbalance = 0;
 	private double republicanVoteImbalance = 0;
 	private final NormalDistribution normal;
+	private double totalVotes;
 	
 	public VoteSeatCurve(List<PlanFeature>feats) {
 		this.votingByDistrict = feats;
 		this.seatsVotesDem = new ArrayList<>();
 		this.seatsVotesRep = new ArrayList<>();
 		this.normal = new NormalDistribution(0.,.05);  // 5% deviation.
+		this.totalVotes = 0.;
 	}
 	
 	// The seat-vote objects in these lists contain percentages.
@@ -37,13 +39,14 @@ public class VoteSeatCurve {
 	// Metrics - In each case a positive results means that the plan favors republicans
 	public double getSeatImbalance() { return republicanSeatImbalance; }
 	public double getVoteImbalance() { return republicanVoteImbalance; }
+	public double getTotalVotes() { return this.totalVotes; }
 	
 	
 	public void generate()  {  
-		List<SeatVote> seatsVotesRep = new ArrayList<>();
-		List<SeatVote> seatsVotesDem = new ArrayList<>();
+		seatsVotesRep.clear();
+		seatsVotesDem.clear();
+		totalVotes = 0.;
 		
-		double totalVotes = 0.;
 		double totalDVotes = 0.;
 		double totalRVotes = 0.;
 		double totalSeats = votingByDistrict.size();
@@ -70,10 +73,11 @@ public class VoteSeatCurve {
 			for(PlanFeature feat:votingByDistrict) {
 				double repVotes = feat.getRepublican();
 				double demVotes = feat.getDemocrat();
+				double total = repVotes + demVotes;
 				double variance = normal.sample()*repVotes;
 				repVotes += variance;
 				repVotes = repVotes * frac;
-				demVotes = totalVotes - repVotes + swing*variance;
+				demVotes = total - repVotes + swing*variance;
 				if( repVotes>demVotes ) repSeats++;
 				totalRepVotes += repVotes;
  			}
@@ -90,10 +94,11 @@ public class VoteSeatCurve {
 			for(PlanFeature feat:votingByDistrict) {
 				double repVotes = feat.getRepublican();
 				double demVotes = feat.getDemocrat();
+				double total = repVotes + demVotes;
 				double variance = normal.sample()*demVotes;
 				demVotes += variance;
 				demVotes = demVotes * frac;
-				repVotes = totalVotes - demVotes + swing*variance;
+				repVotes = total - demVotes + swing*variance;
 				if( demVotes>repVotes ) demSeats++;
 				totalDemVotes += demVotes;
  			}
