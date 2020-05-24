@@ -115,10 +115,10 @@ public class VoteSeatCurve {
 			for(PlanFeature feat:votesByDistrict) {
 				double total = feat.getRepublican() + feat.getDemocrat();
 				if( !districtOverflowRep[idistrict]) {
-					updatedVotesRep[idistrict] += INCREMENT*totalVotes*excessRep/(ndistricts - excessRep);
+					updatedVotesRep[idistrict] += INCREMENT*totalVotes*excessRep/(totalSeats - excessRep);
 				}
 				if( !districtOverflowDem[idistrict]) {
-					updatedVotesDem[idistrict] -= INCREMENT*totalVotes*excessDem/(ndistricts - excessDem);
+					updatedVotesDem[idistrict] -= INCREMENT*totalVotes*excessDem/(totalSeats - excessDem);
 				}
 				
 				if(updatedVotesRep[idistrict]>=updatedVotesDem[idistrict]) repSeats+=1;
@@ -127,7 +127,7 @@ public class VoteSeatCurve {
 				idistrict++;
 			}
 			seatsVotesRep.add(new SeatVote(repSeats/totalSeats,totalRepVotes/totalVotes));
-			//seatsVotesDem.add(new SeatVote(demSeats/ndistricts,totalVotes-(frac*totalVotes+swing)));
+			seatsVotesDem.add(new SeatVote(demSeats/totalSeats,(totalVotes-(totalRepVotes+swing))/totalVotes));
 		}
 		
 		// Repeat for the Democratic curve
@@ -173,10 +173,10 @@ public class VoteSeatCurve {
 			for(PlanFeature feat:votesByDistrict) {
 				double total = feat.getRepublican() + feat.getDemocrat();
 				if( !districtOverflowDem[idistrict]) {
-					updatedVotesDem[idistrict] += INCREMENT*totalVotes*excessDem/(ndistricts - excessDem);
+					updatedVotesDem[idistrict] += INCREMENT*totalVotes*excessDem/(totalSeats - excessDem);
 				}
 				if( !districtOverflowDem[idistrict]) {
-					updatedVotesRep[idistrict] -= INCREMENT*totalVotes*excessRep/(ndistricts - excessRep);
+					updatedVotesRep[idistrict] -= INCREMENT*totalVotes*excessRep/(totalSeats - excessRep);
 				}
 						
 				if(updatedVotesRep[idistrict]>=updatedVotesDem[idistrict]) repSeats+=1;
@@ -185,7 +185,7 @@ public class VoteSeatCurve {
 				idistrict++;
 			}
 			seatsVotesDem.add(new SeatVote(demSeats/totalSeats,totalDemVotes/totalVotes));
-			//seatsVotesRep.add(new SeatVote(repSeats/ndistricts,totalVotes-(frac*totalVotes+swing)));
+			seatsVotesRep.add(new SeatVote(repSeats/totalSeats,(totalVotes-(totalDemVotes+swing))/totalVotes));
 		}
 		// Finally sort the lists by votes
 		Collections.sort(seatsVotesRep,compareByVote);  // 
