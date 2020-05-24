@@ -239,7 +239,7 @@ public class PartisanAsymmetryGate extends Gate {
 			voteSeatCurves.add(vsc);
 			
 			NameValue nv = new NameValue(plan.getName());
-			nv.setValue(KEY_SCORE, Math.abs(vsc.getVoteImbalance()));
+			nv.setValue(KEY_SCORE, 100.*Math.abs(vsc.getVoteImbalance()));
 			nv.setValue(KEY_PLAN, plan.getName());
 			String party = "Democrat";
 			if( vsc.getVoteImbalance() > 0. ) party = "Republican";
@@ -263,7 +263,7 @@ public class PartisanAsymmetryGate extends Gate {
 			voteSeatCurves.add(vsc);
 			
 			NameValue nv = new NameValue(plan.getName());
-			nv.setValue(KEY_SCORE, Math.abs(vsc.getSeatImbalance()));
+			nv.setValue(KEY_SCORE, 100.*Math.abs(vsc.getSeatImbalance()));
 			nv.setValue(KEY_PLAN, plan.getName());
 			String party = "Democrat";
 			if( vsc.getSeatImbalance() > 0. ) party = "Republican";

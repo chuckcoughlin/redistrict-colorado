@@ -12,6 +12,7 @@ import org.apache.commons.math3.distribution.NormalDistribution;
 /**
  * Seats-votes curve generator.
  * Calculated using uniform partisan swing. Apply overall fraction to changes at district level.
+ * NOOTE: The reference used a randomized "smoothing" of the curve. We were not able to get this to work.
  * Translated from Python
  * See: https://github.com/jeffreyshen19/Seats-Votes-Curves/blob/master/generator/uniform_partisan_swing.py
  */
@@ -23,8 +24,6 @@ public class VoteSeatCurve {
 	private final List<PlanFeature> votesByDistrict;
 	private final List<SeatVote> seatsVotesDem;
 	private final List<SeatVote> seatsVotesRep;
-	private double republicanSeatImbalance = 0;
-	private double republicanVoteImbalance = 0;
 	private final NormalDistribution normal;
 	private double totalVotes;
 	private final int ndistricts;
@@ -44,8 +43,21 @@ public class VoteSeatCurve {
 	public List<SeatVote> getSeatVotesDemocratic() { return this.seatsVotesDem; }
 	public List<SeatVote> getSeatVotesRepublican() { return this.seatsVotesRep; }
 	// Metrics - In each case a positive results means that the plan favors republicans
-	public double getSeatImbalance() { return republicanSeatImbalance; }
-	public double getVoteImbalance() { return republicanVoteImbalance; }
+	// No seat-votes lists contain cumulative values
+	public double getSeatImbalance() { 
+		// Note the vote when the seats exceed 50%
+		for( SeatVote sv: seatsVotesRep) {
+			if( sv.getVotes()>0.5 ) return sv.getSeats();
+		}
+		return 1.0; 
+	}
+	public double getVoteImbalance() { 
+		// Note the vote when the seats exceed 50%
+		for( SeatVote sv: seatsVotesRep) {
+			if( sv.getSeats()>0.5 ) return sv.getVotes();
+		}
+		return 1.0;
+	}
 	public double getTotalVotes() { return this.totalVotes; }
 	
 	
@@ -94,8 +106,8 @@ public class VoteSeatCurve {
 				double repVotes = feat.getRepublican();
 				double demVotes = feat.getDemocrat();
 				double total = repVotes + demVotes;
-				double variance = normal.sample()*repVotes;
-				variance = 0.;
+				double variance = Math.abs(normal.sample()*repVotes);
+				variance = 0.;     // Ignore any random "smoothing"
 				updatedVotesRep[idistrict] = repVotes*frac + variance;
 				updatedVotesDem[idistrict] = total - updatedVotesRep[idistrict] + swing*total;
 				
@@ -113,7 +125,6 @@ public class VoteSeatCurve {
 			idistrict = 0;
 			totalRepVotes = 0;
 			for(PlanFeature feat:votesByDistrict) {
-				double total = feat.getRepublican() + feat.getDemocrat();
 				if( !districtOverflowRep[idistrict]) {
 					updatedVotesRep[idistrict] += INCREMENT*totalVotes*excessRep/(totalSeats - excessRep);
 				}
@@ -154,7 +165,7 @@ public class VoteSeatCurve {
 				double demVotes = feat.getDemocrat();
 				double total = repVotes + demVotes;
 				double variance = normal.sample()*demVotes;
-				variance = 0.;
+				variance = 0.;     // Ignore any random "smoothing"
 				updatedVotesDem[idistrict] = demVotes*frac + variance;
 				updatedVotesRep[idistrict] = total - updatedVotesDem[idistrict] - swing*total;
 						
@@ -171,7 +182,6 @@ public class VoteSeatCurve {
 			// Distribute any excess votes to other districts
 			idistrict = 0;
 			for(PlanFeature feat:votesByDistrict) {
-				double total = feat.getRepublican() + feat.getDemocrat();
 				if( !districtOverflowDem[idistrict]) {
 					updatedVotesDem[idistrict] += INCREMENT*totalVotes*excessDem/(totalSeats - excessDem);
 				}
@@ -189,6 +199,10 @@ public class VoteSeatCurve {
 		}
 		// Finally sort the lists by votes
 		Collections.sort(seatsVotesRep,compareByVote);  // 
+		for(int index=0;index<seatsVotesRep.size();index++)  {
+			SeatVote sv = seatsVotesRep.get(index);
+			LOGGER.info(String.format(" %d, %2.2f %2.2f",index,sv.getVotes(),sv.getSeats()));
+		}
 		Collections.sort(seatsVotesDem,compareByVote);  // 
 	}
 	
