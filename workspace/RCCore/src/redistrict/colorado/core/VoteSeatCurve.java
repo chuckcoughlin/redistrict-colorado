@@ -1,6 +1,9 @@
 package redistrict.colorado.core;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -17,20 +20,24 @@ public class VoteSeatCurve {
 	private final static String CLSS = "VoteSeatCurve";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private static double INCREMENT = 0.01;  // X-Axis values
-	private final List<PlanFeature> votingByDistrict;
+	private final List<PlanFeature> votesByDistrict;
 	private final List<SeatVote> seatsVotesDem;
 	private final List<SeatVote> seatsVotesRep;
 	private double republicanSeatImbalance = 0;
 	private double republicanVoteImbalance = 0;
 	private final NormalDistribution normal;
 	private double totalVotes;
+	private final int ndistricts;
+	private final double totalSeats;
 	
 	public VoteSeatCurve(List<PlanFeature>feats) {
-		this.votingByDistrict = feats;
+		this.votesByDistrict = feats;
+		this.ndistricts = votesByDistrict.size();
 		this.seatsVotesDem = new ArrayList<>();
 		this.seatsVotesRep = new ArrayList<>();
 		this.normal = new NormalDistribution(0.,.05);  // 5% deviation.
 		this.totalVotes = 0.;
+		this.totalSeats = ndistricts;
 	}
 	
 	// The seat-vote objects in these lists contain percentages.
@@ -49,10 +56,9 @@ public class VoteSeatCurve {
 		
 		double totalDVotes = 0.;
 		double totalRVotes = 0.;
-		double totalSeats = votingByDistrict.size();
 
 		//  Read all district data
-		for(PlanFeature feat:votingByDistrict) {
+		for(PlanFeature feat:votesByDistrict) {
 			totalVotes += feat.getDemocrat()+feat.getRepublican();
 			totalDVotes += feat.getDemocrat();
 			totalRVotes += feat.getRepublican();
@@ -67,43 +73,130 @@ public class VoteSeatCurve {
 		// The uniform partisan swing
 		double swing = repVoteShare - demVoteShare;
 		for(double frac=0;frac<=1.0;frac+=INCREMENT) {
+			// Arrays to handle overflow situations
+			boolean[] districtOverflowRep = new boolean[ndistricts];
+			boolean[] districtOverflowDem = new boolean[ndistricts];
+			Arrays.fill(districtOverflowDem, false);
+			Arrays.fill(districtOverflowRep, false);
+			int excessDem = 0;  // Seats
+			int excessRep = 0;
+			double[] updatedVotesDem = new double[ndistricts];
+			double[] updatedVotesRep = new double[ndistricts];
+			Arrays.fill(updatedVotesDem, 0.);
+			Arrays.fill(updatedVotesRep, 0.);
+			
 			//  Iterate over districts
 			double repSeats = 0;
+			double demSeats = 0;
 			double totalRepVotes = 0;
-			for(PlanFeature feat:votingByDistrict) {
+			int idistrict = 0;
+			for(PlanFeature feat:votesByDistrict) {
 				double repVotes = feat.getRepublican();
 				double demVotes = feat.getDemocrat();
 				double total = repVotes + demVotes;
 				double variance = normal.sample()*repVotes;
 				variance = 0.;
-				repVotes += variance;
-				repVotes = repVotes * frac;
-				demVotes = total - repVotes + swing*total;
-				if( repVotes>demVotes ) repSeats++;
-				totalRepVotes += repVotes;
+				updatedVotesRep[idistrict] = repVotes*frac + variance;
+				updatedVotesDem[idistrict] = total - updatedVotesRep[idistrict] + swing*total;
+				
+				if( updatedVotesRep[idistrict] > total ) {
+					districtOverflowRep[idistrict] = true;
+					excessRep += 1;
+				}
+				if( updatedVotesDem[idistrict] < 0. ) {
+					districtOverflowDem[idistrict] = true;
+					excessDem += 1;
+				}
+				idistrict++;
  			}
+			// Distribute any excess votes to other districts
+			idistrict = 0;
+			totalRepVotes = 0;
+			for(PlanFeature feat:votesByDistrict) {
+				double total = feat.getRepublican() + feat.getDemocrat();
+				if( !districtOverflowRep[idistrict]) {
+					updatedVotesRep[idistrict] += INCREMENT*totalVotes*excessRep/(ndistricts - excessRep);
+				}
+				if( !districtOverflowDem[idistrict]) {
+					updatedVotesDem[idistrict] -= INCREMENT*totalVotes*excessDem/(ndistricts - excessDem);
+				}
+				
+				if(updatedVotesRep[idistrict]>=updatedVotesDem[idistrict]) repSeats+=1;
+				if(updatedVotesDem[idistrict]>=updatedVotesRep[idistrict]) demSeats+=1;
+				totalRepVotes += updatedVotesRep[idistrict];
+				idistrict++;
+			}
 			seatsVotesRep.add(new SeatVote(repSeats/totalSeats,totalRepVotes/totalVotes));
+			//seatsVotesDem.add(new SeatVote(demSeats/ndistricts,totalVotes-(frac*totalVotes+swing)));
 		}
 		
 		// Repeat for the Democratic curve
 		// The uniform partisan swing (inverse of previous)
 		for(double frac=0;frac<=1.0;frac+=INCREMENT) {
+			// Arrays to handle overflow situations
+			boolean[] districtOverflowRep = new boolean[ndistricts];
+			boolean[] districtOverflowDem = new boolean[ndistricts];
+			Arrays.fill(districtOverflowDem, false);
+			Arrays.fill(districtOverflowRep, false);
+			int excessDem = 0;  // Seats
+			int excessRep = 0;
+			double[] updatedVotesDem = new double[ndistricts];
+			double[] updatedVotesRep = new double[ndistricts];
+			Arrays.fill(updatedVotesDem, 0.);
+			Arrays.fill(updatedVotesRep, 0.);
 			//  Iterate over districts
+			double repSeats = 0;
 			double demSeats = 0;
 			double totalDemVotes = 0;
-			for(PlanFeature feat:votingByDistrict) {
+			int idistrict = 0;
+			for(PlanFeature feat:votesByDistrict) {
 				double repVotes = feat.getRepublican();
 				double demVotes = feat.getDemocrat();
 				double total = repVotes + demVotes;
 				double variance = normal.sample()*demVotes;
 				variance = 0.;
-				demVotes += variance;
-				demVotes = demVotes * frac;
-				repVotes = total - demVotes - swing*total;
-				if( demVotes>repVotes ) demSeats++;
-				totalDemVotes += demVotes;
- 			}
+				updatedVotesDem[idistrict] = demVotes*frac + variance;
+				updatedVotesRep[idistrict] = total - updatedVotesDem[idistrict] - swing*total;
+						
+				if( updatedVotesDem[idistrict] > total ) {
+					districtOverflowDem[idistrict] = true;
+					excessDem += 1;
+				}
+				if( updatedVotesRep[idistrict] < 0. ) {
+					districtOverflowRep[idistrict] = true;
+					excessRep += 1;
+				}
+				idistrict++;
+		 	}
+			// Distribute any excess votes to other districts
+			idistrict = 0;
+			for(PlanFeature feat:votesByDistrict) {
+				double total = feat.getRepublican() + feat.getDemocrat();
+				if( !districtOverflowDem[idistrict]) {
+					updatedVotesDem[idistrict] += INCREMENT*totalVotes*excessDem/(ndistricts - excessDem);
+				}
+				if( !districtOverflowDem[idistrict]) {
+					updatedVotesRep[idistrict] -= INCREMENT*totalVotes*excessRep/(ndistricts - excessRep);
+				}
+						
+				if(updatedVotesRep[idistrict]>=updatedVotesDem[idistrict]) repSeats+=1;
+				if(updatedVotesDem[idistrict]>=updatedVotesRep[idistrict]) demSeats+=1;
+				totalDemVotes += updatedVotesDem[idistrict];
+				idistrict++;
+			}
 			seatsVotesDem.add(new SeatVote(demSeats/totalSeats,totalDemVotes/totalVotes));
-		}	
+			//seatsVotesRep.add(new SeatVote(repSeats/ndistricts,totalVotes-(frac*totalVotes+swing)));
+		}
+		// Finally sort the lists by votes
+		Collections.sort(seatsVotesRep,compareByVote);  // 
+		Collections.sort(seatsVotesDem,compareByVote);  // 
 	}
+	
+	// Compare SeatVotes based on vote attribute in ascending order
+	protected Comparator<SeatVote> compareByVote = new Comparator<SeatVote>() {
+		@Override
+		public int compare(SeatVote sv1, SeatVote sv2) {
+			return (sv1.getVotes()> sv2.getVotes()?1:0);
+		}
+	};
 }
