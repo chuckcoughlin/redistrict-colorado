@@ -65,7 +65,7 @@ public class VoteSeatCurve {
 	
 		// Generate the Republican curve
 		// The uniform partisan swing
-		double swing = demVoteShare/repVoteShare;
+		double swing = repVoteShare - demVoteShare;
 		for(double frac=0;frac<=1.0;frac+=INCREMENT) {
 			//  Iterate over districts
 			double repSeats = 0;
@@ -75,9 +75,10 @@ public class VoteSeatCurve {
 				double demVotes = feat.getDemocrat();
 				double total = repVotes + demVotes;
 				double variance = normal.sample()*repVotes;
+				variance = 0.;
 				repVotes += variance;
 				repVotes = repVotes * frac;
-				demVotes = total - repVotes + swing*variance;
+				demVotes = total - repVotes + swing*total;
 				if( repVotes>demVotes ) repSeats++;
 				totalRepVotes += repVotes;
  			}
@@ -86,7 +87,6 @@ public class VoteSeatCurve {
 		
 		// Repeat for the Democratic curve
 		// The uniform partisan swing (inverse of previous)
-		swing = repVoteShare/demVoteShare;
 		for(double frac=0;frac<=1.0;frac+=INCREMENT) {
 			//  Iterate over districts
 			double demSeats = 0;
@@ -96,9 +96,10 @@ public class VoteSeatCurve {
 				double demVotes = feat.getDemocrat();
 				double total = repVotes + demVotes;
 				double variance = normal.sample()*demVotes;
+				variance = 0.;
 				demVotes += variance;
 				demVotes = demVotes * frac;
-				repVotes = total - demVotes + swing*variance;
+				repVotes = total - demVotes - swing*total;
 				if( demVotes>repVotes ) demSeats++;
 				totalDemVotes += demVotes;
  			}

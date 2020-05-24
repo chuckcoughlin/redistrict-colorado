@@ -87,8 +87,7 @@ that are split across political boundaries. It is a crude measure of how well th
 by tallying the number of counties contained
 or partially contained in a district and then
 subtracting the total number of counties. We want this score to be minimized.
-The same metric could be computed using municipal or other boundaries instead of counties if so desired. The limiting factor is the availability of appropriate shapefiles.
-
+The same metric could be computed using municipal or other boundaries instead of counties if so desired. The limiting factor is the availability of shapefiles that define the boundaries.
 
 ###### Partisan Asymmetry:
 Partisan asymmetry is a measure of the extent to which boundaries favor one party or the other. The application provides 4 different algorithms for this metric.
@@ -125,7 +124,7 @@ of the population of the districts. We normalize by the total population,
 multiplied by 100 to give a result in percent. This value should be *minimized*.
 
 Colorado sets the "unfair" limit of the difference between any district population and the mean at 5%. Some court cases have specified 1%.
-A red X indicator is drawn on the bar if any individual district has a deviation greater that the specified "unfair" limit.
+A red X indicator is drawn on the bar if any individual district has a deviation greater that the "unfair" limit specified by the user.
 
 ###### Proportionality:
 Proportionality is the concept that the party mix of the elected officials
@@ -137,7 +136,8 @@ in favor of that party.
 The numerical value of the metric is the number of seats in excess of the "deserved" number for the dominant party. Ideally this is less than 1.
 
 ###### Voting Power:
-We define voting power as the ability to elect a candidate of one's choosing. Another way to state this is the ability to effect the outcome of one or more elections. For a single district, this can be summarized by taking the margin of victory (in votes) and dividing it by the total votes cast. To total this up by ethnicity, we take the sum of this over all elections weighted by the population percentage for all ethnicities. For example, for hispanics, we take the total number of votes in an election, multiply by the fraction of that district that is hispanic, and total that up over all districts. Then we do the same for margin of victory. Then we divide the margin of victory total by the votes cast total, and that gives us an estimate of the average voting power for that ethnicity. We want to minimize the variance between ethnicities, so we take the average of this over the entire population, and calculate the mean absolute deviation (M.A.D.) of the ethnicities from this. This gives us a summary of how uneven voting power is distributed among the ethnicities. We want this score to be minimized.
+Voting power is the ability to effect the outcome of an election. This metric is a measure of disparities between ethnic groups beyond simply
+their numbers. the For a single district, this can be summarized by taking the margin of victory (in votes) and dividing it by the total votes cast. To total this up by ethnicity, we take the sum of this over all elections weighted by the population percentage for all ethnicities. For example, for hispanics, we take the total number of votes in an election, multiply by the fraction of that district that is hispanic, and total that up over all districts. Then we do the same for margin of victory. Then we divide the margin of victory total by the votes cast total, and that gives us an estimate of the average voting power for that ethnicity. We want to minimize the variance between ethnicities, so we take the average of this over the entire population, and calculate the mean absolute deviation (M.A.D.) of the ethnicities from this. This gives us a summary of how uneven voting power is distributed among the ethnicities. We want this score to be minimized.
 
 ###### Composite:
 The composite or overall metric is a compendium of all the other measures with
