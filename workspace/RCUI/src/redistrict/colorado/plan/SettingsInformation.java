@@ -19,18 +19,18 @@ import javafx.util.Callback;
 import redistrict.colorado.gate.Gate;
 
 /**
- * Display an help dialog with iformation about limit settings. 
+ * Display an help dialog with information about limit settings. 
  *   info = new SettingsDialog()
  *   info.showAndWait()
  *
  */
-public class SettingsDialog extends Dialog {
-	private final static String CLSS = "SettingsDialog";
+public class SettingsInformation extends Dialog {
+	private final static String CLSS = "SettingsInformation";
 	private final static Logger LOGGER = Logger.getLogger(CLSS);
 	private final double MAX_TEXT_WIDTH = 600.;
 	private final ButtonType dismissButton;
 
-	public SettingsDialog() {
+	public SettingsInformation() {
 		setHeaderText("Explanation of Metrics Ranges");
 		setTitle("Settings Information");  // On top bar of window
 		setResizable(true);
@@ -82,6 +82,10 @@ public class SettingsDialog extends Dialog {
 		header.setStyle("-fx-font-weight: bold");
 		info.getChildren().add(header);
 		info.getChildren().add(new Text(System.lineSeparator()));
+		unfair = new Text("   unfair: 5   (<45% or >55% of vote to get 1/2 the seats)");
+		info.getChildren().add(unfair); info.getChildren().add(new Text(System.lineSeparator()));
+		fair   = new Text("      fair: 0   (mean is same as median)");
+		info.getChildren().add(fair); info.getChildren().add(new Text(System.lineSeparator()));
 		
 		header = new Text("Partisan Asymmetry (declination):");
 		header.setStyle("-fx-font-weight: bold");
@@ -99,6 +103,24 @@ public class SettingsDialog extends Dialog {
 		unfair = new Text("   unfair: 15   (maximum percentage for a plan to be considered non-gerrymandered)");
 		info.getChildren().add(unfair); info.getChildren().add(new Text(System.lineSeparator()));
 		fair   = new Text("      fair: 0   (equal numbers of wasted votes)");
+		info.getChildren().add(fair); info.getChildren().add(new Text(System.lineSeparator()));
+		
+		header = new Text("Partisan Asymmetry (partisan bias):");
+		header.setStyle("-fx-font-weight: bold");
+		info.getChildren().add(header);
+		info.getChildren().add(new Text(System.lineSeparator()));
+		unfair = new Text("   unfair: 5   (<45% or >55% of seats when you have 1/2 the votes)");
+		info.getChildren().add(unfair); info.getChildren().add(new Text(System.lineSeparator()));
+		fair   = new Text("      fair: 0   (50% of seats with 50% of vote)");
+		info.getChildren().add(fair); info.getChildren().add(new Text(System.lineSeparator()));
+		
+		header = new Text("Population Balance:");
+		header.setStyle("-fx-font-weight: bold");
+		info.getChildren().add(header);
+		info.getChildren().add(new Text(System.lineSeparator()));
+		unfair = new Text("   unfair: 5   (maximum std deviation between districts)");
+		info.getChildren().add(unfair); info.getChildren().add(new Text(System.lineSeparator()));
+		fair   = new Text("      fair: 0   (all districts same population)");
 		info.getChildren().add(fair); info.getChildren().add(new Text(System.lineSeparator()));
 		
 		return info;

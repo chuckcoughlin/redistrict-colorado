@@ -93,13 +93,10 @@ The same metric could be computed using municipal or other boundaries instead of
 Partisan asymmetry is a measure of the extent to which boundaries favor one party or the other. The application provides 4 different algorithms for this metric.
 
 `Mean-median`
-The mean-median difference is a party’s median vote share minus its mean vote share, across all of a plan’s districts. The difference is expressed as a percentage. Mean-median is a measure of vote-bias, whereas the
-partisan-bias metric below measures seat-bias.
+Ask the question, "What percentage of the votes does it take to win 50% of the seats?". The difference between that and 50% is the Mean-median metric. It is a measure of vote-bias.
 
 `Partisan-bias`
-Pasrtisan bias is the difference between a 50-50 split in seats and the number of seats the party would get if the votes were evenly divided.
-To calculate partisan bias, the observed vote share in each district is shifted by the amount necessary to simulate a tied statewide election.
-The answer is expressed as a percentage of the total number of seats. The calculation is made from a vote-seats curve.
+Partisan bias is a measure of seat bias. It is the difference between 50% and the percentage of seats obtained with 50% of the votes. The calculation of partisan bias is made directly from the vote-seats curve.
 
 `Declination`
 The declination function is described [here](https://observablehq.com/@sahilchinoy/gerrymandering-the-declination-function). It is a measure of partisan symmetry that does not assume any particular seats-votes proportionality.

@@ -72,7 +72,7 @@ public class PlanSetupPane extends BasicRightSideNode
 	private Label headerLabel = new Label("Analysis Setup");
 	private final SavePane savePane = new SavePane(this);
 	private final Button info;
-	protected final SettingsDialog infoDialog;
+	protected final SettingsInformation infoDialog;
 	private AnalysisModel model;
 	private final GridPane grid;
 	private final Label affiliationLabel = new Label("Affiliation: ");
@@ -95,7 +95,7 @@ public class PlanSetupPane extends BasicRightSideNode
 		this.model = EventBindingHub.getInstance().getAnalysisModel();
 		this.items = FXCollections.observableArrayList();
 		this.cellHandler = new TableEventHandler();
-		this.infoDialog = new SettingsDialog();
+		this.infoDialog = new SettingsInformation();
 		info = new Button("",guiu.loadImage("images/information.png"));
 		info.setOnAction( new EventHandler<ActionEvent>() {
 	        @Override public void handle( ActionEvent e ) {

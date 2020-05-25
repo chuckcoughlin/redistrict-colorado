@@ -11,7 +11,7 @@ import javafx.scene.paint.Color;
 import javafx.util.Callback;
 
 /**
- * Render a string type cell in the FeatureMetric table
+ * Render a double type cell in the FeatureMetric table
  */
 public class NameValueListLimitCellFactory implements Callback<TableColumn<List<NameValue>, String>, TableCell<List<NameValue>, String>>,
 														EventHandler<TableColumn.CellEditEvent<List<NameValue>, String>> { 
@@ -63,9 +63,9 @@ public class NameValueListLimitCellFactory implements Callback<TableColumn<List<
 		        	}
 	        	}
 	        	else {
-	        	if( Math.abs(Double.parseDouble(item))>limit) {
-	        		setTextFill(Color.RED);
-	        	}
+	        		if( Math.abs(Double.parseDouble(item))>limit) {
+	        			setTextFill(Color.RED);
+	        		}
 	        	}
 	        }
 	    }

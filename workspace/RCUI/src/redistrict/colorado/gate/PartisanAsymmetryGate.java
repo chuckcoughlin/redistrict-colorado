@@ -48,6 +48,8 @@ public class PartisanAsymmetryGate extends Gate {
 	private final static double DIALOG_WIDTH = 600.;
 	private final static String KEY_DECLINATION = "Declination"; 
 	private final static String KEY_GAP = "Efficiency Gap"; 
+	private final static String KEY_PERCENT_SEATS = "% of Seats"; 
+	private final static String KEY_PERCENT_VOTES = "%of Votes"; 
 	private final static String KEY_SCORE = "Score";  // Value appropriate to metric
 	private final static String KEY_NAME = "Name";
 	private final static String KEY_PLAN = "Plan";
@@ -109,7 +111,7 @@ public class PartisanAsymmetryGate extends Gate {
 	}
 	private void updatePartisanBiasInfo(TextFlow info) {
 		Text t1 = new Text("Partisan bias is a measure of seat bias. ");
-		Text t2 = new Text("It is the difference between each party’s seat share and 50% in a hypothetical, perfectly tied election.");
+		Text t2 = new Text("It is the difference in percent between 50% and the percentage of votes required to win 50% of the seats.");
 		Text t3 = new Text("We want this score to be ");
 		Text t4 = new Text("minimized");
 		t4.setStyle("-fx-font-weight: bold");
@@ -131,10 +133,10 @@ public class PartisanAsymmetryGate extends Gate {
 		String key = KEY_SCORE;
 		PartisanMetric metric = EventBindingHub.getInstance().getAnalysisModel().getPartisanMetric();
 		switch(metric) {
-			case DECLINATION: 	 key =  KEY_DECLINATION; break;
-			case EFFICIENCY_GAP: key =  KEY_GAP;   break;
-			case MEAN_MEDIAN:    key = KEY_SCORE;  break;
-			case PARTISAN_BIAS:  key = KEY_SCORE;  break;
+			case DECLINATION: 	 key = KEY_DECLINATION; break;
+			case EFFICIENCY_GAP: key = KEY_GAP;   break;
+			case MEAN_MEDIAN:    key = KEY_PERCENT_VOTES;  break;
+			case PARTISAN_BIAS:  key = KEY_PERCENT_SEATS;  break;
 		}
 		return key;
 	} 
@@ -239,10 +241,10 @@ public class PartisanAsymmetryGate extends Gate {
 			voteSeatCurves.add(vsc);
 			
 			NameValue nv = new NameValue(plan.getName());
-			nv.setValue(KEY_SCORE, 100.*Math.abs(vsc.getVoteImbalance()));
+			nv.setValue(KEY_PERCENT_VOTES, 100.*Math.abs(vsc.getVoteImbalance()));
 			nv.setValue(KEY_PLAN, plan.getName());
 			String party = "Democrat";
-			if( vsc.getVoteImbalance() > 0. ) party = "Republican";
+			if( vsc.getVoteImbalance() > 0.5 ) party = "Republican";
 			nv.setValue(KEY_PARTY,party); // Party with advantage
 			scoreMap.put(plan.getId(),nv);
 		}
@@ -263,10 +265,10 @@ public class PartisanAsymmetryGate extends Gate {
 			voteSeatCurves.add(vsc);
 			
 			NameValue nv = new NameValue(plan.getName());
-			nv.setValue(KEY_SCORE, 100.*Math.abs(vsc.getSeatImbalance()));
+			nv.setValue(KEY_PERCENT_SEATS, 100.*Math.abs(vsc.getSeatImbalance()));
 			nv.setValue(KEY_PLAN, plan.getName());
 			String party = "Democrat";
-			if( vsc.getSeatImbalance() > 0. ) party = "Republican";
+			if( vsc.getSeatImbalance() > 0.5 ) party = "Republican";
 			nv.setValue(KEY_PARTY,party); // Party with advantage
 			scoreMap.put(plan.getId(),nv);
 		}
@@ -287,9 +289,7 @@ public class PartisanAsymmetryGate extends Gate {
 		
 		PartisanMetric metric = EventBindingHub.getInstance().getAnalysisModel().getPartisanMetric();
 		LOGGER.info("PartisanAsymmetryGate.getResultsContents: ..."+metric.name());
-		String colTitle = KEY_SCORE;
-		if( metric.equals(PartisanMetric.DECLINATION)) colTitle         = KEY_DECLINATION;
-		else if( metric.equals(PartisanMetric.EFFICIENCY_GAP)) colTitle = KEY_GAP;
+		String colTitle = getScoreAttribute();
 		
 		// Aggregate table
 		TableView<NameValue> aggregateTable = new TableView<>();
@@ -303,6 +303,9 @@ public class PartisanAsymmetryGate extends Gate {
 		TableColumn<NameValue,String> column;
 		NameValueCellValueFactory factory = new NameValueCellValueFactory();
 		NameValueLimitCellFactory limFactory = new NameValueLimitCellFactory( threshold);
+		if( metric.equals(PartisanMetric.MEAN_MEDIAN) || metric.equals(PartisanMetric.PARTISAN_BIAS) )  {
+			limFactory = new NameValueLimitCellFactory( (double)(50.-threshold), (double)(50.+threshold));
+		}
 		factory.setFormat(colTitle, "%2.1f");
 		if( metric.equals(PartisanMetric.DECLINATION)) factory.setFormat(colTitle, "%1.2f");
 		column = new TableColumn<>(KEY_PLAN);
@@ -337,12 +340,12 @@ public class PartisanAsymmetryGate extends Gate {
 				getResultsForEfficiencyGap(pane);
 				break;
 			case MEAN_MEDIAN:
-				aggregateLabel.setText("Mean-Median ~ % / Advantaged Party");
+				aggregateLabel.setText("Mean-Median ~ % of votes for 50% of seats / Advantaged Party");
 				detailLabel.setText("Vote-Seat Comparison");
 				getResultsForMeanMedian(pane);
 				break;
 			case PARTISAN_BIAS:
-				aggregateLabel.setText("Partisan Bias ~ % / Advantaged Party");
+				aggregateLabel.setText("Partisan Bias ~ % of seats for 50% of votes/ Advantaged Party");
 				detailLabel.setText("Vote-Seat Comparison");
 				getResultsForPartisanBias(pane);
 				break;

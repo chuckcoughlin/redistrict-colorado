@@ -16,10 +16,22 @@ public class NameValueLimitCellFactory implements Callback<TableColumn<NameValue
 														EventHandler<TableColumn.CellEditEvent<NameValue, String>> { 
 	private final static String CLSS = "NameValueLimitCellFactory";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
+	private final boolean useRange;
 	private final double limit;
+	private final double minValue;
+	private final double maxValue;
 
 	public NameValueLimitCellFactory(double lim) {
 		this.limit = lim;
+		this.minValue = 0.;
+		this.maxValue = 0.;
+		this.useRange = false;
+	}
+	public NameValueLimitCellFactory(double minval, double maxval ) {
+		this.limit = 0.;
+		this.minValue = minval;
+		this.maxValue = maxval;
+		this.useRange = true;
 	}
 	/*
 	 * @return a TableCell that responds to the out-of-bounds values by making the cell red.
@@ -43,9 +55,16 @@ public class NameValueLimitCellFactory implements Callback<TableColumn<NameValue
 	        super.updateItem(item, empty);
 	        if(item!=null) {
 	        	setText(item);
-	        	if( Math.abs(Double.parseDouble(item))>limit) {
-	        		setTextFill(Color.RED);
-                    //setStyle("-fx-background-color: antiquewhite");
+	        	if( useRange ) {
+	        		double val = Double.parseDouble(item);
+	        		if( val>minValue && val<maxValue ) {
+		        		setTextFill(Color.GREEN);
+		        	}
+	        	}
+	        	else {
+	        		if( Math.abs(Double.parseDouble(item))>limit) {
+	        			setTextFill(Color.RED);
+	        		}
 	        	}
 	        }
 	    }

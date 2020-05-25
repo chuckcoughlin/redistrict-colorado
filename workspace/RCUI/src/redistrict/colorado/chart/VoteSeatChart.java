@@ -26,13 +26,13 @@ public class VoteSeatChart {
 		this.curves = vscs;
 		// Axes in both directions are 0-100 percent
 		NumberAxis xAxis = new NumberAxis(0.,100.,25.);
-		xAxis.setLabel("Percent Democratic Votes");
+		xAxis.setLabel("Percentage of Votes");
 		xAxis.setTickLabelsVisible(true);
 		NumberAxis yAxis = new NumberAxis(0.,100.,25.);
-		yAxis.setLabel("Percent Democratic Seats");
+		yAxis.setLabel("Percentage of Seats");
 		yAxis.setTickLabelsVisible(true);
 		chart = new LineChart<>(xAxis,yAxis);
-		chart.setTitle("Seat-Vote Curve");
+		chart.setTitle("Seats-Vote Curve");
 		chart.setLegendVisible(false);
 		chart.setCreateSymbols(false);
 		

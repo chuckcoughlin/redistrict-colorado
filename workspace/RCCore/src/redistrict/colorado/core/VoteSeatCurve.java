@@ -210,7 +210,11 @@ public class VoteSeatCurve {
 	protected Comparator<SeatVote> compareByVote = new Comparator<SeatVote>() {
 		@Override
 		public int compare(SeatVote sv1, SeatVote sv2) {
-			return (sv1.getVotes()> sv2.getVotes()?1:0);
+			int result = 0;
+			if( (sv1.getVotes() > sv2.getVotes())) result = 1;
+			else if( (sv1.getVotes()<sv2.getVotes())) result = -1;
+			
+			return result;
 		}
 	};
 }

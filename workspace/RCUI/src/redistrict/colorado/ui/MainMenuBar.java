@@ -15,7 +15,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import redistrict.colorado.bind.EventBindingHub;
-import redistrict.colorado.plan.SettingsDialog;
+import redistrict.colorado.plan.SettingsInformation;
 import redistrict.colorado.system.About;
 import redistrict.colorado.system.KeyEntry;
 
