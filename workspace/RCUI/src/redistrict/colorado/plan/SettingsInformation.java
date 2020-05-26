@@ -109,6 +109,10 @@ public class SettingsInformation extends Dialog {
 		header.setStyle("-fx-font-weight: bold");
 		info.getChildren().add(header);
 		info.getChildren().add(new Text(System.lineSeparator()));
+		unfair = new Text("   unfair: 0   (no chance that vote-margins are random)");
+		info.getChildren().add(unfair); info.getChildren().add(new Text(System.lineSeparator()));
+		fair   = new Text("      fair: 1.   (certainty of random vote margins.)");
+		info.getChildren().add(fair); info.getChildren().add(new Text(System.lineSeparator()));
 
 		header = new Text("Partisan Asymmetry (mean-median):");
 		header.setStyle("-fx-font-weight: bold");

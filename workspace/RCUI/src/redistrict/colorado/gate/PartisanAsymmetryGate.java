@@ -11,6 +11,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
+import org.apache.commons.math3.stat.inference.TestUtils;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -48,14 +51,17 @@ public class PartisanAsymmetryGate extends Gate {
 	private final static double DIALOG_WIDTH = 600.;
 	private final static String KEY_DECLINATION = "Declination"; 
 	private final static String KEY_GAP = "Efficiency Gap"; 
+	private final static String KEY_MARGIN = "Margin"; 
 	private final static String KEY_PERCENT_SEATS = "% of Seats"; 
 	private final static String KEY_PERCENT_VOTES = "%of Votes"; 
+	private final static String KEY_PROBABILITY = "Probability"; 
 	private final static String KEY_SCORE = "Score";  // Value appropriate to metric
 	private final static String KEY_NAME = "Name";
 	private final static String KEY_PLAN = "Plan";
 	private final static String KEY_PARTY = "Advantaged Party";
 	private final static String KEY_DEM_WASTED = "Wasted Dem";
 	private final static String KEY_REP_WASTED = "Wasted Rep";
+	private final static String KEY_WINNING_PARTY = "Winning Party";
 	private Label aggregateLabel = new Label();
 	private Label detailLabel = new Label();
 	
@@ -75,6 +81,9 @@ public class PartisanAsymmetryGate extends Gate {
 				break;
 			case EFFICIENCY_GAP: 
 				updateEfficiencyGapInfo(info);
+				break;
+			case LOPSIDED_WINS:
+				updateLopsidedWinsInfo(info);
 				break;
 			case MEAN_MEDIAN:
 				updateMeanMedianInfo(info);
@@ -99,6 +108,15 @@ public class PartisanAsymmetryGate extends Gate {
 		t4.setStyle("-fx-font-weight: bold");
 		Text t5 = new Text(".");
 		info.getChildren().addAll(t1,t3,t4,t5);
+	}
+	private void updateLopsidedWinsInfo(TextFlow info) {
+		Text t1 = new Text("Use the students-t test to analyze the distributions in vote-margin between districts won by the two parties.");
+		Text t2 = new Text("A statistically significant difference may be an indication of gerrymandering.");
+		Text t3 = new Text("The result is the probability that the distributions could have occurred by chance. We want this value to be ");
+		Text t4 = new Text("minimized");
+		t4.setStyle("-fx-font-weight: bold");
+		Text t5 = new Text(". This metric should not be used with less than 30 districts.");
+		info.getChildren().addAll(t1,t2,t3,t4,t5);
 	}
 	private void updateMeanMedianInfo(TextFlow info) {
 		Text t1 = new Text("Mean-median is a measure of vote bias. ");
@@ -135,6 +153,7 @@ public class PartisanAsymmetryGate extends Gate {
 		switch(metric) {
 			case DECLINATION: 	 key = KEY_DECLINATION; break;
 			case EFFICIENCY_GAP: key = KEY_GAP;   break;
+			case LOPSIDED_WINS:  key = KEY_PROBABILITY;   break;
 			case MEAN_MEDIAN:    key = KEY_PERCENT_VOTES;  break;
 			case PARTISAN_BIAS:  key = KEY_PERCENT_SEATS;  break;
 		}
@@ -153,6 +172,9 @@ public class PartisanAsymmetryGate extends Gate {
 				break;
 			case EFFICIENCY_GAP:
 				evaluateEfficiencyGap(plans);
+				break;
+			case LOPSIDED_WINS:
+				evaluateLopsidedWins(plans);
 				break;
 			case MEAN_MEDIAN:
 				evaluateMeanMedian(plans);
@@ -230,6 +252,46 @@ public class PartisanAsymmetryGate extends Gate {
 		updateChart();
 	}
 	/**
+	 * http://gerrymander.princeton.edu/info/
+	 */
+	/**
+	 * Create sorted list of both democratic and republican vote margins.
+	 * Then compute the student-t.
+	 */
+	private void evaluateLopsidedWins(List<PlanModel> plans) {
+		for(PlanModel plan:plans) {
+			int demWins = 0;
+			int repWins = 0;
+			for(PlanFeature feat:plan.getMetrics()) {
+				if( feat.getDemocrat()>feat.getRepublican()) demWins++;
+				else repWins++;
+			}
+			
+			SummaryStatistics demStats = new SummaryStatistics();
+			SummaryStatistics repStats = new SummaryStatistics();
+
+			for(PlanFeature feat:plan.getMetrics()) {
+				double margin = feat.getDemocrat()-feat.getRepublican();
+				if( feat.getDemocrat()>feat.getRepublican()) {
+					demStats.addValue(margin);
+				}
+				else {
+					repStats.addValue(margin);
+				}
+			}
+			// pVal is the probability that the differences appeared by chance
+			double pVal = TestUtils.tTest(demStats, repStats);
+			NameValue nv = new NameValue(plan.getName());
+			nv.setValue(KEY_PROBABILITY, pVal);
+			nv.setValue(KEY_PLAN, plan.getName());
+			scoreMap.put(plan.getId(),nv);
+		}
+		Collections.sort(plans,compareByScore);  // 
+		sortedPlans.clear();
+		sortedPlans.addAll(plans);
+		updateChart();
+	}
+	/**
 	 * Sort the districts by name and save the % democrat score.
 	 * Compute overall results.
 	 */
@@ -299,6 +361,9 @@ public class PartisanAsymmetryGate extends Gate {
 		
 		GateProperty gp = Database.getInstance().getGateTable().getGateProperty(getType());
 		double threshold = gp.getUnfairValue();
+		
+		double ncols = 3.;
+		if( metric.equals(PartisanMetric.LOPSIDED_WINS) ) ncols = 2.;
 
 		TableColumn<NameValue,String> column;
 		NameValueCellValueFactory factory = new NameValueCellValueFactory();
@@ -308,19 +373,23 @@ public class PartisanAsymmetryGate extends Gate {
 		}
 		factory.setFormat(colTitle, "%2.1f");
 		if( metric.equals(PartisanMetric.DECLINATION)) factory.setFormat(colTitle, "%1.2f");
+		else if( metric.equals(PartisanMetric.LOPSIDED_WINS)) factory.setFormat(colTitle, "%1.2f");
 		column = new TableColumn<>(KEY_PLAN);
 		column.setCellValueFactory(factory);
-		column.prefWidthProperty().bind(aggregateTable.widthProperty().multiply(0.33));
+		column.prefWidthProperty().bind(aggregateTable.widthProperty().multiply(1./ncols));
+
 		aggregateTable.getColumns().add(column);
 		column = new TableColumn<>(colTitle);
 		column.setCellFactory(limFactory);
 		column.setCellValueFactory(factory);
-		column.prefWidthProperty().bind(aggregateTable.widthProperty().multiply(0.33));
+		column.prefWidthProperty().bind(aggregateTable.widthProperty().multiply(1./ncols));
 		aggregateTable.getColumns().add(column);
-		column = new TableColumn<>(KEY_PARTY);
-		column.setCellValueFactory(factory);
-		column.prefWidthProperty().bind(aggregateTable.widthProperty().multiply(0.33));
-		aggregateTable.getColumns().add(column);
+		if( !metric.equals(PartisanMetric.LOPSIDED_WINS)) {
+			column = new TableColumn<>(KEY_PARTY);
+			column.setCellValueFactory(factory);
+			column.prefWidthProperty().bind(aggregateTable.widthProperty().multiply(1./ncols));
+			aggregateTable.getColumns().add(column);
+		}
 		ObservableList<NameValue> aitems = FXCollections.observableArrayList();
 		for(PlanModel plan:sortedPlans ) {
 			aitems.add(scoreMap.get(plan.getId()));
@@ -338,6 +407,11 @@ public class PartisanAsymmetryGate extends Gate {
 				aggregateLabel.setText("Efficiency Gap ~ % / Party with Least Wasted Votes");
 				detailLabel.setText("Wasted Votes by Party");
 				getResultsForEfficiencyGap(pane);
+				break;
+			case LOPSIDED_WINS:
+				aggregateLabel.setText("Lopsided Wins ~ Probability that Vote-Margins are Random");
+				detailLabel.setText("Vote-Margins");
+				getResultsForLopsidedWins(pane);
 				break;
 			case MEAN_MEDIAN:
 				aggregateLabel.setText("Mean-Median ~ % of votes for 50% of seats / Advantaged Party");
@@ -419,6 +493,75 @@ public class PartisanAsymmetryGate extends Gate {
 					}
 
 					scores.add(nv);
+				}
+				Collections.sort(scores,compareByName);
+				if(scores.size()>row ) {
+					values.add(scores.get(row));
+				}
+				else {
+					values.add(NameValue.EMPTY);
+				}
+			}
+			ditems.add(values);
+		}
+
+		detailTable.setItems(ditems);
+		pane.getChildren().add(detailTable);
+	}
+	// Create contents that allow viewing the details of the calculation
+	private void getResultsForLopsidedWins(VBox pane) { 
+		detailLabel.setId(ComponentIds.LABEL_SCORE);
+		pane.getChildren().add(detailLabel);
+		
+		// Detail table
+		TableView<List<NameValue>> detailTable = new TableView<>();
+		TableColumn<List<NameValue>,String> col;
+		TableColumn<List<NameValue>,String> subcol;
+		NameValueListCellValueFactory fact = new NameValueListCellValueFactory();
+		fact.setFormat(KEY_MARGIN, "%5.0f");
+
+		int colno = 0;
+		int maxrows = 0;  // Max districts among plans
+		double widthFactor = 1./(3*sortedPlans.size());
+		for(PlanModel plan:sortedPlans ) {
+			int ndistricts = plan.getMetrics().size();
+			if(ndistricts>maxrows) maxrows = ndistricts;
+			// These columns have no cells, just sub-columns.
+			col = new TableColumn<>(plan.getName());
+			col.setPrefWidth(DIALOG_WIDTH);
+			detailTable.getColumns().add(col);
+			subcol = new TableColumn<>(KEY_NAME);
+			subcol.setCellValueFactory(fact);
+			subcol.setUserData(colno);
+			subcol.prefWidthProperty().bind(detailTable.widthProperty().multiply(widthFactor));
+			col.getColumns().add(subcol);
+			subcol = new TableColumn<>(KEY_MARGIN);
+			subcol.setCellValueFactory(fact);
+			subcol.prefWidthProperty().bind(detailTable.widthProperty().multiply(widthFactor));
+			subcol.setUserData(colno);
+			col.getColumns().add(subcol);
+			subcol = new TableColumn<>(KEY_WINNING_PARTY);
+			subcol.setCellValueFactory(fact);
+			subcol.prefWidthProperty().bind(detailTable.widthProperty().multiply(widthFactor));
+			subcol.setUserData(colno);
+			col.getColumns().add(subcol);
+			colno++;
+		}
+
+		ObservableList<List<NameValue>> ditems = FXCollections.observableArrayList();
+		for( int row=0;row<maxrows;row++ ) {
+			List<NameValue> values = new ArrayList<>();
+			for(PlanModel plan:sortedPlans ) {
+				List<NameValue> scores = new ArrayList<>();
+				for(PlanFeature feat:plan.getMetrics()) {
+					NameValue nv = new NameValue(feat.getName());
+					nv.setValue(KEY_MARGIN,Math.abs(feat.getDemocrat()-feat.getRepublican()));
+					if( feat.getDemocrat()>feat.getRepublican() ) {
+						nv.setValue(KEY_WINNING_PARTY,"Democrat");
+					}
+					else {
+						nv.setValue(KEY_WINNING_PARTY,"Republican");
+					}					scores.add(nv);
 				}
 				Collections.sort(scores,compareByName);
 				if(scores.size()>row ) {
