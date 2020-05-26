@@ -20,6 +20,7 @@ public enum PartisanMetric
 {
 	DECLINATION,
 	EFFICIENCY_GAP,
+	LOPSIDED_WINS,
 	MEAN_MEDIAN,
 	PARTISAN_BIAS
 	;
@@ -31,6 +32,7 @@ public enum PartisanMetric
         Map<String, PartisanMetric> map = new HashMap<>();
         map.put("Declination",DECLINATION);
         map.put("Efficiency Gap",EFFICIENCY_GAP);
+        map.put("Lopsided Wins",LOPSIDED_WINS);
         map.put("Mean-Median",MEAN_MEDIAN);
         map.put("Partisan Bias",PARTISAN_BIAS);
         return map;
@@ -39,6 +41,7 @@ public enum PartisanMetric
         Map<PartisanMetric,String> map = new HashMap<>();
         map.put(DECLINATION,"Declination");
         map.put(EFFICIENCY_GAP,"Efficiency Gap");
+        map.put(LOPSIDED_WINS,"Lopsided Wins");
         map.put(MEAN_MEDIAN,"Mean-Median");
         map.put(PARTISAN_BIAS,"Partisan Bias");
         return map;

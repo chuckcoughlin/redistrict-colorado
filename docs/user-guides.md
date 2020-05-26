@@ -92,12 +92,6 @@ The same metric could be computed using municipal or other boundaries instead of
 ###### Partisan Asymmetry:
 Partisan asymmetry is a measure of the extent to which boundaries favor one party or the other. The application provides 4 different algorithms for this metric.
 
-`Mean-median`
-Ask the question, "What percentage of the votes does it take to win 50% of the seats?". The difference between that and 50% is the Mean-median metric. It is a measure of vote-bias.
-
-`Partisan-bias`
-Partisan bias is a measure of seat bias. It is the difference between 50% and the percentage of seats obtained with 50% of the votes. The calculation of partisan bias is made directly from the vote-seats curve.
-
 `Declination`
 The declination function is described [here](https://observablehq.com/@sahilchinoy/gerrymandering-the-declination-function). It is a measure of partisan symmetry that does not assume any particular seats-votes proportionality.
 It is sensitive to either packing or cracking distortions.
@@ -114,6 +108,15 @@ Multiplying the declination by half the total number of seats in the state gives
 
 `Efficiency Gap`
 Efficiency gap is the sum of the differences between parties of "wasted" votes divided by the total number of projected votes. A "wasted" vote is any vote that does not help elect a candidate. This includes all the votes for the losing party and any votes over 50% for the winning party.
+
+`Lopsided Wins`
+Use the Student-t statistical metric to determine whether or not the distributions of vote-margin are similar between districts won by the two parties. This is a measure of the gerrymandering technique "packing". This metric requires on the order of 30 or more districts to be significant. Thus it is not suitable for Colorado congressional districts.
+
+`Mean-median`
+Ask the question, "What percentage of the votes does it take to win 50% of the seats?". The difference between that and 50% is the Mean-median metric. It is a measure of vote-bias.
+
+`Partisan-bias`
+Partisan bias is a measure of seat bias. It is the difference between 50% and the percentage of seats obtained with 50% of the votes. The calculation of partisan bias is made directly from the vote-seats curve.
 
 ###### Population Balance:
 The constitutionally-mandated purpose of redistricting is to balance the number of people within districts. A measure of population balance is simply the standard deviation

@@ -9,4 +9,5 @@ REPLACE INTO GateProperties(Name,Weight,Fair,Unfair) VALUES('COUNTY_CROSSINGS',1
 REPLACE INTO GateProperties(Name,Weight,Fair,Unfair) VALUES('POPULATION_BALANCE',1.0,0.,5.0);
 REPLACE INTO GateProperties(Name,Weight,Fair,Unfair) VALUES('PARTISAN_ASYMMETRY',1.0,0.0,15.0);
 REPLACE INTO GateProperties(Name,Weight,Fair,Unfair) VALUES('PROPORTIONALITY',1.0,0.,1.0);
-REPLACE INTO GateProperties(Name,Weight,Fair,Unfair) VALUES('VOTING_POWER',1.0,0.1,0.0);
+REPLACE INTO GateProperties(Name,Weight,Fair,Unfair) VALUES('VOTING_POWER_IMBALANCE',1.0,0.1,0.0);
+REPLACE INTO GateProperties(Name,Weight,Fair,Unfair) VALUES('RACIAL_VOTE_DILUTION',1.0,0.1,0.0);

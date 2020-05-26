@@ -38,8 +38,8 @@ public class GateCache {
 		map.put(GateType.POPULATION_BALANCE, new PopulationBalanceGate());
 		map.put(GateType.PROPORTIONALITY, new ProportionalityGate());
 		map.put(GateType.PARTISAN_ASYMMETRY, new PartisanAsymmetryGate());
-		map.put(GateType.VOTING_POWER, new VotingPowerGate());
-		
+		map.put(GateType.RACIAL_VOTE_DILUTION, new RacialVoteDilutionGate());
+		map.put(GateType.VOTING_POWER_IMBALANCE, new VotingPowerImbalanceGate());
 	}
 	/**
 	 * Static method to create and/or fetch the single instance.

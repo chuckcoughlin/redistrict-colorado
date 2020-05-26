@@ -40,7 +40,7 @@ import redistrict.colorado.ui.UIConstants;
  * Compare plans based on the populations of each district are within 
  * 1% of each other.
  */
-public class VotingPowerGate extends Gate {
+public class VotingPowerImbalanceGate extends Gate {
 	private final static double DIALOG_HEIGHT = 550.; 
 	private final static double DIALOG_WIDTH = 600.;
 	private final static String KEY_MAD = "MAD";
@@ -54,7 +54,7 @@ public class VotingPowerGate extends Gate {
 	private final Label detailLabel = new Label("Voting Power by Ethnicity for each District");
 	private final Map<Long,List<NameValue>> districtScores;  
 	
-	public VotingPowerGate() {
+	public VotingPowerImbalanceGate() {
 		this.districtScores = new HashMap<>();
 		xAxis.setAutoRanging(true);
 	}
@@ -76,8 +76,8 @@ public class VotingPowerGate extends Gate {
 		return info;
 	}
 	public String getScoreAttribute() { return KEY_MAD; };
-	public String getTitle() { return "Voting Power"; } 
-	public GateType getType() { return GateType.VOTING_POWER; }
+	public String getTitle() { return "Voting Power Imbalance"; } 
+	public GateType getType() { return GateType.VOTING_POWER_IMBALANCE; }
  	/**
 	 * Compute the voting power across ethnicities for each district. Save in the district scores.
 	 * Also compute the composite.

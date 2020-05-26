@@ -57,7 +57,7 @@ public class SettingsInformation extends Dialog {
 	// List the different metrics and explain the fair / unfair values
 	public TextFlow getInfo() { 
 		TextFlow info = new TextFlow();
-		Text intro = new Text("The meaning and numeric ranges for \"unfair\" to \"fair\" depend on the metric. This page prvides some context for their meaning. ");
+		Text intro = new Text("The meaning and numeric ranges for \"unfair\" to \"fair\" depend on the metric. This page prvides some context. ");
 		info.getChildren().add(intro);
 		info.getChildren().add(new Text(System.lineSeparator()));
 		
@@ -77,6 +77,11 @@ public class SettingsInformation extends Dialog {
 		info.getChildren().add(unfair); info.getChildren().add(new Text(System.lineSeparator()));
 		fair   = new Text("      fair: 7   (all districts competitive)");
 		info.getChildren().add(fair); info.getChildren().add(new Text(System.lineSeparator()));
+		
+		header = new Text("County Crossings:");
+		header.setStyle("-fx-font-weight: bold");
+		info.getChildren().add(header);
+		info.getChildren().add(new Text(System.lineSeparator()));
 		
 		header = new Text("Partisan Asymmetry (mean-median):");
 		header.setStyle("-fx-font-weight: bold");
@@ -105,6 +110,12 @@ public class SettingsInformation extends Dialog {
 		fair   = new Text("      fair: 0   (equal numbers of wasted votes)");
 		info.getChildren().add(fair); info.getChildren().add(new Text(System.lineSeparator()));
 		
+		header = new Text("Partisan Asymmetry (lopsided wins):");
+		header.setStyle("-fx-font-weight: bold");
+		info.getChildren().add(header);
+		info.getChildren().add(new Text(System.lineSeparator()));
+
+		
 		header = new Text("Partisan Asymmetry (partisan bias):");
 		header.setStyle("-fx-font-weight: bold");
 		info.getChildren().add(header);
@@ -123,6 +134,20 @@ public class SettingsInformation extends Dialog {
 		fair   = new Text("      fair: 0   (all districts same population)");
 		info.getChildren().add(fair); info.getChildren().add(new Text(System.lineSeparator()));
 		
+		header = new Text("Proportionality:");
+		header.setStyle("-fx-font-weight: bold");
+		info.getChildren().add(header);
+		info.getChildren().add(new Text(System.lineSeparator()));
+		
+		header = new Text("Racial Vote Dilution:");
+		header.setStyle("-fx-font-weight: bold");
+		info.getChildren().add(header);
+		info.getChildren().add(new Text(System.lineSeparator()));
+		
+		header = new Text("Voting Power Imbalance:");
+		header.setStyle("-fx-font-weight: bold");
+		info.getChildren().add(header);
+		info.getChildren().add(new Text(System.lineSeparator()));
 		return info;
 	}
 	

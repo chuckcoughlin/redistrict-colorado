@@ -12,7 +12,7 @@ import org.apache.commons.math3.distribution.NormalDistribution;
 /**
  * Seats-votes curve generator.
  * Calculated using uniform partisan swing. Apply overall fraction to changes at district level.
- * NOOTE: The reference used a randomized "smoothing" of the curve. We were not able to get this to work.
+ * NOTE: The reference used a randomized "smoothing" of the curve. We were not able to get this to work.
  * Translated from Python
  * See: https://github.com/jeffreyshen19/Seats-Votes-Curves/blob/master/generator/uniform_partisan_swing.py
  */
@@ -201,7 +201,7 @@ public class VoteSeatCurve {
 		Collections.sort(seatsVotesRep,compareByVote);  // 
 		for(int index=0;index<seatsVotesRep.size();index++)  {
 			SeatVote sv = seatsVotesRep.get(index);
-			LOGGER.info(String.format(" %d, %2.2f %2.2f",index,sv.getVotes(),sv.getSeats()));
+			//LOGGER.info(String.format(" %d, %2.2f %2.2f",index,sv.getVotes(),sv.getSeats()));
 		}
 		Collections.sort(seatsVotesDem,compareByVote);  // 
 	}

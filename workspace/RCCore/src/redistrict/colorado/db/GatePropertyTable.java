@@ -40,7 +40,7 @@ public class GatePropertyTable {
 		Statement statement = null;
 		ResultSet rs = null;
 		String SQL = "SELECT weight,fair, unfair FROM GateProperties "+
-					  String.format(" WHERE name='%s'",type.name()); 
+					  String.format(" WHERE name='%s' ",type.name()); 
 		try {
 			statement = cxn.createStatement();
 			statement.setQueryTimeout(10);  // set timeout to 10 sec.
