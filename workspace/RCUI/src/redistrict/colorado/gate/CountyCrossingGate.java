@@ -44,7 +44,7 @@ public class CountyCrossingGate extends Gate {
 	private final static String KEY_PLAN = "Plan";
 	
 	private final Label aggregateLabel = new Label("County Crossing");
-	private final Label detailLabel = new Label("Nuber of Counties in each District");
+	private final Label detailLabel = new Label("Number of Counties in each District");
 	
 	public CountyCrossingGate() {
 		xAxis.setAutoRanging(true);

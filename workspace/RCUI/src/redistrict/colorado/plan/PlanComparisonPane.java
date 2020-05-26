@@ -34,6 +34,9 @@ public class PlanComparisonPane extends BasicRightSideNode {
 	private final static String CLSS = "PlanComparisonPane";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private static final double HEADER_HEIGHT = 20.;
+	private static final double COL_PERCENT_WIDTH = 20.;
+	private static final double ROW_PERCENT_HEIGHT = 30.;
+	private static final double COLUMN_PAD = 40.;
 	private Label headerLabel = new Label("Fairness Comparison");
 	private List<PlanModel> models;
 	private final GridPane grid;
@@ -54,20 +57,26 @@ public class PlanComparisonPane extends BasicRightSideNode {
         grid.setAlignment(Pos.CENTER);
 		grid.getColumnConstraints().clear();
 		ColumnConstraints col0 = new ColumnConstraints();
-		col0.setPercentWidth(25.);
+		//col0.setPercentWidth(COL_PERCENT_WIDTH);
+		col0.setFillWidth(false);
+		col0.setPrefWidth(Gate.WIDTH+COLUMN_PAD);
 		ColumnConstraints col1 = new ColumnConstraints();
-		col1.setPercentWidth(25.);
+		//col1.setPercentWidth(COL_PERCENT_WIDTH);
+		col1.setFillWidth(false);
+		col1.setPrefWidth(Gate.WIDTH+COLUMN_PAD);
 		ColumnConstraints col2 = new ColumnConstraints();
-		col2.setPercentWidth(25.);
+		//col2.setPercentWidth(COL_PERCENT_WIDTH);
+		col2.setFillWidth(false);
+		col2.setPrefWidth(Gate.WIDTH+COLUMN_PAD);
 		grid.getColumnConstraints().addAll(col0,col1,col2);
 		
 		grid.getRowConstraints().clear();
 		RowConstraints row0 = new RowConstraints();
-		row0.setPercentHeight(30.);
+		row0.setPercentHeight(ROW_PERCENT_HEIGHT);
 		RowConstraints row1 = new RowConstraints();
-		row1.setPercentHeight(30.);
+		row1.setPercentHeight(ROW_PERCENT_HEIGHT);
 		RowConstraints row2 = new RowConstraints();
-		row2.setPercentHeight(30.);
+		row2.setPercentHeight(ROW_PERCENT_HEIGHT);
 		grid.getRowConstraints().addAll(row0,row1,row2); 
 		populateGrid();
 		GridPane.setMargin(grid,new Insets(20,0,0,0));  // top right bottom left

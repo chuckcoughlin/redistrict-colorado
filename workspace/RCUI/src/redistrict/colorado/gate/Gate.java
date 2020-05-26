@@ -54,7 +54,7 @@ public abstract class Gate extends VBox {
 	protected static final GuiUtil guiu = new GuiUtil();
 	protected static final double HEIGHT = 190.;
 	private static final double CHART_HEIGHT = 160.;
-	protected static final double WIDTH = 180.;
+	public static final double WIDTH = 180.;
 	private static final double CHART_WIDTH = 150.;
 	public static final double AGGREGATE_TABLE_WIDTH  = 180;
 	protected final Label header;
@@ -105,7 +105,6 @@ public abstract class Gate extends VBox {
 		header.setPrefWidth(WIDTH+1);
 		header.getStyleClass().add("graph-header");
 
-		
 		body.setAlignment(Pos.CENTER);
 		rectangle = new Rectangle(WIDTH,HEIGHT);
 		rectangle.getStyleClass().add("graph-rectangle");

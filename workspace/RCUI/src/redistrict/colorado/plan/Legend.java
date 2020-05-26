@@ -1,5 +1,5 @@
 /**  
- * Copyright (C) 2019 Charles Coughlin
+ * Copyright (C) 2019-2020 Charles Coughlin
  * 
  * This program is free software; you may redistribute it and/or
  * modify it under the terms of the GNU General Public License.
@@ -21,18 +21,18 @@ import javafx.scene.shape.Rectangle;
 import redistrict.colorado.core.PlanModel;
 
 /**
- * This pane shows the color scheme for each plan. There is no action supported
- * by these components.
+ * This pane shows the color scheme and scores for each plan. 
+ * There is no action supported by these components.
  */
 public class Legend extends GridPane   {
 	private static final String CLSS = "Legend";
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
-	private final static double LABEL_WIDTH = 220.;
-	private final static double COL1_WIDTH = 240.;
-	private final static double COL2_WIDTH = 120.;
-	private final static double COL3_WIDTH = 80.;
+	private final static double LABEL_WIDTH = 90.;  //220
+	private final static double COL1_WIDTH = 100.;   // 240
+	private final static double COL2_WIDTH = 40.;    // 120
+	private final static double COL3_WIDTH = 50.;    // 80
 	private final static double RECT_HEIGHT = 10.;
-	private final static double RECT_WIDTH = 80.;
+	private final static double RECT_WIDTH = 20.;
 	private final Map<Long,Label> labelMap;
     
 	public Legend() {

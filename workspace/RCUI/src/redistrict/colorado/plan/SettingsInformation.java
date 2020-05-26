@@ -82,14 +82,9 @@ public class SettingsInformation extends Dialog {
 		header.setStyle("-fx-font-weight: bold");
 		info.getChildren().add(header);
 		info.getChildren().add(new Text(System.lineSeparator()));
-		
-		header = new Text("Partisan Asymmetry (mean-median):");
-		header.setStyle("-fx-font-weight: bold");
-		info.getChildren().add(header);
-		info.getChildren().add(new Text(System.lineSeparator()));
-		unfair = new Text("   unfair: 5   (<45% or >55% of vote to get 1/2 the seats)");
+		unfair = new Text("   unfair: 60   (60 counties in multiple districts)");
 		info.getChildren().add(unfair); info.getChildren().add(new Text(System.lineSeparator()));
-		fair   = new Text("      fair: 0   (mean is same as median)");
+		fair   = new Text("      fair: 0   (no countoes split by district boundaries)");
 		info.getChildren().add(fair); info.getChildren().add(new Text(System.lineSeparator()));
 		
 		header = new Text("Partisan Asymmetry (declination):");
@@ -115,6 +110,14 @@ public class SettingsInformation extends Dialog {
 		info.getChildren().add(header);
 		info.getChildren().add(new Text(System.lineSeparator()));
 
+		header = new Text("Partisan Asymmetry (mean-median):");
+		header.setStyle("-fx-font-weight: bold");
+		info.getChildren().add(header);
+		info.getChildren().add(new Text(System.lineSeparator()));
+		unfair = new Text("   unfair: 5   (<45% or >55% of vote to get 1/2 the seats)");
+		info.getChildren().add(unfair); info.getChildren().add(new Text(System.lineSeparator()));
+		fair   = new Text("      fair: 0   (mean is same as median)");
+		info.getChildren().add(fair); info.getChildren().add(new Text(System.lineSeparator()));
 		
 		header = new Text("Partisan Asymmetry (partisan bias):");
 		header.setStyle("-fx-font-weight: bold");

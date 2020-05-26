@@ -62,25 +62,23 @@ public class CompositeGate extends Gate {
 	 * Initialize the main UI. This is the only class where we override
 	 */
 	protected void init() {
-		double width = WIDTH + 70;  // Empirical
 		header.setAlignment(Pos.CENTER);
-		header.setPrefWidth(width+1);
+		header.setPrefWidth(WIDTH+1);
 		header.getStyleClass().add("graph-header");
 
 		this.legend = new Legend();
 		legend.setAlignment(Pos.CENTER_LEFT);
-		legend.setPadding(new Insets(10, 120, 10, 10));  // top, right,bottom,left
+		//legend.setPadding(new Insets(10, 120, 10, 10));  // top, right,bottom,left
 		body.setAlignment(Pos.CENTER);
-		body.setPrefWidth(width-40);
 		body.setMaxWidth(USE_PREF_SIZE);
-		rectangle = new Rectangle(width,HEIGHT);
+		rectangle = new Rectangle(WIDTH,HEIGHT);
 		rectangle.getStyleClass().add("graph-rectangle");
 		StackPane.setAlignment(header, Pos.TOP_CENTER);
-		StackPane.setAlignment(legend, Pos.CENTER_LEFT);
+		StackPane.setAlignment(legend, Pos.CENTER);
 		StackPane.setAlignment(rectangle, Pos.CENTER);
-		StackPane.setAlignment(info, Pos.BOTTOM_CENTER);
+		StackPane.setAlignment(info, Pos.BOTTOM_RIGHT);
+		StackPane.setMargin(legend, new Insets(0, 10, 5, 10));  // top right bottom left
 		body.getChildren().addAll(rectangle,legend,header,info);
-		info.setPadding(new Insets(0,0,8,250));  // top,right,bottom,left
 		getChildren().addAll(body);	
 	}
 

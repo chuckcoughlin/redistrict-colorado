@@ -84,7 +84,7 @@ public class RacialVoteDilutionGate extends Gate {
 	 */
 	@Override
 	public void evaluate(List<PlanModel> plans) {
-		LOGGER.info("VotingPowerGate.evaluating: ...");
+		LOGGER.info("RacialVoteDilutionGate.evaluating: ...");
 
 		for(PlanModel plan:plans) {
 			List<NameValue> powers = new ArrayList<>();
