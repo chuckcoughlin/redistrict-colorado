@@ -110,7 +110,7 @@ Multiplying the declination by half the total number of seats in the state gives
 Efficiency gap is the sum of the differences between parties of "wasted" votes divided by the total number of projected votes. A "wasted" vote is any vote that does not help elect a candidate. This includes all the votes for the losing party and any votes over 50% for the winning party.
 
 `Lopsided Wins`
-Use the Student-t statistical metric to determine whether or not the distributions of vote-margin are similar between districts won by the two parties. This is a measure of the gerrymandering technique "packing". This metric requires on the order of 30 or more districts to be significant. Thus it is not suitable for Colorado congressional districts.
+Use the Student-t statistical metric to determine whether or not the distributions of vote-margin are similar between districts won by the two parties. This is a measure of the gerrymandering technique of "packing". This metric requires on the order of 30 or more districts to be significant. Thus it is not suitable for Colorado congressional districts.
 
 `Mean-median`
 Ask the question, "What percentage of the votes does it take to win 50% of the seats?". The difference between that and 50% is the Mean-median metric. It is a measure of vote-bias.
@@ -135,9 +135,14 @@ in favor of that party.
 
 The numerical value of the metric is the number of seats in excess of the "deserved" number for the dominant party. Ideally this is less than 1.
 
-###### Voting Power:
-Voting power is the ability to effect the outcome of an election. This metric is a measure of disparities between ethnic groups beyond simply
-their numbers. the For a single district, this can be summarized by taking the margin of victory (in votes) and dividing it by the total votes cast. To total this up by ethnicity, we take the sum of this over all elections weighted by the population percentage for all ethnicities. For example, for hispanics, we take the total number of votes in an election, multiply by the fraction of that district that is hispanic, and total that up over all districts. Then we do the same for margin of victory. Then we divide the margin of victory total by the votes cast total, and that gives us an estimate of the average voting power for that ethnicity. We want to minimize the variance between ethnicities, so we take the average of this over the entire population, and calculate the mean absolute deviation (M.A.D.) of the ethnicities from this. This gives us a summary of how uneven voting power is distributed among the ethnicities. We want this score to be minimized.
+###### Racial Vote Dilution
+This metric describes the extent, if any, to which voters of different ethnicities are dispursed across districts to avoid concentrations where they have a majority
+or near-majority.
+
+###### Voting Power Imbalance:
+This metric compares relative power between ethnic groups. Based on available census data the groups considered are: blacks, hispanics, and whites.
+
+The result is the mean absolute deviation (MAD).
 
 ###### Composite:
 The composite or overall metric is a compendium of all the other measures with
