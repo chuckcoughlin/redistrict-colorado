@@ -12,8 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -27,18 +25,17 @@ import redistrict.colorado.core.GateProperty;
 import redistrict.colorado.core.GateType;
 import redistrict.colorado.core.PlanFeature;
 import redistrict.colorado.core.PlanModel;
+import redistrict.colorado.core.VotingPower;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.table.NameValue;
 import redistrict.colorado.table.NameValueCellValueFactory;
-import redistrict.colorado.table.NameValueLimitCellFactory;
 import redistrict.colorado.table.NameValueListCellValueFactory;
-import redistrict.colorado.table.NameValueListLimitCellFactory;
 import redistrict.colorado.ui.ComponentIds;
 import redistrict.colorado.ui.UIConstants;
 
 /**
- * Compare plans based on the populations of each district are within 
- * 1% of each other.
+ * Verify that the number of probable district outcomes aligns with the 
+ * ethnic population as a whole.
  */
 public class VotingPowerImbalanceGate extends Gate {
 	private final static double DIALOG_HEIGHT = 550.; 
@@ -52,7 +49,8 @@ public class VotingPowerImbalanceGate extends Gate {
 	
 	private final Label aggregateLabel = new Label("Voting Power by Ethnicity and Mean Absoute Deviation");
 	private final Label detailLabel = new Label("Voting Power by Ethnicity for each District");
-	private final Map<Long,List<NameValue>> districtScores;  
+	private final Map<Long,List<NameValue>> districtScores; 
+	private final List<VotingPower> powerStatistics = new ArrayList<>();
 	
 	public VotingPowerImbalanceGate() {
 		this.districtScores = new HashMap<>();

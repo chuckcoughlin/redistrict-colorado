@@ -88,6 +88,7 @@ Code for analyzing ESRI shape files is derived from the Unified Mapping Platform
 ***
 ## Google Maps <a id="maps"/>
 [toc](#table-of-contents)
+A separate key is required
 
 ## Validation <a id="validation"/>
 [toc](#table-of-contents)

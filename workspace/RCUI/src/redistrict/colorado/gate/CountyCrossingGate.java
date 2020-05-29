@@ -24,17 +24,15 @@ import redistrict.colorado.core.GateType;
 import redistrict.colorado.core.PlanFeature;
 import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.db.DatasetCache;
-import redistrict.colorado.db.PreferencesTable;
 import redistrict.colorado.table.NameValue;
 import redistrict.colorado.table.NameValueCellValueFactory;
 import redistrict.colorado.table.NameValueListCellValueFactory;
-import redistrict.colorado.table.NameValueListLimitCellFactory;
 import redistrict.colorado.ui.ComponentIds;
 import redistrict.colorado.ui.UIConstants;
 
 /**
  * Compare plans based on the number of times district boundaries
- * cross county lines.
+ * cross county (or other) lines.
  */
 public class CountyCrossingGate extends Gate {
 	private final static double DIALOG_HEIGHT = 550.; 

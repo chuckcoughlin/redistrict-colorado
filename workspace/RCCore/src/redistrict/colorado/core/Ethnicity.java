@@ -7,10 +7,7 @@
 package redistrict.colorado.core;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * These are the names of the ethnic (or other) groups considered. 
@@ -44,4 +41,6 @@ public enum Ethnicity
 		}
 		return names;
 	}
+	
+	public static int count() { return Ethnicity.values().length; }
 }

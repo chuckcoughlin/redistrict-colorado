@@ -145,16 +145,28 @@ public class SettingsInformation extends Dialog {
 		header.setStyle("-fx-font-weight: bold");
 		info.getChildren().add(header);
 		info.getChildren().add(new Text(System.lineSeparator()));
+		unfair = new Text("   unfair: 2   (dominant party has 2 more seats than it should)");
+		info.getChildren().add(unfair); info.getChildren().add(new Text(System.lineSeparator()));
+		fair   = new Text("      fair: 0   (seats and vote in same proportion)");
+		info.getChildren().add(fair); info.getChildren().add(new Text(System.lineSeparator()));
 		
 		header = new Text("Racial Vote Dilution:");
 		header.setStyle("-fx-font-weight: bold");
 		info.getChildren().add(header);
 		info.getChildren().add(new Text(System.lineSeparator()));
+		unfair = new Text("   unfair: 0   (homogenious distribution of all groups)");
+		info.getChildren().add(unfair); info.getChildren().add(new Text(System.lineSeparator()));
+		fair   = new Text("      fair: 2.   (at least one group has a concentration)");
+		info.getChildren().add(fair); info.getChildren().add(new Text(System.lineSeparator()));
 		
 		header = new Text("Voting Power Imbalance:");
 		header.setStyle("-fx-font-weight: bold");
 		info.getChildren().add(header);
 		info.getChildren().add(new Text(System.lineSeparator()));
+		unfair = new Text("   unfair: 2   (one ethnic group is over-represented by 2 seatsd)");
+		info.getChildren().add(unfair); info.getChildren().add(new Text(System.lineSeparator()));
+		fair   = new Text("      fair: 0   (seats and ethnic population in same proportion)");
+		info.getChildren().add(fair); info.getChildren().add(new Text(System.lineSeparator()));
 		return info;
 	}
 	

@@ -7,6 +7,7 @@
 package redistrict.colorado.system;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -17,7 +18,9 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Modality;
@@ -31,7 +34,9 @@ import redistrict.colorado.pref.PreferenceKeys;
  */
 public class KeyEntry { 
 	private static final double HEIGHT = 200;
-	private static final double WIDTH = 400;
+	private static final double WIDTH = 500;
+	private final static double GRID0_WIDTH = 120.;    // Grid widths
+	private final static double GRID1_WIDTH = 300.;
 	private static TextField keyField;
 	
 	public static void display() {
@@ -51,6 +56,12 @@ public class KeyEntry {
         grid.setHgap(10);
         grid.setVgap(4);
 		grid.getColumnConstraints().clear();
+		ColumnConstraints col0 = new ColumnConstraints(GRID0_WIDTH);
+		col0.setHalignment(HPos.RIGHT);
+		ColumnConstraints col1 = new ColumnConstraints(GRID1_WIDTH,GRID1_WIDTH,Double.MAX_VALUE);
+		col1.setHalignment(HPos.CENTER);
+		col1.setHgrow(Priority.ALWAYS);
+		grid.getColumnConstraints().addAll(col0,col1); 
 		grid.add(label, 0, 0);
 		grid.add(keyField, 1, 0);
 		grid.setAlignment(Pos.BASELINE_CENTER);

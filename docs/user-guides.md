@@ -130,19 +130,17 @@ A red X indicator is drawn on the bar if any individual district has a deviation
 Proportionality is the concept that the party mix of the elected officials
 should match the mix of the population as a whole. This metric compares
 the projected number of seats won by the dominant party versus the number of seats that were "deserved".  Any discrepancies greater than rounding error are flagged
-by putting the  symbol of the benefiting party on the bar, meaning that the results are skewed
-in favor of that party.
+by putting the symbol of the benefiting party on the bar, meaning that the results are skewed in favor of that party.
 
 The numerical value of the metric is the number of seats in excess of the "deserved" number for the dominant party. Ideally this is less than 1.
 
 ###### Racial Vote Dilution
-This metric describes the extent, if any, to which voters of different ethnicities are dispursed across districts to avoid concentrations where they have a majority
-or near-majority.
+This metric describes the extent, if any, to which voters of different ethnicities are disbursed across districts to avoid concentrations where they have a majority
+or near-majority. We define vote dilution as the ratio between the vote margin in a district and the estimated votes by the ethnic group. This value is scaled by the overall margin to population ratio. The final metric is the mean absolute deviation over the districts of the log of the result. A value of zero implies a perfectly homogeneous, i.e. diluted, distribution of voters. The metric value is the minimum
+score across the groups.
 
 ###### Voting Power Imbalance:
-This metric compares relative power between ethnic groups. Based on available census data the groups considered are: blacks, hispanics, and whites.
-
-The result is the mean absolute deviation (MAD).
+This metric looks at what would happen if members of ethnic groups voted for their own candidates irrespective of party. Would overall results be in proportion to the population?  The metric compares the number of seats that were "deserved" with the number of seats that would be won under the special voting assumption.
 
 ###### Composite:
 The composite or overall metric is a compendium of all the other measures with
@@ -211,3 +209,5 @@ The application consists of three components:
    *jar* file.
   * Database - the application depends on a SQLite database to persist its state. SQLite is natively resident on most systems.
   * Shapefiles - the data files must be downloaded into the local file system. Locations of some publicly available data files are listed [here](https://github.com/chuckcoughlin/redistrict-colorado/tree/master/docs/datasets.md). Shapefiles must be the zipped versions.
+  * Google Maps - In order to use the map overly feature on the `Districts` panel, each user must have their own key to the Google Maps API. Directions for obtaining
+  the free key may be obtained [here](https://developers.google.com/maps/documentation/javascript/tutorial#api_key). The key may be entered on the main menu pulldown under the Colorado flag.

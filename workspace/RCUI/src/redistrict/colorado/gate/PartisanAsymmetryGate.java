@@ -43,8 +43,7 @@ import redistrict.colorado.ui.InfoDialog;
 import redistrict.colorado.ui.UIConstants;
 
 /**
- * Compare plans based on the populations of each district are within 
- * 1% of each other.
+ * Compare plans based on one of several measures of partisan bias
  */
 public class PartisanAsymmetryGate extends Gate {
 	private final static double DIALOG_HEIGHT = 550.; 

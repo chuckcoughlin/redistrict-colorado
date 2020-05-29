@@ -12,8 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -27,22 +25,21 @@ import redistrict.colorado.core.GateProperty;
 import redistrict.colorado.core.GateType;
 import redistrict.colorado.core.PlanFeature;
 import redistrict.colorado.core.PlanModel;
+import redistrict.colorado.core.VotingPower;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.table.NameValue;
 import redistrict.colorado.table.NameValueCellValueFactory;
-import redistrict.colorado.table.NameValueLimitCellFactory;
 import redistrict.colorado.table.NameValueListCellValueFactory;
-import redistrict.colorado.table.NameValueListLimitCellFactory;
 import redistrict.colorado.ui.ComponentIds;
 import redistrict.colorado.ui.UIConstants;
 
 /**
- * Compare plans based on the populations of each district are within 
- * 1% of each other.
+ * Evaluate plans for the presence od vote dilution.
  */
 public class RacialVoteDilutionGate extends Gate {
 	private final static double DIALOG_HEIGHT = 550.; 
 	private final static double DIALOG_WIDTH = 600.;
+	private final static String KEY_ETHNICITY = "Ethnicity";
 	private final static String KEY_MAD = "MAD";
 	private final static String KEY_NAME = "Name";
 	private final static String KEY_PLAN = "Plan";
@@ -52,7 +49,8 @@ public class RacialVoteDilutionGate extends Gate {
 	
 	private final Label aggregateLabel = new Label("Voting Power by Ethnicity and Mean Absoute Deviation");
 	private final Label detailLabel = new Label("Voting Power by Ethnicity for each District");
-	private final Map<Long,List<NameValue>> districtScores;  
+	private final Map<Long,List<NameValue>> districtScores; 
+	private final List<VotingPower> powers = new ArrayList<>();
 	
 	public RacialVoteDilutionGate() {
 		this.districtScores = new HashMap<>();
@@ -61,18 +59,11 @@ public class RacialVoteDilutionGate extends Gate {
 	
 	public TextFlow getInfo() { 
 		TextFlow info = new TextFlow();
-		Text t1 = new Text("Voting power is the ability to elect a candidate of one's choosing, ");
-		Text t2 = new Text("that is the ability to effect the outcome of an election. We want to make sure that this power in not diluted by ");
-		Text t3 = new Text("artifically spredding votes of one ethnicity across multiple districts. For a single district, voting power is the margin of victory (in votes) ");
-		Text t4 = new Text("divided by the total votes cast multiplied by the fraction of the population for a given ethnicity. We take the sum of this over ");
-		Text t5 = new Text("all districts. We want to minimize how much this varies between ethnicities, ");
-		Text t6 = new Text("so we take the average of this over the entire population, and calculate the mean absolute deviation ");
-		Text t7= new Text("(M.A.D.) of the ethnicities from this. This gives us a summary of how uneven voting power is distributed ");
-		Text t8= new Text("among the ethnicities. We want this score to be");
-		Text t9 = new Text("minimized");
-		t9.setStyle("-fx-font-weight: bold");
-		Text t10 = new Text("."); 
-		info.getChildren().addAll(t1,t2,t3,t4,t5,t6,t7,t8,t9,t10);
+		Text t1 = new Text("To evaluate vote dilution, for each ethnic group in each district take the ratio of vote margin to votes by the group. ");
+		Text t2 = new Text("Scale this value by the overall vote margin to population ratio. Take the log of the result.");
+		Text t3 = new Text("Compute the mean absolute deviation (MAD) across the districts. A MAD value near zero implies dilution. Compare ethnic groups.");
+		Text t4 = new Text("Take the minimum value and record the associated ethnic group.");
+		info.getChildren().addAll(t1,t2,t3,t4);
 		return info;
 	}
 	public String getScoreAttribute() { return KEY_MAD; };
@@ -87,40 +78,14 @@ public class RacialVoteDilutionGate extends Gate {
 		LOGGER.info("RacialVoteDilutionGate.evaluating: ...");
 
 		for(PlanModel plan:plans) {
-			List<NameValue> powers = new ArrayList<>();
-			double voteMargin = 0.;
-			double totalVotes = 0.;
-			double weightedBlack  = 0.;
-			double weightedHispanic  = 0.;
-			double weightedWhite  = 0.;
-			for(PlanFeature feat:plan.getMetrics()) {
-				double population = feat.getPopulation();
-				double votes = feat.getDemocrat()+feat.getRepublican();
-				double margin = Math.abs(feat.getDemocrat()-feat.getRepublican());
-				double black = feat.getBlack()/population;
-				double hispanic = feat.getHispanic()/population;
-				double white = feat.getWhite()/population;
-				totalVotes += votes;
-				voteMargin += margin;
-				weightedBlack += black*margin/votes;
-				weightedHispanic += hispanic*margin/votes;
-				weightedWhite += white*margin/votes;
-				
-				NameValue nv = new NameValue(feat.getName());
-				nv.setValue(KEY_BLACK,black*margin/votes);
-				nv.setValue(KEY_HISPANIC,hispanic*margin/votes);
-				nv.setValue(KEY_WHITE,white*margin/votes);
-				powers.add(nv);
-			}
-			double mean = voteMargin/totalVotes;
-			double mad = (Math.abs(mean-weightedBlack) + Math.abs(mean-weightedHispanic) + Math.abs(mean-weightedWhite))/3.;
+			VotingPower pv = new VotingPower(plan.getMetrics());
+			double mad = pv.getRacialVoteDilution();
+			String group = pv.getDilutedGroup();;
 
 			NameValue nv = new NameValue(plan.getName());
 			nv.setValue(KEY_PLAN, plan.getName());
-			nv.setValue(KEY_BLACK, weightedBlack);
-			nv.setValue(KEY_HISPANIC, weightedHispanic);
-			nv.setValue(KEY_WHITE, weightedWhite);
 			nv.setValue(KEY_MAD, mad);
+			nv.setValue(KEY_ETHNICITY, group);
 			scoreMap.put(plan.getId(),nv);
 			districtScores.put(plan.getId(), powers);
 		}
