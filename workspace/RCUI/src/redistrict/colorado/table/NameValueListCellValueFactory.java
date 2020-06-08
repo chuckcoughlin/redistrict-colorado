@@ -17,6 +17,8 @@ import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.util.Callback;
+import redistrict.colorado.core.NameValue;
+import redistrict.colorado.core.VotingPower;
 
 /**
  * The table data consists of a list of lists of name value entries. Rely on UserData to specify
@@ -52,6 +54,7 @@ public class NameValueListCellValueFactory implements Callback<TableColumn.CellD
 		}
 		else {
 			Object val = nv.getValue(columnName);
+			if( val==null ) { val = nv.getValue(columnName.toUpperCase()); }
 			if( val==null ) {
 				LOGGER.warning(String.format("%s.call: NameValue has no attribute %s", CLSS,columnName));
 				property.setValue("");
@@ -62,7 +65,13 @@ public class NameValueListCellValueFactory implements Callback<TableColumn.CellD
 			}
 			else {
 				//LOGGER.info(String.format("%s.call: %s format = %s, type= %s", CLSS,columnName,format,val.getClass().getCanonicalName()));
-				property.setValue(String.format(format,val));
+				if( val instanceof VotingPower ) {
+					VotingPower vp = (VotingPower)val;
+					property.setValue(String.format(format,vp.getNormalizedVotePower()));
+				}
+				else {
+					property.setValue(String.format(format,val));
+				}
 			}
 		}
 		return property;

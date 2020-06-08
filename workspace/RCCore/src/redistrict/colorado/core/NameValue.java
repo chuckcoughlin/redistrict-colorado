@@ -4,7 +4,7 @@
  * This program is free software; you may redistribute it and/or
  * modify it under the terms of the GNU General Public License.
  */
-package redistrict.colorado.table;
+package redistrict.colorado.core;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +20,7 @@ public class NameValue {
 	
 	public NameValue(String name) {
 		this.name = name;
-		this.values = new HashMap<>();;
+		this.values = new HashMap<>();
 	}
 	
 	public String getName() { return this.name; }

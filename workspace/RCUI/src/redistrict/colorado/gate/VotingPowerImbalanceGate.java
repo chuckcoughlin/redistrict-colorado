@@ -23,11 +23,11 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import redistrict.colorado.core.GateProperty;
 import redistrict.colorado.core.GateType;
+import redistrict.colorado.core.NameValue;
 import redistrict.colorado.core.PlanFeature;
 import redistrict.colorado.core.PlanModel;
-import redistrict.colorado.core.VotingPower;
+import redistrict.colorado.core.VotingPowerAnalyzer;
 import redistrict.colorado.db.Database;
-import redistrict.colorado.table.NameValue;
 import redistrict.colorado.table.NameValueCellValueFactory;
 import redistrict.colorado.table.NameValueListCellValueFactory;
 import redistrict.colorado.ui.ComponentIds;
@@ -50,7 +50,7 @@ public class VotingPowerImbalanceGate extends Gate {
 	private final Label aggregateLabel = new Label("Voting Power by Ethnicity and Mean Absoute Deviation");
 	private final Label detailLabel = new Label("Voting Power by Ethnicity for each District");
 	private final Map<Long,List<NameValue>> districtScores; 
-	private final List<VotingPower> powerStatistics = new ArrayList<>();
+	private final List<VotingPowerAnalyzer> powerStatistics = new ArrayList<>();
 	
 	public VotingPowerImbalanceGate() {
 		this.districtScores = new HashMap<>();
@@ -60,13 +60,13 @@ public class VotingPowerImbalanceGate extends Gate {
 	public TextFlow getInfo() { 
 		TextFlow info = new TextFlow();
 		Text t1 = new Text("Voting power is the ability to elect a candidate of one's choosing, ");
-		Text t2 = new Text("that is the ability to effect the outcome of an election. We want to make sure that this power in not diluted by ");
-		Text t3 = new Text("artifically spredding votes of one ethnicity across multiple districts. For a single district, voting power is the margin of victory (in votes) ");
-		Text t4 = new Text("divided by the total votes cast multiplied by the fraction of the population for a given ethnicity. We take the sum of this over ");
-		Text t5 = new Text("all districts. We want to minimize how much this varies between ethnicities, ");
-		Text t6 = new Text("so we take the average of this over the entire population, and calculate the mean absolute deviation ");
-		Text t7= new Text("(M.A.D.) of the ethnicities from this. This gives us a summary of how uneven voting power is distributed ");
-		Text t8= new Text("among the ethnicities. We want this score to be");
+		Text t2 = new Text("that is, the ability to effect the outcome of an election. We want to make sure that this power in not diluted by ");
+		Text t3 = new Text("artifically spredding votes of one ethnicity across multiple districts. For a single district, voting power is ");
+		Text t4 = new Text("the fraction of the population for a given ethnicity times the total votes cast divided by the vote margin.");
+		Text t5 = new Text(" We normalize by the overall population to mairgin then take the harmonic mean for each ethniticy over ");
+		Text t6 = new Text("all districts. We want to minimize how much this varies between ethnicities, ");
+		Text t7 = new Text("so we take take difference between the ethnicity with the most power and the ethnicity with the least. ");
+		Text t8= new Text("We want this score to be ");
 		Text t9 = new Text("minimized");
 		t9.setStyle("-fx-font-weight: bold");
 		Text t10 = new Text("."); 

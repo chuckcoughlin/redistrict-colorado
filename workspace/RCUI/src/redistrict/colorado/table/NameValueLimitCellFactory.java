@@ -8,6 +8,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
+import redistrict.colorado.core.NameValue;
 
 /**
  * Render a string type cell in the FeatureMetric table

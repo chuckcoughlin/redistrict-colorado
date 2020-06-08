@@ -16,6 +16,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.util.Callback;
+import redistrict.colorado.core.NameValue;
 
 public class NameValueCellValueFactory implements Callback<TableColumn.CellDataFeatures<NameValue,String>,ObservableValue<String>> {
 	private final static String CLSS = "NameValueCellValueFactory";
@@ -43,6 +44,7 @@ public class NameValueCellValueFactory implements Callback<TableColumn.CellDataF
 		}
 		else {
 			Object val = nv.getValue(columnName);
+			if( val==null ) val = nv.getValue(columnName.toUpperCase());
 			if( val==null ) {
 				LOGGER.warning(String.format("%s.call: NameValue has no attribute %s", CLSS,columnName));
 				property.setValue("");

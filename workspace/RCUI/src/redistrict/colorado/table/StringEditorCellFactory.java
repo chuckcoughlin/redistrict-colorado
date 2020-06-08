@@ -10,6 +10,7 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.Callback;
 import javafx.util.Pair;
 import javafx.util.StringConverter;
+import redistrict.colorado.core.NameValue;
 import redistrict.colorado.gate.Gate;
 
 /**

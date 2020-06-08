@@ -136,11 +136,12 @@ The numerical value of the metric is the number of seats in excess of the "deser
 
 ###### Racial Vote Dilution
 This metric describes the extent, if any, to which voters of different ethnicities are disbursed across districts to avoid concentrations where they have a majority
-or near-majority. We define vote dilution as the ratio between the vote margin in a district and the estimated votes by the ethnic group. This value is scaled by the overall margin to population ratio. The final metric is the mean absolute deviation over the districts of the log of the result. A value of zero implies a perfectly homogeneous, i.e. diluted, distribution of voters. The metric value is the minimum
+or near-majority. We define voting power as the ratio between he estimated votes by an ethnic group in a district and the vote margin. This value is scaled by the overall population to margin ratio. The final metric is the mean absolute deviation over the districts of the log of the result. A value of zero implies a perfectly homogeneous, i.e. diluted, distribution of voters. The metric value is the minimum
 score across the groups.
 
 ###### Voting Power Imbalance:
-This metric looks at what would happen if members of ethnic groups voted for their own candidates irrespective of party. Would overall results be in proportion to the population?  The metric compares the number of seats that were "deserved" with the number of seats that would be won under the special voting assumption.
+This metric looks at what would happen if members of ethnic groups voted for their own candidates irrespective of party. We want to make sure that
+the power of an ethnic group isn't diluted by artificially spreading the members across districts. The voting power metric is the fraction of population in a district represented by the group times the voting population divided by the vote margin. Normalize this by the overall population to vote margin. The harmonic mean across districts is taken, then the groups are compared. The final score is the difference between the highest and lowest scores.
 
 ###### Composite:
 The composite or overall metric is a compendium of all the other measures with

@@ -7,15 +7,16 @@
 package redistrict.colorado.core;
 
 /*
- * Hold totals across all the ethnic groups considered.
+ * Hold totals across all the ethnic groups considered for voting power
+ * calculations.
  */
-public class EthnicSummary {
+public class PowerSummary {
 	private double totalPopulation;
 	private double totalSeats;
 	private double totalMargin;
 	private double totalVotes;
 	
-	public EthnicSummary()  {
+	public PowerSummary()  {
 		this.totalPopulation = 0.;
 		this.totalSeats = 0.;
 		this.totalMargin = 0.;

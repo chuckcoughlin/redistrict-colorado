@@ -21,13 +21,15 @@ import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import redistrict.colorado.core.Ethnicity;
 import redistrict.colorado.core.GateProperty;
 import redistrict.colorado.core.GateType;
-import redistrict.colorado.core.PlanFeature;
+import redistrict.colorado.core.NameValue;
 import redistrict.colorado.core.PlanModel;
+import redistrict.colorado.core.PowerSummary;
 import redistrict.colorado.core.VotingPower;
+import redistrict.colorado.core.VotingPowerAnalyzer;
 import redistrict.colorado.db.Database;
-import redistrict.colorado.table.NameValue;
 import redistrict.colorado.table.NameValueCellValueFactory;
 import redistrict.colorado.table.NameValueListCellValueFactory;
 import redistrict.colorado.ui.ComponentIds;
@@ -47,20 +49,19 @@ public class RacialVoteDilutionGate extends Gate {
 	private final static String KEY_HISPANIC = "Hispanic";
 	private final static String KEY_WHITE = "White";
 	
-	private final Label aggregateLabel = new Label("Voting Power by Ethnicity and Mean Absoute Deviation");
-	private final Label detailLabel = new Label("Voting Power by Ethnicity for each District");
-	private final Map<Long,List<NameValue>> districtScores; 
-	private final List<VotingPower> powers = new ArrayList<>();
+	private final Label aggregateLabel = new Label("Mean Absolute Deviation across Districts by Ethnicity");
+	private final Label detailLabel = new Label("Normalized Voting Power by Ethnicity for each District (uniformity implies dilution)");
+	private final Map<Long,VotingPowerAnalyzer> planAnalyzers; 
 	
 	public RacialVoteDilutionGate() {
-		this.districtScores = new HashMap<>();
+		this.planAnalyzers = new HashMap<>();
 		xAxis.setAutoRanging(true);
 	}
 	
 	public TextFlow getInfo() { 
 		TextFlow info = new TextFlow();
-		Text t1 = new Text("To evaluate vote dilution, for each ethnic group in each district take the ratio of vote margin to votes by the group. ");
-		Text t2 = new Text("Scale this value by the overall vote margin to population ratio. Take the log of the result.");
+		Text t1 = new Text("To evaluate vote dilution, for each ethnic group in each district take the ratio of votes by the group to vote margin. ");
+		Text t2 = new Text("Scale this value by the overall vote population to margin ratio. Take the log of the result.");
 		Text t3 = new Text("Compute the mean absolute deviation (MAD) across the districts. A MAD value near zero implies dilution. Compare ethnic groups.");
 		Text t4 = new Text("Take the minimum value and record the associated ethnic group.");
 		info.getChildren().addAll(t1,t2,t3,t4);
@@ -78,16 +79,16 @@ public class RacialVoteDilutionGate extends Gate {
 		LOGGER.info("RacialVoteDilutionGate.evaluating: ...");
 
 		for(PlanModel plan:plans) {
-			VotingPower pv = new VotingPower(plan.getMetrics());
-			double mad = pv.getRacialVoteDilution();
-			String group = pv.getDilutedGroup();;
+			VotingPowerAnalyzer vpa = new VotingPowerAnalyzer(plan.getName(),plan.getMetrics());
+			double mad = vpa.getRacialVoteDilution();
+			Ethnicity group = vpa.getDilutedGroup();;
 
 			NameValue nv = new NameValue(plan.getName());
 			nv.setValue(KEY_PLAN, plan.getName());
 			nv.setValue(KEY_MAD, mad);
-			nv.setValue(KEY_ETHNICITY, group);
+			nv.setValue(KEY_ETHNICITY, group.name());
 			scoreMap.put(plan.getId(),nv);
-			districtScores.put(plan.getId(), powers);
+			planAnalyzers.put(plan.getId(), vpa);
 		}
 		Collections.sort(plans,compareByScore); 
 		Collections.reverse(plans);   // Because minimum is best.
@@ -100,7 +101,6 @@ public class RacialVoteDilutionGate extends Gate {
 	@Override
 	protected Node getResultsContents() { 
 		GateProperty gp = Database.getInstance().getGateTable().getGateProperty(getType());
-		double threshold = gp.getUnfairValue();
 		VBox pane =  new VBox(10);
 		pane.setPrefSize(DIALOG_WIDTH, DIALOG_HEIGHT);
 		pane.setFillWidth(true);
@@ -119,8 +119,7 @@ public class RacialVoteDilutionGate extends Gate {
 		factory.setFormat(KEY_BLACK, "%2.2f");
 		factory.setFormat(KEY_HISPANIC, "%2.2f");
 		factory.setFormat(KEY_WHITE, "%2.2f");
-		factory.setFormat(KEY_MAD, "%2.4f");
-		column = new TableColumn<>(KEY_PLAN);
+		column = new TableColumn<>(KEY_NAME);
 		column.setCellValueFactory(factory);
 		column.prefWidthProperty().bind(aggregateTable.widthProperty().multiply(0.4));
 		aggregateTable.getColumns().add(column);
@@ -136,14 +135,11 @@ public class RacialVoteDilutionGate extends Gate {
 		column.setCellValueFactory(factory);
 		column.prefWidthProperty().bind(aggregateTable.widthProperty().multiply(0.2));
 		aggregateTable.getColumns().add(column);
-		column = new TableColumn<>(KEY_MAD);
-		column.setCellValueFactory(factory);
-		column.prefWidthProperty().bind(aggregateTable.widthProperty().multiply(0.2));
-		aggregateTable.getColumns().add(column);
 		ObservableList<NameValue> aitems = FXCollections.observableArrayList();
 		for(PlanModel plan:sortedPlans ) {
-			// There is a single row containing the overall score
-			aitems.add(scoreMap.get(plan.getId()));
+			// Get the analyzer and create a list of MAD values by ethnicity/aitems
+			VotingPowerAnalyzer vpa = planAnalyzers.get(plan.getId());
+			aitems.add(vpa.getDilutions());
 		}
 		aggregateTable.setItems(aitems);
 		pane.getChildren().add(aggregateTable);
@@ -159,13 +155,12 @@ public class RacialVoteDilutionGate extends Gate {
 		fact.setFormat(KEY_BLACK, "%2.2f");
 		fact.setFormat(KEY_HISPANIC, "%2.2f");
 		fact.setFormat(KEY_WHITE, "%2.2f");
-		fact.setFormat(KEY_MAD, "%2.4f");
 		
 		int colno = 0;
 		int maxrows = 0;  // Max districts among plans
 		double widthFactor = 1./(4*sortedPlans.size());
 		for(PlanModel plan:sortedPlans ) {
-			int ndistricts = districtScores.get(plan.getId()).size();
+			int ndistricts = planAnalyzers.get(plan.getId()).getNDistricts();
 			if(ndistricts>maxrows) maxrows = ndistricts;
 			// These columns have no cells, just sub-columns.
 			col = new TableColumn<>(plan.getName());
@@ -198,10 +193,14 @@ public class RacialVoteDilutionGate extends Gate {
 		for( int row=0;row<maxrows;row++ ) {
 			List<NameValue> values = new ArrayList<>();
 			for(PlanModel plan:sortedPlans ) {
-				List<NameValue> scores = districtScores.get(plan.getId());
-				Collections.sort(scores,compareByName);
-				if(scores.size()>row ) {
-					values.add(scores.get(row));
+				VotingPowerAnalyzer vpa = planAnalyzers.get(plan.getId());
+				PowerSummary ps = vpa.getSummary();
+				VotingPower.setNormalizationFactor(ps.getTotalPopulation()/ps.getTotalMargin());
+				
+				List<NameValue> details = vpa.getDetails();
+				Collections.sort(details,compareByName);
+				if(details.size()>row ) {
+					values.add(details.get(row));
 				}
 				else {
 					values.add(NameValue.EMPTY);

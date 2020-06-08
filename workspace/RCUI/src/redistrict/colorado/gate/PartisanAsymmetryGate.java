@@ -29,12 +29,12 @@ import redistrict.colorado.chart.VoteSeatChart;
 import redistrict.colorado.core.Declination;
 import redistrict.colorado.core.GateProperty;
 import redistrict.colorado.core.GateType;
+import redistrict.colorado.core.NameValue;
 import redistrict.colorado.core.PartisanMetric;
 import redistrict.colorado.core.PlanFeature;
 import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.core.VoteSeatCurve;
 import redistrict.colorado.db.Database;
-import redistrict.colorado.table.NameValue;
 import redistrict.colorado.table.NameValueCellValueFactory;
 import redistrict.colorado.table.NameValueLimitCellFactory;
 import redistrict.colorado.table.NameValueListCellValueFactory;
@@ -258,14 +258,7 @@ public class PartisanAsymmetryGate extends Gate {
 	 * Then compute the student-t.
 	 */
 	private void evaluateLopsidedWins(List<PlanModel> plans) {
-		for(PlanModel plan:plans) {
-			int demWins = 0;
-			int repWins = 0;
-			for(PlanFeature feat:plan.getMetrics()) {
-				if( feat.getDemocrat()>feat.getRepublican()) demWins++;
-				else repWins++;
-			}
-			
+		for(PlanModel plan:plans) {	
 			SummaryStatistics demStats = new SummaryStatistics();
 			SummaryStatistics repStats = new SummaryStatistics();
 
