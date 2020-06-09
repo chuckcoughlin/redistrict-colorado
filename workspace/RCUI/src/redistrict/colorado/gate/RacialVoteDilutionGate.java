@@ -49,7 +49,7 @@ public class RacialVoteDilutionGate extends Gate {
 	private final static String KEY_HISPANIC = "Hispanic";
 	private final static String KEY_WHITE = "White";
 	
-	private final Label aggregateLabel = new Label("Mean Absolute Deviation across Districts by Ethnicity");
+	private final Label aggregateLabel = new Label("Mean Absolute Deviation across Districts by Ethnicity (want \"White\" to be smallest)");
 	private final Label detailLabel = new Label("Normalized Voting Power by Ethnicity for each District (uniformity implies dilution)");
 	private final Map<Long,VotingPowerAnalyzer> planAnalyzers; 
 	
@@ -80,6 +80,10 @@ public class RacialVoteDilutionGate extends Gate {
 
 		for(PlanModel plan:plans) {
 			VotingPowerAnalyzer vpa = new VotingPowerAnalyzer(plan.getName(),plan.getMetrics());
+			// Setup for normalization by state-wide results
+			PowerSummary ps = vpa.getSummary();
+			VotingPower.setNormalizationFactor(ps.getTotalPopulation()/ps.getTotalMargin());
+			
 			double mad = vpa.getRacialVoteDilution();
 			Ethnicity group = vpa.getDilutedGroup();;
 
@@ -137,7 +141,7 @@ public class RacialVoteDilutionGate extends Gate {
 		aggregateTable.getColumns().add(column);
 		ObservableList<NameValue> aitems = FXCollections.observableArrayList();
 		for(PlanModel plan:sortedPlans ) {
-			// Get the analyzer and create a list of MAD values by ethnicity/aitems
+			// Get the analyzer and create a list of voting power values by ethnicity/aitems
 			VotingPowerAnalyzer vpa = planAnalyzers.get(plan.getId());
 			aitems.add(vpa.getDilutions());
 		}
@@ -194,10 +198,8 @@ public class RacialVoteDilutionGate extends Gate {
 			List<NameValue> values = new ArrayList<>();
 			for(PlanModel plan:sortedPlans ) {
 				VotingPowerAnalyzer vpa = planAnalyzers.get(plan.getId());
-				PowerSummary ps = vpa.getSummary();
-				VotingPower.setNormalizationFactor(ps.getTotalPopulation()/ps.getTotalMargin());
 				
-				List<NameValue> details = vpa.getDetails();
+				List<NameValue> details = vpa.getVotingPowerDetails();
 				Collections.sort(details,compareByName);
 				if(details.size()>row ) {
 					values.add(details.get(row));
