@@ -21,6 +21,7 @@ public enum DisplayOption
 	PLAN_COMPARISON,
 	PLAN_DEFINITION,
 	PLAN_FEATURES,
+	PLAN_MAP,
 	PLAN_SETUP,
 	NONE
 	;

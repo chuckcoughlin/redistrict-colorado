@@ -18,10 +18,10 @@ import javafx.scene.shape.Rectangle;
 import redistrict.colorado.core.DatasetModel;
 
 /**
- * Render shapes as referenced by a single layer model in a panel on the screen.
+ * Render shapes as referenced by a single dataset in a panel on the screen.
  */
-	public class ModelMapRenderer  {
-		private final static String CLSS = "MapRenderer";
+	public class DatasetMapRenderer  {
+		private final static String CLSS = "DatasetMapRenderer";
 		private static Logger LOGGER = Logger.getLogger(CLSS);
 		private DatasetModel model = null;
 		private ShapefileRenderer renderer;
@@ -29,7 +29,7 @@ import redistrict.colorado.core.DatasetModel;
 		private FeatureFilter filter;
 		private Style style;
 
-		public ModelMapRenderer(Canvas cnvs) {
+		public DatasetMapRenderer(Canvas cnvs) {
 			this.canvas = cnvs;
 			this.renderer = null;
 			

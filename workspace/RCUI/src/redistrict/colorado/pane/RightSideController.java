@@ -38,6 +38,7 @@ public class RightSideController implements ChangeListener<LeftSelectionEvent> {
 	public void changed(ObservableValue<? extends LeftSelectionEvent> source, LeftSelectionEvent oldValue,LeftSelectionEvent newValue) {
 		if( newValue==null ) return;
 		if(newValue.getOption().equals(DisplayOption.NONE)) return;   // Leave "as-is"
+		LOGGER.info(String.format("%s.changed: looking for = %s,%s", CLSS,newValue.getMode().name(),newValue.getOption().name()));
 		for(BasicRightSideNode node:nodes) {
 			if( node.getMode().equals(newValue.getMode()) && 
 				node.getOption().equals(newValue.getOption()) ) {

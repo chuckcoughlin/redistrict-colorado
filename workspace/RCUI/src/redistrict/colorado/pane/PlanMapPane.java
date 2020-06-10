@@ -4,7 +4,7 @@
  * This program is free software; you may redistribute it and/or
  * modify it under the terms of the GNU General Public License.
  */
-package redistrict.colorado.district;
+package redistrict.colorado.pane;
 import java.util.logging.Logger;
 
 import javafx.beans.value.ChangeListener;
@@ -16,25 +16,24 @@ import javafx.scene.control.Label;
 import redistrict.colorado.core.DatasetModel;
 import redistrict.colorado.core.StandardAttributes;
 import redistrict.colorado.db.Database;
-import redistrict.colorado.pane.BasicRightSideNode;
-import redistrict.colorado.pane.NavigationPane;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.UIConstants;
 import redistrict.colorado.ui.ViewMode;
 
 /**
- * Plot a single feature graphically. Parent is an AnchorPane.
+ * Plot a map corresponding to a plan. Plot a Google Map as a backdrop.
+ * Parent is an AnchorPane.
  */
-public class FeatureMapPane extends BasicRightSideNode implements EventHandler<ActionEvent>,ChangeListener<Number>{
-	private final static String CLSS = "FeatureMapPane";
+public class PlanMapPane extends BasicRightSideNode implements EventHandler<ActionEvent>,ChangeListener<Number>{
+	private final static String CLSS = "PlanMapPane";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private NavigationPane navPane = new NavigationPane(this,this);
 	private Label headerLabel = new Label("Map");
 	private DatasetModel model;
-	private final FeatureMapRenderer map;
+	private final PlanMapRenderer map;
 
-	public FeatureMapPane() {
-		super(ViewMode.DATASET,DisplayOption.FEATURE_MAP);
+	public PlanMapPane() {
+		super(ViewMode.PLAN,DisplayOption.PLAN_MAP);
 		this.model = hub.getSelectedDataset();
 		headerLabel.getStyleClass().add("list-header-label");
 		getChildren().add(headerLabel);
@@ -56,7 +55,7 @@ public class FeatureMapPane extends BasicRightSideNode implements EventHandler<A
 		setRightAnchor(canvas,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 		setBottomAnchor(canvas,UIConstants.BUTTON_PANEL_HEIGHT);
 
-		map = new FeatureMapRenderer(canvas);
+		map = new PlanMapRenderer(canvas);
 		updateModel();
 	}
 

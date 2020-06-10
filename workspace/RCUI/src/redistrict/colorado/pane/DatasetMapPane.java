@@ -19,18 +19,18 @@ import redistrict.colorado.ui.UIConstants;
 import redistrict.colorado.ui.ViewMode;
 
 /**
- * Plot a single layer graphically. Parent is an AnchorPane.
+ * Plot a graphical layer that corresponds to a dataset. Parent is an AnchorPane.
  */
-	public class ModelMapPane extends BasicRightSideNode implements EventHandler<ActionEvent>,ChangeListener<Number> {
-		private final static String CLSS = "ModelMapPane";
+	public class DatasetMapPane extends BasicRightSideNode implements EventHandler<ActionEvent>,ChangeListener<Number> {
+		private final static String CLSS = "DatasetMapPane";
 		private static Logger LOGGER = Logger.getLogger(CLSS);
 		private final NavigationPane navPane = new NavigationPane(this,this);
 		private final Label headerLabel = new Label("District Map");
-		private final ModelMapRenderer map;
+		private final DatasetMapRenderer map;
 		private DatasetModel model;
 		
 		// This same screen is used in two contexts.
-		public ModelMapPane(ViewMode vm, DisplayOption dopt) {
+		public DatasetMapPane(ViewMode vm, DisplayOption dopt) {
 			super(vm,dopt);
 			this.model = hub.getSelectedDataset();
 			headerLabel.getStyleClass().add("list-header-label");
@@ -53,7 +53,7 @@ import redistrict.colorado.ui.ViewMode;
 			setRightAnchor(canvas,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 			setBottomAnchor(canvas,UIConstants.BUTTON_PANEL_HEIGHT);
 			
-			map = new ModelMapRenderer(canvas);
+			map = new DatasetMapRenderer(canvas);
 			updateModel();
 		}
 		

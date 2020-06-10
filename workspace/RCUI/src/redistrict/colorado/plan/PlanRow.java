@@ -201,7 +201,7 @@ public class PlanRow extends ListCell<PlanModel> implements ChangeListener<Toggl
     		}
     		else if( data.toString().equalsIgnoreCase(MAP_DATA)) {
     			hub.setSelectedDataset(getItem().getBoundary());
-				hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.MODEL_MAP));
+				hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.PLAN_MAP));
 			}
 		}
 	}

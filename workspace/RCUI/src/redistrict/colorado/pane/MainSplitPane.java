@@ -20,7 +20,7 @@ import redistrict.colorado.dataset.DatasetEditPane;
 import redistrict.colorado.dataset.DatasetDetailPane;
 import redistrict.colorado.dataset.DatasetListController;
 import redistrict.colorado.district.DistrictTreeController;
-import redistrict.colorado.district.FeatureMapPane;
+import redistrict.colorado.district.DistrictMapPane;
 import redistrict.colorado.plan.PlanComparisonPane;
 import redistrict.colorado.plan.PlanEditPane;
 import redistrict.colorado.plan.PlanPropertiesPane;
@@ -46,7 +46,6 @@ public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode>
 	private final StackPane right;
 	private final Node[] leftChildren;
 	private final BasicRightSideNode[] rightChildren;
-	private ViewMode currentViewMode = ViewMode.PLAN;  // Initially
 	private final RightSideController rightController;
 	private final DistrictTreeController districtTreeController;
 	
@@ -62,16 +61,16 @@ public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode>
 		
 		rightChildren = new BasicRightSideNode[N_CHILDREN_RIGHT];
 		rightChildren[0] = new SplashScreen();
-		rightChildren[1] = new ModelMapPane(ViewMode.DATASET,DisplayOption.MODEL_MAP);
-		rightChildren[2] = new ModelMapPane(ViewMode.PLAN,DisplayOption.MODEL_MAP);
+		rightChildren[1] = new DatasetMapPane(ViewMode.DATASET,DisplayOption.MODEL_MAP);
+		rightChildren[2] = new DatasetMapPane(ViewMode.PLAN,DisplayOption.MODEL_MAP);
 		rightChildren[3] = new DatasetDetailPane();
 		rightChildren[4] = new DatasetEditPane();
-		rightChildren[5] = new FeatureMapPane();
+		rightChildren[5] = new PlanMapPane();
 		rightChildren[6] = new PlanSetupPane();
 		rightChildren[7] = new PlanComparisonPane();
 		rightChildren[8] = new PlanPropertiesPane();
 		rightChildren[9] = new PlanEditPane();
-		rightChildren[10] = new RegionMapPane();
+		rightChildren[10] = new DistrictMapPane();
 		
 		this.rightController = new RightSideController(rightChildren);
 		this.init();
@@ -136,7 +135,6 @@ public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode>
 	 * NOTE: We do not iterate over left.getChildren() due to ConcurrentModification exceptions.
 	 */
 	private synchronized void updateUIForViewMode(ViewMode mode) {
-		currentViewMode = mode;
 		EventBindingHub hub = EventBindingHub.getInstance();
 		int leftPane = 0; //
 		int rightPane = 0;  // Splash screen
@@ -151,7 +149,6 @@ public class MainSplitPane extends SplitPane implements ChangeListener<ViewMode>
 		else if( mode.equals(ViewMode.DISTRICT)) {
 			leftPane = 2;
 			districtTreeController.populateDatasets();
-			if(hub.isDistrictSelected()) rightPane = 4; // Feature map
 		}
 		int index = 0;
 		while(index<leftChildren.length){

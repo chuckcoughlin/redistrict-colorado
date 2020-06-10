@@ -4,7 +4,7 @@
  * This program is free software; you may redistribute it and/or
  * modify it under the terms of the GNU General Public License.
  */
-package redistrict.colorado.pane;
+package redistrict.colorado.district;
 import java.util.logging.Logger;
 
 import javafx.beans.value.ChangeListener;
@@ -14,23 +14,26 @@ import javafx.event.EventHandler;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Label;
 import redistrict.colorado.core.DatasetModel;
+import redistrict.colorado.pane.BasicRightSideNode;
+import redistrict.colorado.pane.NavigationPane;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.UIConstants;
 import redistrict.colorado.ui.ViewMode;
 
 /**
- * Plot a single region graphically. Parent is an AnchorPane.
+ * Plot a single district graphically. Add a google map backdrop.
+ * Parent is an AnchorPane.
  */
-	public class RegionMapPane extends BasicRightSideNode implements EventHandler<ActionEvent>,ChangeListener<Number> {
+	public class DistrictMapPane extends BasicRightSideNode implements EventHandler<ActionEvent>,ChangeListener<Number> {
 		private final static String CLSS = "RegionMapPane";
 		private static Logger LOGGER = Logger.getLogger(CLSS);
 		private final NavigationPane navPane = new NavigationPane(this,this);
 		private final Label headerLabel = new Label("Region Map");
-		private final RegionMapRenderer map;
+		private final DistrictMapRenderer map;
 		private DatasetModel model;
 		private String region;
 		
-		public RegionMapPane() {
+		public DistrictMapPane() {
 			super(ViewMode.DISTRICT,DisplayOption.MODEL_MAP);
 			this.model = hub.getSelectedDataset();
 			this.region = hub.getSelectedRegion();
@@ -54,7 +57,7 @@ import redistrict.colorado.ui.ViewMode;
 			setRightAnchor(canvas,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 			setBottomAnchor(canvas,UIConstants.BUTTON_PANEL_HEIGHT);
 			
-			map = new RegionMapRenderer(canvas);
+			map = new DistrictMapRenderer(canvas);
 			updateModel();
 		}
 		
