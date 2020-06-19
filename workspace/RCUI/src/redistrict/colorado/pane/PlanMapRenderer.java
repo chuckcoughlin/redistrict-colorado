@@ -5,12 +5,16 @@
  * modify it under the terms of the GNU General Public License.
  */
 package redistrict.colorado.pane;
+import java.util.Locale;
 import java.util.logging.Logger;
 
 import org.geotools.render.FeatureFilter;
 import org.geotools.render.MapLayer;
 import org.geotools.render.ShapefileRenderer;
 import org.geotools.style.Style;
+
+import com.lynden.gmapsfx.GoogleMapView;
+import com.lynden.gmapsfx.MapComponentInitializedListener;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.paint.Color;
@@ -20,10 +24,12 @@ import redistrict.colorado.core.DatasetModel;
 /**
  * Render shape as referenced by a plan.
  */
-	public class PlanMapRenderer  {
+	public class PlanMapRenderer implements MapComponentInitializedListener {
 		private final static String CLSS = "PlanMapRenderer";
 		private static Logger LOGGER = Logger.getLogger(CLSS);
 		private DatasetModel model = null;
+		private GoogleMapView overlay;
+		private boolean overlayReady = false;
 		private ShapefileRenderer renderer;
 		private final Canvas canvas;
 		private FeatureFilter filter;
@@ -32,6 +38,9 @@ import redistrict.colorado.core.DatasetModel;
 		public PlanMapRenderer(Canvas cnvs) {
 			this.canvas = cnvs;
 			this.renderer = null;
+			this.overlay = new GoogleMapView();
+			overlay.addMapInitializedListener(this);
+	        overlay.setDisableDoubleClick(true);
 			
 			// LineColor, LineWidth, FillColor
 			this.style = new Style(Color.BLACK,0.01,Color.BLANCHEDALMOND);  // Initially
@@ -77,9 +86,19 @@ import redistrict.colorado.core.DatasetModel;
 		}
 
 		private void drawMap() {
+			if( overlayReady ) {
+				
+			}
 			if( renderer!=null) {
 				Rectangle screenArea = new Rectangle((int)canvas.getWidth(), (int)canvas.getHeight());
 				renderer.paint(canvas.getGraphicsContext2D(),screenArea,style,filter);
 			}
+		}
+		
+		// ------------------------- MapComponentInitializedListener -----------------------
+		@Override
+	    public void mapInitialized() {
+			LOGGER.info(String.format("%s.mapInitialized: GoogleMap is ready"));
+			overlayReady = true;
 		}
 }

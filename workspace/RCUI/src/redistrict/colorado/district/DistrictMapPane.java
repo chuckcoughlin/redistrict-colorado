@@ -25,7 +25,7 @@ import redistrict.colorado.ui.ViewMode;
  * Parent is an AnchorPane.
  */
 	public class DistrictMapPane extends BasicRightSideNode implements EventHandler<ActionEvent>,ChangeListener<Number> {
-		private final static String CLSS = "RegionMapPane";
+		private final static String CLSS = "DistrictMapPane";
 		private static Logger LOGGER = Logger.getLogger(CLSS);
 		private final NavigationPane navPane = new NavigationPane(this,this);
 		private final Label headerLabel = new Label("Region Map");

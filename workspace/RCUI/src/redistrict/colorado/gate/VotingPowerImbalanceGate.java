@@ -26,7 +26,6 @@ import redistrict.colorado.core.GateProperty;
 import redistrict.colorado.core.GateType;
 import redistrict.colorado.core.HarmonicMean;
 import redistrict.colorado.core.NameValue;
-import redistrict.colorado.core.PlanFeature;
 import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.core.PowerSummary;
 import redistrict.colorado.core.VotingPower;

@@ -12,4 +12,5 @@ module gmapsfx {
 	requires transitive javafx.swing;
 	requires transitive javafx.web;
 	
+	exports com.lynden.gmapsfx;
 }

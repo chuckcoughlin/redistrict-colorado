@@ -38,7 +38,9 @@ public class JavascriptRuntime implements IJavascriptRuntime {
      */
     public static IJavascriptRuntime getInstance() {
         if (runtime == null) {
-            runtime = new JavascriptRuntime();
+        	synchronized(JavascriptRuntime.class) {
+        		runtime = new JavascriptRuntime();
+        	}
         }
         return runtime;
     }

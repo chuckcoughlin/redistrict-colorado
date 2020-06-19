@@ -7,7 +7,6 @@ import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import redistrict.colorado.core.Declination;
 import redistrict.colorado.core.SeatVote;
 import redistrict.colorado.core.VoteSeatCurve;
 

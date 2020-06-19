@@ -37,6 +37,7 @@ import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker;
+import javafx.concurrent.Worker.State;
 import javafx.event.Event;
 import javafx.event.EventDispatchChain;
 import javafx.event.EventDispatcher;
@@ -56,8 +57,8 @@ public class GoogleMapView extends AnchorPane {
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
 
 
-    protected static final String GOOGLE_MAPS_API_LINK = "https://maps.googleapis.com/maps/api/js?v=3.exp";
-    protected static final String GOOGLE_MAPS_API_VERSION = "3.exp";
+    public static final String GOOGLE_MAPS_API_LINK = "https://maps.googleapis.com/maps/api/js?v=3.exp";
+    public static final String GOOGLE_MAPS_API_VERSION = "3.exp";
 
     private boolean usingCustomHtml;
 
@@ -182,7 +183,8 @@ public class GoogleMapView extends AnchorPane {
         String htmlFile;
         if (mapResourcePath == null) {
             htmlFile = getHtmlFile(debug);
-        } else {
+        } 
+        else {
             htmlFile = mapResourcePath;
             usingCustomHtml = true;
         }
@@ -209,19 +211,23 @@ public class GoogleMapView extends AnchorPane {
                 webengine.setOnAlert(e -> LOGGER.info("Alert: " + e.getData()));
                 webengine.setOnError(e -> LOGGER.severe("Error: " + e.getMessage()));
 
-                webengine.getLoadWorker().stateProperty().addListener(
-                        new ChangeListener<Worker.State>() {
-                    public void changed(ObservableValue ov, Worker.State oldState, Worker.State newState) {
-                        if (newState == Worker.State.SUCCEEDED) {
-                            initialiseScript();
-                            //setInitialized(true);
-                            //fireMapInitializedListeners();
-
-                        }
+                Worker<Void> worker = webengine.getLoadWorker();
+                worker.stateProperty().addListener((observable, oldState, newState) -> {
+                	LOGGER.info(String.format("%s.web engine state: %s",CLSS,newState.toString()));
+                    if (newState == State.SUCCEEDED) {
+                    	initialiseScript();
+                    }
+                    else if (newState == State.FAILED) {
+                    	LOGGER.info(String.format("%s.web engine worker: %s",CLSS,worker.getMessage()));
+                    	LOGGER.info(String.format("%s.web engine worker: %s",CLSS,worker.getException()));
                     }
                 });
-                webengine.load(getClass().getResource(htmlFile).toExternalForm());
-            } finally {
+        
+               LOGGER.info(String.format("%s: Resource path = %s",CLSS,htmlFile));
+               LOGGER.info(String.format("%s: Resource = %s",CLSS,getClass().getResource(htmlFile)));
+               webengine.load(getClass().getResource(htmlFile).toExternalForm());
+            } 
+            finally {
                 latch.countDown();
             }
         };
@@ -243,7 +249,8 @@ public class GoogleMapView extends AnchorPane {
     protected String getHtmlFile(boolean debug) {
         if (debug) {
            return "html/maps-debug.html";
-        } else {
+        } 
+        else {
            return "html/maps.html";
         }
     }
@@ -255,7 +262,8 @@ public class GoogleMapView extends AnchorPane {
 
             String script = "loadMapLibrary('" + GOOGLE_MAPS_API_VERSION + "','" + key + "','" + language + "','" + region + "');";
             webengine.executeScript(script);
-        } else {
+        } 
+        else {
             setInitialized(true);
             fireMapInitializedListeners();
         }

@@ -79,6 +79,9 @@ public class MainApp2 extends Application implements MapComponentInitializedList
     
     @Override
     public void mapInitialized() {
+    	
+    	System.out.println("MainApp2.mapInitialized....");
+    	
         Thread t = new Thread( () -> {
            try {
                Thread.sleep(3000);

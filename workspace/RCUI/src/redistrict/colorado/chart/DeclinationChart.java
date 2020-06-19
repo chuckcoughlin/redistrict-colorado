@@ -7,7 +7,6 @@ import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.scene.layout.StackPane;
 import redistrict.colorado.core.Declination;
 
 /**

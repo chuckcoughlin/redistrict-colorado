@@ -6,6 +6,8 @@
 
 package com.lynden.gmapsfx.javascript;
 
+import java.util.logging.Logger;
+
 import javafx.concurrent.Worker;
 import javafx.event.EventHandler;
 import javafx.scene.web.WebEngine;
@@ -19,7 +21,8 @@ import javafx.scene.web.WebEvent;
  * @author Rob Terpilowski
  */
 public class JavaFxWebEngine implements IWebEngine {
-    
+	private static final String CLSS = "JavaFxWebEngine";
+	private static final Logger LOGGER = Logger.getLogger(CLSS);
     
     protected WebEngine webEngine;
     
@@ -39,6 +42,7 @@ public class JavaFxWebEngine implements IWebEngine {
      */
     @Override
     public Object executeScript(String command) {
+    	LOGGER.info(String.format("%s.executeScript: \n%s\n", CLSS,command));
         return webEngine.executeScript(command);
     }
 

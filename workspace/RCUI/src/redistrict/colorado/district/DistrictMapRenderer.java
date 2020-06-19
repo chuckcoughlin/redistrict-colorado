@@ -5,6 +5,7 @@
  * modify it under the terms of the GNU General Public License.
  */
 package redistrict.colorado.district;
+import java.util.Locale;
 import java.util.logging.Logger;
 
 import org.geotools.render.FeatureFilter;
@@ -14,6 +15,9 @@ import org.geotools.style.Style;
 import org.openjump.feature.Feature;
 import org.openjump.feature.FeatureCollection;
 import org.openjump.feature.FeatureDataset;
+
+import com.lynden.gmapsfx.GoogleMapView;
+import com.lynden.gmapsfx.MapComponentInitializedListener;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.paint.Color;
@@ -25,19 +29,24 @@ import redistrict.colorado.db.Database;
 /**
  * Render a shape that is a single region of the entire shapefile.
  */
-	public class DistrictMapRenderer  {
-		private final static String CLSS = "RegionMapRenderer";
+	public class DistrictMapRenderer  implements MapComponentInitializedListener {
+		private final static String CLSS = "DistrictMapRenderer";
 		private static Logger LOGGER = Logger.getLogger(CLSS);
 		private DatasetModel model = null;
 		private String region;
+		private final GoogleMapView overlay;
 		private ShapefileRenderer renderer;
 		private final Canvas canvas;
+		private boolean overlayReady = false;
 		private FeatureFilter filter;
 		private Style style;
 
 		public DistrictMapRenderer(Canvas cnvs) {
 			this.canvas = cnvs;
 			this.renderer = null;
+			this.overlay = new GoogleMapView(Locale.getDefault().getLanguage(), null);
+			overlay.addMapInitializedListener(this);
+	        overlay.setDisableDoubleClick(true);
 			
 			// LineColor, LineWidth, FillColor
 			this.style = new Style(Color.BLACK,0.001,Color.BLANCHEDALMOND);  // Initially
@@ -88,10 +97,20 @@ import redistrict.colorado.db.Database;
 		}
 
 		private void drawMap() {
+			if( overlayReady ) {
+				
+			}
 			if( renderer!=null) {
 				Rectangle screenArea = new Rectangle((int)canvas.getWidth(), (int)canvas.getHeight());
 				canvas.getGraphicsContext2D().fillRect(0,0,screenArea.getWidth(),screenArea.getHeight());
 				renderer.paint(canvas.getGraphicsContext2D(),screenArea,style,filter);
 			}
+		}
+		
+		// ------------------------- MapComponentInitializedListener -----------------------
+		@Override
+	    public void mapInitialized() {
+			LOGGER.info(String.format("%s.mapInitialized: GoogleMap is ready"));
+			overlayReady = true;
 		}
 }

@@ -86,7 +86,15 @@
 					modulepathref="common-modulepath"
 					includeantruntime="false"
 		/>
-		<jar destfile="${lib.dir}/${gmapsfx-jar}" includes="**/*.class,**/*.png,**/*.css" basedir="${temp.dir}">
+		<copy todir="${temp.dir}">
+			<fileset dir="../GMapsFX/src">
+				<include name="**/*.html"/>
+				<include name="**/*.js"/>
+				<include name="**/*.css"/>
+				<include name="**/*.png"/>
+			</fileset>
+		</copy>
+		<jar destfile="${lib.dir}/${gmapsfx-jar}" includes="**/*.class,**/*.html,**/*.js,**/*.css,**/*.png" basedir="${temp.dir}">
 		</jar>
 	</target>
 	<target name="rc-core" description="Build RC Core jar">
