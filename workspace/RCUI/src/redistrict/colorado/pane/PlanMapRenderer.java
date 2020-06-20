@@ -5,7 +5,6 @@
  * modify it under the terms of the GNU General Public License.
  */
 package redistrict.colorado.pane;
-import java.util.Locale;
 import java.util.logging.Logger;
 
 import org.geotools.render.FeatureFilter;
@@ -13,13 +12,12 @@ import org.geotools.render.MapLayer;
 import org.geotools.render.ShapefileRenderer;
 import org.geotools.style.Style;
 
-import com.lynden.gmapsfx.GoogleMapView;
-import com.lynden.gmapsfx.MapComponentInitializedListener;
-
 import javafx.scene.canvas.Canvas;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import redistrict.colorado.core.DatasetModel;
+import redistrict.colorado.gmaps.GoogleMapView;
+import redistrict.colorado.gmaps.MapComponentInitializedListener;
 
 /**
  * Render shape as referenced by a plan.
@@ -38,7 +36,7 @@ import redistrict.colorado.core.DatasetModel;
 		public PlanMapRenderer(Canvas cnvs) {
 			this.canvas = cnvs;
 			this.renderer = null;
-			this.overlay = new GoogleMapView();
+			this.overlay = new GoogleMapView("API KEY");
 			overlay.addMapInitializedListener(this);
 	        overlay.setDisableDoubleClick(true);
 			

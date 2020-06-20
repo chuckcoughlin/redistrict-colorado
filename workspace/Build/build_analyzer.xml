@@ -19,7 +19,7 @@
 		<mkdir dir="${install.dir}/bin"/>
 	</target>
 	
-	<target name="build" depends="version,jsr-275,geolib,geotools,gmapsfx,rc-core,rc-ui,rc-analyzer" />
+	<target name="build" depends="version,jsr-275,geolib,geotools,gmaps,rc-core,rc-ui,rc-analyzer" />
 	<target name="version" description="Copy VERSION file for building">
 		<copy todir="${basedir}/../RCUI/src/redistrict/colorado/system/">
 			<fileset dir="${install.dir}/../release/">
@@ -74,11 +74,11 @@
 			<jar destfile="${lib.dir}/${geotools-jar}" includes="**/*.class,**/*.png,**/*.css" basedir="${temp.dir}">
 			</jar>
 	</target>
-	<target name="gmapsfx" description="Build Google Maps interface jar">
-		<echo message="Compile GMapsFX" />
+	<target name="gmaps" description="Build Google Maps interface jar">
+		<echo message="Compile GMaps" />
 		<delete dir="${temp.dir}" />
 		<mkdir dir="${temp.dir}"/>
-		<javac	srcdir="../GMapsFX/src"
+		<javac	srcdir="../GMaps/src"
 					destdir="${temp.dir}"
 					compiler="javac10+"
 					source="13" target="13"
@@ -87,14 +87,14 @@
 					includeantruntime="false"
 		/>
 		<copy todir="${temp.dir}">
-			<fileset dir="../GMapsFX/src">
+			<fileset dir="../GMaps/src">
 				<include name="**/*.html"/>
 				<include name="**/*.js"/>
 				<include name="**/*.css"/>
 				<include name="**/*.png"/>
 			</fileset>
 		</copy>
-		<jar destfile="${lib.dir}/${gmapsfx-jar}" includes="**/*.class,**/*.html,**/*.js,**/*.css,**/*.png" basedir="${temp.dir}">
+		<jar destfile="${lib.dir}/${google-maps-jar}" includes="**/*.class,**/*.html,**/*.js,**/*.css,**/*.png" basedir="${temp.dir}">
 		</jar>
 	</target>
 	<target name="rc-core" description="Build RC Core jar">

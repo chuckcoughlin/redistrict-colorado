@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package com.lynden.gmapsfx.javascript.object;
-
-import com.lynden.gmapsfx.javascript.JavascriptObject;
-import com.lynden.gmapsfx.shapes.MapShapeOptions;
+package redistrict.colorado.gmaps.javascript.object;
 
 import netscape.javascript.JSObject;
+import redistrict.colorado.gmaps.javascript.JavascriptObject;
+import redistrict.colorado.gmaps.shape.MapShapeOptions;
 
 /**
  *

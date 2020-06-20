@@ -15,6 +15,7 @@ module rc.analyzer {
 	requires transitive javafx.graphics;
 	requires transitive javafx.controls;
 	requires jdk.jdwp.agent;
+	requires transitive google.maps;
 	
 	/* For debugging */
 	requires java.instrument;

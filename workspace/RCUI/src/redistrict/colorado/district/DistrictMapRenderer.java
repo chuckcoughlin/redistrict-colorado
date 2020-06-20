@@ -16,15 +16,14 @@ import org.openjump.feature.Feature;
 import org.openjump.feature.FeatureCollection;
 import org.openjump.feature.FeatureDataset;
 
-import com.lynden.gmapsfx.GoogleMapView;
-import com.lynden.gmapsfx.MapComponentInitializedListener;
-
 import javafx.scene.canvas.Canvas;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import redistrict.colorado.core.DatasetModel;
 import redistrict.colorado.core.StandardAttributes;
 import redistrict.colorado.db.Database;
+import redistrict.colorado.gmaps.GoogleMapView;
+import redistrict.colorado.gmaps.MapComponentInitializedListener;
 
 /**
  * Render a shape that is a single region of the entire shapefile.
@@ -44,7 +43,7 @@ import redistrict.colorado.db.Database;
 		public DistrictMapRenderer(Canvas cnvs) {
 			this.canvas = cnvs;
 			this.renderer = null;
-			this.overlay = new GoogleMapView(Locale.getDefault().getLanguage(), null);
+			this.overlay = new GoogleMapView("API KEY");
 			overlay.addMapInitializedListener(this);
 	        overlay.setDisableDoubleClick(true);
 			

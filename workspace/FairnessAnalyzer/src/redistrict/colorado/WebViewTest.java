@@ -7,13 +7,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.Logger;
 
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-
-import org.w3c.dom.Document;
-
 import javafx.application.Application;
 import javafx.concurrent.Worker;
 import javafx.concurrent.Worker.State;
