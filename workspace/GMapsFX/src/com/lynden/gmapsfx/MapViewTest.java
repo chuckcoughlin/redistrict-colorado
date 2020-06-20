@@ -28,8 +28,8 @@ public class MapViewTest extends Application implements MapComponentInitializedL
 		//Create the JavaFX component and set this as a listener so we know when 
 		//the map has been initialized, at which point we can then begin manipulating it.
 		
-		mapView = new GoogleMapView();
-		//mapView = new GoogleMapView("en-US","AIzaSyCAP3nDrVJ4i7MjtjOzP6AfRaz_Kmbwb7A");
+		//mapView = new GoogleMapView();
+		mapView = new GoogleMapView("en-US","AIzaSyCAP3nDrVJ4i7MjtjOzP6AfRaz_Kmbwb7A");
 		mapView.addMapInitializedListener(this);
 
 		Scene scene = new Scene(mapView);

@@ -11,6 +11,7 @@ module rc.analyzer {
 	requires java.xml;
 	requires jdk.jfr;
 	requires javafx.base;
+	requires javafx.web;
 	requires transitive javafx.graphics;
 	requires transitive javafx.controls;
 	requires jdk.jdwp.agent;

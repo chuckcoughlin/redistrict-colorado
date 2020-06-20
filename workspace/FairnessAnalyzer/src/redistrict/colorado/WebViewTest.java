@@ -1,8 +1,10 @@
-package com.lynden.gmapsfx;
+package redistrict.colorado;
 
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.ServerSocket;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.logging.Logger;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -20,10 +22,16 @@ import javafx.scene.layout.VBox;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
+import redistrict.colorado.core.LoggerUtility;
+import redistrict.colorado.core.PathConstants;
 
+/**
+ * Demonstrate that the java web view can display web pages.
+ */
 public class WebViewTest extends Application {
 	private static final String CLSS = "WebViewTest";
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
+	private static final String LOG_ROOT = CLSS.toLowerCase();
 
     public void start(Stage primaryStage) {
     	LOGGER.info(String.format("%s.start: Port 80 is %s",CLSS,(available(80)?"OPEN":"CLOSED")));
@@ -36,7 +44,7 @@ public class WebViewTest extends Application {
         worker.stateProperty().addListener((observable, oldState, newState) -> {
         	LOGGER.info(String.format("%s.web engine state: %s",CLSS,newState.toString()));
             if (newState == State.SUCCEEDED) {
-                Document doc = engine.getDocument();
+            	LOGGER.info(String.format("%s: location=%s",CLSS,engine.getLocation()));
             }
             else if (newState == State.FAILED) {
             	LOGGER.info(String.format("%s.web engine worker: %s",CLSS,worker.getMessage()));
@@ -86,6 +94,11 @@ public class WebViewTest extends Application {
     }
     
     public static void main(String[] args) {
+    	String arg = args[0];
+    	Path path = Paths.get(arg);
+    	PathConstants.setHome(path);
+    	// Logging setup routes to console and file within "log" directory
+    	LoggerUtility.getInstance().configureRootLogger(LOG_ROOT);
         launch(args);
     }
 }

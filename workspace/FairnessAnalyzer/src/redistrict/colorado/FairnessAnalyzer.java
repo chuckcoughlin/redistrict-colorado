@@ -70,7 +70,7 @@ public class FairnessAnalyzer extends Application {
     	String arg = args[0];
     	Path path = Paths.get(arg);
     	PathConstants.setHome(path);
-    	// Logging setup routes to console and file withing "log" directory
+    	// Logging setup routes to console and file within "log" directory
     	LoggerUtility.getInstance().configureRootLogger(LOG_ROOT);
 		Database.getInstance().startup(PathConstants.DB_PATH);
 		
