@@ -5,20 +5,13 @@ import java.nio.file.Paths;
 import java.util.logging.Logger;
 
 import javafx.application.Application;
-import javafx.concurrent.Worker;
-import javafx.concurrent.Worker.State;
 import javafx.scene.Scene;
-import javafx.scene.web.WebEngine;
 import javafx.stage.Stage;
 import redistrict.colorado.core.LoggerUtility;
 import redistrict.colorado.core.PathConstants;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.gmaps.GoogleMapView;
 import redistrict.colorado.gmaps.MapComponentInitializedListener;
-import redistrict.colorado.gmaps.javascript.object.GoogleMap;
-import redistrict.colorado.gmaps.javascript.object.LatLong;
-import redistrict.colorado.gmaps.javascript.object.MapOptions;
-import redistrict.colorado.gmaps.javascript.object.MapType;
 import redistrict.colorado.pref.PreferenceKeys;
 
 public class MapViewTest extends Application implements MapComponentInitializedListener {
@@ -26,7 +19,6 @@ public class MapViewTest extends Application implements MapComponentInitializedL
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
 	private static final String LOG_ROOT = CLSS.toLowerCase();
 	GoogleMapView mapView;
-	GoogleMap map;
 
 	@Override
 	public void start(Stage stage) throws Exception {
@@ -51,19 +43,7 @@ public class MapViewTest extends Application implements MapComponentInitializedL
 	public void mapInitialized() {
 		LOGGER.info("MapViewTest: map initialized ...");
 		//Set the initial properties of the map.
-		MapOptions mapOptions = new MapOptions();
-
-		mapOptions.center(new LatLong(47.6097, -122.3331))
-		.mapType(MapType.ROADMAP)
-		.overviewMapControl(false)
-		.panControl(false)
-		.rotateControl(false)
-		.scaleControl(false)
-		.streetViewControl(false)
-		.zoomControl(false)
-		.zoom(12);
-
-		//map = mapView.createMap(mapOptions);
+		
 	}
 
 	public static void main(String[] args) {

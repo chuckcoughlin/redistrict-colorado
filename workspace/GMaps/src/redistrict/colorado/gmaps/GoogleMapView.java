@@ -35,8 +35,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
-import redistrict.colorado.gmaps.javascript.JavascriptRuntime;
-import redistrict.colorado.gmaps.javascript.object.GoogleMap;
 
 /**
  *
@@ -53,7 +51,6 @@ public class GoogleMapView extends AnchorPane {
     protected WebEngine webengine;
     protected boolean disableDoubleClick = false;
     protected boolean initialized = false;
-    protected GoogleMap map = null;
     protected final List<MapComponentInitializedListener> mapInitializedListeners = new ArrayList<>();
 
 
@@ -76,7 +73,6 @@ public class GoogleMapView extends AnchorPane {
                 EventDispatcher dispatcher = webview.getEventDispatcher();
                 webview.setEventDispatcher(new DoubleClickSuppressor(dispatcher));
                 webengine = webview.getEngine();
-                JavascriptRuntime.setDefaultWebEngine(webengine);
                 LOGGER.info(String.format("%s: new google view ...",CLSS));
                 setTopAnchor(webview, 0.0);
                 setLeftAnchor(webview, 0.0);
@@ -117,7 +113,7 @@ public class GoogleMapView extends AnchorPane {
                     //LOGGER.info(String.format("%s.web engine page: %s",CLSS,page));
                     webengine.loadContent(page);
                     initialized = true;
-                    //fireMapInitializedListeners();            
+                    fireMapInitializedListeners();            
                 } 
                 catch (IOException e) {
                     e.printStackTrace();
@@ -144,8 +140,8 @@ public class GoogleMapView extends AnchorPane {
         }
     }
     private void mapResized() {
-        if (initialized && map != null) {
-            webengine.executeScript("google.maps.event.trigger(" + map.getVariableName() + ", 'resize')");
+        if (initialized ) {
+            //webengine.executeScript("google.maps.event.trigger(" + map.getVariableName() + ", 'resize')");
         }
     }
     public void removeMacpInitializedListener(MapComponentInitializedListener listener) {
@@ -156,8 +152,6 @@ public class GoogleMapView extends AnchorPane {
     public void setDisableDoubleClick(boolean disableDoubleClick) {
         this.disableDoubleClick = disableDoubleClick;
     }
-   
-    
     
     /**
      * Swallow double-click events if so configured in the main class

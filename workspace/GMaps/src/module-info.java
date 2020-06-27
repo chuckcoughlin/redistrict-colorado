@@ -13,7 +13,4 @@ module google.maps {
 	requires transitive javafx.web;
 	
 	exports redistrict.colorado.gmaps;
-	exports redistrict.colorado.gmaps.javascript;
-	exports redistrict.colorado.gmaps.javascript.event;
-	exports redistrict.colorado.gmaps.javascript.object;
 }
