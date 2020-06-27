@@ -88,9 +88,6 @@ public class GoogleMapView extends AnchorPane {
                     }
                 });
  
-                String page = getClass().getResource(PAGE_PATH).toExternalForm();
-                webengine.load(page);
-                /*
                 try (InputStream inputStream = getClass().getResourceAsStream(PAGE_PATH)) {
                 	ByteArrayOutputStream into = new ByteArrayOutputStream();
                     byte[] buf = new byte[4096];
@@ -99,13 +96,15 @@ public class GoogleMapView extends AnchorPane {
                     }
                     into.close();
                     String page = new String(into.toByteArray(), "UTF-8"); // Or whatever encoding
-                    LOGGER.info(String.format("%s.web engine page: %s",CLSS,page));
-                    webengine.load(page);
+                    page = page.replace("GOOGLE_API_KEY", key);
+                    //LOGGER.info(String.format("%s.web engine page: %s",CLSS,page));
+                    webengine.loadContent(page);
 
-                } catch (IOException e) {
+                } 
+                catch (IOException e) {
                     e.printStackTrace();
                 }
-                */
+               
             } 
             finally {
                 latch.countDown();
@@ -190,5 +189,4 @@ public class GoogleMapView extends AnchorPane {
             return dispatcher.dispatchEvent(event, tail);
         }
     }
-
 }

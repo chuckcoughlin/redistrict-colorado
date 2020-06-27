@@ -12,12 +12,14 @@ import javafx.scene.web.WebEngine;
 import javafx.stage.Stage;
 import redistrict.colorado.core.LoggerUtility;
 import redistrict.colorado.core.PathConstants;
+import redistrict.colorado.db.Database;
 import redistrict.colorado.gmaps.GoogleMapView;
 import redistrict.colorado.gmaps.MapComponentInitializedListener;
 import redistrict.colorado.gmaps.javascript.object.GoogleMap;
 import redistrict.colorado.gmaps.javascript.object.LatLong;
 import redistrict.colorado.gmaps.javascript.object.MapOptions;
 import redistrict.colorado.gmaps.javascript.object.MapType;
+import redistrict.colorado.pref.PreferenceKeys;
 
 public class MapViewTest extends Application implements MapComponentInitializedListener {
 	private static final String CLSS = "MapViewTest";
@@ -31,8 +33,8 @@ public class MapViewTest extends Application implements MapComponentInitializedL
 		LOGGER.info("MapViewTest: startup ...");
 		//Create the JavaFX component and set this as a listener so we know when 
 		//the map has been initialized, at which point we can then begin manipulating it.
-		
-		mapView = new GoogleMapView("AIzaSyCAP3nDrVJ4i7MjtjOzP6AfRaz_Kmbwb7A");
+		String api = Database.getInstance().getPreferencesTable().getParameter(PreferenceKeys.GOOGLE_API_KEY);
+		mapView = new GoogleMapView(api);
 		mapView.addMapInitializedListener(this);
 		
 		Scene scene = new Scene(mapView);
@@ -69,6 +71,7 @@ public class MapViewTest extends Application implements MapComponentInitializedL
     	PathConstants.setHome(path);
     	// Logging setup routes to console and file within "log" directory
     	LoggerUtility.getInstance().configureRootLogger(LOG_ROOT);
+    	Database.getInstance().startup(PathConstants.DB_PATH);
         launch(args);
 	}
 }

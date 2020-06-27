@@ -26,6 +26,7 @@ import redistrict.colorado.pref.PreferenceKeys;
 
 /**
  * Display a popup window for the purpose of entering a key for Google Maps.
+ * My key = AIzaSyCAP3nDr VJ4i7MjtjOzP6A fRaz_Kmbwb7A
  */
 public class KeyEntry { 
 	private static final double HEIGHT = 200;
