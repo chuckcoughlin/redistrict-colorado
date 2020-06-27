@@ -25,10 +25,8 @@
   	  // Remove all of the extra controls
   	  function configureMap() {
   		alert('configureMap called');
-        var dirDiv = document.getElementById('directions');
         var mapDiv = document.getElementById('map');
         mapDiv.style.width = '100%';
-        dirDiv.style.width = '0%';
         return 1;
   	  }
       // This example creates a 2-pixel-wide red polyline showing the path of
@@ -36,26 +34,10 @@
       // Australia which was made by Charles Kingsford Smith.
       function initMap() {
         var map = new google.maps.Map(document.getElementById('map'), {
-          zoom: 3,
-          center: {lat: 0, lng: -180},
+          zoom: 7,
+          center: {lat: 39.742043, lng: -104.991531},
           mapTypeId: 'terrain'
         });
-
-        var flightPlanCoordinates = [
-          {lat: 37.772, lng: -122.214},
-          {lat: 21.291, lng: -157.821},
-          {lat: -18.142, lng: 178.431},
-          {lat: -27.467, lng: 153.027}
-        ];
-        var flightPath = new google.maps.Polyline({
-          path: flightPlanCoordinates,
-          geodesic: true,
-          strokeColor: '#FF0000',
-          strokeOpacity: 1.0,
-          strokeWeight: 2
-        });
-
-        flightPath.setMap(map);
       }
     </script>
     <script async defer

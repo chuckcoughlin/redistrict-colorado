@@ -12,10 +12,19 @@ package redistrict.colorado.gmaps;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Logger;
+
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Document;
 
 import javafx.concurrent.Worker;
 import javafx.concurrent.Worker.State;
@@ -26,10 +35,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
-import netscape.javascript.JSObject;
 import redistrict.colorado.gmaps.javascript.JavascriptRuntime;
 import redistrict.colorado.gmaps.javascript.object.GoogleMap;
-import redistrict.colorado.gmaps.javascript.object.MapOptions;
 
 /**
  *
@@ -37,6 +44,7 @@ import redistrict.colorado.gmaps.javascript.object.MapOptions;
  */
 public class GoogleMapView extends AnchorPane {
 	private static final String CLSS = "GoogleMapView";
+	private static final boolean DEBUG = false;
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
     public static final String GOOGLE_MAPS_API_LINK = "https://maps.googleapis.com/maps/api/js?v=3.exp";
     public static final String PAGE_PATH = "html/googlemaps.html"; 
@@ -87,10 +95,12 @@ public class GoogleMapView extends AnchorPane {
                 	
                     if (newState == State.SUCCEEDED) {
                     	LOGGER.info(String.format("%s.web engine SUCCEEDED: %s",CLSS,webengine.getLocation()));
-                    	initializeScript();
+                    	if( DEBUG ) {
+                    		Document doc = webengine.getDocument();
+                    		if( doc!=null ) dumpDocument(doc);
+                    	}
                     }
                     else if (newState == State.FAILED) {
-                    	LOGGER.info(String.format("%s.web engine FAILED: %s",CLSS,worker.getMessage()));
                     	LOGGER.severe(String.format("%s.web engine worker: %s",CLSS,worker.getException()));
                     }
                 });
@@ -120,10 +130,6 @@ public class GoogleMapView extends AnchorPane {
        initWebView.run();
     }
     
-    public GoogleMap createMap(MapOptions options) {
-    	GoogleMap map = new GoogleMap();
-    	return map;
-    }
     
     public void addMapInitializedListener(MapComponentInitializedListener listener) {
         synchronized (mapInitializedListeners) {
@@ -137,6 +143,11 @@ public class GoogleMapView extends AnchorPane {
             }
         }
     }
+    private void mapResized() {
+        if (initialized && map != null) {
+            webengine.executeScript("google.maps.event.trigger(" + map.getVariableName() + ", 'resize')");
+        }
+    }
     public void removeMacpInitializedListener(MapComponentInitializedListener listener) {
         synchronized (mapInitializedListeners) {
             mapInitializedListeners.remove(listener);
@@ -145,32 +156,8 @@ public class GoogleMapView extends AnchorPane {
     public void setDisableDoubleClick(boolean disableDoubleClick) {
         this.disableDoubleClick = disableDoubleClick;
     }
-    protected void setInitialized(boolean initialized) {
-        this.initialized = initialized;
-    }
+   
     
-    /**
-     * Execute this script on first contact.
-     */
-    private void initializeScript() {
-    	JSObject window = (JSObject) webengine.executeScript("window");
-    	window.setMember("libLoadBridge", new MapLibraryLoadBridge());
-    }
-    private void mapResized() {
-        if (initialized && map != null) {
-            webengine.executeScript("google.maps.event.trigger(" + map.getVariableName() + ", 'resize')");
-        }
-    }
-    
-    public class MapLibraryLoadBridge {
-        public MapLibraryLoadBridge() {}
-
-        public void mapLibraryLoaded() {
-            setInitialized(true);
-            fireMapInitializedListeners();
-        }
-
-    }
     
     /**
      * Swallow double-click events if so configured in the main class
@@ -194,6 +181,22 @@ public class GoogleMapView extends AnchorPane {
                 }
             }
             return dispatcher.dispatchEvent(event, tail);
+        }
+    }
+    
+    // Dump a Document, for debugging only
+    private void dumpDocument(Document doc) {
+        try {
+           DOMSource domSource = new DOMSource(doc);
+           StringWriter writer = new StringWriter();
+           StreamResult result = new StreamResult(writer);
+           TransformerFactory tf = TransformerFactory.newInstance();
+           Transformer transformer = tf.newTransformer();
+           transformer.transform(domSource, result);
+           LOGGER.info(writer.toString());
+        }
+        catch(TransformerException ex) {
+           ex.printStackTrace();
         }
     }
 }
