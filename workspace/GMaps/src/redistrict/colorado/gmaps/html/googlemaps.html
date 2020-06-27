@@ -29,14 +29,25 @@
         mapDiv.style.width = '100%';
         return 1;
   	  }
-      // This example creates a 2-pixel-wide red polyline showing the path of
-      // the first trans-Pacific flight between Oakland, CA, and Brisbane,
-      // Australia which was made by Charles Kingsford Smith.
+      // This example centers on Denver. We leave only a single control,
+      // the map type. Ultimately panning and zoom are automatic.
+      // Map types are: ROADMAP, SATELLITE, HYBRID, or TERRAIN.
       function initMap() {
         var map = new google.maps.Map(document.getElementById('map'), {
           zoom: 7,
           center: {lat: 39.742043, lng: -104.991531},
-          mapTypeId: 'terrain'
+          mapTypeId: 'terrain',
+          mapTypeControl: true,
+          zoomControl: false,
+          scaleControl: false,
+          streetViewControl: false,
+          rotateControl: false,
+          fullscreenControl: false,
+          mapTypeControlOptions: {
+            style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
+            mapTypeIds: ['roadmap', 'terrain','satellite','hybrid']
+          }
+
         });
       }
     </script>
