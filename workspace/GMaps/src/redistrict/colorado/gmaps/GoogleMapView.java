@@ -40,6 +40,7 @@ public class GoogleMapView extends AnchorPane {
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
     public static final String GOOGLE_MAPS_API_LINK = "https://maps.googleapis.com/maps/api/js?v=3.exp";
     public static final String PAGE_PATH = "html/googlemaps.html"; 
+    private final String key;
     protected WebView webview;
     protected WebEngine webengine;
     protected boolean disableDoubleClick = false;
@@ -51,9 +52,15 @@ public class GoogleMapView extends AnchorPane {
     /**
      * Creates a new map view using the API key.
      *
-     * @param key Google Maps API key or null
+     * @param key Google Maps API key
      */
-    public GoogleMapView(String key) {
+    public GoogleMapView(String api) {
+    	this.key = api;
+    }
+    /**
+     * Start the web-engine and display the first version of the map.
+     */
+    public void start() {
     	CountDownLatch latch = new CountDownLatch(1);
     	Runnable initWebView = () -> {
             try {
@@ -84,7 +91,7 @@ public class GoogleMapView extends AnchorPane {
                     }
                     else if (newState == State.FAILED) {
                     	LOGGER.info(String.format("%s.web engine FAILED: %s",CLSS,worker.getMessage()));
-                    	LOGGER.info(String.format("%s.web engine worker: %s",CLSS,worker.getException()));
+                    	LOGGER.severe(String.format("%s.web engine worker: %s",CLSS,worker.getException()));
                     }
                 });
  
@@ -99,12 +106,12 @@ public class GoogleMapView extends AnchorPane {
                     page = page.replace("GOOGLE_API_KEY", key);
                     //LOGGER.info(String.format("%s.web engine page: %s",CLSS,page));
                     webengine.loadContent(page);
-
+                    initialized = true;
+                    //fireMapInitializedListeners();            
                 } 
                 catch (IOException e) {
                     e.printStackTrace();
                 }
-               
             } 
             finally {
                 latch.countDown();

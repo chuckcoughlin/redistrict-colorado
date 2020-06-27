@@ -36,10 +36,11 @@ public class MapViewTest extends Application implements MapComponentInitializedL
 		String api = Database.getInstance().getPreferencesTable().getParameter(PreferenceKeys.GOOGLE_API_KEY);
 		mapView = new GoogleMapView(api);
 		mapView.addMapInitializedListener(this);
+		mapView.start();
 		
 		Scene scene = new Scene(mapView);
 
-		stage.setTitle("JavaFX and Google Maps");
+		stage.setTitle("Test JavaFX and Google Maps");
 		stage.setScene(scene);
 		stage.show();
 	}
@@ -62,7 +63,7 @@ public class MapViewTest extends Application implements MapComponentInitializedL
 		.zoomControl(false)
 		.zoom(12);
 
-		map = mapView.createMap(mapOptions);
+		//map = mapView.createMap(mapOptions);
 	}
 
 	public static void main(String[] args) {
