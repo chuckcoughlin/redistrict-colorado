@@ -33,12 +33,6 @@
 
 package org.geotools.render;
 
-import javafx.scene.shape.Shape;
-import javafx.scene.transform.Scale;
-import javafx.scene.transform.Transform;
-import javafx.scene.transform.Translate;
-
-
 /**
  * A feature filter holds parameters  By default the filter does nothing.
  */

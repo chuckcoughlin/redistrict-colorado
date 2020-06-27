@@ -24,7 +24,6 @@ import redistrict.colorado.core.GateType;
 import redistrict.colorado.core.NameValue;
 import redistrict.colorado.core.PlanFeature;
 import redistrict.colorado.core.PlanModel;
-import redistrict.colorado.db.PreferencesTable;
 import redistrict.colorado.table.NameValueCellValueFactory;
 import redistrict.colorado.table.NameValueListCellValueFactory;
 import redistrict.colorado.table.NameValueListLimitCellFactory;

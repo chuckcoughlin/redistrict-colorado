@@ -1,10 +1,17 @@
 package redistrict.colorado;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.logging.Logger;
 
 import javafx.application.Application;
+import javafx.concurrent.Worker;
+import javafx.concurrent.Worker.State;
 import javafx.scene.Scene;
+import javafx.scene.web.WebEngine;
 import javafx.stage.Stage;
+import redistrict.colorado.core.LoggerUtility;
+import redistrict.colorado.core.PathConstants;
 import redistrict.colorado.gmaps.GoogleMapView;
 import redistrict.colorado.gmaps.MapComponentInitializedListener;
 import redistrict.colorado.gmaps.javascript.object.GoogleMap;
@@ -15,6 +22,7 @@ import redistrict.colorado.gmaps.javascript.object.MapType;
 public class MapViewTest extends Application implements MapComponentInitializedListener {
 	private static final String CLSS = "MapViewTest";
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
+	private static final String LOG_ROOT = CLSS.toLowerCase();
 	GoogleMapView mapView;
 	GoogleMap map;
 
@@ -24,10 +32,9 @@ public class MapViewTest extends Application implements MapComponentInitializedL
 		//Create the JavaFX component and set this as a listener so we know when 
 		//the map has been initialized, at which point we can then begin manipulating it.
 		
-		//mapView = new GoogleMapView();
 		mapView = new GoogleMapView("AIzaSyCAP3nDrVJ4i7MjtjOzP6AfRaz_Kmbwb7A");
 		mapView.addMapInitializedListener(this);
-
+		
 		Scene scene = new Scene(mapView);
 
 		stage.setTitle("JavaFX and Google Maps");
@@ -35,6 +42,8 @@ public class MapViewTest extends Application implements MapComponentInitializedL
 		stage.show();
 	}
 
+	
+	// ---------------------- MapComponentInitializedListener -----------------------------
 	@Override
 	public void mapInitialized() {
 		LOGGER.info("MapViewTest: map initialized ...");
@@ -55,6 +64,11 @@ public class MapViewTest extends Application implements MapComponentInitializedL
 	}
 
 	public static void main(String[] args) {
-		launch(args);
+		String arg = args[0];
+    	Path path = Paths.get(arg);
+    	PathConstants.setHome(path);
+    	// Logging setup routes to console and file within "log" directory
+    	LoggerUtility.getInstance().configureRootLogger(LOG_ROOT);
+        launch(args);
 	}
 }

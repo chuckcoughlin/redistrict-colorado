@@ -24,6 +24,7 @@ import redistrict.colorado.core.StandardAttributes;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.gmaps.GoogleMapView;
 import redistrict.colorado.gmaps.MapComponentInitializedListener;
+import redistrict.colorado.pref.PreferenceKeys;
 
 /**
  * Render a shape that is a single region of the entire shapefile.
@@ -43,7 +44,8 @@ import redistrict.colorado.gmaps.MapComponentInitializedListener;
 		public DistrictMapRenderer(Canvas cnvs) {
 			this.canvas = cnvs;
 			this.renderer = null;
-			this.overlay = new GoogleMapView("API KEY");
+			String key = Database.getInstance().getPreferencesTable().getParameter(PreferenceKeys.GOOGLE_API_KEY);
+			this.overlay = new GoogleMapView(key);
 			overlay.addMapInitializedListener(this);
 	        overlay.setDisableDoubleClick(true);
 			

@@ -15,9 +15,12 @@
  */
 package com.lynden.gmapsfx.javascript.object;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
 import com.lynden.gmapsfx.javascript.JavascriptObject;
 import com.lynden.gmapsfx.javascript.JavascriptRuntime;
-
 import com.lynden.gmapsfx.javascript.event.EventHandlers;
 import com.lynden.gmapsfx.javascript.event.GFXEventHandler;
 import com.lynden.gmapsfx.javascript.event.MapStateEventType;
@@ -25,9 +28,7 @@ import com.lynden.gmapsfx.javascript.event.MouseEventHandler;
 import com.lynden.gmapsfx.javascript.event.StateEventHandler;
 import com.lynden.gmapsfx.javascript.event.UIEventHandler;
 import com.lynden.gmapsfx.javascript.event.UIEventType;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -36,10 +37,6 @@ import javafx.beans.value.ObservableValue;
 import javafx.geometry.Point2D;
 import javafx.util.Callback;
 import netscape.javascript.JSObject;
-
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  *

@@ -16,8 +16,10 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import redistrict.colorado.core.DatasetModel;
+import redistrict.colorado.db.Database;
 import redistrict.colorado.gmaps.GoogleMapView;
 import redistrict.colorado.gmaps.MapComponentInitializedListener;
+import redistrict.colorado.pref.PreferenceKeys;
 
 /**
  * Render shape as referenced by a plan.
@@ -36,7 +38,8 @@ import redistrict.colorado.gmaps.MapComponentInitializedListener;
 		public PlanMapRenderer(Canvas cnvs) {
 			this.canvas = cnvs;
 			this.renderer = null;
-			this.overlay = new GoogleMapView("API KEY");
+			String key = Database.getInstance().getPreferencesTable().getParameter(PreferenceKeys.GOOGLE_API_KEY);
+			this.overlay = new GoogleMapView(key);
 			overlay.addMapInitializedListener(this);
 	        overlay.setDisableDoubleClick(true);
 			
