@@ -44,9 +44,12 @@ public class GoogleMapView extends AnchorPane {
 	private static final String CLSS = "GoogleMapView";
 	private static final boolean DEBUG = false;
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
-    public static final String GOOGLE_MAPS_API_LINK = "https://maps.googleapis.com/maps/api/js?v=3.exp";
-    public static final String PAGE_PATH = "html/googlemaps.html"; 
+    public static final String BOUNDS_PATH = "html/googlemaps.html";  // "vanilla" test version
+    public static final String DISTRICT_PATH = "html/googlemaps.html";  // "vanilla" test version
+    public static final String PAGE_PATH = "html/googlemaps.html";  // "vanilla" test version
+    public static final String PLAN_PATH = "html/googlemaps.html";  // "vanilla" test version
     private final String key;
+    private final String path;
     protected WebView webview;
     protected WebEngine webengine;
     protected boolean disableDoubleClick = false;
@@ -55,11 +58,13 @@ public class GoogleMapView extends AnchorPane {
 
 
     /**
+     * Use this constructor for the "vanilla" map view that has only a map type control.
      * Creates a new map view using the API key.
      *
      * @param key Google Maps API key
      */
     public GoogleMapView(String api) {
+    	this.path = PAGE_PATH;
     	this.key = api;
     }
     /**
@@ -101,7 +106,7 @@ public class GoogleMapView extends AnchorPane {
                     }
                 });
  
-                try (InputStream inputStream = getClass().getResourceAsStream(PAGE_PATH)) {
+                try (InputStream inputStream = getClass().getResourceAsStream(path)) {
                 	ByteArrayOutputStream into = new ByteArrayOutputStream();
                     byte[] buf = new byte[4096];
                     for (int n; 0 < (n = inputStream.read(buf));) {

@@ -14,6 +14,7 @@ SQL=${CONFIG}/sql
 
 mkdir -p ${DBDIR}
 cd ${DBDIR}
+cp ${DB} ${DB}.bak
 sqlite3 $DB < ${SQL}/preferences.sql
 sqlite3 $DB < ${SQL}/gates.sql
 echo "${DB} update compete."

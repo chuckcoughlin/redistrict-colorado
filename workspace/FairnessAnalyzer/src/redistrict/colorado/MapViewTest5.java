@@ -14,7 +14,7 @@ import redistrict.colorado.gmaps.GoogleMapView;
 import redistrict.colorado.gmaps.MapComponentInitializedListener;
 import redistrict.colorado.pref.PreferenceKeys;
 
-public class MapViewTest extends Application implements MapComponentInitializedListener {
+public class MapViewTest5 extends Application implements MapComponentInitializedListener {
 	private static final String CLSS = "MapViewTest";
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
 	private static final String LOG_ROOT = CLSS.toLowerCase();
@@ -39,10 +39,11 @@ public class MapViewTest extends Application implements MapComponentInitializedL
 
 	
 	// ---------------------- MapComponentInitializedListener -----------------------------
+	// Once the map is initialized, set the boundaries to fit the desired area.
 	@Override
 	public void mapInitialized() {
 		LOGGER.info("MapViewTest: map initialized ...");
-		//Set the initial properties of the map.
+		//Set the bounds of the map.
 		
 	}
 

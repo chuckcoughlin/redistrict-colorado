@@ -20,9 +20,10 @@ import redistrict.colorado.core.PathConstants;
 
 /**
  * Demonstrate that the java web view can display web pages.
+ * This is the most basic and first successful web test.
  */
-public class WebViewTest extends Application {
-	private static final String CLSS = "WebViewTest";
+public class MapViewTest1 extends Application {
+	private static final String CLSS = "MapViewTest1";
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
 	private static final String LOG_ROOT = CLSS.toLowerCase();
 
