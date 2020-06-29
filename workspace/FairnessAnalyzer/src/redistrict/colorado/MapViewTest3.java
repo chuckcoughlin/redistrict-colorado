@@ -52,10 +52,9 @@ public class MapViewTest3 extends Application implements MapComponentInitialized
 	public void mapInitialized() {
 		LOGGER.info("MapViewTest3: map initialized ...");
 		//Set the bounds of the map.
-		//mapView.getEngine().executeScript("window");   // succeeds
-		//mapView.getEngine().executeScript("document.getElementById('map')");  // succeeds
 		Document doc = mapView.getEngine().getDocument();
 		mapView.dumpDocument(doc);
+		mapView.getEngine().executeScript("recenter()");
 		
 	}
 

@@ -114,6 +114,8 @@ public class GoogleMapView extends AnchorPane {
                     		Document doc = webengine.getDocument();
                     		if( doc!=null ) dumpDocument(doc);
                     	}
+                        initialized = true;
+                        fireMapInitializedListeners(); 
                     }
                     else if (newState == State.FAILED) {
                     	LOGGER.severe(String.format("%s.web engine worker: %s",CLSS,worker.getException()));
@@ -130,10 +132,7 @@ public class GoogleMapView extends AnchorPane {
                     String page = new String(into.toByteArray(), "UTF-8"); // Or whatever encoding
                     page = page.replace("GOOGLE_API_KEY", key);
                     //LOGGER.info(String.format("%s.web engine page: %s",CLSS,page));
-                    webengine.loadContent(page);
-                    dumpDocument(webengine.getDocument());
-                    initialized = true;
-                    fireMapInitializedListeners();            
+                    webengine.loadContent(page);           
                 } 
                 catch (IOException e) {
                     e.printStackTrace();
@@ -143,16 +142,18 @@ public class GoogleMapView extends AnchorPane {
                 latch.countDown();
             }
         };
-
+        // Guarantee that we run on the FX Application thread.
         if (Platform.isFxApplicationThread()) {
             initWebView.run();
-        } else {
+        } 
+        else {
             Platform.runLater(initWebView);
         }
 
         try {
             latch.await();
-        } catch (InterruptedException e) {
+        } 
+        catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
     }
