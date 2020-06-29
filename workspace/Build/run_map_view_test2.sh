@@ -1,5 +1,5 @@
 #!/bin/bash
-# Test Google Maps. Clear map of controls and set the bounds of what is displayed.
+# Test Google Maps. Clear map of controls, except for Map Type.
 #
 # NOTE: To use ScenicView, start botth the tool and application outside
 #        of Eclipse. Scripts are in ~/bin. 

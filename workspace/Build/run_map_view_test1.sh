@@ -1,5 +1,5 @@
 #!/bin/bash
-# This is a most basic test of the web view.
+# This is a most basic test of the web view. Simply display the Google home page.
 #
 # NOTE: To use ScenicView, start botth the tool and application outside
 #        of Eclipse. Scripts are in ~/bin. 

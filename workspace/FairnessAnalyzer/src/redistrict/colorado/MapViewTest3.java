@@ -4,6 +4,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.Logger;
 
+import org.w3c.dom.Document;
+
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -14,8 +16,9 @@ import redistrict.colorado.gmaps.GoogleMapView;
 import redistrict.colorado.gmaps.MapComponentInitializedListener;
 import redistrict.colorado.pref.PreferenceKeys;
 
+// This test sets the bounds of the map to include the state of colorado.
 public class MapViewTest3 extends Application implements MapComponentInitializedListener {
-	private static final String CLSS = "MapViewTest";
+	private static final String CLSS = "MapViewTest3";
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
 	private static final String LOG_ROOT = CLSS.toLowerCase();
 	GoogleMapView mapView;
@@ -26,13 +29,18 @@ public class MapViewTest3 extends Application implements MapComponentInitialized
 		//Create the JavaFX component and set this as a listener so we know when 
 		//the map has been initialized, at which point we can then begin manipulating it.
 		String api = Database.getInstance().getPreferencesTable().getParameter(PreferenceKeys.GOOGLE_API_KEY);
-		mapView = new GoogleMapView(api);
+		double north = 41.;
+		double south = 37.;
+		double east = -103.05;
+		double west = -109.05;
+				
+		mapView = new GoogleMapView(api,north,east,south,west);
 		mapView.addMapInitializedListener(this);
 		mapView.start();
 		
 		Scene scene = new Scene(mapView);
 
-		stage.setTitle("Test JavaFX and Google Maps");
+		stage.setTitle("Show Google Map with Initial Bounds");
 		stage.setScene(scene);
 		stage.show();
 	}
@@ -42,8 +50,12 @@ public class MapViewTest3 extends Application implements MapComponentInitialized
 	// Once the map is initialized, set the boundaries to fit the desired area.
 	@Override
 	public void mapInitialized() {
-		LOGGER.info("MapViewTest: map initialized ...");
+		LOGGER.info("MapViewTest3: map initialized ...");
 		//Set the bounds of the map.
+		//mapView.getEngine().executeScript("window");   // succeeds
+		//mapView.getEngine().executeScript("document.getElementById('map')");  // succeeds
+		Document doc = mapView.getEngine().getDocument();
+		mapView.dumpDocument(doc);
 		
 	}
 

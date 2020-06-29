@@ -26,6 +26,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 
+import javafx.application.Platform;
 import javafx.concurrent.Worker;
 import javafx.concurrent.Worker.State;
 import javafx.event.Event;
@@ -44,10 +45,10 @@ public class GoogleMapView extends AnchorPane {
 	private static final String CLSS = "GoogleMapView";
 	private static final boolean DEBUG = false;
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
-    public static final String BOUNDS_PATH = "html/googlemaps.html";  // "vanilla" test version
+    public static final String BOUNDS_PATH   = "html/googlemapbounds.html";  // specify initial bounds
     public static final String DISTRICT_PATH = "html/googlemaps.html";  // "vanilla" test version
-    public static final String PAGE_PATH = "html/googlemaps.html";  // "vanilla" test version
-    public static final String PLAN_PATH = "html/googlemaps.html";  // "vanilla" test version
+    public static final String PAGE_PATH     = "html/googlemaps.html";  // "vanilla" test version
+    public static final String PLAN_PATH     = "html/googlemaps.html";  // "vanilla" test version
     private final String key;
     private final String path;
     protected WebView webview;
@@ -67,13 +68,27 @@ public class GoogleMapView extends AnchorPane {
     	this.path = PAGE_PATH;
     	this.key = api;
     }
+    
+    /**
+     * Use this constructor to specify a map that encloses specified bounds.
+     * Creates a new map view using the API key.
+     *
+     * @param key Google Maps API key
+     */
+    public GoogleMapView(String api,double north,double east,double south,double west) {
+    	this.path = BOUNDS_PATH;
+    	this.key = api;
+    }
+    
+    public WebEngine getEngine() { return this.webengine; }
+    
     /**
      * Start the web-engine and display the first version of the map.
      */
     public void start() {
     	CountDownLatch latch = new CountDownLatch(1);
-    	Runnable initWebView = () -> {
-            try {
+        Runnable initWebView = () -> {
+        	try {
                 webview = new WebView();
                 EventDispatcher dispatcher = webview.getEventDispatcher();
                 webview.setEventDispatcher(new DoubleClickSuppressor(dispatcher));
@@ -93,7 +108,6 @@ public class GoogleMapView extends AnchorPane {
 
                 Worker<Void> worker = webengine.getLoadWorker();
                 worker.stateProperty().addListener((observable, oldState, newState) -> {
-                	
                     if (newState == State.SUCCEEDED) {
                     	LOGGER.info(String.format("%s.web engine SUCCEEDED: %s",CLSS,webengine.getLocation()));
                     	if( DEBUG ) {
@@ -117,18 +131,30 @@ public class GoogleMapView extends AnchorPane {
                     page = page.replace("GOOGLE_API_KEY", key);
                     //LOGGER.info(String.format("%s.web engine page: %s",CLSS,page));
                     webengine.loadContent(page);
+                    dumpDocument(webengine.getDocument());
                     initialized = true;
                     fireMapInitializedListeners();            
                 } 
                 catch (IOException e) {
                     e.printStackTrace();
                 }
-            } 
+        	 } 
             finally {
                 latch.countDown();
             }
         };
-       initWebView.run();
+
+        if (Platform.isFxApplicationThread()) {
+            initWebView.run();
+        } else {
+            Platform.runLater(initWebView);
+        }
+
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
     
     
@@ -184,7 +210,7 @@ public class GoogleMapView extends AnchorPane {
     }
     
     // Dump a Document, for debugging only
-    private void dumpDocument(Document doc) {
+    public void dumpDocument(Document doc) {
         try {
            DOMSource domSource = new DOMSource(doc);
            StringWriter writer = new StringWriter();
