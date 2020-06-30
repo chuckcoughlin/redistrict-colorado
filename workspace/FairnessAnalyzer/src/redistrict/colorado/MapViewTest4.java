@@ -26,7 +26,7 @@ public class MapViewTest4 extends Application implements MapComponentInitialized
 		//Create the JavaFX component and set this as a listener so we know when 
 		//the map has been initialized, at which point we can then begin manipulating it.
 		String api = Database.getInstance().getPreferencesTable().getParameter(PreferenceKeys.GOOGLE_API_KEY);
-		mapView = new GoogleMapView(api);
+		mapView = new GoogleMapView(api,GoogleMapView.DISTRICT_PATH);
 		mapView.addMapInitializedListener(this);
 		mapView.start();
 		

@@ -39,7 +39,7 @@ import redistrict.colorado.pref.PreferenceKeys;
 			this.canvas = cnvs;
 			this.renderer = null;
 			String key = Database.getInstance().getPreferencesTable().getParameter(PreferenceKeys.GOOGLE_API_KEY);
-			this.overlay = new GoogleMapView(key);
+			this.overlay = new GoogleMapView(key,GoogleMapView.PLAN_PATH);
 			overlay.addMapInitializedListener(this);
 	        overlay.setDisableDoubleClick(true);
 			

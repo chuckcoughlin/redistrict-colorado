@@ -21,6 +21,10 @@ public class MapViewTest3 extends Application implements MapComponentInitialized
 	private static final String CLSS = "MapViewTest3";
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
 	private static final String LOG_ROOT = CLSS.toLowerCase();
+	double north = 41.;
+	double south = 37.;
+	double east = -103.05;
+	double west = -109.05;
 	GoogleMapView mapView;
 
 	@Override
@@ -28,13 +32,8 @@ public class MapViewTest3 extends Application implements MapComponentInitialized
 		LOGGER.info("MapViewTest: startup ...");
 		//Create the JavaFX component and set this as a listener so we know when 
 		//the map has been initialized, at which point we can then begin manipulating it.
-		String api = Database.getInstance().getPreferencesTable().getParameter(PreferenceKeys.GOOGLE_API_KEY);
-		double north = 41.;
-		double south = 37.;
-		double east = -103.05;
-		double west = -109.05;
-				
-		mapView = new GoogleMapView(api,north,east,south,west);
+		String api = Database.getInstance().getPreferencesTable().getParameter(PreferenceKeys.GOOGLE_API_KEY);			
+		mapView = new GoogleMapView(api,GoogleMapView.BOUNDS_PATH);
 		mapView.addMapInitializedListener(this);
 		mapView.start();
 		
@@ -52,9 +51,9 @@ public class MapViewTest3 extends Application implements MapComponentInitialized
 	public void mapInitialized() {
 		LOGGER.info("MapViewTest3: map initialized ...");
 		//Set the bounds of the map.
-		Document doc = mapView.getEngine().getDocument();
-		mapView.dumpDocument(doc);
-		mapView.getEngine().executeScript("recenter()");
+		//Document doc = mapView.getEngine().getDocument();
+		//mapView.dumpDocument(doc);
+		mapView.getEngine().executeScript(String.format("initBounds(%8.2f,%8.2f,%8.2f,%8.2f)",north,east,south,west));
 		
 	}
 

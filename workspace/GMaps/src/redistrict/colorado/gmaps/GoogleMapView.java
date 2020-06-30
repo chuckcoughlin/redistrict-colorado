@@ -59,24 +59,14 @@ public class GoogleMapView extends AnchorPane {
 
 
     /**
-     * Use this constructor for the "vanilla" map view that has only a map type control.
-     * Creates a new map view using the API key.
+     * The constructor specifies the API key, plus a path to the desired page.
+     * The page specifies options and callbacks known to and used by the caller.
      *
      * @param key Google Maps API key
+     * @param page path to internal page resource
      */
-    public GoogleMapView(String api) {
-    	this.path = PAGE_PATH;
-    	this.key = api;
-    }
-    
-    /**
-     * Use this constructor to specify a map that encloses specified bounds.
-     * Creates a new map view using the API key.
-     *
-     * @param key Google Maps API key
-     */
-    public GoogleMapView(String api,double north,double east,double south,double west) {
-    	this.path = BOUNDS_PATH;
+    public GoogleMapView(String api,String page) {
+    	this.path = page;
     	this.key = api;
     }
     
