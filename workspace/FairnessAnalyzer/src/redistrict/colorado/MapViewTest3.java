@@ -4,8 +4,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.Logger;
 
-import org.w3c.dom.Document;
-
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -25,7 +23,7 @@ public class MapViewTest3 extends Application implements MapComponentInitialized
 	double south = 37.;
 	double east = -103.05;
 	double west = -109.05;
-	GoogleMapView mapView;
+	private GoogleMapView mapView;
 
 	@Override
 	public void start(Stage stage) throws Exception {

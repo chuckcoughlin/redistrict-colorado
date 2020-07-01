@@ -5,7 +5,6 @@
  * modify it under the terms of the GNU General Public License.
  */
 package redistrict.colorado.district;
-import java.util.Locale;
 import java.util.logging.Logger;
 
 import org.geotools.render.FeatureFilter;

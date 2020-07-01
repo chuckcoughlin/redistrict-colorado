@@ -21,7 +21,7 @@
   <body onload="configureMap()">
     <div id="map"></div>
     <script>
-
+	  var map;
   	  // Remove all of the extra controls
   	  function configureMap() {
   		alert('configureMap called');
@@ -33,13 +33,13 @@
       // the map type. Ultimately panning and zoom are automatic.
       // Map types are: ROADMAP, SATELLITE, HYBRID, or TERRAIN.
       function initMap() {
-        var map = new google.maps.Map(document.getElementById('map'), {
+        map = new google.maps.Map(document.getElementById('map'), {
           zoom: 7,
           center: {lat: 39.742043, lng: -104.991531},
           mapTypeId: 'terrain',
           mapTypeControl: true,
-          zoomControl: false,
-          scaleControl: false,
+          zoomControl: true,
+          scaleControl: true,
           streetViewControl: false,
           rotateControl: false,
           fullscreenControl: false,
@@ -47,10 +47,22 @@
             style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
             mapTypeIds: ['roadmap', 'terrain','satellite','hybrid']
           }
-
         });
       }
-    
+      
+      function initBounds(north,east,south,west) {
+    	  var borders = borderBounds(north,east,south,west);
+    	  //map.setCenter({lat: (north+south)/2, lng: (east+west)/2});
+    	  map.setCenter(borders.getCenter());
+    	  google.maps.event.addListenerOnce(map, 'bounds_changed', function() {
+    		  alert('bounds changed');
+    		});
+    	  map.fitBounds(borders,0);
+      }
+      function borderBounds(north,east,south,west) {
+    	  return new google.maps.LatLngBounds({lat: south, lng: west},
+      		    							  {lat: north, lng: east});
+      }
     </script>
     <script async defer
          src="https://maps.googleapis.com/maps/api/js?key=GOOGLE_API_KEY&callback=initMap">

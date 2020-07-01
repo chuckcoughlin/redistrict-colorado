@@ -9,6 +9,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import redistrict.colorado.core.LoggerUtility;
 import redistrict.colorado.core.PathConstants;
+import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.gmaps.GoogleMapView;
 import redistrict.colorado.gmaps.MapComponentInitializedListener;
@@ -18,8 +19,10 @@ public class MapViewTest5 extends Application implements MapComponentInitialized
 	private static final String CLSS = "MapViewTest";
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
 	private static final String LOG_ROOT = CLSS.toLowerCase();
-	GoogleMapView mapView;
+	private GoogleMapView mapView;
+	private PlanModel model = null;
 
+	
 	@Override
 	public void start(Stage stage) throws Exception {
 		LOGGER.info("MapViewTest: startup ...");

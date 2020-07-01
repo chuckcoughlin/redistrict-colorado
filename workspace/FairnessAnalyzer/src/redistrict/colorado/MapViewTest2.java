@@ -19,7 +19,7 @@ public class MapViewTest2 extends Application implements MapComponentInitialized
 	private static final String CLSS = "MapViewTest2";
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
 	private static final String LOG_ROOT = CLSS.toLowerCase();
-	GoogleMapView mapView;
+	private GoogleMapView mapView;
 
 	@Override
 	public void start(Stage stage) throws Exception {

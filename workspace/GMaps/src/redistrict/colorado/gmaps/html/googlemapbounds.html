@@ -57,7 +57,7 @@
     	  google.maps.event.addListenerOnce(map, 'bounds_changed', function() {
     		  alert('bounds changed');
     		});
-    	  map.fitBounds(borders);
+    	  map.fitBounds(borders,0);
       }
       function borderBounds(north,east,south,west) {
     	  return new google.maps.LatLngBounds({lat: south, lng: west},

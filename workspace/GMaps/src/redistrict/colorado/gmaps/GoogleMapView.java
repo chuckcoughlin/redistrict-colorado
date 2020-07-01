@@ -45,8 +45,8 @@ public class GoogleMapView extends AnchorPane {
 	private static final String CLSS = "GoogleMapView";
 	private static final boolean DEBUG = false;
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
-    public static final String BOUNDS_PATH   = "html/googlemapbounds.html";  // specify initial bounds
-    public static final String DISTRICT_PATH = "html/googlemaps.html";  // "vanilla" test version
+    public static final String BOUNDS_PATH   = "html/googlemapbounds.html";    // specify initial bounds
+    public static final String DISTRICT_PATH = "html/googlemapdistrict.html";  // overlay a district polygon
     public static final String PAGE_PATH     = "html/googlemaps.html";  // "vanilla" test version
     public static final String PLAN_PATH     = "html/googlemaps.html";  // "vanilla" test version
     private final String key;
