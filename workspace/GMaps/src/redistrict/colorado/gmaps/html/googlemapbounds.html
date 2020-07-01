@@ -51,7 +51,17 @@
       }
       
       function initBounds(north,east,south,west) {
-    	  map.setCenter({lat: (north+south)/2, lng: (east+west)/2});
+    	  var borders = borderBounds(north,east,south,west);
+    	  //map.setCenter({lat: (north+south)/2, lng: (east+west)/2});
+    	  map.setCenter(borders.getCenter());
+    	  google.maps.event.addListenerOnce(map, 'bounds_changed', function() {
+    		  alert('bounds changed');
+    		});
+    	  map.fitBounds(borders);
+      }
+      function borderBounds(north,east,south,west) {
+    	  return new google.maps.LatLngBounds({lat: south, lng: west},
+      		    							  {lat: north, lng: east});
       }
     </script>
     <script async defer
