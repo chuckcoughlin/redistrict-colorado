@@ -22,6 +22,7 @@
     <div id="map"></div>
     <script>
 	  var map;
+	  var polygonCoordinates = [];
   	  // Remove all of the extra controls
   	  function configureMap() {
   		alert('configureMap called');
@@ -39,7 +40,7 @@
           mapTypeId: 'terrain',
           mapTypeControl: true,
           zoomControl: true,
-          scaleControl: true,
+          scaleControl: false,
           streetViewControl: false,
           rotateControl: false,
           fullscreenControl: false,
@@ -59,10 +60,29 @@
     		});
     	  map.fitBounds(borders,0);
       }
+      
       function borderBounds(north,east,south,west) {
     	  return new google.maps.LatLngBounds({lat: south, lng: west},
       		    							  {lat: north, lng: east});
       }
+      function clearCoordinates() {
+    	  polygonCoordinates = [];
+      }
+      function addCoordinate(x,y) {
+    	  polygonCoordinates.push( { lat: y, lng: x } );
+      }
+   	  // Construct a polygon overlay.
+   	  function addPolygon() {
+         var polygon = new google.maps.Polygon({
+             paths: polygonCoordinates,
+             strokeColor: "#FCFCFC",
+             strokeOpacity: 0.8,
+             strokeWeight: 2,
+             fillColor: "#FF0000",
+             fillOpacity: 0.35
+           });
+           polygon.setMap(map);
+   	  }
     </script>
     <script async defer
          src="https://maps.googleapis.com/maps/api/js?key=GOOGLE_API_KEY&callback=initMap">

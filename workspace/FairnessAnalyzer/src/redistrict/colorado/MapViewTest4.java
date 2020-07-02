@@ -6,8 +6,10 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import org.geotools.util.Geometries;
-import org.geotools.util.GeometryUtilities;
+import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.GeometryCollection;
+import org.locationtech.jts.geom.Polygon;
 import org.openjump.feature.Feature;
 import org.openjump.feature.FeatureCollection;
 
@@ -32,6 +34,7 @@ public class MapViewTest4 extends Application implements MapComponentInitialized
 	private static final String COUNTY_NAME  = "BOULDER";
 	GoogleMapView mapView;
 	private Feature feat = null;
+	private DatasetModel model = null;
 	
 
 	@Override
@@ -40,7 +43,7 @@ public class MapViewTest4 extends Application implements MapComponentInitialized
 		//Create the JavaFX component and set this as a listener so we know when 
 		//the map has been initialized, at which point we can then begin manipulating it.
 		String api = Database.getInstance().getPreferencesTable().getParameter(PreferenceKeys.GOOGLE_API_KEY);
-		DatasetModel model = loadModel();
+		model = loadModel();
 		if( model!=null ) {
 			feat = loadFeature(model);
 			feat.getGeometry();
@@ -92,27 +95,48 @@ public class MapViewTest4 extends Application implements MapComponentInitialized
 		LOGGER.info("MapViewTest4: map initialized ...");
 		//Set the bounds of the map.
 		if( feat!=null ) {
-			if( feat.getGeometry().getGeometryType().equals(Geometries.POLYGON.toString()) ||
-				feat.getGeometry().getGeometryType().equals(Geometries.MULTIPOLYGON.toString())	) {
-				Envelope envelope = feat.getBounds();
-				double north = envelope.getMaxY();
-				double east = envelope.getMaxX();
-				double south = envelope.getMinY();
-				double west = envelope.getMinX();
-				mapView.getEngine().executeScript(String.format("initBounds(%8.6f,%8.6f,%8.6f,%8.6f)",north,east,south,west));
+			Envelope envelope = feat.getBounds();
+			double north = envelope.getMaxY();
+			double east = envelope.getMaxX();
+			double south = envelope.getMinY();
+			double west = envelope.getMinX();
+			// Set the bounds to enclose the area of interest
+			mapView.getEngine().executeScript(String.format("initBounds(%8.6f,%8.6f,%8.6f,%8.6f)",north,east,south,west));
+
+			// Add the polygon
+			String nameAttribute = Database.getInstance().getAttributeAliasTable().nameForAlias(model.getId(), StandardAttributes.ID.name());
+			if( feat.getGeometry().getGeometryType().equals(Geometries.POLYGON.toString()) )  {
+				addPolygon(feat.getAttribute(nameAttribute).toString(),(Polygon)feat.getGeometry());
+			}
+			// Add the polygons
+			else if( feat.getGeometry().getGeometryType().equals(Geometries.MULTIPOLYGON.toString()))	 {
+				GeometryCollection collection = (GeometryCollection)feat.getGeometry();
+				String name = feat.getAttribute(nameAttribute).toString();
+				for(int index=0;index<collection.getNumGeometries();index++) {
+					addPolygon(name+String.valueOf(index),(Polygon)collection.getGeometryN(index));
+				}
 			}
 			else {
 				LOGGER.info(String.format("MapViewTest4: feature %s is not %s.",feat.getGeometry().getGeometryType(),
 						Geometries.MULTIPOLYGON));
-				LOGGER.info(String.format("MapViewTest4: feature is a %s.",GeometryUtilities.toText(feat.getGeometry())));
 			}
-			
-		}
+		}	
 		else {
 			LOGGER.info("MapViewTest4: feature is NULL.");
 		}
 	}
 
+	// Add a polygon to the map
+	private void addPolygon(String name,Polygon poly) {
+		mapView.getEngine().executeScript("clearCoordinates()");
+		String format = "MapViewTest4: addPolygon (%f,%f)";
+		for(Coordinate c:poly.getCoordinates()) {
+			mapView.getEngine().executeScript(String.format("addCoordinate(%s,%s)",String.valueOf(c.x),String.valueOf(c.y)));
+			LOGGER.info(String.format(format, c.x,c.y));
+		}
+		mapView.getEngine().executeScript("addPolygon()");
+	}
+	
 	public static void main(String[] args) {
 		String arg = args[0];
     	Path path = Paths.get(arg);
