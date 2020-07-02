@@ -11,11 +11,12 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Label;
 import redistrict.colorado.core.DatasetModel;
-import redistrict.colorado.core.StandardAttributes;
+import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.db.Database;
+import redistrict.colorado.gmaps.GoogleMapView;
+import redistrict.colorado.pref.PreferenceKeys;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.UIConstants;
 import redistrict.colorado.ui.ViewMode;
@@ -27,47 +28,42 @@ import redistrict.colorado.ui.ViewMode;
 public class PlanMapPane extends BasicRightSideNode implements EventHandler<ActionEvent>,ChangeListener<Number>{
 	private final static String CLSS = "PlanMapPane";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
-	private NavigationPane navPane = new NavigationPane(this,this);
 	private Label headerLabel = new Label("Map");
-	private DatasetModel model;
+	private PlanModel model;
 	private final PlanMapRenderer map;
 
 	public PlanMapPane() {
 		super(ViewMode.PLAN,DisplayOption.PLAN_MAP);
-		this.model = hub.getSelectedDataset();
+		this.model = hub.getSelectedPlan();
 		headerLabel.getStyleClass().add("list-header-label");
 		getChildren().add(headerLabel);
 
-		getChildren().add(navPane);
 		setTopAnchor(headerLabel,0.);
 		setLeftAnchor(headerLabel,UIConstants.LIST_PANEL_LEFT_MARGIN);
 		setRightAnchor(headerLabel,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 
-		setBottomAnchor(navPane,0.);
-		setLeftAnchor(navPane,UIConstants.LIST_PANEL_LEFT_MARGIN);
-		setRightAnchor(navPane,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+		String key = Database.getInstance().getPreferencesTable().getParameter(PreferenceKeys.GOOGLE_API_KEY);
+		GoogleMapView view = new GoogleMapView(key,GoogleMapView.PLAN_PATH);
+		view.setMinWidth(UIConstants.SCENE_WIDTH-UIConstants.LIST_PANEL_LEFT_MARGIN-UIConstants.LIST_PANEL_RIGHT_MARGIN);
+		view.setMinHeight(UIConstants.SCENE_HEIGHT-3*UIConstants.BUTTON_PANEL_HEIGHT);
+		getChildren().add(view);
+		setTopAnchor(view,UIConstants.BUTTON_PANEL_HEIGHT);
+		setLeftAnchor(view,UIConstants.LIST_PANEL_LEFT_MARGIN);
+		setRightAnchor(view,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+		setBottomAnchor(view,UIConstants.BUTTON_PANEL_HEIGHT);
 
-		Canvas canvas = new Canvas(UIConstants.SCENE_WIDTH-UIConstants.LIST_PANEL_LEFT_MARGIN-UIConstants.LIST_PANEL_RIGHT_MARGIN, 
-				UIConstants.SCENE_HEIGHT-3*UIConstants.BUTTON_PANEL_HEIGHT);
-		getChildren().add(canvas);
-		setTopAnchor(canvas,UIConstants.BUTTON_PANEL_HEIGHT);
-		setLeftAnchor(canvas,UIConstants.LIST_PANEL_LEFT_MARGIN);
-		setRightAnchor(canvas,UIConstants.LIST_PANEL_RIGHT_MARGIN);
-		setBottomAnchor(canvas,UIConstants.BUTTON_PANEL_HEIGHT);
-
-		map = new PlanMapRenderer(canvas);
+		map = new PlanMapRenderer(view);
 		updateModel();
 	}
 
 	@Override
 	public void updateModel() {
-		DatasetModel selectedModel = hub.getSelectedDataset();
-		String region = hub.getSelectedRegion();
+		PlanModel selectedModel = hub.getSelectedPlan();
 		if( selectedModel!=null) {
 			model = selectedModel;
 			headerLabel.setText(model.getName());
 			LOGGER.info(String.format("%s.updateModel: selected = %s", CLSS,model.getName()));
-			map.updateModel(model,region);
+			map.updateModel(model);
 		}
 	}
 
