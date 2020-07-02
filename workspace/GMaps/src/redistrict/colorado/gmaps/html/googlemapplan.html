@@ -81,7 +81,7 @@
     	  polygonCoordinates.push( { lat: y, lng: x } );
       }
    	  // Construct a polygon overlay.
-   	  function addPolygon() {
+   	  function addPolygon(name) {
          var polygon = new google.maps.Polygon({
              paths: polygonCoordinates,
              strokeColor: "#0C0C0C",

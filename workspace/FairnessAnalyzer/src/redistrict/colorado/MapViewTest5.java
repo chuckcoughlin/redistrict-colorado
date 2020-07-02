@@ -5,7 +5,12 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.geotools.util.Geometries;
+import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.GeometryCollection;
+import org.locationtech.jts.geom.Polygon;
+import org.openjump.feature.Feature;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -14,6 +19,7 @@ import redistrict.colorado.core.LoggerUtility;
 import redistrict.colorado.core.PathConstants;
 import redistrict.colorado.core.PlanFeature;
 import redistrict.colorado.core.PlanModel;
+import redistrict.colorado.core.StandardAttributes;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.gmaps.GoogleMapView;
 import redistrict.colorado.gmaps.MapComponentInitializedListener;
@@ -82,6 +88,27 @@ public class MapViewTest5 extends Application implements MapComponentInitialized
 				double west = boundary.getMinX();
 				// Set the bounds to enclose the area of interest
 				mapView.getEngine().executeScript(String.format("initBounds(%8.6f,%8.6f,%8.6f,%8.6f)",north,east,south,west));
+				String nameAttribute = Database.getInstance().getAttributeAliasTable().nameForAlias(model.getId(), StandardAttributes.ID.name());
+
+				// Add the polygons
+				for(Feature feat:model.getBoundary().getFeatures().getFeatures()) {
+					String name = feat.getAttribute(nameAttribute).toString();
+					name = "'"+name+"'";
+					if( feat.getGeometry().getGeometryType().equals(Geometries.POLYGON.toString()) )  {
+						addPolygon(name,(Polygon)feat.getGeometry());
+					}
+					// Add the polygons
+					else if( feat.getGeometry().getGeometryType().equals(Geometries.MULTIPOLYGON.toString()))	 {
+						GeometryCollection collection = (GeometryCollection)feat.getGeometry();
+						for(int index=0;index<collection.getNumGeometries();index++) {
+							addPolygon(name,(Polygon)collection.getGeometryN(index));
+						}
+					}
+					else {
+						LOGGER.info(String.format("MapViewTest4: feature %s is not %s.",feat.getGeometry().getGeometryType(),
+								Geometries.MULTIPOLYGON));
+					}
+				}
 			}
 			else {
 				LOGGER.info(String.format("MapViewTest5: model %s has no metrics.",model.getName()));
@@ -90,6 +117,16 @@ public class MapViewTest5 extends Application implements MapComponentInitialized
 		else {
 			LOGGER.info("MapViewTest5: model is NULL.");
 		}
+	}
+	// Add a polygon to the map. The name is already single-quoted.
+	private void addPolygon(String name,Polygon poly) {
+		mapView.getEngine().executeScript("clearCoordinates()");
+		//String format = "MapViewTest5: addPolygon (%f,%f)";
+		for(Coordinate c:poly.getCoordinates()) {
+			mapView.getEngine().executeScript(String.format("addCoordinate(%s,%s)",String.valueOf(c.x),String.valueOf(c.y)));
+			//LOGGER.info(String.format(format, c.x,c.y));
+		}
+		mapView.getEngine().executeScript(String.format("addPolygon(%s)",name));
 	}
 	private void setLabel(String label) {
 		String script = "setLabel(\'"+label+"\')";

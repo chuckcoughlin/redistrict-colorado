@@ -103,7 +103,7 @@ public class MapViewTest4 extends Application implements MapComponentInitialized
 			// Set the bounds to enclose the area of interest
 			mapView.getEngine().executeScript(String.format("initBounds(%8.6f,%8.6f,%8.6f,%8.6f)",north,east,south,west));
 
-			// Add the polygon
+			// Add the polygons
 			String nameAttribute = Database.getInstance().getAttributeAliasTable().nameForAlias(model.getId(), StandardAttributes.ID.name());
 			String name = feat.getAttribute(nameAttribute).toString();
 			setLabel(name);
