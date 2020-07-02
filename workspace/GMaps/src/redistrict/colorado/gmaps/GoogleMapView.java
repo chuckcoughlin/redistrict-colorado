@@ -47,8 +47,8 @@ public class GoogleMapView extends AnchorPane {
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
     public static final String BOUNDS_PATH   = "html/googlemapbounds.html";    // specify initial bounds
     public static final String DISTRICT_PATH = "html/googlemapdistrict.html";  // overlay a district polygon
-    public static final String PAGE_PATH     = "html/googlemaps.html";  // "vanilla" test version
-    public static final String PLAN_PATH     = "html/googlemaps.html";  // "vanilla" test version
+    public static final String PAGE_PATH     = "html/googlemaps.html";  	   // "vanilla" test version
+    public static final String PLAN_PATH     = "html/googlemapplan.html";      // show an entire re-districting plan
     private final String key;
     private final String path;
     protected WebView webview;

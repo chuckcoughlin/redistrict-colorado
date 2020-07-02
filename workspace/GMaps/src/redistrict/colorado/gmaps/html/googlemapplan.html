@@ -10,18 +10,28 @@
       #map {
         height: 100%;
       }
+      #title {
+    	font-family: Arial, sans-serif;
+    	background: #fff;
+    	padding: 10px;
+    	margin: 10px;
+    	border: 3px solid #000;
+  	  }
       /* Optional: Makes the sample page fill the window. */
       html, body {
         height: 100%;
         margin: 0;
         padding: 0;
       }
+
     </style>
   </head>
   <body onload="configureMap()">
+  	<div id="label"></div>
     <div id="map"></div>
     <script>
 	  var map;
+	  var polygonCoordinates = [];
   	  // Remove all of the extra controls
   	  function configureMap() {
   		alert('configureMap called');
@@ -38,7 +48,7 @@
           center: {lat: 39.742043, lng: -104.991531},
           mapTypeId: 'terrain',
           mapTypeControl: true,
-          zoomControl: false,
+          zoomControl: true,
           scaleControl: false,
           streetViewControl: false,
           rotateControl: false,
@@ -59,10 +69,35 @@
     		});
     	  map.fitBounds(borders,0);
       }
+      
       function borderBounds(north,east,south,west) {
     	  return new google.maps.LatLngBounds({lat: south, lng: west},
       		    							  {lat: north, lng: east});
       }
+      function clearCoordinates() {
+    	  polygonCoordinates = [];
+      }
+      function addCoordinate(x,y) {
+    	  polygonCoordinates.push( { lat: y, lng: x } );
+      }
+   	  // Construct a polygon overlay.
+   	  function addPolygon() {
+         var polygon = new google.maps.Polygon({
+             paths: polygonCoordinates,
+             strokeColor: "#0C0C0C",
+             strokeOpacity: 0.8,
+             strokeWeight: 2,
+             fillColor: "#FF0000",
+             fillOpacity: 0.35
+           });
+           polygon.setMap(map);
+   	  }
+   	  // Label the district that is shown
+   	  function setLabel(title) {
+   		document.getElementById('label').innerHTML = "<span style='font-size:28px'>"+title+"</span>";
+   		map.controls[google.maps.ControlPosition.TOP_CENTER].push
+   		(document.getElementById('label'));
+   	  }
     </script>
     <script async defer
          src="https://maps.googleapis.com/maps/api/js?key=GOOGLE_API_KEY&callback=initMap">
