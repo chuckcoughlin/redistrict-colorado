@@ -11,6 +11,11 @@ import org.geotools.render.FeatureFilter;
 import org.geotools.render.MapLayer;
 import org.geotools.render.ShapefileRenderer;
 import org.geotools.style.Style;
+import org.geotools.util.Geometries;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.GeometryCollection;
+import org.locationtech.jts.geom.Polygon;
 import org.openjump.feature.Feature;
 import org.openjump.feature.FeatureCollection;
 import org.openjump.feature.FeatureDataset;
@@ -26,91 +31,84 @@ import redistrict.colorado.gmaps.MapComponentInitializedListener;
 import redistrict.colorado.pref.PreferenceKeys;
 
 /**
- * Render a shape that is a single region of the entire shapefile.
+ * Render a district from the shapefile as polygons on a Google Map.
  */
-	public class DistrictMapRenderer  implements MapComponentInitializedListener {
-		private final static String CLSS = "DistrictMapRenderer";
-		private static Logger LOGGER = Logger.getLogger(CLSS);
-		private DatasetModel model = null;
-		private String region;
-		private final GoogleMapView overlay;
-		private ShapefileRenderer renderer;
-		private final Canvas canvas;
-		private boolean overlayReady = false;
-		private FeatureFilter filter;
-		private Style style;
+public class DistrictMapRenderer  implements MapComponentInitializedListener {
+	private final static String CLSS = "DistrictMapRenderer";
+	private static Logger LOGGER = Logger.getLogger(CLSS);
+	private DatasetModel model = null;
+	private String region;
+	private final GoogleMapView overlay;
+	private Feature feature = null;
 
-		public DistrictMapRenderer(Canvas cnvs) {
-			this.canvas = cnvs;
-			this.renderer = null;
-			String key = Database.getInstance().getPreferencesTable().getParameter(PreferenceKeys.GOOGLE_API_KEY);
-			this.overlay = new GoogleMapView(key,GoogleMapView.DISTRICT_PATH);
-			overlay.addMapInitializedListener(this);
-	        overlay.setDisableDoubleClick(true);
-			
-			// LineColor, LineWidth, FillColor
-			this.style = new Style(Color.BLACK,0.001,Color.BLANCHEDALMOND);  // Initially
-			this.filter = new FeatureFilter();
-		}
+	public DistrictMapRenderer(GoogleMapView mapView) {
+		this.overlay = mapView;
+		overlay.addMapInitializedListener(this);
+		overlay.setDisableDoubleClick(true);
+	}
 
-		/**
-		 * Modify the displayed image with a filter.
-		 * @param f a filter to pan and/or zoom.
-		 */
-		public void updateFilter(FeatureFilter f) {
-			this.filter = f;
-			if( model.getFeatures()!=null ) {
-				drawMap();
+	/**
+	 * When a new model is defined or old model modified, make sure that its features are populated on screen.
+	 * If the model has not been refreshed from the file yet this session, then do so now.
+	 * @param m the model
+	 */
+	public void updateModel(DatasetModel m,String regionName) {
+		this.model = m;
+		this.region = regionName;
+		String nameAttribute = Database.getInstance().getAttributeAliasTable().nameForAlias(model.getId(), StandardAttributes.ID.name());
+		for(Feature feat:model.getFeatures().getFeatures()) {
+			if(feat.getAttribute(nameAttribute).equals(regionName)) {
+				this.feature = feat;
+				break;  // There should only be one
 			}
 		}
-		/**
-		 * When a new model is defined or old model modified, make sure that its features are populated on screen.
-		 * If the model has not been refreshed from the file yet this session, then do so now.
-		 * @param m the model
-		 */
-		public void updateModel(DatasetModel m,String regionName) {
-			this.model = m;
-			this.region = regionName;
-			FeatureCollection fc = new FeatureDataset(model.getFeatures().getFeatureSchema());
+		overlay.start();
+	}
+
+	// ------------------------- MapComponentInitializedListener -----------------------
+	@Override
+	public void mapInitialized() {
+		LOGGER.info(String.format("%s.mapInitialized: GoogleMap is ready",CLSS));
+		//Set the bounds of the map.
+		if( feature!=null ) {
+			Envelope envelope = feature.getBounds();
+			double north = envelope.getMaxY();
+			double east = envelope.getMaxX();
+			double south = envelope.getMinY();
+			double west = envelope.getMinX();
+			// Set the bounds to enclose the area of interest
+			overlay.getEngine().executeScript(String.format("initBounds(%8.6f,%8.6f,%8.6f,%8.6f)",north,east,south,west));
+
+			// Add the polygon
 			String nameAttribute = Database.getInstance().getAttributeAliasTable().nameForAlias(model.getId(), StandardAttributes.ID.name());
-			for(Feature feat:model.getFeatures().getFeatures()) {
-				if(feat.getAttribute(nameAttribute).equals(regionName)) {
-					fc.add(feat);
-					break;  // There should only be one
+			if( feature.getGeometry().getGeometryType().equals(Geometries.POLYGON.toString()) )  {
+				addPolygon(feature.getAttribute(nameAttribute).toString(),(Polygon)feature.getGeometry());
+			}
+			// Add the polygons
+			else if( feature.getGeometry().getGeometryType().equals(Geometries.MULTIPOLYGON.toString()))	 {
+				GeometryCollection collection = (GeometryCollection)feature.getGeometry();
+				String name = feature.getAttribute(nameAttribute).toString();
+				for(int index=0;index<collection.getNumGeometries();index++) {
+					addPolygon(name+String.valueOf(index),(Polygon)collection.getGeometryN(index));
 				}
 			}
-			MapLayer layer = new MapLayer(fc);
-			layer.setTitle(model.getName());
-			this.renderer = new ShapefileRenderer(layer);
-			drawMap();
-		}
-		/**
-		 * When a new model is defined or old model modified, make sure that its features are populated on screen.
-		 * If the model has not been refreshed from the file yet this session, then do so now.
-		 * @param m the model
-		 */
-		public void updateStyle(Style s) {
-			this.style = s;
-			if( model.getFeatures()!=null ) {
-				drawMap();
+			else {
+				LOGGER.info(String.format("MapViewTest4: feature %s is not %s.",feature.getGeometry().getGeometryType(),
+						Geometries.MULTIPOLYGON));
 			}
+		}	
+		else {
+			LOGGER.info("MapViewTest4: feature is NULL.");
 		}
-
-		private void drawMap() {
-			if( overlayReady ) {
-				
-			}
-			if( renderer!=null) {
-				Rectangle screenArea = new Rectangle((int)canvas.getWidth(), (int)canvas.getHeight());
-				canvas.getGraphicsContext2D().fillRect(0,0,screenArea.getWidth(),screenArea.getHeight());
-				renderer.paint(canvas.getGraphicsContext2D(),screenArea,style,filter);
-			}
+	}
+	// Add a polygon to the map
+	private void addPolygon(String name,Polygon poly) {
+		overlay.getEngine().executeScript("clearCoordinates()");
+		//String format = "MapViewTest4: addPolygon (%f,%f)";
+		for(Coordinate c:poly.getCoordinates()) {
+			overlay.getEngine().executeScript(String.format("addCoordinate(%s,%s)",String.valueOf(c.x),String.valueOf(c.y)));
+			//LOGGER.info(String.format(format, c.x,c.y));
 		}
-		
-		// ------------------------- MapComponentInitializedListener -----------------------
-		@Override
-	    public void mapInitialized() {
-			LOGGER.info(String.format("%s.mapInitialized: GoogleMap is ready"));
-			overlayReady = true;
-		}
+		overlay.getEngine().executeScript("addPolygon()");
+	}
 }

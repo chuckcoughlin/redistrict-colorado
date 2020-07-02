@@ -14,8 +14,11 @@ import javafx.event.EventHandler;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Label;
 import redistrict.colorado.core.DatasetModel;
+import redistrict.colorado.db.Database;
+import redistrict.colorado.gmaps.GoogleMapView;
 import redistrict.colorado.pane.BasicRightSideNode;
 import redistrict.colorado.pane.NavigationPane;
+import redistrict.colorado.pref.PreferenceKeys;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.UIConstants;
 import redistrict.colorado.ui.ViewMode;
@@ -24,10 +27,9 @@ import redistrict.colorado.ui.ViewMode;
  * Plot a single district graphically. Add a google map backdrop.
  * Parent is an AnchorPane.
  */
-	public class DistrictMapPane extends BasicRightSideNode implements EventHandler<ActionEvent>,ChangeListener<Number> {
+	public class DistrictMapPane extends BasicRightSideNode {
 		private final static String CLSS = "DistrictMapPane";
 		private static Logger LOGGER = Logger.getLogger(CLSS);
-		private final NavigationPane navPane = new NavigationPane(this,this);
 		private final Label headerLabel = new Label("Region Map");
 		private final DistrictMapRenderer map;
 		private DatasetModel model;
@@ -40,24 +42,22 @@ import redistrict.colorado.ui.ViewMode;
 			headerLabel.getStyleClass().add("list-header-label");
 			getChildren().add(headerLabel);
 			
-			getChildren().add(navPane);
 			setTopAnchor(headerLabel,0.);
 			setLeftAnchor(headerLabel,UIConstants.LIST_PANEL_LEFT_MARGIN);
 			setRightAnchor(headerLabel,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 			
-			setBottomAnchor(navPane,0.);
-			setLeftAnchor(navPane,UIConstants.LIST_PANEL_LEFT_MARGIN);
-			setRightAnchor(navPane,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+			String key = Database.getInstance().getPreferencesTable().getParameter(PreferenceKeys.GOOGLE_API_KEY);
+			GoogleMapView view = new GoogleMapView(key,GoogleMapView.DISTRICT_PATH);
+			view.setMinWidth(UIConstants.SCENE_WIDTH-UIConstants.LIST_PANEL_LEFT_MARGIN-UIConstants.LIST_PANEL_RIGHT_MARGIN);
+			view.setMinHeight(UIConstants.SCENE_HEIGHT-3*UIConstants.BUTTON_PANEL_HEIGHT);
 			
-			Canvas canvas = new Canvas(UIConstants.SCENE_WIDTH-UIConstants.LIST_PANEL_LEFT_MARGIN-UIConstants.LIST_PANEL_RIGHT_MARGIN, 
-					                   UIConstants.SCENE_HEIGHT-3*UIConstants.BUTTON_PANEL_HEIGHT);
-			getChildren().add(canvas);
-			setTopAnchor(canvas,UIConstants.BUTTON_PANEL_HEIGHT);
-			setLeftAnchor(canvas,UIConstants.LIST_PANEL_LEFT_MARGIN);
-			setRightAnchor(canvas,UIConstants.LIST_PANEL_RIGHT_MARGIN);
-			setBottomAnchor(canvas,UIConstants.BUTTON_PANEL_HEIGHT);
+			getChildren().add(view);
+			setTopAnchor(view,UIConstants.BUTTON_PANEL_HEIGHT);
+			setLeftAnchor(view,UIConstants.LIST_PANEL_LEFT_MARGIN);
+			setRightAnchor(view,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+			setBottomAnchor(view,UIConstants.BUTTON_PANEL_HEIGHT);
 			
-			map = new DistrictMapRenderer(canvas);
+			map = new DistrictMapRenderer(view);
 			updateModel();
 		}
 		
@@ -71,23 +71,5 @@ import redistrict.colorado.ui.ViewMode;
 				LOGGER.info(String.format("%s.updateModel: selected = %s", CLSS,model.getName()));
 				map.updateModel(model,region);
 			}
-		}
-
-		/**
-		 * The zoom slider has been moved on the navigation pane.
-		 */
-		@Override
-		public void changed(ObservableValue<? extends Number> arg0, Number arg1, Number arg2) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		/**
-		 * An arrow was selected on the navigation pane
-		 */
-		@Override
-		public void handle(ActionEvent arg0) {
-			// TODO Auto-generated method stub
-			
 		}
 }

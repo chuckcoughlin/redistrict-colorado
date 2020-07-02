@@ -129,10 +129,10 @@ public class MapViewTest4 extends Application implements MapComponentInitialized
 	// Add a polygon to the map
 	private void addPolygon(String name,Polygon poly) {
 		mapView.getEngine().executeScript("clearCoordinates()");
-		String format = "MapViewTest4: addPolygon (%f,%f)";
+		//String format = "MapViewTest4: addPolygon (%f,%f)";
 		for(Coordinate c:poly.getCoordinates()) {
 			mapView.getEngine().executeScript(String.format("addCoordinate(%s,%s)",String.valueOf(c.x),String.valueOf(c.y)));
-			LOGGER.info(String.format(format, c.x,c.y));
+			//LOGGER.info(String.format(format, c.x,c.y));
 		}
 		mapView.getEngine().executeScript("addPolygon()");
 	}
