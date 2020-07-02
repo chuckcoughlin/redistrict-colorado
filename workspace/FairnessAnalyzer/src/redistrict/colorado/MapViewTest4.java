@@ -105,13 +105,15 @@ public class MapViewTest4 extends Application implements MapComponentInitialized
 
 			// Add the polygon
 			String nameAttribute = Database.getInstance().getAttributeAliasTable().nameForAlias(model.getId(), StandardAttributes.ID.name());
+			String name = feat.getAttribute(nameAttribute).toString();
+			setLabel(name);
+			
 			if( feat.getGeometry().getGeometryType().equals(Geometries.POLYGON.toString()) )  {
-				addPolygon(feat.getAttribute(nameAttribute).toString(),(Polygon)feat.getGeometry());
+				addPolygon(name,(Polygon)feat.getGeometry());
 			}
 			// Add the polygons
 			else if( feat.getGeometry().getGeometryType().equals(Geometries.MULTIPOLYGON.toString()))	 {
 				GeometryCollection collection = (GeometryCollection)feat.getGeometry();
-				String name = feat.getAttribute(nameAttribute).toString();
 				for(int index=0;index<collection.getNumGeometries();index++) {
 					addPolygon(name+String.valueOf(index),(Polygon)collection.getGeometryN(index));
 				}
@@ -137,6 +139,11 @@ public class MapViewTest4 extends Application implements MapComponentInitialized
 		mapView.getEngine().executeScript("addPolygon()");
 	}
 	
+	private void setLabel(String label) {
+		String script = "setLabel(\'"+label+"\')";
+		LOGGER.info(script);
+		mapView.getEngine().executeScript("setLabel(\'"+label+"\')");
+	}
 	public static void main(String[] args) {
 		String arg = args[0];
     	Path path = Paths.get(arg);

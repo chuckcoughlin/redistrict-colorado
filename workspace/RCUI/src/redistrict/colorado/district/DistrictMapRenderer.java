@@ -81,13 +81,14 @@ public class DistrictMapRenderer  implements MapComponentInitializedListener {
 
 			// Add the polygon
 			String nameAttribute = Database.getInstance().getAttributeAliasTable().nameForAlias(model.getId(), StandardAttributes.ID.name());
+			String name = feature.getAttribute(nameAttribute).toString();
+			setLabel(name);
 			if( feature.getGeometry().getGeometryType().equals(Geometries.POLYGON.toString()) )  {
 				addPolygon(feature.getAttribute(nameAttribute).toString(),(Polygon)feature.getGeometry());
 			}
 			// Add the polygons
 			else if( feature.getGeometry().getGeometryType().equals(Geometries.MULTIPOLYGON.toString()))	 {
 				GeometryCollection collection = (GeometryCollection)feature.getGeometry();
-				String name = feature.getAttribute(nameAttribute).toString();
 				for(int index=0;index<collection.getNumGeometries();index++) {
 					addPolygon(name+String.valueOf(index),(Polygon)collection.getGeometryN(index));
 				}
@@ -110,5 +111,9 @@ public class DistrictMapRenderer  implements MapComponentInitializedListener {
 			//LOGGER.info(String.format(format, c.x,c.y));
 		}
 		overlay.getEngine().executeScript("addPolygon()");
+	}
+	private void setLabel(String label) {
+		String script = "setLabel(\'"+label+"\')";
+		overlay.getEngine().executeScript(script);
 	}
 }
