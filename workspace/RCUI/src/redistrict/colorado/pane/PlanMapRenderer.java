@@ -73,7 +73,6 @@ public class PlanMapRenderer implements MapComponentInitializedListener {
 			for(Feature feat:model.getBoundary().getFeatures().getFeatures()) {
 				String name = feat.getAttribute(nameAttribute).toString();
 				PlanFeature pf = getPlanFeature(name);
-				name = "'"+name+"'";
 				if( feat.getGeometry().getGeometryType().equals(Geometries.POLYGON.toString()) )  {
 					addPolygon(name,pf,(Polygon)feat.getGeometry());
 				}
@@ -97,26 +96,27 @@ public class PlanMapRenderer implements MapComponentInitializedListener {
 	// Add a polygon to the map. The name is already single-quoted.
 	private void addPolygon(String name,PlanFeature feature,Polygon poly) {
 		overlay.getEngine().executeScript("clearCoordinates()");
-		//String format = "MapViewTest5: addPolygon (%f,%f)";
+		//String format = "PlanMapRenderer: addPolygon (%f,%f)";
 		for(Coordinate c:poly.getCoordinates()) {
 			overlay.getEngine().executeScript(String.format("addCoordinate(%s,%s)",String.valueOf(c.x),String.valueOf(c.y)));
 			//LOGGER.info(String.format(format, c.x,c.y));
 		}
-		String color = "'#AAAAAA'";
+		String color = "#AAAAAA";
 		if(colorizingOption.equals(ColorizingOption.AFFILIATION)) {
 			color = getAffiliationColor(feature);
 		}
 		else {
 			color = getDemographicsColor(feature);
 		}
-		overlay.getEngine().executeScript(String.format("addPolygon(%s,%s)",name,color));
+		String content = makeContent(feature); 
+		overlay.getEngine().executeScript(String.format("addPolygon('%s','%s','%s')",name,color,content));
 	}
 	
 	private String getAffiliationColor(PlanFeature feature) {
 		double total = feature.getDemocrat() + feature.getRepublican();
 		double dem = feature.getDemocrat()/total;
 		double rep = feature.getRepublican()/total;
-		String color = String.format("'#%02X%02X%02X'",(int)(256.*rep),0,(int)(256.*dem));
+		String color = String.format("#%02X%02X%02X",(int)(256.*rep),0,(int)(256.*dem));
 		LOGGER.warning(String.format("%s.getAffiliationColor: %s %2.2f,%2.2f %s",CLSS,feature.getName(),dem,rep,color));
 		return color;
 	}
@@ -125,7 +125,7 @@ public class PlanMapRenderer implements MapComponentInitializedListener {
 	private String getDemographicsColor(PlanFeature feature) {
 		double val = feature.getWhite()/feature.getPopulation();
 		int c = (int)(256.*val);
-		String color = String.format("'#%02X%02X%02X'",c,c,c);
+		String color = String.format("#%02X%02X%02X",c,c,c);
 		LOGGER.warning(String.format("%s.getDemographicsColor: %s %2.2f %s",CLSS,feature.getName(),val,color));
 		return color;	
 	}
@@ -137,5 +137,21 @@ public class PlanMapRenderer implements MapComponentInitializedListener {
 		}
 		LOGGER.warning(String.format("%s.getPlanFeature: No feature named %s",CLSS,name));
 		return null;
+	}
+	// Return the HTML for the info window
+	private String makeContent(PlanFeature feature) {
+		StringBuilder sb = new StringBuilder(); 
+		sb.append("<!DOCTYPE html>");
+		sb.append("<html>");
+		sb.append("  <head>");
+		sb.append("    <title>Info Window</title>");
+		sb.append("  </head>");
+		sb.append( " <body>");
+		sb.append("    <div id=\"info\"><center><h3>");
+		sb.append(feature.getName());
+		sb.append("</h3></center></div>");
+		sb.append("  </body>");
+		sb.append("</html>");
+		return sb.toString();
 	}
 }

@@ -92,7 +92,6 @@ public class MapViewTest5 extends Application implements MapComponentInitialized
 				// Add the polygons
 				for(Feature feat:model.getBoundary().getFeatures().getFeatures()) {
 					String name = feat.getAttribute(nameAttribute).toString();
-					name = "'"+name+"'";
 					if( feat.getGeometry().getGeometryType().equals(Geometries.POLYGON.toString()) )  {
 						addPolygon(name,(Polygon)feat.getGeometry());
 					}
@@ -125,10 +124,28 @@ public class MapViewTest5 extends Application implements MapComponentInitialized
 			mapView.getEngine().executeScript(String.format("addCoordinate(%s,%s)",String.valueOf(c.x),String.valueOf(c.y)));
 			//LOGGER.info(String.format(format, c.x,c.y));
 		}
-		String color = "'#33DD33'";
-		mapView.getEngine().executeScript(String.format("addPolygon(%s,%s)",name,color));
+		String color = "#33DD33";
+		String info  = makeContent(name);
+		String script = String.format("addPolygon('%s','%s','%s')",name,color,info);
+		LOGGER.info(script);
+		mapView.getEngine().executeScript(script);
 	}
 
+	private String makeContent(String name) {
+		StringBuilder sb = new StringBuilder(); 
+		sb.append("<!DOCTYPE html>");
+		sb.append("<html>");
+		sb.append("  <head>");
+		sb.append("    <title>Info Window</title>");
+		sb.append("  </head>");
+		sb.append( " <body>");
+		sb.append("    <div id=\"info\"><center><h3>");
+		sb.append(name);
+		sb.append("</h3></center></div>");
+		sb.append("  </body>");
+		sb.append("</html>");
+		return sb.toString();
+	}
 	public static void main(String[] args) {
 		String arg = args[0];
     	Path path = Paths.get(arg);
