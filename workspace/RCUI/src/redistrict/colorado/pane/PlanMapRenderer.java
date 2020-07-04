@@ -102,7 +102,7 @@ public class PlanMapRenderer implements MapComponentInitializedListener {
 			overlay.getEngine().executeScript(String.format("addCoordinate(%s,%s)",String.valueOf(c.x),String.valueOf(c.y)));
 			//LOGGER.info(String.format(format, c.x,c.y));
 		}
-		String color = "'0XAAAAAA'";
+		String color = "'#AAAAAA'";
 		if(colorizingOption.equals(ColorizingOption.AFFILIATION)) {
 			color = getAffiliationColor(feature);
 		}
@@ -114,18 +114,19 @@ public class PlanMapRenderer implements MapComponentInitializedListener {
 	
 	private String getAffiliationColor(PlanFeature feature) {
 		double total = feature.getDemocrat() + feature.getRepublican();
-		double dem = 256*feature.getDemocrat()/total;
-		double rep = 256*feature.getRepublican()/total;
-		String color = String.format("'#%02X%02X%02X'",(int)rep,0,(int)dem);
-		LOGGER.warning(String.format("%s.getAfiliationColor: %s %s",CLSS,feature.getName(),color));
-		return color;	
+		double dem = feature.getDemocrat()/total;
+		double rep = feature.getRepublican()/total;
+		String color = String.format("'#%02X%02X%02X'",(int)(256.*rep),0,(int)(256.*dem));
+		LOGGER.warning(String.format("%s.getAffiliationColor: %s %2.2f,%2.2f %s",CLSS,feature.getName(),dem,rep,color));
+		return color;
 	}
 	// Return a gray color representing the fraction of minorities
+	// This was not successful as there wasn't enough of a difference
 	private String getDemographicsColor(PlanFeature feature) {
-		double val = 256*feature.getWhite()/feature.getPopulation();
-		int c = (int)val;
+		double val = feature.getWhite()/feature.getPopulation();
+		int c = (int)(256.*val);
 		String color = String.format("'#%02X%02X%02X'",c,c,c);
-		LOGGER.warning(String.format("%s.getDemographicsColor: %s %s",CLSS,feature.getName(),color));
+		LOGGER.warning(String.format("%s.getDemographicsColor: %s %2.2f %s",CLSS,feature.getName(),val,color));
 		return color;	
 	}
 	// Do a linear search for the plan feature by name.
