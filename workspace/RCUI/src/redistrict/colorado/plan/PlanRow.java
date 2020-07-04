@@ -29,6 +29,7 @@ import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.bind.LeftSelectionEvent;
 import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.db.Database;
+import redistrict.colorado.ui.ColorizingOption;
 import redistrict.colorado.ui.ComponentIds;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.GuiUtil;
@@ -45,14 +46,16 @@ public class PlanRow extends ListCell<PlanModel> implements ChangeListener<Toggl
 	private final static double COL2_WIDTH = 120.;
 	private final static double COL3_WIDTH = 65.;
 	private final static double COL4_WIDTH = 40.;
-	private final static double COL5_WIDTH = 50.;
-	private final static double COL6_WIDTH = 80.;
+	private final static double COL5_WIDTH = 55.;
+	private final static double COL6_WIDTH = 55.;
+	private final static double COL7_WIDTH = 80.;
 	private final static double ROW1_HEIGHT = 40.;
 	private static final GuiUtil guiu = new GuiUtil();
 	private final static String ACTIVE = "active";
+	private final static String AFFILIATION_MAP_DATA = "affiliation";
+	private final static String DEMOGRAPHICS_MAP_DATA = "demographics";
 	private final static String EDIT = "edit";
 	private final static String NAME = "name";
-	private final static String MAP_DATA = "map";
 	private final static String PROPERTIES_DATA = "properties";
 	private GridPane grid = new GridPane();
 	private long id = -1;      // model identifier
@@ -62,7 +65,8 @@ public class PlanRow extends ListCell<PlanModel> implements ChangeListener<Toggl
     private final CheckBox active;
     private final Button edit;
     private final ToggleButton propertiesButton;
-    private final ToggleButton mapButton;
+    private final ToggleButton affiliationMapButton;
+    private final ToggleButton demographicsMapButton;
     private final ToggleGroup toggleGroup;
     private final EditEventHandler handler;
     private final PlanChangeListener listener;
@@ -80,14 +84,19 @@ public class PlanRow extends ListCell<PlanModel> implements ChangeListener<Toggl
 	    edit = new Button("",guiu.loadImage("images/edit.png"));
 	    edit.setUserData(EDIT);
 	    toggleGroup = new ToggleGroup();
-	    mapButton =new ToggleButton("Map");
-	    mapButton.setUserData(MAP_DATA);
-	    mapButton.setToggleGroup(toggleGroup);
+	    affiliationMapButton =new ToggleButton("Map1");
+	    affiliationMapButton.setUserData(AFFILIATION_MAP_DATA);
+	    affiliationMapButton.setToggleGroup(toggleGroup);
+	    demographicsMapButton =new ToggleButton("Map2");
+	    demographicsMapButton.setUserData(DEMOGRAPHICS_MAP_DATA);
+	    demographicsMapButton.setToggleGroup(toggleGroup);
 	    propertiesButton =new ToggleButton("Properties");
 	    propertiesButton.setUserData(PROPERTIES_DATA);
 	    propertiesButton.setToggleGroup(toggleGroup);
-	    Tooltip tt = new Tooltip("Show the boundary map for this button.");
-	    Tooltip.install(mapButton, tt);
+	    Tooltip tt = new Tooltip("Show the plan with districts colorized by party affiliation.");
+	    Tooltip.install(affiliationMapButton, tt);
+	    tt = new Tooltip("Show the plan with districts colorized by minority percentage.");
+	    Tooltip.install(demographicsMapButton, tt);
 	    tt = new Tooltip("Display a table of aggregated feature attributes for this plan.");
 	    Tooltip.install(propertiesButton, tt);
         
@@ -121,7 +130,8 @@ public class PlanRow extends ListCell<PlanModel> implements ChangeListener<Toggl
         grid.getColumnConstraints().add(new ColumnConstraints(COL3_WIDTH)); 					// active
         grid.getColumnConstraints().add(new ColumnConstraints(COL4_WIDTH)); 					// edit
         grid.getColumnConstraints().add(new ColumnConstraints(COL5_WIDTH)); 					// map
-        grid.getColumnConstraints().add(new ColumnConstraints(COL6_WIDTH)); 					// metrics
+        grid.getColumnConstraints().add(new ColumnConstraints(COL6_WIDTH)); 					// map
+        grid.getColumnConstraints().add(new ColumnConstraints(COL7_WIDTH)); 					// metrics
         grid.getRowConstraints().add(new RowConstraints(ROW1_HEIGHT)); // column 0 is 40 wide
     }
 	
@@ -139,8 +149,9 @@ public class PlanRow extends ListCell<PlanModel> implements ChangeListener<Toggl
     private void addControlsToGrid() {
     	grid.add(active, 2,0);
     	grid.add(edit, 3, 0);   
-    	grid.add(mapButton, 4, 0); 
-        grid.add(propertiesButton, 5, 0);        
+    	grid.add(affiliationMapButton, 4, 0); 
+    	grid.add(demographicsMapButton, 5, 0); 
+        grid.add(propertiesButton, 6, 0);        
     }
 	
     @Override
@@ -199,8 +210,14 @@ public class PlanRow extends ListCell<PlanModel> implements ChangeListener<Toggl
     		if( data.equals(PROPERTIES_DATA)) {
     			hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.PLAN_FEATURES));
     		}
-    		else if( data.toString().equalsIgnoreCase(MAP_DATA)) {
+    		else if( data.toString().equalsIgnoreCase(AFFILIATION_MAP_DATA)) {
     			hub.setSelectedDataset(getItem().getBoundary());
+    			hub.setSelectedColorOption(ColorizingOption.AFFILIATION);
+				hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.PLAN_MAP));
+			}
+    		else if( data.toString().equalsIgnoreCase(DEMOGRAPHICS_MAP_DATA)) {
+    			hub.setSelectedDataset(getItem().getBoundary());
+    			hub.setSelectedColorOption(ColorizingOption.DEMOGRAPHICS);
 				hub.setLeftSideSelection(new LeftSelectionEvent(ViewMode.PLAN,DisplayOption.PLAN_MAP));
 			}
 		}

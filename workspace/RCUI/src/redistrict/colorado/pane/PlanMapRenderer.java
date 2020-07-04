@@ -15,12 +15,14 @@ import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.geom.Polygon;
 import org.openjump.feature.Feature;
 
+import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.PlanFeature;
 import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.core.StandardAttributes;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.gmaps.GoogleMapView;
 import redistrict.colorado.gmaps.MapComponentInitializedListener;
+import redistrict.colorado.ui.ColorizingOption;
 
 /**
  * Render shape as referenced by a plan.
@@ -30,6 +32,7 @@ public class PlanMapRenderer implements MapComponentInitializedListener {
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private PlanModel model = null;
 	private GoogleMapView overlay;
+	private ColorizingOption colorizingOption = ColorizingOption.AFFILIATION;
 
 	public PlanMapRenderer(GoogleMapView mapView) {
 
@@ -53,10 +56,10 @@ public class PlanMapRenderer implements MapComponentInitializedListener {
 	public void mapInitialized() {
 		LOGGER.info(String.format("%s.mapInitialized: GoogleMap is ready",CLSS));
 		//Set the bounds of the map.
-
+		colorizingOption = EventBindingHub.getInstance().getSelectedColorOption();
+		
 		List<PlanFeature> metrics = model.getMetrics();
 		if( metrics!=null ) {
-			setLabel(model.getName());
 			Envelope boundary = model.getBoundary().getFeatures().getEnvelope();
 			double north = boundary.getMaxY();
 			double east = boundary.getMaxX();
@@ -69,15 +72,16 @@ public class PlanMapRenderer implements MapComponentInitializedListener {
 			// Add the polygons
 			for(Feature feat:model.getBoundary().getFeatures().getFeatures()) {
 				String name = feat.getAttribute(nameAttribute).toString();
+				PlanFeature pf = getPlanFeature(name);
 				name = "'"+name+"'";
 				if( feat.getGeometry().getGeometryType().equals(Geometries.POLYGON.toString()) )  {
-					addPolygon(name,(Polygon)feat.getGeometry());
+					addPolygon(name,pf,(Polygon)feat.getGeometry());
 				}
 				// Add the polygons
 				else if( feat.getGeometry().getGeometryType().equals(Geometries.MULTIPOLYGON.toString()))	 {
 					GeometryCollection collection = (GeometryCollection)feat.getGeometry();
 					for(int index=0;index<collection.getNumGeometries();index++) {
-						addPolygon(name,(Polygon)collection.getGeometryN(index));
+						addPolygon(name,pf,(Polygon)collection.getGeometryN(index));
 					}
 				}
 				else {
@@ -91,17 +95,46 @@ public class PlanMapRenderer implements MapComponentInitializedListener {
 		}
 	}
 	// Add a polygon to the map. The name is already single-quoted.
-	private void addPolygon(String name,Polygon poly) {
+	private void addPolygon(String name,PlanFeature feature,Polygon poly) {
 		overlay.getEngine().executeScript("clearCoordinates()");
 		//String format = "MapViewTest5: addPolygon (%f,%f)";
 		for(Coordinate c:poly.getCoordinates()) {
 			overlay.getEngine().executeScript(String.format("addCoordinate(%s,%s)",String.valueOf(c.x),String.valueOf(c.y)));
 			//LOGGER.info(String.format(format, c.x,c.y));
 		}
-		overlay.getEngine().executeScript(String.format("addPolygon(%s)",name));
+		String color = "'0XAAAAAA'";
+		if(colorizingOption.equals(ColorizingOption.AFFILIATION)) {
+			color = getAffiliationColor(feature);
+		}
+		else {
+			color = getDemographicsColor(feature);
+		}
+		overlay.getEngine().executeScript(String.format("addPolygon(%s,%s)",name,color));
 	}
-	private void setLabel(String label) {
-		String script = "setLabel(\'"+label+"\')";
-		overlay.getEngine().executeScript(script);
+	
+	private String getAffiliationColor(PlanFeature feature) {
+		double total = feature.getDemocrat() + feature.getRepublican();
+		double dem = 256*feature.getDemocrat()/total;
+		double rep = 256*feature.getRepublican()/total;
+		String color = String.format("'#%02X%02X%02X'",(int)rep,0,(int)dem);
+		LOGGER.warning(String.format("%s.getAfiliationColor: %s %s",CLSS,feature.getName(),color));
+		return color;	
+	}
+	// Return a gray color representing the fraction of minorities
+	private String getDemographicsColor(PlanFeature feature) {
+		double val = 256*feature.getWhite()/feature.getPopulation();
+		int c = (int)val;
+		String color = String.format("'#%02X%02X%02X'",c,c,c);
+		LOGGER.warning(String.format("%s.getDemographicsColor: %s %s",CLSS,feature.getName(),color));
+		return color;	
+	}
+	// Do a linear search for the plan feature by name.
+	private PlanFeature getPlanFeature(String name) {
+		List<PlanFeature> features = model.getMetrics();
+		for(PlanFeature feature:features) {
+			if(feature.getName().equalsIgnoreCase(name) ) return feature;
+		}
+		LOGGER.warning(String.format("%s.getPlanFeature: No feature named %s",CLSS,name));
+		return null;
 	}
 }

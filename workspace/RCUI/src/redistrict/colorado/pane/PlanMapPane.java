@@ -25,7 +25,7 @@ import redistrict.colorado.ui.ViewMode;
  * Plot a map corresponding to a plan. Plot a Google Map as a backdrop.
  * Parent is an AnchorPane.
  */
-public class PlanMapPane extends BasicRightSideNode implements EventHandler<ActionEvent>,ChangeListener<Number>{
+public class PlanMapPane extends BasicRightSideNode {
 	private final static String CLSS = "PlanMapPane";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private Label headerLabel = new Label("Map");
@@ -65,23 +65,5 @@ public class PlanMapPane extends BasicRightSideNode implements EventHandler<Acti
 			LOGGER.info(String.format("%s.updateModel: selected = %s", CLSS,model.getName()));
 			map.updateModel(model);
 		}
-	}
-
-	/**
-	 * The zoom slider on the navigation pane has changed value.
-	 */
-	@Override
-	public void changed(ObservableValue<? extends Number> arg0, Number arg1, Number arg2) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	/**
-	 * An arrow button has been selected on the navigation pane
-	 */
-	@Override
-	public void handle(ActionEvent event) {
-		// TODO Auto-generated method stub
-		
 	}
 }

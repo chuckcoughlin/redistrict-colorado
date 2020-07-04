@@ -16,6 +16,7 @@ import redistrict.colorado.core.AnalysisModel;
 import redistrict.colorado.core.DatasetModel;
 import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.db.Database;
+import redistrict.colorado.ui.ColorizingOption;
 import redistrict.colorado.ui.ViewMode;
 
 /**
@@ -39,6 +40,7 @@ public class EventBindingHub  {
 	private final SimpleObjectProperty<DatasetModel> selectedDataset;
 	private final SimpleObjectProperty<List<PlanModel>> activePlans;
 	private final SimpleObjectProperty<List<PlanModel>> allPlans;
+	private final SimpleStringProperty selectedColorOption;
 	private final SimpleObjectProperty<PlanModel> selectedPlan;
 	private final SimpleStringProperty selectedRegion;
 	private final SimpleObjectProperty<AnalysisModel> analysisModel;
@@ -53,6 +55,7 @@ public class EventBindingHub  {
 		this.selectedPlan = new SimpleObjectProperty<PlanModel>();
 		this.activePlans = new SimpleObjectProperty<List<PlanModel>>();
 		this.allPlans = new SimpleObjectProperty<List<PlanModel>>();
+		this.selectedColorOption = new SimpleStringProperty();
 		this.selectedRegion = new SimpleStringProperty();
 		this.analysisModel = new SimpleObjectProperty<AnalysisModel>();
 	}
@@ -121,6 +124,10 @@ public class EventBindingHub  {
 		return am;
 	}
 	public SimpleObjectProperty<AnalysisModel> analysisModelProperty(){return analysisModel; }
+	
+	// Selected plan rendering option
+	public ColorizingOption getSelectedColorOption() { return ColorizingOption.valueOf(selectedColorOption.get()); }
+	public void setSelectedColorOption(ColorizingOption option) { selectedColorOption.set(option.name()); }
 	
 	// Selected District
 	public String getSelectedRegion() { return selectedRegion.get(); }

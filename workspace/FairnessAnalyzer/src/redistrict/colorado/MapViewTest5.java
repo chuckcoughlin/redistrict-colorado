@@ -80,7 +80,6 @@ public class MapViewTest5 extends Application implements MapComponentInitialized
 		if( model != null ) {
 			List<PlanFeature> metrics = model.getMetrics();
 			if( metrics!=null ) {
-				setLabel(model.getName());
 				Envelope boundary = model.getBoundary().getFeatures().getEnvelope();
 				double north = boundary.getMaxY();
 				double east = boundary.getMaxX();
@@ -126,12 +125,10 @@ public class MapViewTest5 extends Application implements MapComponentInitialized
 			mapView.getEngine().executeScript(String.format("addCoordinate(%s,%s)",String.valueOf(c.x),String.valueOf(c.y)));
 			//LOGGER.info(String.format(format, c.x,c.y));
 		}
-		mapView.getEngine().executeScript(String.format("addPolygon(%s)",name));
+		String color = "'#33DD33'";
+		mapView.getEngine().executeScript(String.format("addPolygon(%s,%s)",name,color));
 	}
-	private void setLabel(String label) {
-		String script = "setLabel(\'"+label+"\')";
-		mapView.getEngine().executeScript(script);
-	}
+
 	public static void main(String[] args) {
 		String arg = args[0];
     	Path path = Paths.get(arg);
