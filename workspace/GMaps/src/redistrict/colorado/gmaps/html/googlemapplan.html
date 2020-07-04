@@ -83,6 +83,17 @@
              fillOpacity: 0.35
            });
            polygon.setMap(map);
+           var infowindow = new google.maps.InfoWindow();
+           google.maps.event.addListener(polygon, 'click', function(evt) {
+            	infowindow.setContent(name+"<br/>");
+           		infowindow.setPosition(evt.latLng);
+      			infowindow.open(map);
+           });
+           // Close the infowindow when the mouse leaves the polygon
+           //google.maps.event.addListener(polygon, 'mouseout', function(evt) {
+             //infowindow.close();
+             //infowindow.opened = false;
+           //});
    	  }
     </script>
     <script async defer
