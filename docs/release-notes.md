@@ -7,7 +7,9 @@ First demonstration. Plan evaluation calculations are complete.
 #### 1.1 June 1, 2020
 Feature additions.
  * Partisan Assymetry - now allow choice of: mean-median, partisan-bias, declination or efficiency gap.
- * Voting Power - clarified the metric. Show both "packing" and "cracking" metrics by race.
+ * Voting Power - split the metric into two parts to measure both "packing" and "cracking" attempts by race.
+    * Racial vote dilution - measure the amount that voters of different ethnicities are disbursed to reduce their influence
+    * Voting power imbalance - look at the ration between voting power and population by ethnicity. Verify that this fraction does not favor one ethnicity over another,
 
 #### 1.2 July 5, 2020
 Feature additions.

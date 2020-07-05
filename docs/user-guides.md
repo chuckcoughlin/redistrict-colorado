@@ -34,12 +34,14 @@ actions in the left side controlling what is displayed on the right. A *View* me
 ```                  View Menu     ```
 
 ### Plans <a id="plans"></a>
-The figure below shows the plan superimposed over a Google Map. This view is accessible only if there is a current internet connection. The Google Map has
+The figure below shows the plan superimposed over a Google Map. The Google Map has
 controls for pan, zoom and map type. The map is colorized to indicate the
 predominant affiliation within each district. Additionally a 'click' within a
 district will popup an information window with metrics for that district.
+
 ![MapOverlay](/images/plan_map.png)
 ```                  Plan Overlay Onto Google Maps     ```
+This view is accessible only if there is a current internet connection.
 
 The next figure shows the plan context after selection of a "Properties" button. The screen shows aggregated quantities by district
 based on the boundary, affiliation and demographics datasets selected for the analysis. When this page is first selected,
@@ -210,8 +212,7 @@ in a new session.
 
 ### Districts <a id="districts"></a>
 The *districts* section shows details of districts within any "boundary" dataset. The details are displayed simply by clicking on the district within the tree layout.
-
-The figure below shows how the resulting map is superimposed over a Google Map. The Google Map has
+The figure below shows the resulting map superimposed over a Google Map. The Google Map has
 controls for pan, zoom and map type. This allows for inspection of the boundaries.
 ![DistrictOverlay](/images/district_map.png)
 ```                  District Overlay Onto Google Maps     ```
