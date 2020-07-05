@@ -154,11 +154,19 @@ public class SettingsInformation extends Dialog<Gate> {
 		header.setStyle("-fx-font-weight: bold");
 		info.getChildren().add(header);
 		info.getChildren().add(new Text(System.lineSeparator()));
+		unfair = new Text("   unfair: 0   (votes are evenly spread )");
+		info.getChildren().add(unfair); info.getChildren().add(new Text(System.lineSeparator()));
+		fair   = new Text("      fair: .2   (seat percentage matches vote percentage)");
+		info.getChildren().add(fair); info.getChildren().add(new Text(System.lineSeparator()));
 		
 		header = new Text("Voting Power Imbalance:");
 		header.setStyle("-fx-font-weight: bold");
 		info.getChildren().add(header);
 		info.getChildren().add(new Text(System.lineSeparator()));
+		unfair = new Text("   unfair: .2   (one group has twice the power)");
+		info.getChildren().add(unfair); info.getChildren().add(new Text(System.lineSeparator()));
+		fair   = new Text("      fair: 0   (all groups have the same voting power)");
+		info.getChildren().add(fair); info.getChildren().add(new Text(System.lineSeparator()));
 		return info;
 	}
 	

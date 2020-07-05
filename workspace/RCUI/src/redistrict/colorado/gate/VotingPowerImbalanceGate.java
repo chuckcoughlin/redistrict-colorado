@@ -66,7 +66,7 @@ public class VotingPowerImbalanceGate extends Gate {
 		Text t2 = new Text("that is, the ability to effect the outcome of an election. We want to make sure that this power in not diluted by ");
 		Text t3 = new Text("artifically spredding votes of one ethnicity across multiple districts. For a single district, voting power is ");
 		Text t4 = new Text("the fraction of the population for a given ethnicity times the total votes cast divided by the vote margin.");
-		Text t5 = new Text(" We normalize by the overall population to mairgin ratio then take the harmonic mean for each ethniticy over ");
+		Text t5 = new Text(" We normalize by the overall population to margin ratio then take the harmonic mean for each ethniticy over ");
 		Text t6 = new Text("all districts. We want to minimize how much this varies between ethnicities, ");
 		Text t7 = new Text("so we take take difference between the ethnicity with the most power and the ethnicity with the least. ");
 		Text t8= new Text("We want this score to be ");

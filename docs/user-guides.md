@@ -34,7 +34,14 @@ actions in the left side controlling what is displayed on the right. A *View* me
 ```                  View Menu     ```
 
 ### Plans <a id="plans"></a>
-The figure below shows the plan context after selection of a "Properties" button. The screen shows aggregated quantities by district
+The figure below shows the plan superimposed over a Google Map. This view is accessible only if there is a current internet connection. The Google Map has
+controls for pan, zoom and map type. The map is colorized to indicate the
+predominant affiliation within each district. Additionally a 'click' within a
+district will popup an information window with metrics for that district.
+![MapOverlay](/images/plan_map.png)
+```                  Plan Overlay Onto Google Maps     ```
+
+The next figure shows the plan context after selection of a "Properties" button. The screen shows aggregated quantities by district
 based on the boundary, affiliation and demographics datasets selected for the analysis. When this page is first selected,
 application computes the aggregated values. This is a compute-intensive
 process and may take as long as a minute or two. Once the
@@ -136,12 +143,13 @@ The numerical value of the metric is the number of seats in excess of the "deser
 
 ###### Racial Vote Dilution
 This metric describes the extent, if any, to which voters of different ethnicities are disbursed across districts to avoid concentrations where they have a majority
-or near-majority. We define voting power as the ratio between he estimated votes by an ethnic group in a district and the vote margin. This value is scaled by the overall population to margin ratio. The final metric is the mean absolute deviation over the districts of the log of the result. A value of zero implies a perfectly homogeneous, i.e. diluted, distribution of voters. The metric value is the minimum
+or near-majority. We define voting power as the ratio between the estimated votes by an ethnic group in a district and the vote margin. This value is scaled by the overall population to margin ratio. The final metric is the mean absolute deviation over the districts of the log of the result. A value of zero implies a perfectly homogeneous, i.e. diluted, distribution of voters. The metric value is the minimum
 score across the groups.
 
 ###### Voting Power Imbalance:
-This metric looks at what would happen if members of ethnic groups voted for their own candidates irrespective of party. We want to make sure that
-the power of an ethnic group isn't diluted by artificially spreading the members across districts. The voting power metric is the fraction of population in a district represented by the group times the voting population divided by the vote margin. Normalize this by the overall population to vote margin. The harmonic mean across districts is taken, then the groups are compared. The final score is the difference between the highest and lowest scores.
+This metric is designed to ensure that the voting power of an ethnic group
+properly correlates to the fraction that they represent in the general population.
+The metric is calculated by taking fraction of population in a district represented by the group times the voting population divided by the vote margin. Normalize this by the overall population to vote margin. The harmonic mean across districts is taken, then the groups are compared. The final score is the difference between the highest and lowest scores.
 
 ###### Composite:
 The composite or overall metric is a compendium of all the other measures with
@@ -202,6 +210,11 @@ in a new session.
 
 ### Districts <a id="districts"></a>
 The *districts* section shows details of districts within any "boundary" dataset. The details are displayed simply by clicking on the district within the tree layout.
+
+The figure below shows how the resulting map is superimposed over a Google Map. The Google Map has
+controls for pan, zoom and map type. This allows for inspection of the boundaries.
+![DistrictOverlay](/images/district_map.png)
+```                  District Overlay Onto Google Maps     ```
 
 ### Installation <a id="installation"></a>
 The application consists of three components:

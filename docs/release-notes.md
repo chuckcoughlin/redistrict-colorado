@@ -8,5 +8,11 @@ First demonstration. Plan evaluation calculations are complete.
 Feature additions.
  * Partisan Assymetry - now allow choice of: mean-median, partisan-bias, declination or efficiency gap.
  * Voting Power - clarified the metric. Show both "packing" and "cracking" metrics by race.
- * District Navigation - zoom and pan buttons on district screen now work.
- * Google Maps - district boundaries are now super-imposed on a Google Map.
+
+#### 1.2 July 5, 2020
+Feature additions.
+ * District Maps - now super-imposed over Google Maps. Pan and zoom are available
+ * Plan Maps - now super-inposed over Google Maps.
+	* Districts are colorized to show affiations
+	* Info windows pop-up with a click in districts to show details
+	* Pan and zoom

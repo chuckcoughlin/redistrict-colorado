@@ -79,7 +79,6 @@ Java 13.
 * http://www.openjump.org/jpp.html OpenJUMP 1.14. This GIS package is extremely comprehensive consisting of over 1600 source files. We have simplified it drastically, using perhaps 50.
 * https://github.com/unitsofmeasurement/jsr-275 JSR-275 units of measure.
 * https://sourceforge.net/projects/geographiclib/files/distrib/GeographicLib-1.50.zip/download GeographicLib, a Java library of routines for converting between geographic and geocentric coordinates.
-* https://github.com/rterp/GMapsFX GMapsFX, a java wrapper for the Google Maps javascript API.
 
 #### Shapefiles <a id="shapefiles"></a>
 [toc](#table-of-contents)

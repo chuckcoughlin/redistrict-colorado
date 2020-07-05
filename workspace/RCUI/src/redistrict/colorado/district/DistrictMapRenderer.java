@@ -7,28 +7,18 @@
 package redistrict.colorado.district;
 import java.util.logging.Logger;
 
-import org.geotools.render.FeatureFilter;
-import org.geotools.render.MapLayer;
-import org.geotools.render.ShapefileRenderer;
-import org.geotools.style.Style;
 import org.geotools.util.Geometries;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.geom.Polygon;
 import org.openjump.feature.Feature;
-import org.openjump.feature.FeatureCollection;
-import org.openjump.feature.FeatureDataset;
 
-import javafx.scene.canvas.Canvas;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import redistrict.colorado.core.DatasetModel;
 import redistrict.colorado.core.StandardAttributes;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.gmaps.GoogleMapView;
 import redistrict.colorado.gmaps.MapComponentInitializedListener;
-import redistrict.colorado.pref.PreferenceKeys;
 
 /**
  * Render a district from the shapefile as polygons on a Google Map.

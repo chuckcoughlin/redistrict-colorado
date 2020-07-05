@@ -67,8 +67,7 @@ public class PlanMapRenderer implements MapComponentInitializedListener {
 			double west = boundary.getMinX();
 			// Set the bounds to enclose the area of interest
 			overlay.getEngine().executeScript(String.format("initBounds(%8.6f,%8.6f,%8.6f,%8.6f)",north,east,south,west));
-			String nameAttribute = Database.getInstance().getAttributeAliasTable().nameForAlias(model.getId(), StandardAttributes.ID.name());
-
+			String nameAttribute = Database.getInstance().getAttributeAliasTable().nameForAlias(model.getBoundary().getId(), StandardAttributes.ID.name());
 			// Add the polygons
 			for(Feature feat:model.getBoundary().getFeatures().getFeatures()) {
 				String name = feat.getAttribute(nameAttribute).toString();
