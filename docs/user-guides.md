@@ -41,6 +41,7 @@ district will popup an information window with metrics for that district.
 
 ![MapOverlay](/images/plan_map.png)
 ```                  Plan Overlay Onto Google Maps     ```
+
 This view is accessible only if there is a current internet connection.
 
 The next figure shows the plan context after selection of a "Properties" button. The screen shows aggregated quantities by district
