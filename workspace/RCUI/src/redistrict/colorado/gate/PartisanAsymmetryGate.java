@@ -51,10 +51,11 @@ public class PartisanAsymmetryGate extends Gate {
 	private final static String KEY_DECLINATION = "Declination"; 
 	private final static String KEY_GAP = "Efficiency Gap"; 
 	private final static String KEY_MARGIN = "Margin"; 
-	private final static String KEY_PERCENT_SEATS = "% of Seats"; 
+
 	private final static String KEY_PERCENT_VOTES = "%of Votes"; 
 	private final static String KEY_PROBABILITY = "Probability"; 
 	private final static String KEY_SCORE = "Score";  // Value appropriate to metric
+	private final static String KEY_SEAT_BIAS = "Seat Bias"; 
 	private final static String KEY_NAME = "Name";
 	private final static String KEY_PLAN = "Plan";
 	private final static String KEY_PARTY = "Advantaged Party";
@@ -112,7 +113,7 @@ public class PartisanAsymmetryGate extends Gate {
 		Text t1 = new Text("Use the students-t test to analyze the distributions in vote-margin between districts won by the two parties.");
 		Text t2 = new Text("A statistically significant difference may be an indication of gerrymandering.");
 		Text t3 = new Text("The result is the probability that the distributions could have occurred by chance. We want this value to be ");
-		Text t4 = new Text("minimized");
+		Text t4 = new Text("maximized");
 		t4.setStyle("-fx-font-weight: bold");
 		Text t5 = new Text(". This metric should not be used with less than 30 districts.");
 		info.getChildren().addAll(t1,t2,t3,t4,t5);
@@ -128,7 +129,7 @@ public class PartisanAsymmetryGate extends Gate {
 	}
 	private void updatePartisanBiasInfo(TextFlow info) {
 		Text t1 = new Text("Partisan bias is a measure of seat bias. ");
-		Text t2 = new Text("It is the difference in percent between 50% and the percentage of votes required to win 50% of the seats.");
+		Text t2 = new Text("It is the difference between 50% of the seats and the number of seats that would be won with 50% of the votes.");
 		Text t3 = new Text("We want this score to be ");
 		Text t4 = new Text("minimized");
 		t4.setStyle("-fx-font-weight: bold");
@@ -154,7 +155,7 @@ public class PartisanAsymmetryGate extends Gate {
 			case EFFICIENCY_GAP: key = KEY_GAP;   break;
 			case LOPSIDED_WINS:  key = KEY_PROBABILITY;   break;
 			case MEAN_MEDIAN:    key = KEY_PERCENT_VOTES;  break;
-			case PARTISAN_BIAS:  key = KEY_PERCENT_SEATS;  break;
+			case PARTISAN_BIAS:  key = KEY_SEAT_BIAS;  break;
 		}
 		return key;
 	} 
@@ -319,7 +320,7 @@ public class PartisanAsymmetryGate extends Gate {
 			voteSeatCurves.add(vsc);
 			
 			NameValue nv = new NameValue(plan.getName());
-			nv.setValue(KEY_PERCENT_SEATS, 100.*Math.abs(vsc.getSeatImbalance()));
+			nv.setValue(KEY_SEAT_BIAS, vsc.getSeatImbalance());
 			nv.setValue(KEY_PLAN, plan.getName());
 			String party = "Democrat";
 			if( vsc.getSeatImbalance() > 0.5 ) party = "Republican";
@@ -411,7 +412,7 @@ public class PartisanAsymmetryGate extends Gate {
 				getResultsForMeanMedian(pane);
 				break;
 			case PARTISAN_BIAS:
-				aggregateLabel.setText("Partisan Bias ~ % of seats for 50% of votes/ Advantaged Party");
+				aggregateLabel.setText("Partisan Bias ~ number of extra seats for 50% of votes/ Advantaged Party");
 				detailLabel.setText("Vote-Seat Comparison");
 				getResultsForPartisanBias(pane);
 				break;
