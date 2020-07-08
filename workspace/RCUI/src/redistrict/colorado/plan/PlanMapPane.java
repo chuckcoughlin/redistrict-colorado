@@ -4,7 +4,7 @@
  * This program is free software; you may redistribute it and/or
  * modify it under the terms of the GNU General Public License.
  */
-package redistrict.colorado.pane;
+package redistrict.colorado.plan;
 import java.util.logging.Logger;
 
 import javafx.beans.value.ChangeListener;
@@ -16,6 +16,7 @@ import redistrict.colorado.core.DatasetModel;
 import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.gmaps.GoogleMapView;
+import redistrict.colorado.pane.BasicRightSideNode;
 import redistrict.colorado.pref.PreferenceKeys;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.UIConstants;
@@ -38,19 +39,19 @@ public class PlanMapPane extends BasicRightSideNode {
 		headerLabel.getStyleClass().add("list-header-label");
 		getChildren().add(headerLabel);
 
-		setTopAnchor(headerLabel,0.);
-		setLeftAnchor(headerLabel,UIConstants.LIST_PANEL_LEFT_MARGIN);
-		setRightAnchor(headerLabel,UIConstants.LIST_PANEL_RIGHT_MARGIN);
-
 		String key = Database.getInstance().getPreferencesTable().getParameter(PreferenceKeys.GOOGLE_API_KEY);
 		GoogleMapView view = new GoogleMapView(key,GoogleMapView.PLAN_PATH);
 		view.setMinWidth(UIConstants.SCENE_WIDTH-UIConstants.LIST_PANEL_LEFT_MARGIN-UIConstants.LIST_PANEL_RIGHT_MARGIN);
-		view.setMinHeight(UIConstants.SCENE_HEIGHT-3*UIConstants.BUTTON_PANEL_HEIGHT);
+		view.setMinHeight(UIConstants.SCENE_HEIGHT-2.*UIConstants.BUTTON_PANEL_HEIGHT);
 		getChildren().add(view);
 		setTopAnchor(view,UIConstants.BUTTON_PANEL_HEIGHT);
 		setLeftAnchor(view,UIConstants.LIST_PANEL_LEFT_MARGIN);
 		setRightAnchor(view,UIConstants.LIST_PANEL_RIGHT_MARGIN);
-		setBottomAnchor(view,UIConstants.BUTTON_PANEL_HEIGHT);
+		setBottomAnchor(view,0.);
+		
+		setTopAnchor(headerLabel,0.);
+		setLeftAnchor(headerLabel,UIConstants.LIST_PANEL_LEFT_MARGIN);
+		setRightAnchor(headerLabel,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 
 		map = new PlanMapRenderer(view);
 		updateModel();

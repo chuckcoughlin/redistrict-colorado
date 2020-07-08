@@ -49,13 +49,13 @@ import redistrict.colorado.ui.ViewMode;
 			String key = Database.getInstance().getPreferencesTable().getParameter(PreferenceKeys.GOOGLE_API_KEY);
 			GoogleMapView view = new GoogleMapView(key,GoogleMapView.DISTRICT_PATH);
 			view.setMinWidth(UIConstants.SCENE_WIDTH-UIConstants.LIST_PANEL_LEFT_MARGIN-UIConstants.LIST_PANEL_RIGHT_MARGIN);
-			view.setMinHeight(UIConstants.SCENE_HEIGHT-3*UIConstants.BUTTON_PANEL_HEIGHT);
+			view.setMinHeight(UIConstants.SCENE_HEIGHT);
 			
 			getChildren().add(view);
 			setTopAnchor(view,UIConstants.BUTTON_PANEL_HEIGHT);
 			setLeftAnchor(view,UIConstants.LIST_PANEL_LEFT_MARGIN);
 			setRightAnchor(view,UIConstants.LIST_PANEL_RIGHT_MARGIN);
-			setBottomAnchor(view,UIConstants.BUTTON_PANEL_HEIGHT);
+			setBottomAnchor(view,0.);
 			
 			map = new DistrictMapRenderer(view);
 			updateModel();
