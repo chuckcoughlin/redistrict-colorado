@@ -24,8 +24,8 @@ import redistrict.colorado.core.PlanModel;
  * This pane shows the color scheme and scores for each plan. 
  * There is no action supported by these components.
  */
-public class Legend extends GridPane   {
-	private static final String CLSS = "Legend";
+public class ColorLegend extends GridPane   {
+	private static final String CLSS = "ColorLegend";
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
 	private final static double LABEL_WIDTH = 90.;  //220
 	private final static double COL1_WIDTH = 100.;   // 240
@@ -35,7 +35,7 @@ public class Legend extends GridPane   {
 	private final static double RECT_WIDTH = 20.;
 	private final Map<Long,Label> labelMap;
     
-	public Legend() {
+	public ColorLegend() {
 		labelMap = new HashMap<>();
         setHgap(0);
         setVgap(4);

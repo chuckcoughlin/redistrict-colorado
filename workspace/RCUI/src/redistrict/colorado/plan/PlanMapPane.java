@@ -7,16 +7,11 @@
 package redistrict.colorado.plan;
 import java.util.logging.Logger;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.control.Label;
-import redistrict.colorado.core.DatasetModel;
 import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.gmaps.GoogleMapView;
 import redistrict.colorado.pane.BasicRightSideNode;
+import redistrict.colorado.pane.PlanMapConfigurationPane;
 import redistrict.colorado.pref.PreferenceKeys;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.UIConstants;
@@ -29,15 +24,15 @@ import redistrict.colorado.ui.ViewMode;
 public class PlanMapPane extends BasicRightSideNode {
 	private final static String CLSS = "PlanMapPane";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
-	private Label headerLabel = new Label("Map");
+	private PlanMapConfigurationPane headerPane = new PlanMapConfigurationPane("Map");
 	private PlanModel model;
 	private final PlanMapRenderer map;
 
 	public PlanMapPane() {
 		super(ViewMode.PLAN,DisplayOption.PLAN_MAP);
 		this.model = hub.getSelectedPlan();
-		headerLabel.getStyleClass().add("list-header-label");
-		getChildren().add(headerLabel);
+		headerPane.getStyleClass().add("list-header-label");
+		getChildren().add(headerPane);
 
 		String key = Database.getInstance().getPreferencesTable().getParameter(PreferenceKeys.GOOGLE_API_KEY);
 		GoogleMapView view = new GoogleMapView(key,GoogleMapView.PLAN_PATH);
@@ -49,9 +44,9 @@ public class PlanMapPane extends BasicRightSideNode {
 		setRightAnchor(view,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 		setBottomAnchor(view,0.);
 		
-		setTopAnchor(headerLabel,0.);
-		setLeftAnchor(headerLabel,UIConstants.LIST_PANEL_LEFT_MARGIN);
-		setRightAnchor(headerLabel,UIConstants.LIST_PANEL_RIGHT_MARGIN);
+		setTopAnchor(headerPane,0.);
+		setLeftAnchor(headerPane,UIConstants.LIST_PANEL_LEFT_MARGIN);
+		setRightAnchor(headerPane,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 
 		map = new PlanMapRenderer(view);
 		updateModel();
@@ -62,7 +57,7 @@ public class PlanMapPane extends BasicRightSideNode {
 		PlanModel selectedModel = hub.getSelectedPlan();
 		if( selectedModel!=null) {
 			model = selectedModel;
-			headerLabel.setText(model.getName());
+			headerPane.setText(model.getName());
 			LOGGER.info(String.format("%s.updateModel: selected = %s", CLSS,model.getName()));
 			map.updateModel(model);
 		}

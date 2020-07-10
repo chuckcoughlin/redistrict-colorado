@@ -32,7 +32,7 @@ import redistrict.colorado.core.GateType;
 import redistrict.colorado.core.NameValue;
 import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.db.Database;
-import redistrict.colorado.plan.Legend;
+import redistrict.colorado.plan.ColorLegend;
 import redistrict.colorado.table.NameValueListCellValueFactory;
 import redistrict.colorado.ui.ComponentIds;
 import redistrict.colorado.ui.GuiUtil;
@@ -50,7 +50,7 @@ public class CompositeGate extends Gate {
 	private final static String KEY_UNFAIR = "Unfair";
 	private final static String KEY_WEIGHT = "Weight";
 	private final Label detailLabel = new Label("Individual Metric Results"); 
-	private Legend legend;
+	private ColorLegend colorLegend;
 	private final Map<Long,List<NameValue>> planScores; // List is ordered by gate type
 
 	public CompositeGate() {
@@ -66,19 +66,19 @@ public class CompositeGate extends Gate {
 		header.setPrefWidth(WIDTH+1);
 		header.getStyleClass().add("graph-header");
 
-		this.legend = new Legend();
-		legend.setAlignment(Pos.CENTER_LEFT);
+		this.colorLegend = new ColorLegend();
+		colorLegend.setAlignment(Pos.CENTER_LEFT);
 		//legend.setPadding(new Insets(10, 120, 10, 10));  // top, right,bottom,left
 		body.setAlignment(Pos.CENTER);
 		body.setMaxWidth(USE_PREF_SIZE);
 		rectangle = new Rectangle(WIDTH,HEIGHT);
 		rectangle.getStyleClass().add("graph-rectangle");
 		StackPane.setAlignment(header, Pos.TOP_CENTER);
-		StackPane.setAlignment(legend, Pos.CENTER);
+		StackPane.setAlignment(colorLegend, Pos.CENTER);
 		StackPane.setAlignment(rectangle, Pos.CENTER);
 		StackPane.setAlignment(info, Pos.BOTTOM_RIGHT);
-		StackPane.setMargin(legend, new Insets(0, 10, 5, 10));  // top right bottom left
-		body.getChildren().addAll(rectangle,legend,header,info);
+		StackPane.setMargin(colorLegend, new Insets(0, 10, 5, 10));  // top right bottom left
+		body.getChildren().addAll(rectangle,colorLegend,header,info);
 		getChildren().addAll(body);	
 	}
 
@@ -237,10 +237,10 @@ public class CompositeGate extends Gate {
 	// Update the legend and result labels based on computations
 	// List is already sorted.
 	protected void updateChart() {
-		legend.display(sortedPlans);
+		colorLegend.display(sortedPlans);
 		for(Long id:scoreMap.keySet() ) {
 			NameValue nv = scoreMap.get(id);
-			legend.setValue(id,GuiUtil.toDouble(nv.getValue(KEY_SCORE)));
+			colorLegend.setValue(id,GuiUtil.toDouble(nv.getValue(KEY_SCORE)));
 		}
 
 		LOGGER.info("CompositeGate.updateChart: complete.");
