@@ -8,6 +8,7 @@ package redistrict.colorado.district;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.openjump.feature.AttributeType;
 import org.openjump.feature.Feature;
 import org.openjump.feature.FeatureCollection;
 
@@ -80,9 +81,16 @@ public class DistrictTreeController extends StackPane implements EventReceiver<A
 					String nameAttribute = Database.getInstance().getAttributeAliasTable().nameForAlias(datasetModel.getId(), StandardAttributes.ID.name());
 					if( nameAttribute!=null) {
 						for(Feature feature:collection.getFeatures() ) {
-							TreeItem<String> leaf = new TreeItem<String> (feature.getAttribute(nameAttribute).toString());
-							item.getChildren().add(leaf);
-							leaf.addEventHandler(ActionEvent.ACTION, regionEventHandler);
+							try {
+								TreeItem<String> leaf = new TreeItem<String> (feature.getAttribute(nameAttribute).toString());
+								item.getChildren().add(leaf);
+								leaf.addEventHandler(ActionEvent.ACTION, regionEventHandler);
+							}
+							catch( IllegalArgumentException iae) {
+								// An exception here means that the name attribute is not in the schema.
+								// This may be due to a change in the shapefile for the dataset
+								LOGGER.warning(String.format("%s.populateDaatasets: %s has no ID attribute %s. Delete datasets, re-define and re-save", CLSS,datasetModel.getName(),nameAttribute));
+							}
 						}
 					}
 					else {

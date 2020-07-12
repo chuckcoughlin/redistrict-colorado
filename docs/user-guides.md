@@ -224,6 +224,6 @@ The application consists of three components:
    requiring Java 13 or higher. It is distributed as an executable
    *jar* file.
   * Database - the application depends on a SQLite database to persist its state. SQLite is natively resident on most systems.
-  * Shapefiles - the data files must be downloaded into the local file system. Locations of some publicly available data files are listed [here](https://github.com/chuckcoughlin/redistrict-colorado/tree/master/docs/datasets.md). Shapefiles must be the zipped versions.
+  * Shapefiles - the data files must be downloaded into the local file system. Locations of some publicly available data files are listed [here](https://github.com/chuckcoughlin/redistrict-colorado/tree/master/docs/datasets.md). Shapefiles may be either the zipped configuration holding .shp, .dbf, and .shx files or a single DBase (.dbf) file.
   * Google Maps - In order to use the map overly feature on the `Districts` panel, each user must have their own key to the Google Maps API. Directions for obtaining
   the free key may be obtained [here](https://developers.google.com/maps/documentation/javascript/tutorial#api_key). The key may be entered on the main menu pulldown under the Colorado flag.

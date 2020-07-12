@@ -43,7 +43,8 @@ public class PlanMapConfigurationPane extends AnchorPane {
 		
 		colorizingOptionCombo  = new ComboBox<>();
 		colorizingOptionCombo.setPrefWidth(COMBO_WIDTH);
-		colorizingOptionCombo.setItems(ColorizingOption.names());
+		colorizingOptionCombo.getItems().clear();
+		colorizingOptionCombo.getItems().addAll(ColorizingOption.names());
 		this.getChildren().add(colorizingOptionCombo);
 		
 		

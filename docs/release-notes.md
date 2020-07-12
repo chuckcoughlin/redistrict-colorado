@@ -18,3 +18,10 @@ Feature additions.
 	* Districts are colorized to show affiations
 	* Info windows pop-up with a click in districts to show details
 	* Pan and zoom
+
+#### 1.3 July 22, 2020
+Feature additions.
+ * Data Files
+ 	* DBase (.dbf) files may be used directly for input.
+	* Created plans from AutoRedistroct.org results
+ * Plan Maps - added combo box in the header to select colorizing option

@@ -83,7 +83,9 @@ Java 13.
 #### Shapefiles <a id="shapefiles"></a>
 [toc](#table-of-contents)
 
-Code for analyzing ESRI shape files is derived from the Unified Mapping Platform, [OpenJump](https://sourceforge.net/projects/jump-pilot/files/latest/download). Code at version 1.14.1 was simplified and upgraded for Java 13.
+Code for analyzing ESRI shapefiles is derived from the Unified Mapping Platform, [OpenJump](https://sourceforge.net/projects/jump-pilot/files/latest/download). Code at version 1.14.1 was simplified and upgraded for Java 13. The shapefiles may be
+either a zipped collection of .shp, .dbf, and .shx files, or a single DBase (.dbf) file.
+
 ***
 ## Google Maps <a id="maps"/>
 [toc](#table-of-contents)

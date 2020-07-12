@@ -40,8 +40,8 @@ public class FeatureAttributeTable {
 	public void setConnection(Connection connection) { this.cxn = connection; }
 	
 	/**
-	 * Map a new feature to a dataset. The id must be the id of an existing dataset. The database
-	 * stores settings for display.
+	 * Map a new feature to a dataset. The id must be the id of an existing dataset. 
+	 * The database stores settings for display.
 	 */
 	public void createFeatureAttribute(long id,String name,AttributeType type) {
 		if( cxn==null ) return;

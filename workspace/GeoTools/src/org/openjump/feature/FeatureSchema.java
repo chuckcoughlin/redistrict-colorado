@@ -353,8 +353,9 @@ public class FeatureSchema implements Cloneable, Serializable {
                 attributeType == AttributeType.OBJECT) {
             this.externalPKIndex = index;
             setAttributeReadOnly(index, true);
-        } else {
-            throw new IllegalArgumentException("Primary Key must be of type String, Integer or Object");
+        } 
+        else {
+            throw new IllegalArgumentException(String.format("%s.setExternamPrimaryKey: Primary Key must be of type String, Integer or Object",CLSS));
         }
     }
 
@@ -367,7 +368,7 @@ public class FeatureSchema implements Cloneable, Serializable {
 
     /**
      * Add an attribute containing an external identifier.
-     * This attribute is read-only fo OpenJUMP. It is the responsability of the external
+     * This attribute is read-only for OpenJUMP. It is the responsibility of the external
      * datastore to write in this attribute.
      * @param attributeName name of the external id
      * @param attributeType type of the external id
@@ -380,7 +381,8 @@ public class FeatureSchema implements Cloneable, Serializable {
                 attributeType == AttributeType.OBJECT) {
             addAttribute(attributeName, attributeType);
             setAttributeReadOnly(getAttributeIndex(attributeName), true);
-        } else {
+        } 
+        else {
             throw new IllegalArgumentException("Primary Key must be of type String, Integer or Object");
         }
     }
