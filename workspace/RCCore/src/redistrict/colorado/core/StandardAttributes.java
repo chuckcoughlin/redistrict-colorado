@@ -17,6 +17,7 @@ public enum StandardAttributes
 	ID,
 	BLACK,
 	DEMOCRAT,
+	DISTRICT,
 	GEOMETRY,
 	HISPANIC,
 	FEMALE,

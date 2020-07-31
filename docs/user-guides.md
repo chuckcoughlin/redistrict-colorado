@@ -172,13 +172,8 @@ pressing the "Edit" button for one of its entries.
 On the right side, are components which allow us to change the properties of a dataset, its name, description, shapefile path and role. The role refers to the usage of the dataset in evaluation of a plan.
   * BOUNDARIES - defines the plan itself. It specifies
   the geometry of the district boundaries.
-  * DEMOGRAPHICS - lists population counts both totals and by race
-  within the overall plan boundaries. The boundaries of areas
-  for which counts are tallied will almost certainly NOT coincide
-  with the district boundaries.
-  * AFFILIATION - as with the previous, datasets of this type are
-  used to evaluate plans. Counts in this type of dataset reflect
-  party affiliations.
+  * DEMOGRAPHICS - lists population counts both totals and by race within the overall plan boundaries. The boundaries of areas for which counts are tallied will almost certainly NOT coincide with the district boundaries.
+  * AFFILIATION - as with the previous, datasets of this type are used to evaluate plans. Counts in this type of dataset reflect party affiliations.
 
 In the figure above, the dataset had already been saved, at least once. Notice how the rows in its attribute list have been sorted
 by rank. This is also the order in which columns are ordered in
@@ -192,6 +187,7 @@ Within a shapefile, a feature corresponds to a geographical area and is represen
   * ID - a unique identifier of the feature. This is the value that appears on the tree-view navigation panel in "District" scope.
   * BLACK - African-American population.
   * DEMOCRAT - votes cast for Democratic candidates.
+  * DISTRICT - district identifier.
   * GEOMETRY - defines the feature's geographic layout.
   * HISPANIC - Hispanic population.
   * FEMALE - female population.
@@ -200,9 +196,10 @@ Within a shapefile, a feature corresponds to a geographical area and is represen
   * REPUBLICAN - votes cast for Republican candidates.
   * WHITE - white population count.
 
- Note: Some of the demographic datasets do not include POPULATION as
- a feature attribute. For those, the application computes the total
- population by adding FEMALE and MALE counts.
+ Note: Some of the demographic datasets do not include POPULATION as a feature attribute. For those datasets, the application computes the total population by adding FEMALE and MALE counts.
+
+ Note: A DISTRICT column contains a name that
+ indicates to which district the row belongs. Rows in the dataset correspond to individual voting districts. The final district (the one shown on the map) is the union of multiple voting districts each having the same name. The final number of districts is the number of unique names in the DISTRICT column. This data organization is used by the autoredistrict project. There may be others.  
 
 ##### Sources <a id="sources"></a>
 The location and contents of compatible data files
@@ -226,4 +223,4 @@ The application consists of three components:
   * Database - the application depends on a SQLite database to persist its state. SQLite is natively resident on most systems.
   * Shapefiles - the data files must be downloaded into the local file system. Locations of some publicly available data files are listed [here](https://github.com/chuckcoughlin/redistrict-colorado/tree/master/docs/datasets.md). Shapefiles may be either the zipped configuration holding .shp, .dbf, and .shx files or a single DBase (.dbf) file.
   * Google Maps - In order to use the map overly feature on the `Districts` panel, each user must have their own key to the Google Maps API. Directions for obtaining
-  the free key may be obtained [here](https://developers.google.com/maps/documentation/javascript/tutorial#api_key). The key may be entered on the main menu pulldown under the Colorado flag.
+  the free key may be obtained [here](https://developers.google.com/maps/documentation/javascript/tutorial#api_key). The key may be entered on the main menu pulldown under the Colorado flag. Once a new key has been entered the application must be restarted.

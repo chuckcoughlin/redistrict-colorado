@@ -52,7 +52,6 @@ public class FeatureSchema implements Cloneable, Serializable {
     protected CoordinateSystem coordinateSystem = CoordinateSystem.GEODETIC;
     protected Map<String,Integer> attributeNameToIndexMap = new HashMap<>();
     protected int geometryIndex = -1;
-    protected int externalPKIndex = -1;    // [mmichaud 2013-07-21] database id used in client-server environment
     protected int attributeCount = 0;
     protected List<String> attributeNames = new ArrayList<>();
     protected List<AttributeType> attributeTypes = new ArrayList<>();
@@ -121,7 +120,7 @@ public class FeatureSchema implements Cloneable, Serializable {
     public boolean hasAttribute(String attributeName) {
         return attributeNameToIndexMap.get(attributeName) != null;
     }
-
+    
     /**
 	 * Returns the attribute index of the Geometry, or -1 if there is no
 	 * Geometry attribute
@@ -332,67 +331,11 @@ public class FeatureSchema implements Cloneable, Serializable {
 	     return operations.get(attributeIndex);
 	 }
 
-    /**
-     * Returns the attribute index of the externalId attribute, or -1 if there is no
-     * externalId.
-     */
-    public int getExternalPrimaryKeyIndex() {
-        return externalPKIndex;
-    }
-
-    /**
-     * Sets the primary key to be the attribute at position index.
-     * @param index
-     */
-    public void setExternalPrimaryKeyIndex(int index) {
-        assert index < getAttributeCount();
-        AttributeType attributeType = this.getAttributeType(index);
-        if (attributeType == AttributeType.INTEGER ||
-                attributeType == AttributeType.LONG ||
-                attributeType == AttributeType.STRING ||
-                attributeType == AttributeType.OBJECT) {
-            this.externalPKIndex = index;
-            setAttributeReadOnly(index, true);
-        } 
-        else {
-            throw new IllegalArgumentException(String.format("%s.setExternamPrimaryKey: Primary Key must be of type String, Integer or Object",CLSS));
-        }
-    }
-
-    /**
-     * Remove the primary key from this schema definition.
-     */
-    public void removeExternalPrimaryKey() {
-        this.externalPKIndex = -1;
-    }
-
-    /**
-     * Add an attribute containing an external identifier.
-     * This attribute is read-only for OpenJUMP. It is the responsibility of the external
-     * datastore to write in this attribute.
-     * @param attributeName name of the external id
-     * @param attributeType type of the external id
-     * @throws IllegalArgumentException if the attributeType of the id is not one of
-     * Integer, String or Object (for Long)
-     */
-    public void addExternalPrimaryKey(String attributeName, AttributeType attributeType) {
-        if (attributeType == AttributeType.INTEGER ||
-                attributeType == AttributeType.STRING ||
-                attributeType == AttributeType.OBJECT) {
-            addAttribute(attributeName, attributeType);
-            setAttributeReadOnly(getAttributeIndex(attributeName), true);
-        } 
-        else {
-            throw new IllegalArgumentException("Primary Key must be of type String, Integer or Object");
-        }
-    }
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("FeatureSchema (").append(getCoordinateSystem()).append(")");
         for (int i = 0 ; i < getAttributeCount() ; i++) {
             if (geometryIndex==i) sb.append("\n\tGeometry: ");
-            else if (externalPKIndex==i) sb.append("\n\tExternalId: ");
             else sb.append("\n\t");
             sb.append(getAttributeName(i)).append(" ").append(attributeTypes.get(i));
             if (operations.get(i) != null) sb.append(" [operation]");

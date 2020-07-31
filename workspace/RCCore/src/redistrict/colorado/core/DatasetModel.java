@@ -25,6 +25,7 @@ public class DatasetModel  {
 	private String description;
 	private String shapefilePath;
 	private DatasetRole role;
+	private String districtColumn;
 	private FeatureCollection features;
 	
 	public DatasetModel(long id,String nam) {
@@ -33,6 +34,7 @@ public class DatasetModel  {
 		this.description = "";
 		this.shapefilePath = "";
 		this.role = DatasetRole.BOUNDARIES;
+		this.districtColumn = null;  // By default we do not aggregate
 		this.features = null;
 	}
 	
@@ -41,6 +43,7 @@ public class DatasetModel  {
 	public String getDescription() { return this.description; }
 	public String getShapefilePath() { return this.shapefilePath; }
 	public DatasetRole getRole() { return this.role; }
+	public String getDistrictColumn() { return this.districtColumn; }
 	/**
 	 * As a way of lazy initialization, read from the shapefile when features
 	 * are currently null.
@@ -48,8 +51,9 @@ public class DatasetModel  {
 	 */
 	public FeatureCollection getFeatures() { 
 		if(features==null && shapefilePath!=null && !shapefilePath.isEmpty() ) {
+			String idColumn = Database.getInstance().getAttributeAliasTable().nameForAlias(id, StandardAttributes.ID.name());
 			try {
-				FeatureCollection fc = ShapefileReader.read(shapefilePath);
+				FeatureCollection fc = ShapefileReader.read(shapefilePath,idColumn,districtColumn);
 				setFeatures(fc);
 				if( fc!=null) {
 					Database.getInstance().getFeatureAttributeTable().synchronizeFeatureAttributes(id, features.getFeatureSchema().getAttributeNames());
@@ -71,6 +75,7 @@ public class DatasetModel  {
 	public void setDescription(String desc) { this.description = desc; }
 	public void setShapefilePath(String path) { this.shapefilePath = path; }
 	public void setRole(DatasetRole r) { this.role = r; }
+	public void setDistrictColumn(String att) { this.districtColumn = att; }
 	public void setFeatures(FeatureCollection fc) { this.features = fc; }
 	
 	/**

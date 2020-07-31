@@ -24,6 +24,7 @@ CREATE TABLE Dataset (
 	description TEXT NULL,
 	shapeFilePath TEXT NULL,
 	role text NULL,
+	districtColumn TEXT NULL,
 	UNIQUE (name)
 );
 -- The FeatureAttribute table holds the latest known Features for a layer.

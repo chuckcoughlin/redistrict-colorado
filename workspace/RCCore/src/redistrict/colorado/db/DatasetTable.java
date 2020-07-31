@@ -38,11 +38,13 @@ public class DatasetTable {
 	
 	/**
 	 * Create a new row. If there is already a row called "New dataset", a null will be returned.
+	 * The "districtColumn" is set to null.
 	 */
 	public DatasetModel createDataset() {
 		DatasetModel model = null;
 		if( cxn==null ) return model;
 		
+		// NOTE: aggregated defaults to 0
 		String SQL = String.format("INSERT INTO Dataset(name,description,shapefilePath,role) values ('%s','%s','','%s')",
 				DEFAULT_NAME,DEFAULT_DESCRIPTION,DatasetRole.BOUNDARIES.name());
 		Statement statement = null;
@@ -101,7 +103,7 @@ public class DatasetTable {
 		DatasetModel model = null;
 		PreparedStatement statement = null;
 		ResultSet rs = null;
-		String SQL = "SELECT id,name,description,shapefilePath,role from Dataset ORDER BY name"; 
+		String SQL = "SELECT id,name,description,shapefilePath,role,districtColumn from Dataset ORDER BY name"; 
 		try {
 			statement = cxn.prepareStatement(SQL);
 			statement.setQueryTimeout(10);  // set timeout to 10 sec.
@@ -113,6 +115,7 @@ public class DatasetTable {
 					model = new DatasetModel(id,rs.getString("name"));
 					model.setDescription(rs.getString("description"));
 					model.setShapefilePath(rs.getString("shapefilePath"));
+					model.setDistrictColumn(rs.getString("districtColumn"));
 					DatasetRole role = DatasetRole.BOUNDARIES;   // Default
 					try {
 						role = DatasetRole.valueOf(rs.getString("role"));
@@ -142,7 +145,7 @@ public class DatasetTable {
 		return list;
 	}
 	/**
-	 * @return a list of defined datasets that are assigned to the specified role.
+	 * @return a list of defined dataset names that are assigned to the specified role.
 	 *         If the model object does not exist, create it.
 	 */
 	public List<String> getDatasetNamesForRole(DatasetRole role) {
@@ -151,7 +154,7 @@ public class DatasetTable {
 		Statement statement = null;
 		ResultSet rs = null;
 		String SQL = String.format(
-				"SELECT id,name,description,shapefilePath from Dataset WHERE role ='%s' ORDER BY name",role.name()); 
+				"SELECT id,name,description,shapefilePath,districtColumn from Dataset WHERE role ='%s' ORDER BY name",role.name()); 
 		try {
 			statement = cxn.createStatement();
 			statement.setQueryTimeout(10);  // set timeout to 10 sec.
@@ -164,6 +167,7 @@ public class DatasetTable {
 					model = new DatasetModel(id,rs.getString("name"));
 					model.setDescription(rs.getString("description"));
 					model.setShapefilePath(rs.getString("shapefilePath"));
+					model.setDistrictColumn(rs.getString("districtColumn"));
 					model.setRole(role);
 					cache.addDataset(model);
 				}
@@ -195,7 +199,7 @@ public class DatasetTable {
 	 */
 	public boolean updateDataset(DatasetModel model) {
 		PreparedStatement statement = null;
-		String SQL = "UPDATE Dataset SET name=?,description=?,shapefilePath=?,role=? WHERE id = ?";
+		String SQL = "UPDATE Dataset SET name=?,description=?,shapefilePath=?,role=?, districtColumn=? WHERE id = ?";
 		boolean success = false;
 		try {
 			//LOGGER.info(String.format("%s.updateDataset: \n%s",CLSS,SQL));
@@ -204,7 +208,8 @@ public class DatasetTable {
 			statement.setString(2,model.getDescription());
 			statement.setString(3,model.getShapefilePath());
 			statement.setString(4,model.getRole().name());
-			statement.setLong(5, model.getId());
+			statement.setString(5,model.getDistrictColumn());
+			statement.setLong(6, model.getId());
 			statement.executeUpdate();
 			if( statement.getUpdateCount()>0) success = true;
 		}

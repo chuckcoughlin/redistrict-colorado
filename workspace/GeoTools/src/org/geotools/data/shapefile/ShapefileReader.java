@@ -19,12 +19,21 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import org.geotools.data.dbf.CodePage;
 import org.geotools.data.dbf.DbaseFile;
+import org.geotools.util.Geometries;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.MultiPolygon;
+import org.locationtech.jts.geom.Polygon;
+import org.locationtech.jts.operation.union.CascadedPolygonUnion;
 import org.openjump.feature.AttributeType;
 import org.openjump.feature.BasicFeature;
 import org.openjump.feature.Feature;
@@ -48,7 +57,7 @@ public class ShapefileReader {
     /**
      * Test whether or not a path represents a legal Shapefile or uncomressed .dbf. 
      * To be legal, the shapefile must be an archive file with .shp, .dbf and .shx components.
-     * To be useful, the uncompressed .dbf file must include geometry. 
+     * To be useful, an uncompressed .dbf file must include geometry. 
      * @param fname
      * @return
      */
@@ -83,12 +92,15 @@ public class ShapefileReader {
      * Main method to read a compressed shape-file. The .zip file may contain both
      * .shp and .dbf files. Most of the work is done in the org.geotools.* package.
      * 
-     * This method also work if given a "loose" uncompressed dbfile. 
+     * This method also works if given a "loose" uncompressed dbfile that includes geometry. 
      *
      * @param shpFileName path to the compressed shapefile.
+     * @param idCOlumn the column that gets the district name for an aggregated result.
+     * @param districtColumn the column in the DBFile, if any, that indicates which district the
+     *        row is part of ... if present the geometry will be the aggregation of like-named districts.
      * @return a FeatureCollection created from .shp and .dbf (dbf is optional)
      */
-    public static FeatureCollection read(String shpFileName) throws Exception {
+    public static FeatureCollection read(String shpFileName,String idColumn,String districtColumn) throws Exception {
     	if (shpFileName == null) {
     		throw new IllegalArgumentException(String.format("%s.read: No input file specified", CLSS));
     	}
@@ -139,6 +151,69 @@ public class ShapefileReader {
     					Geometry geo = collection.getGeometryN(x);
     					feature.setGeometry(geo);
     					featureCollection.add(feature);
+    				}
+    			}
+    			// Merge geometries in each VTD into an aggregated multi-polygon.
+    			else if(districtColumn!=null) {
+    				LOGGER.info(String.format("%s.read: ------- AGGREGATING geometries from %s------------", CLSS,districtColumn));
+    				Map<String,List<Polygon>> aggegatedDistrictMap = new HashMap<>();
+
+    				for (int row = 0; row < recordCount; row++) {
+    					Feature feature = dbfFile.getFeatureDataset().getFeature(row);
+    					String district = feature.getString(districtColumn);
+    					List<Polygon> mp = aggegatedDistrictMap.get(district);
+    					if( mp==null ) {
+    						mp = new ArrayList<Polygon>();
+    						aggegatedDistrictMap.put(district,mp);
+    					}
+    					Geometry geo = collection.getGeometryN(row);
+    					String geoType = geo.getGeometryType();
+    					if( geoType.equals(Geometries.MULTIPOLYGON.toString()) ) {
+    						MultiPolygon mpoly = (MultiPolygon)geo;
+    						int ngeom = mpoly.getNumGeometries();
+    						for( int n=0; n<ngeom; n++) {
+    							Geometry poly = mpoly.getGeometryN(n);
+    							if( poly.getGeometryType().equals(Geometries.POLYGON.toString())) {
+    								mp.add((Polygon)poly);
+    							}
+    							else {
+    								LOGGER.info(String.format("%s.read: non-polygon %s nested on MultiPoly in %s------------", CLSS,
+    										poly.getGeometryType().toString(),district));
+    							}
+    						}
+    					}
+    					else if( geoType.equals(Geometries.POLYGON.toString()) ) {
+    						mp.add((Polygon)geo);
+    					}
+    					else {
+    						LOGGER.info(String.format("%s.read: non-polygon geometry %s in %s------------", CLSS,
+    								geo.getGeometryType().toString(),district));
+    					}
+    				}
+    				// Make features out of the aggregated geometries
+    				// Completely replace the collection, as now we have one row per 
+    				// aggregated district. Remove the DISTRICT alias, use ID.
+    				featureCollection =  new FeatureDataset(fs);
+    				for(String district:aggegatedDistrictMap.keySet()) {
+    					List<Polygon> polys = aggegatedDistrictMap.get(district);
+    					CascadedPolygonUnion cpu = new CascadedPolygonUnion(polys);
+    					Geometry geo = cpu.union();
+    					if( geo.getGeometryType().equals(Geometries.POLYGON.toString()) ) {
+    						Feature feature = new BasicFeature(fs);
+    						feature.setGeometry((Polygon)geo);
+    						feature.setAttribute(idColumn,district); 
+    						featureCollection.add(feature);
+    					}
+    					else if( geo.getGeometryType().equals(Geometries.MULTIPOLYGON.toString()) ) {
+    						Feature feature = new BasicFeature(fs);
+    						feature.setGeometry((MultiPolygon)geo);
+    						feature.setAttribute(idColumn,district); 
+    						featureCollection.add(feature);
+    					}
+    					else {
+    						LOGGER.info(String.format("%s.read: aggregated geometry of %s  is a %s------------", CLSS,
+    								district,geo.getGeometryType().toString()));
+    					}
     				}
     			}
     			// Merge geometries with features in .dbf

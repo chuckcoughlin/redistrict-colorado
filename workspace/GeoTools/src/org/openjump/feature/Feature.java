@@ -189,15 +189,6 @@ public interface Feature extends Cloneable, Comparable<Feature> {
 	public Feature clone(boolean deep);
 
 	/**
-     * Clones this Feature.
-	 *
-     * @param deep whether or not to clone the geometry
-     * @param copyPK whether or not to copy external PK attribute if exists
-     * @return a new Feature with the same attributes as this Feature
-     */
-	public Feature clone(boolean deep, boolean copyPK);
-
-	/**
 	 * A low-level accessor that is not normally used.
 	 */
 	public Object[] getAttributes();

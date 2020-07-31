@@ -43,11 +43,12 @@ public class FeatureDataFactory implements Callback<TableColumn.CellDataFeatures
 		StringProperty property = new SimpleStringProperty();
 		String alias = cdf.getTableColumn().getText();
 		String name = nameForAliasMap.get(alias);
-		//LOGGER.info(String.format("%s.call cfd= %s, alias = %s, name= %s",CLSS,cdf,alias,name));
+		LOGGER.info(String.format("%s.call cfd= %s, alias = %s, name= %s",CLSS,cdf,alias,name));
 		if( name==null) name = alias;
 		Object value = feature.getAttribute(name);
 		if( value instanceof Geometry) value = GeometryUtilities.toText((Geometry)value);
-		property.setValue(value.toString());
+		if(value!=null) property.setValue(value.toString());
+		else property.setValue("");
 		return property;
 	}
 }

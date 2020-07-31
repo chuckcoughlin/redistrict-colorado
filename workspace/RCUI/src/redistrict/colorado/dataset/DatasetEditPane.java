@@ -9,7 +9,9 @@ import java.io.File;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.geotools.data.shapefile.ShapefileReader;
 import org.openjump.feature.AttributeType;
+import org.openjump.feature.FeatureSchema;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -17,6 +19,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
@@ -24,6 +27,7 @@ import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
@@ -34,6 +38,7 @@ import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.DatasetModel;
 import redistrict.colorado.core.DatasetRole;
 import redistrict.colorado.core.FeatureConfiguration;
+import redistrict.colorado.core.StandardAttributes;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.pane.BasicRightSideNode;
 import redistrict.colorado.pane.SavePane;
@@ -228,20 +233,6 @@ public class DatasetEditPane extends BasicRightSideNode implements EventHandler<
 	}
 
 	/**
-	 * Update the table feature list from the model. If the model has no features, read them from the shapefile.
-	 */
-	private void updateFeatures() {
-		if( model!=null ) {
-			items.clear();
-			if( model.getFeatures()!=null){
-				List<FeatureConfiguration> configs = Database.getInstance().getFeatureAttributeTable().getFeatureAttributes(model.getId());
-				for(FeatureConfiguration fc:configs) {
-					items.add(fc);
-				}
-			}
-		}
-	}
-	/**
 	 * Respond to button presses, including "Save"
 	 */
 	@Override
@@ -264,13 +255,14 @@ public class DatasetEditPane extends BasicRightSideNode implements EventHandler<
 				model.setName(nameField.getText());
 				model.setDescription(descriptionField.getText());
 				model.setRole(DatasetRole.valueOf(roleChooser.getValue()));
+
 				if( !pathField.getText().equals(model.getShapefilePath())) {
 					model.setShapefilePath(pathField.getText());
 					model.setFeatures(null);  // Force re-read next time features are used
 				}
 				Database.getInstance().getDatasetTable().updateDataset(model);
 				
-				// Update features in the model
+				// Update attributes in the model
 				Database.getInstance().getFeatureAttributeTable().updateFeatureAttributes(items);
 				Database.getInstance().getAttributeAliasTable().updateAliasTable(model.getId(),items);
 				EventBindingHub.getInstance().unselectDataset();     // Force fire
@@ -280,7 +272,41 @@ public class DatasetEditPane extends BasicRightSideNode implements EventHandler<
 			updateFeatures();
 			configureTable();
 		}
+	}
 
+	/**
+	 * Update the table feature list from the model. If the model has no features, read them from the shapefile.
+	 * If the dataset is the aggregating kind, set the aggregating column in the schema.
+	 * If we add, delete or change the district column,force a re-read of the shapefile.
+	 * A shapefile re-read will update the geometries.
+	 */
+	private void updateFeatures() {
+		if( model!=null ) {
+			boolean reread = false;
+			items.clear();
+			
+			String districtColumn = Database.getInstance().getAttributeAliasTable().nameForAlias(model.getId(), StandardAttributes.DISTRICT.name());
+			if( (districtColumn==null && model.getDistrictColumn()!=null) ||
+				(districtColumn!=null && !districtColumn.equalsIgnoreCase(model.getDistrictColumn())) ) {
+					reread = true;
+					model.setDistrictColumn(districtColumn);
+			}
+			if( model.getFeatures()!=null){
+				List<FeatureConfiguration> configs = Database.getInstance().getFeatureAttributeTable().getFeatureAttributes(model.getId());
+				for(FeatureConfiguration fc:configs) {
+					items.add(fc);
+				}
+			}
+			if( reread ) {
+				try {
+					String idColumn = Database.getInstance().getAttributeAliasTable().nameForAlias(model.getId(), StandardAttributes.ID.name());
+					model.setFeatures(ShapefileReader.read(model.getShapefilePath(),idColumn,districtColumn));
+				}
+				catch(Exception ex) {
+					LOGGER.warning(String.format("%s.updateFeatures: Exception re-reading shapefile (%s)",CLSS,ex.getLocalizedMessage()));
+				}
+			}
+		}
 	}
 	// ====================================== BasicRightSideNode =====================================
 	@Override

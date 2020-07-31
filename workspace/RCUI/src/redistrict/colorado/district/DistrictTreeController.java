@@ -86,15 +86,15 @@ public class DistrictTreeController extends StackPane implements EventReceiver<A
 								item.getChildren().add(leaf);
 								leaf.addEventHandler(ActionEvent.ACTION, regionEventHandler);
 							}
-							catch( IllegalArgumentException iae) {
+							catch(Exception iae) {
 								// An exception here means that the name attribute is not in the schema.
 								// This may be due to a change in the shapefile for the dataset
-								LOGGER.warning(String.format("%s.populateDaatasets: %s has no ID attribute %s. Delete datasets, re-define and re-save", CLSS,datasetModel.getName(),nameAttribute));
+								LOGGER.warning(String.format("%s.populateDatasets: %s has no ID attribute %s. Delete datasets, re-define and re-save", CLSS,datasetModel.getName(),nameAttribute));
 							}
 						}
 					}
 					else {
-						LOGGER.warning(String.format("%s.populateDaatasets: %s has no ID attribute specified", CLSS,datasetModel.getName()));
+						LOGGER.warning(String.format("%s.populateDatasets: %s has no ID attribute specified", CLSS,datasetModel.getName()));
 					}
 				}
 			}

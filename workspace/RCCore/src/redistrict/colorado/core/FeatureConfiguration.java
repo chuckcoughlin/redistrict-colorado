@@ -53,7 +53,7 @@ public class FeatureConfiguration  {
     private int rank;
 
     /**
-     * Constructs a configuration that determines how to illustrate 
+     * Constructs a configuration that determines how to handle 
      * attributes of a layer feature.
      */
     public FeatureConfiguration(long id,String nm) {

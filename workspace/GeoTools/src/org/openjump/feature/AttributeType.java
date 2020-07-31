@@ -19,7 +19,7 @@ import java.util.List;
 import org.locationtech.jts.geom.Geometry;
 
 /**
- * Types of attributes. These include types specific to configuration of a feature.
+ * Data types of attributes. These include types specific to configuration of a feature.
  *
  * @since 1.0
  */
