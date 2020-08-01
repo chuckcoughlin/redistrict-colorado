@@ -11,8 +11,8 @@ import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.gmaps.GoogleMapView;
 import redistrict.colorado.pane.BasicRightSideNode;
-import redistrict.colorado.pane.PlanMapConfigurationPane;
 import redistrict.colorado.pref.PreferenceKeys;
+import redistrict.colorado.ui.ColorizingOption;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.UIConstants;
 import redistrict.colorado.ui.ViewMode;
@@ -24,14 +24,14 @@ import redistrict.colorado.ui.ViewMode;
 public class PlanMapPane extends BasicRightSideNode {
 	private final static String CLSS = "PlanMapPane";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
-	private PlanMapConfigurationPane headerPane = new PlanMapConfigurationPane("Map");
+	private final PlanMapConfigurationPane headerPane;
 	private PlanModel model;
 	private final PlanMapRenderer map;
 
 	public PlanMapPane() {
 		super(ViewMode.PLAN,DisplayOption.PLAN_MAP);
 		this.model = hub.getSelectedPlan();
-		headerPane.getStyleClass().add("list-header-label");
+		this.headerPane = new PlanMapConfigurationPane("Map");
 		getChildren().add(headerPane);
 
 		String key = Database.getInstance().getPreferencesTable().getParameter(PreferenceKeys.GOOGLE_API_KEY);
@@ -57,9 +57,11 @@ public class PlanMapPane extends BasicRightSideNode {
 		PlanModel selectedModel = hub.getSelectedPlan();
 		if( selectedModel!=null) {
 			model = selectedModel;
-			headerPane.setText(model.getName());
 			LOGGER.info(String.format("%s.updateModel: selected = %s", CLSS,model.getName()));
 			map.updateModel(model);
+			headerPane.setPlan(model);
 		}
+		ColorizingOption option = hub.getSelectedColorOption();
+		headerPane.setColorizingOption(option);
 	}
 }

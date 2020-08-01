@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 import org.geotools.util.Geometries;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.geom.Polygon;
 import org.openjump.feature.Feature;
@@ -79,7 +80,10 @@ public class PlanMapRenderer implements MapComponentInitializedListener {
 				else if( feat.getGeometry().getGeometryType().equals(Geometries.MULTIPOLYGON.toString()))	 {
 					GeometryCollection collection = (GeometryCollection)feat.getGeometry();
 					for(int index=0;index<collection.getNumGeometries();index++) {
-						addPolygon(name,pf,(Polygon)collection.getGeometryN(index));
+						Geometry geo = collection.getGeometryN(index);
+						if( geo.getGeometryType().equals(Geometries.POLYGON.toString())) {
+							addPolygon(name,pf,(Polygon)geo);
+						}
 					}
 				}
 				else {
@@ -93,7 +97,9 @@ public class PlanMapRenderer implements MapComponentInitializedListener {
 		}
 	}
 	// Add a polygon to the map. The name is already single-quoted.
+	// If the plan hasn't been initialized yet the plan feature will be null
 	private void addPolygon(String name,PlanFeature feature,Polygon poly) {
+		if( feature==null ) return;  
 		overlay.getEngine().executeScript("clearCoordinates()");
 		//String format = "PlanMapRenderer: addPolygon (%f,%f)";
 		for(Coordinate c:poly.getCoordinates()) {

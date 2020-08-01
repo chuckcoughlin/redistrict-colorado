@@ -50,7 +50,6 @@ public class PlanFeature  {
     private double 	black = 0.;
     private double 	hispanic = 0.;
     private double 	white	 = 0.;
-  
 
     /**
      * Define a layer within a plan.

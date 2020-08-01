@@ -119,6 +119,28 @@
 	-fx-pref-height: 40;
 	-fx-max-height:40;
 }
+.small-combo {
+	-fx-background-color: -ma-light-background;
+	-fx-border-color: black;
+	-fx-text-fill: black;
+	-fx-font-size: 10pt;
+	-fx-font-weight: plain;
+	-fx-text-alignment: center;
+	-fx-text-overrun: ellipsis;
+	-fx-pref-height: 15;
+	-fx-max-height:15;
+}
+.small-label {
+	-fx-background-color: transparent;
+	-fx-border-color: transparent;
+	-fx-text-fill: black;
+	-fx-font-size: 8pt;
+	-fx-font-weight: plain;
+	-fx-text-alignment: center;
+	-fx-text-overrun: ellipsis;
+	-fx-pref-height: 15;
+	-fx-max-height:15;
+}
 .splash-label {
 	-fx-background-color: transparent;
 	-fx-border-color: transparent;

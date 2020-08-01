@@ -126,7 +126,13 @@ public class EventBindingHub  {
 	public SimpleObjectProperty<AnalysisModel> analysisModelProperty(){return analysisModel; }
 	
 	// Selected plan rendering option
-	public ColorizingOption getSelectedColorOption() { return ColorizingOption.valueOf(selectedColorOption.get()); }
+	public ColorizingOption getSelectedColorOption() { 
+		ColorizingOption opt = ColorizingOption.NONE;
+		if( selectedColorOption!=null && selectedColorOption.get()!=null ) {
+			opt = ColorizingOption.valueOf(selectedColorOption.get()); 
+		}
+		return opt;
+	}
 	public void setSelectedColorOption(ColorizingOption option) { selectedColorOption.set(option.name()); }
 	
 	// Selected District
