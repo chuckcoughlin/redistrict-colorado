@@ -35,10 +35,10 @@ public class PlanMapConfigurationPane extends AnchorPane {
 	protected final EventBindingHub hub;
 	private static final double COMBO_HEIGHT = 12.;
 	private static final double COMBO_WIDTH = 150.;
-	private static final double LEGEND_WIDTH = 200.;
+	private static final double LEGEND_WIDTH = 240.;
 	private static final double LEFT_MARGIN = 100.;
 	private static final double SMALL_LABEL_HEIGHT = 15.;
-	private static final double RIGHT_MARGIN = 40.;
+	private static final double RIGHT_MARGIN = 50.;
 	private static final double HGAP = 8.;
 	private Label headerLabel = new Label("Title");
 	private final ColorizingLegend legend;
@@ -48,7 +48,7 @@ public class PlanMapConfigurationPane extends AnchorPane {
 
 	protected final GuiUtil guiu = new GuiUtil();
 	
-	public PlanMapConfigurationPane(String title) {
+	public PlanMapConfigurationPane(String title,EventHandler<ActionEvent>handler) {
 		this.hub = EventBindingHub.getInstance();
 		this.setPrefHeight(UIConstants.BUTTON_PANEL_HEIGHT);
 		headerLabel.getStyleClass().add("list-header-label");
@@ -96,7 +96,6 @@ public class PlanMapConfigurationPane extends AnchorPane {
 		       return cell;
 		   }
 		});
-		ComboEventHandler handler = new ComboEventHandler();
 		colorizingOptionCombo.setOnAction(handler);
 		this.getChildren().addAll(colorizingLabel,colorizingOptionCombo);
 		setTopAnchor(colorizingLabel,0.);
@@ -106,35 +105,27 @@ public class PlanMapConfigurationPane extends AnchorPane {
 		
 		this.legend = new ColorizingLegend();
 		legend.setPrefWidth(LEGEND_WIDTH);
+		
 		this.getChildren().add(legend);
-		setTopAnchor(legend,HGAP/4.);
+		setTopAnchor(legend,0.);
 		setRightAnchor(legend,RIGHT_MARGIN);
 		
 		setTopAnchor(headerLabel,0.);
 		setLeftAnchor(headerLabel,3*HGAP+COMBO_WIDTH+LEFT_MARGIN);
 		setRightAnchor(headerLabel,2*HGAP+LEGEND_WIDTH+RIGHT_MARGIN);
-		
-		
 	}
-	// Simply update the combo box without triggiering a change
+	// Simply update the combo box without triggering a change
 	public void setColorizingOption(ColorizingOption opt) {
 		colorizingOptionCombo.setValue(opt.name());
+		legend.setOption(opt);
 	}
-	// Specify the plan that this header represents
-	public void setPlan(PlanModel model) { 
+	
+	// Specify the plan that this pane represents
+	public void updateModel(PlanModel model) { 
 		this.plan = model; 
 		headerLabel.setText(model.getName());
+		legend.updateModel(plan);
 	}
 	
 	public void setText(String title) { this.headerLabel.setText(title); }
-	
-	// =================== Combo Box Event Handler ======================
-	public class ComboEventHandler implements EventHandler<ActionEvent> {
-		// Adjust the legend for the colorizing option selection
-	    public void handle(ActionEvent event) {
-	        System.out.println("Handling selection " + colorizingOptionCombo.getValue().toString());
-	        legend.setOption(colorizingOptionCombo.getValue());
-	        event.consume();
-	    }
-	}
 }

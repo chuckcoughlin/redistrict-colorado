@@ -33,15 +33,22 @@ public class PlanMapRenderer implements MapComponentInitializedListener {
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private PlanModel model = null;
 	private GoogleMapView overlay;
-	private ColorizingOption colorizingOption = ColorizingOption.AFFILIATION;
+	private ColorizingOption colorizingOption = ColorizingOption.NONE;
+	private final OverlayColorGenerator colorGenerator;
 
 	public PlanMapRenderer(GoogleMapView mapView) {
 
 		this.overlay = mapView;
+		this.colorGenerator = new OverlayColorGenerator();
 		overlay.addMapInitializedListener(this);
 		overlay.setDisableDoubleClick(true);
 	}
 
+	// Set the colorizing option then repaint
+	public void setColorizingOption(ColorizingOption opt) {
+		colorizingOption = opt;
+		overlay.start();
+	}
 	/**
 	 * When a new model is defined or old model modified, make sure that its features are populated on screen.
 	 * If the model has not been refreshed from the file yet this session, then do so now.
@@ -55,9 +62,8 @@ public class PlanMapRenderer implements MapComponentInitializedListener {
 	// ------------------------- MapComponentInitializedListener -----------------------
 	@Override
 	public void mapInitialized() {
-		LOGGER.info(String.format("%s.mapInitialized: GoogleMap is ready",CLSS));
-		//Set the bounds of the map.
-		colorizingOption = EventBindingHub.getInstance().getSelectedColorOption();
+		if( model==null ) return;
+		LOGGER.info(String.format("%s.mapInitialized: GoogleMap %s ready (%s)",CLSS, model.getName(),colorizingOption.name()));
 		
 		List<PlanFeature> metrics = model.getMetrics();
 		if( metrics!=null ) {
@@ -100,40 +106,24 @@ public class PlanMapRenderer implements MapComponentInitializedListener {
 	// If the plan hasn't been initialized yet the plan feature will be null
 	private void addPolygon(String name,PlanFeature feature,Polygon poly) {
 		if( feature==null ) return;  
+		
 		overlay.getEngine().executeScript("clearCoordinates()");
 		//String format = "PlanMapRenderer: addPolygon (%f,%f)";
 		for(Coordinate c:poly.getCoordinates()) {
 			overlay.getEngine().executeScript(String.format("addCoordinate(%s,%s)",String.valueOf(c.x),String.valueOf(c.y)));
 			//LOGGER.info(String.format(format, c.x,c.y));
 		}
-		String color = "#AAAAAA";
-		if(colorizingOption.equals(ColorizingOption.AFFILIATION)) {
-			color = getAffiliationColor(feature);
+		String color = "#FFFFFF00";  // Transparent
+		if(colorizingOption.name().equals(ColorizingOption.AFFILIATION.name())) {
+			color = colorGenerator.getAffiliationColor(model.getMaxRepublican(),model.getMaxDemocrat(),feature);
 		}
-		else {
-			color = getDemographicsColor(feature);
+		else if(colorizingOption.name().equals(ColorizingOption.DEMOGRAPHICS.name())) {
+			color = colorGenerator.getDemographicsColor(model.getMinWhite(),model.getMaxWhite(),feature);
 		}
 		String content = makeContent(feature); 
 		overlay.getEngine().executeScript(String.format("addPolygon('%s','%s','%s')",name,color,content));
 	}
 	
-	private String getAffiliationColor(PlanFeature feature) {
-		double total = feature.getDemocrat() + feature.getRepublican();
-		double dem = feature.getDemocrat()/total;
-		double rep = feature.getRepublican()/total;
-		String color = String.format("#%02X%02X%02X",(int)(256.*rep),0,(int)(256.*dem));
-		LOGGER.warning(String.format("%s.getAffiliationColor: %s %2.2f,%2.2f %s",CLSS,feature.getName(),dem,rep,color));
-		return color;
-	}
-	// Return a gray color representing the fraction of minorities
-	// This was not successful as there wasn't enough of a difference
-	private String getDemographicsColor(PlanFeature feature) {
-		double val = feature.getWhite()/feature.getPopulation();
-		int c = (int)(256.*val);
-		String color = String.format("#%02X%02X%02X",c,c,c);
-		LOGGER.warning(String.format("%s.getDemographicsColor: %s %2.2f %s",CLSS,feature.getName(),val,color));
-		return color;	
-	}
 	// Do a linear search for the plan feature by name.
 	private PlanFeature getPlanFeature(String name) {
 		List<PlanFeature> features = model.getMetrics();

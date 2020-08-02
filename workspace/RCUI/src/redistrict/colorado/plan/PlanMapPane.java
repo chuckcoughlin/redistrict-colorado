@@ -7,6 +7,9 @@
 package redistrict.colorado.plan;
 import java.util.logging.Logger;
 
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.control.ComboBox;
 import redistrict.colorado.core.PlanModel;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.gmaps.GoogleMapView;
@@ -21,17 +24,17 @@ import redistrict.colorado.ui.ViewMode;
  * Plot a map corresponding to a plan. Plot a Google Map as a backdrop.
  * Parent is an AnchorPane.
  */
-public class PlanMapPane extends BasicRightSideNode {
+public class PlanMapPane extends BasicRightSideNode implements EventHandler<ActionEvent> {
 	private final static String CLSS = "PlanMapPane";
 	private static Logger LOGGER = Logger.getLogger(CLSS);
 	private final PlanMapConfigurationPane headerPane;
 	private PlanModel model;
-	private final PlanMapRenderer map;
+	private final PlanMapRenderer renderer;
 
 	public PlanMapPane() {
 		super(ViewMode.PLAN,DisplayOption.PLAN_MAP);
 		this.model = hub.getSelectedPlan();
-		this.headerPane = new PlanMapConfigurationPane("Map");
+		this.headerPane = new PlanMapConfigurationPane("Map",this);
 		getChildren().add(headerPane);
 
 		String key = Database.getInstance().getPreferencesTable().getParameter(PreferenceKeys.GOOGLE_API_KEY);
@@ -48,7 +51,11 @@ public class PlanMapPane extends BasicRightSideNode {
 		setLeftAnchor(headerPane,UIConstants.LIST_PANEL_LEFT_MARGIN);
 		setRightAnchor(headerPane,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 
-		map = new PlanMapRenderer(view);
+		ColorizingOption opt = ColorizingOption.NONE;
+		renderer = new PlanMapRenderer(view);
+		hub.setSelectedColorOption(opt);
+		renderer.setColorizingOption(opt);
+		headerPane.setColorizingOption(opt);
 		updateModel();
 	}
 
@@ -58,10 +65,25 @@ public class PlanMapPane extends BasicRightSideNode {
 		if( selectedModel!=null) {
 			model = selectedModel;
 			LOGGER.info(String.format("%s.updateModel: selected = %s", CLSS,model.getName()));
-			map.updateModel(model);
-			headerPane.setPlan(model);
+			renderer.updateModel(model);
+			headerPane.updateModel(model);
 		}
-		ColorizingOption option = hub.getSelectedColorOption();
-		headerPane.setColorizingOption(option);
+	}
+	
+	// ======================================= Event Handler ==========================================
+	/**
+	 * Respond to combo box selections in header panel
+	 */
+	@Override
+	public void handle(ActionEvent event) {
+		Object source = event.getSource();
+		if( source instanceof ComboBox ) {
+			ComboBox<String>box = (ComboBox<String>)source;
+			ColorizingOption opt = ColorizingOption.valueOf(box.getValue().toUpperCase());
+			LOGGER.info(String.format("%s.handle: combo box = %s", CLSS,opt.name()));
+			hub.setSelectedColorOption(opt);
+			renderer.setColorizingOption(opt);
+			headerPane.setColorizingOption(opt);
+		}
 	}
 }
