@@ -40,10 +40,10 @@ public class ColorizingLegend extends BorderPane   {
 	private final Label centerLabel;
 	private final Label rightLabel;
     
-    private final static double COL_WIDTH = 60.;  
+    private final static double COL_WIDTH = 50.;  
 	private final static double LABEL_WIDTH = 80.;
 	private final static double RECT_HEIGHT = 8.;
-	public final static double RECT_WIDTH = 180.;
+	public final static double RECT_WIDTH = 200.;
     
 	public ColorizingLegend() {
 		this.gridPane = new GridPane();
@@ -67,7 +67,7 @@ public class ColorizingLegend extends BorderPane   {
         gridPane.getColumnConstraints().clear();
         ColumnConstraints col0 = new ColumnConstraints(COL_WIDTH);
 		col0.setHalignment(HPos.LEFT);
-        ColumnConstraints col1 = new ColumnConstraints(COL_WIDTH);
+        ColumnConstraints col1 = new ColumnConstraints(2*COL_WIDTH);
 		col1.setHalignment(HPos.CENTER);
         ColumnConstraints col2 = new ColumnConstraints(COL_WIDTH);
 		col2.setHalignment(HPos.RIGHT);
@@ -95,7 +95,7 @@ public class ColorizingLegend extends BorderPane   {
 				setVisible(false);
 				break;
 			case AFFILIATION: 
-				optionLabel.setText("%Dem/%Rep");
+				optionLabel.setText("%Dem | %Rep");
 				stops = new Stop[] { new Stop(0, Color.BLUE), new Stop(RECT_WIDTH, Color.RED)};
 				lg = new LinearGradient(0, 0, RECT_WIDTH, RECT_HEIGHT, false, CycleMethod.NO_CYCLE, stops);
 				rectangle.setFill(lg);
