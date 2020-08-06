@@ -46,8 +46,6 @@ import redistrict.colorado.ui.UIConstants;
  * Compare plans based on one of several measures of partisan bias
  */
 public class PartisanAsymmetryGate extends Gate {
-	private final static double DIALOG_HEIGHT = 550.; 
-	private final static double DIALOG_WIDTH = 600.;
 	private final static String KEY_DECLINATION = "Declination"; 
 	private final static String KEY_GAP = "Efficiency Gap"; 
 	private final static String KEY_MARGIN = "Margin"; 
@@ -211,7 +209,7 @@ public class PartisanAsymmetryGate extends Gate {
 			nv.setValue(KEY_PARTY,party); // Party with advantage
 			scoreMap.put(plan.getId(),nv);
 		}
-		Collections.sort(plans,compareByScore);  // 
+		Collections.sort(plans,compareByPlanScore);  // 
 		sortedPlans.clear();
 		sortedPlans.addAll(plans);
 		updateChart();
@@ -246,7 +244,7 @@ public class PartisanAsymmetryGate extends Gate {
 			nv.setValue(KEY_PARTY, (wastedDem>wastedRep?"Republican":"Democrat")); // Party with least votes
 			scoreMap.put(plan.getId(),nv);
 		}
-		Collections.sort(plans,compareByScore);  // 
+		Collections.sort(plans,compareByPlanScore);  // 
 		sortedPlans.clear();
 		sortedPlans.addAll(plans);
 		updateChart();
@@ -279,7 +277,7 @@ public class PartisanAsymmetryGate extends Gate {
 			nv.setValue(KEY_PLAN, plan.getName());
 			scoreMap.put(plan.getId(),nv);
 		}
-		Collections.sort(plans,compareByScore);  // 
+		Collections.sort(plans,compareByPlanScore);  // 
 		sortedPlans.clear();
 		sortedPlans.addAll(plans);
 		updateChart();
@@ -303,7 +301,7 @@ public class PartisanAsymmetryGate extends Gate {
 			nv.setValue(KEY_PARTY,party); // Party with advantage
 			scoreMap.put(plan.getId(),nv);
 		}
-		Collections.sort(plans,compareByScore);  // 
+		Collections.sort(plans,compareByPlanScore);  // 
 		sortedPlans.clear();
 		sortedPlans.addAll(plans);
 		updateChart();
@@ -327,7 +325,7 @@ public class PartisanAsymmetryGate extends Gate {
 			nv.setValue(KEY_PARTY,party); // Party with advantage
 			scoreMap.put(plan.getId(),nv);
 		}
-		Collections.sort(plans,compareByScore);  // 
+		Collections.sort(plans,compareByPlanScore);  // 
 		sortedPlans.clear();
 		sortedPlans.addAll(plans);
 		updateChart();

@@ -39,8 +39,6 @@ import redistrict.colorado.ui.UIConstants;
  * Evaluate plans for the presence od vote dilution.
  */
 public class RacialVoteDilutionGate extends Gate {
-	private final static double DIALOG_HEIGHT = 550.; 
-	private final static double DIALOG_WIDTH = 600.;
 	private final static String KEY_ETHNICITY = "Ethnicity";
 	private final static String KEY_MAD = "MAD";
 	private final static String KEY_NAME = "Name";
@@ -94,7 +92,7 @@ public class RacialVoteDilutionGate extends Gate {
 			scoreMap.put(plan.getId(),nv);
 			planAnalyzers.put(plan.getId(), vpa);
 		}
-		Collections.sort(plans,compareByScore); 
+		Collections.sort(plans,compareByPlanScore); 
 		Collections.reverse(plans);   // Because minimum is best.
 		sortedPlans.clear();
 		sortedPlans.addAll(plans);

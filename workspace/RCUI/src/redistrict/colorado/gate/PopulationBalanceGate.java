@@ -42,15 +42,13 @@ import redistrict.colorado.ui.UIConstants;
  * We call it "imbalance" to emphasize that we want to minimize.
  */
 public class PopulationBalanceGate extends Gate {
-	private final static double DIALOG_HEIGHT = 550.; 
-	private final static double DIALOG_WIDTH = 600.;
+	private final static String KEY_DETAIL = "Pop Difference ~ %";
 	private final static String KEY_NAME = "Name";
 	private final static String KEY_PLAN = "Plan";
 	private final static String KEY_SCORE = "Standard Deviation ~ %";
 	private final static String SCORE_FORMAT = "%2.4f";
-	private final double DEFAULT_THRESHOLD = 1.0;   // Max difference from mean
-	private final Label aggregateLabel = new Label("Standard Deviation of Total District Populations");
-	private final Label detailLabel = new Label("Population Difference from Mean ~ %");
+	private final Label aggregateLabel = new Label("Standard Deviation of District Populations");
+	private final Label detailLabel = new Label("Population Difference from Mean ~ %    (red indicates \"unfair\" values)");
 	private final Map<Long,List<NameValue>> districtScores; 
 	private final Map<Long,Boolean> planInError;
 	
@@ -68,12 +66,12 @@ public class PopulationBalanceGate extends Gate {
 		Text t4 = new Text(" We want this score to be ");
 		Text t5 = new Text("minimized");
 		t5.setStyle("-fx-font-weight: bold");
-		Text t6 = new Text(". A red X indicator is shown if any individual district has over a 1.0% deviation.");
+		Text t6 = new Text(". A red X indicator is shown if any individual district difference has over the configured \"unfair\" value.");
 		info.getChildren().addAll(t1,t2,t3,t4,t5,t6);
 		return info; 
 	}
 	public String getScoreAttribute() { return KEY_SCORE; };
-	public String getTitle() { return "Population Balance"; } 
+	public String getTitle() { return "Population Imbalance"; } 
 	public GateType getType() { return GateType.POPULATION_BALANCE; }
 	
 	protected Label getBarOverlayLabel(PlanModel model) {
@@ -120,7 +118,7 @@ public class PopulationBalanceGate extends Gate {
 				}
 				NameValue nv = new NameValue(feat.getName());
 				nv.setValue(KEY_PLAN, plan.getName());
-				nv.setValue(KEY_SCORE, val);
+				nv.setValue(KEY_DETAIL, val);
 				populations.add(nv);
 				poparray[i] = pop;
 				i++;
@@ -134,7 +132,7 @@ public class PopulationBalanceGate extends Gate {
 			scoreMap.put(plan.getId(),nv);
 			districtScores.put(plan.getId(), populations);
 		}
-		Collections.sort(plans,compareByScore); 
+		Collections.sort(plans,compareByPlanScore); 
 		Collections.reverse(plans);   // Because minimum is best.
 		sortedPlans.clear();
 		sortedPlans.addAll(plans);
@@ -188,7 +186,7 @@ public class PopulationBalanceGate extends Gate {
 		TableColumn<List<NameValue>,String> subcol;
 		NameValueListLimitCellFactory limitFactory = new NameValueListLimitCellFactory(threshold);
 		NameValueListCellValueFactory fact = new NameValueListCellValueFactory();
-		fact.setFormat(KEY_SCORE, SCORE_FORMAT);
+		fact.setFormat(KEY_DETAIL, SCORE_FORMAT);
 		
 		int colno = 0;
 		int maxrows = 0;  // Max districts among plans
@@ -205,7 +203,7 @@ public class PopulationBalanceGate extends Gate {
 			subcol.setUserData(colno);
 			subcol.prefWidthProperty().bind(detailTable.widthProperty().multiply(widthFactor));
 			col.getColumns().add(subcol);
-			subcol = new TableColumn<>(KEY_SCORE);
+			subcol = new TableColumn<>(KEY_DETAIL);
 			subcol.setCellFactory(limitFactory);
 			subcol.setCellValueFactory(fact);
 			subcol.prefWidthProperty().bind(detailTable.widthProperty().multiply(widthFactor));

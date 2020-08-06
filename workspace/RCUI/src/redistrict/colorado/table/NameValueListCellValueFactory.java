@@ -43,9 +43,14 @@ public class NameValueListCellValueFactory implements Callback<TableColumn.CellD
 	@Override
 	public ObservableValue<String> call(CellDataFeatures<List<NameValue>, String> cdf) {
 		List<NameValue> list = cdf.getValue();
-		int index = (Integer)cdf.getTableColumn().getUserData();
-		NameValue nv = list.get(index);
 		StringProperty property = new SimpleStringProperty();
+		int index = (Integer)cdf.getTableColumn().getUserData();
+		if( index>=list.size()) {
+			LOGGER.severe(String.format("%s.call: NameValue user data list is %d, require %d", CLSS,list.size(),index));
+			return property;
+		}
+		NameValue nv = list.get(index);
+		
 		String columnName = cdf.getTableColumn().getText();
 		String format = formats.get(columnName);
 		
@@ -55,7 +60,11 @@ public class NameValueListCellValueFactory implements Callback<TableColumn.CellD
 		else {
 			Object val = nv.getValue(columnName);
 			if( val==null ) { val = nv.getValue(columnName.toUpperCase()); }
-			if( val==null ) {
+			// Empty string is empty field
+			if( val!=null && val.toString().isBlank() ) {
+				property.setValue("");
+			}
+			else if( val==null ) {
 				LOGGER.warning(String.format("%s.call: NameValue has no attribute %s", CLSS,columnName));
 				property.setValue("");
 			}

@@ -26,7 +26,6 @@ public class ComparisonResultsDialog extends Dialog<Gate> {
 	public ComparisonResultsDialog(Gate gate) {
 		this.setHeaderText(gate.getTitle());
 		this.setTitle("Comparison Result Details");
-
 		Node pane = gate.getResultsContents();
 		getDialogPane().setContent(pane);
 

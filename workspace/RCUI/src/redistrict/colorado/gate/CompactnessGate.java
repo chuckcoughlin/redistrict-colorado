@@ -38,8 +38,6 @@ import redistrict.colorado.ui.UIConstants;
  */
 public class CompactnessGate extends Gate {
 	// For the results popup
-	private final static double DIALOG_HEIGHT = 550.; 
-	private final static double DIALOG_WIDTH = 600.;
 	private final static String KEY_DEVIATION = "Std Deviation";
 	private final static String KEY_SCORE = "Score";
 	private final static String KEY_MEAN = "Mean";
@@ -102,7 +100,7 @@ public class CompactnessGate extends Gate {
 			scoreMap.put(plan.getId(),score);
 			districtScores.put(plan.getId(),quotients);
 		}
-		Collections.sort(plans,compareByScore);
+		Collections.sort(plans,compareByPlanScore);
 		sortedPlans.clear();
 		sortedPlans.addAll(plans);
 		updateChart();

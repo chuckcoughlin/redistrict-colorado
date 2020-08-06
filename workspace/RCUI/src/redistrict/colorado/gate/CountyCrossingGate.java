@@ -35,8 +35,6 @@ import redistrict.colorado.ui.UIConstants;
  * cross county (or other) lines.
  */
 public class CountyCrossingGate extends Gate {
-	private final static double DIALOG_HEIGHT = 550.; 
-	private final static double DIALOG_WIDTH = 600.;
 	private final static String KEY_COUNT = "Crossings";
 	private final static String KEY_NAME = "Name";
 	private final static String KEY_PLAN = "Plan";
@@ -82,7 +80,7 @@ public class CountyCrossingGate extends Gate {
 			nv.setValue(KEY_PLAN, plan.getName());
 			scoreMap.put(plan.getId(),nv);
 		}
-		Collections.sort(plans,compareByScore);  // 
+		Collections.sort(plans,compareByPlanScore);  // 
 		Collections.reverse(plans);
 		sortedPlans.clear();
 		sortedPlans.addAll(plans);

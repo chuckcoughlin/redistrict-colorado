@@ -34,8 +34,6 @@ import redistrict.colorado.ui.UIConstants;
  * Maximized the number of districts that are balanced in party affiliations
  */
 public class CompetitiveDistrictsGate extends Gate {
-	private final static double DIALOG_HEIGHT = 550.; 
-	private final static double DIALOG_WIDTH = 600.;
 	private final static String KEY_COUNT = "Count";
 	private final static String KEY_NAME = "Name";
 	private final static String KEY_PLAN = "Plan";
@@ -89,7 +87,7 @@ public class CompetitiveDistrictsGate extends Gate {
 			nv.setValue(KEY_PLAN, plan.getName());
 			scoreMap.put(plan.getId(),nv);
 		}
-		Collections.sort(plans,compareByScore);  // 
+		Collections.sort(plans,compareByPlanScore);  // 
 		sortedPlans.clear();
 		sortedPlans.addAll(plans);
 		updateChart();

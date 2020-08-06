@@ -35,8 +35,6 @@ import redistrict.colorado.ui.UIConstants;
  * population as a whole.
  */
 public class ProportionalityGate extends Gate {
-	private final static double DIALOG_HEIGHT = 550.; 
-	private final static double DIALOG_WIDTH = 600.;
 	private final static String KEY_NAME = "Name";
 	private final static String KEY_PLAN = "Plan";
 	private final static String KEY_PARTY = "Party";
@@ -134,7 +132,7 @@ public class ProportionalityGate extends Gate {
 			
 			scoreMap.put(plan.getId(),nv);
 		}
-		Collections.sort(plans,compareByScore);  // use .reversed() when minimized is good
+		Collections.sort(plans,compareByPlanScore);  // use .reversed() when minimized is good
 		Collections.reverse(plans);   // Because minimum is best.
 		sortedPlans.clear();
 		sortedPlans.addAll(plans);

@@ -45,8 +45,8 @@ public class NameValueCellValueFactory implements Callback<TableColumn.CellDataF
 		else {
 			Object val = nv.getValue(columnName);
 			if( val==null ) val = nv.getValue(columnName.toUpperCase());
-			if( val==null ) {
-				LOGGER.warning(String.format("%s.call: NameValue has no attribute %s", CLSS,columnName));
+			// Empty string is empty field
+			if( val.toString().isBlank() ) {
 				property.setValue("");
 			}
 			else if( format==null  ) {

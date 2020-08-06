@@ -42,16 +42,16 @@ import redistrict.colorado.ui.GuiUtil;
  * and weighted composite of all other plans. 
  */
 public class CompositeGate extends Gate {
-	private final static double DIALOG_HEIGHT = 550.; 
-	private final static double DIALOG_WIDTH = 600.;
+	private final static double METRIC_COL_WIDTH = 300.;
+	private final static double SCORE_COL_WIDTH = 80.;
 	private final static String KEY_NAME = "Name";
 	private final static String KEY_SCORE = "Score";
 	private final static String KEY_FAIR = "Fair";
 	private final static String KEY_UNFAIR = "Unfair";
 	private final static String KEY_WEIGHT = "Weight";
 	private final Label detailLabel = new Label("Individual Metric Results"); 
+	private final Map<Long,List<NameValue>> planScores;
 	private ColorLegend colorLegend;
-	private final Map<Long,List<NameValue>> planScores; // List is ordered by gate type
 
 	public CompositeGate() {
 		this.planScores = new HashMap<>();
@@ -68,6 +68,8 @@ public class CompositeGate extends Gate {
 
 		this.colorLegend = new ColorLegend();
 		colorLegend.setAlignment(Pos.CENTER_LEFT);
+		colorLegend.setOnMouseClicked(new ChartClickedHandler ());
+		
 		//legend.setPadding(new Insets(10, 120, 10, 10));  // top, right,bottom,left
 		body.setAlignment(Pos.CENTER);
 		body.setMaxWidth(USE_PREF_SIZE);
@@ -80,6 +82,7 @@ public class CompositeGate extends Gate {
 		StackPane.setMargin(colorLegend, new Insets(0, 10, 5, 10));  // top right bottom left
 		body.getChildren().addAll(rectangle,colorLegend,header,info);
 		getChildren().addAll(body);	
+		colorLegend.setOnMouseClicked(new ChartClickedHandler ());
 	}
 
 	public TextFlow getInfo() { 
@@ -98,7 +101,7 @@ public class CompositeGate extends Gate {
 	/**
 	 * Compute the overall score, place into the score-map. Along the way we save
 	 * results for the individual gates for display in the detail table.
-	 * This must evaluate after al the other gates.
+	 * This must evaluate after all the other gates.
 	 */
 	@Override
 	public void evaluate(List<PlanModel> plans) {
@@ -109,6 +112,7 @@ public class CompositeGate extends Gate {
 		for(PlanModel plan:plans) {
 			double [] scores = new double[properties.size()];
 			double [] weights = new double[properties.size()];
+			List<NameValue> gateList = new ArrayList<>();
 			// Now tally the individual normalized score.
 			int row = 0;
 			for(Gate gate:GateCache.getInstance().getBasicGates()) {
@@ -138,17 +142,19 @@ public class CompositeGate extends Gate {
 					}
 				}
 				LOGGER.info(String.format("CompositeGate: evaluating %s (%2.2f->%2.2f)",gate.getTitle(), raw,fairness));
+				gateList.add(nv);
 				scores[row] = fairness;
 				weights[row]= weight;
 				row++;
 			}
+			planScores.put(plan.getId(), gateList);
 			double score = mean.evaluate(scores,weights);
 			NameValue nv = new NameValue(plan.getName());
 			nv.setValue(KEY_SCORE, score);
 			scoreMap.put(plan.getId(), nv);
 		}
 
-		Collections.sort(plans,compareByScore);  // use .reversed() when minimized is good
+		Collections.sort(plans,compareByPlanName);  // use .reversed() when minimized is good
 		sortedPlans.clear();
 		sortedPlans.addAll(plans);
 		updateChart();
@@ -164,7 +170,7 @@ public class CompositeGate extends Gate {
 		detailLabel.setId(ComponentIds.LABEL_SCORE);
 		pane.getChildren().add(detailLabel);
 
-		// Detail table
+		// Detail table - first "plan" is the key
 		TableView<List<NameValue>> detailTable = new TableView<>();
 		TableColumn<List<NameValue>,String> col;
 		TableColumn<List<NameValue>,String> subcol;
@@ -175,50 +181,61 @@ public class CompositeGate extends Gate {
 		fact.setFormat(KEY_SCORE, "%2.1f");
 
 		int colno = 0;
-		double widthFactor = 1./(5*sortedPlans.size());
+		double widthFactor = 1./(sortedPlans.size());
 
+		// Metric parameters title
+		col = new TableColumn<>("Metrics");
+		col.setPrefWidth(METRIC_COL_WIDTH);
+		detailTable.getColumns().add(col);
+		subcol = new TableColumn<>(KEY_NAME);
+		subcol.setCellValueFactory(fact);
+		subcol.setUserData(colno);
+		col.getColumns().add(subcol);
+		subcol = new TableColumn<>(KEY_WEIGHT);
+		subcol.setCellValueFactory(fact);
+		subcol.setUserData(colno);
+		col.getColumns().add(subcol);
+		subcol = new TableColumn<>(KEY_UNFAIR);
+		subcol.setCellValueFactory(fact);
+		subcol.setUserData(colno);
+		col.getColumns().add(subcol);
+		subcol = new TableColumn<>(KEY_FAIR);
+		subcol.setCellValueFactory(fact);
+		subcol.setUserData(colno);
+		col.getColumns().add(subcol);
+		colno++;
+		
+		// Now add plan scores
 		for(PlanModel plan:sortedPlans ) {
 			// These columns have no cells, just sub-columns.
 			col = new TableColumn<>(plan.getName());
-			col.setPrefWidth(DIALOG_WIDTH);
+			col.setPrefWidth(SCORE_COL_WIDTH);
 			detailTable.getColumns().add(col);
-			subcol = new TableColumn<>(KEY_NAME);
-			subcol.setCellValueFactory(fact);
-			subcol.setUserData(colno);
-			subcol.prefWidthProperty().bind(detailTable.widthProperty().multiply(widthFactor));
-			col.getColumns().add(subcol);
-			subcol = new TableColumn<>(KEY_WEIGHT);
-			subcol.setCellValueFactory(fact);
-			subcol.prefWidthProperty().bind(detailTable.widthProperty().multiply(widthFactor));
-			subcol.setUserData(colno);
-			col.getColumns().add(subcol);
-			subcol = new TableColumn<>(KEY_UNFAIR);
-			subcol.setCellValueFactory(fact);
-			subcol.prefWidthProperty().bind(detailTable.widthProperty().multiply(widthFactor));
-			subcol.setUserData(colno);
-			col.getColumns().add(subcol);
-			subcol = new TableColumn<>(KEY_FAIR);
-			subcol.setCellValueFactory(fact);
-			subcol.prefWidthProperty().bind(detailTable.widthProperty().multiply(widthFactor));
-			subcol.setUserData(colno);
-			col.getColumns().add(subcol);
 			subcol = new TableColumn<>(KEY_SCORE);
 			subcol.setCellValueFactory(fact);
-			subcol.prefWidthProperty().bind(detailTable.widthProperty().multiply(widthFactor));
 			subcol.setUserData(colno);
 			col.getColumns().add(subcol);
 			colno++;
 		}
 
-		int maxrows = Database.getInstance().getGateTable().getGateProperties().size();
+		int gateRows = GateCache.getInstance().getBasicGates().size();
 		ObservableList<List<NameValue>> ditems = FXCollections.observableArrayList();
-		for( int row=0;row<maxrows;row++ ) {
+		
+		for( int row=0;row<gateRows;row++ ) {
 			List<NameValue> values = new ArrayList<>();
+			// Use the first plan as an example
+			List<NameValue> gateList = planScores.get(sortedPlans.get(0).getId());
+			Collections.sort(gateList,compareByName);
+			if(gateList.size()>row ) {
+				NameValue metric = gateList.get(row); 
+				values.add(metric);  // Name, Weight,Fair,Unfair (all common)
+			}
+			
 			for(PlanModel plan:sortedPlans ) {
-				List<NameValue> scores = planScores.get(plan.getId());
-				Collections.sort(scores,compareByName);
-				if(scores.size()>row ) {
-					values.add(scores.get(row));
+				gateList = planScores.get(plan.getId());
+				Collections.sort(gateList,compareByName);
+				if(gateList.size()>row ) {
+					values.add(gateList.get(row));
 				}
 				else {
 					values.add(NameValue.EMPTY);
@@ -226,10 +243,22 @@ public class CompositeGate extends Gate {
 			}
 			ditems.add(values);
 		}
+		// Add an additional line that is the composite score
+		// NOTE: NameValueListCellValueFactory complains about the nulls
+		List<NameValue> values = new ArrayList<>();
+		NameValue nv = new NameValue("Total");
+		nv.setValue(KEY_FAIR, "");
+		nv.setValue(KEY_UNFAIR, "");
+		nv.setValue(KEY_WEIGHT, "");
+		values.add(nv);
+		for(PlanModel plan:sortedPlans ) {
+			nv = scoreMap.get(plan.getId());
+			values.add(nv);
+		}
+		ditems.add(values);
 
 		detailTable.setItems(ditems);
 		pane.getChildren().add(detailTable);
-
 		return pane;
 	}
 

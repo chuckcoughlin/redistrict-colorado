@@ -57,6 +57,8 @@ public abstract class Gate extends VBox {
 	public static final double WIDTH = 180.;
 	private static final double CHART_WIDTH = 150.;
 	public static final double AGGREGATE_TABLE_WIDTH  = 180;
+	public static final double DIALOG_HEIGHT = 550.; 
+	public static final double DIALOG_WIDTH = 600.;
 	protected final Label header;
 	protected final Button info;
 	protected InfoDialog infoDialog;
@@ -171,10 +173,17 @@ public abstract class Gate extends VBox {
 	        return (name1.compareTo(name2));
 	    }
 	};
+	// Alphabetize plans.
+	protected Comparator<PlanModel> compareByPlanName = new Comparator<PlanModel>() {
+		@Override
+		public int compare(PlanModel m1, PlanModel m2) {
+			return m1.getName().compareTo(m2.getName());
+		}
+	};
 	// Compare plans based on the scoring attribute for this gate. The attribute
 	// must be numeric. The scoreMap must be pre-populated with name-value objects
 	// containing that attribute.
-	protected Comparator<PlanModel> compareByScore = new Comparator<PlanModel>() {
+	protected Comparator<PlanModel> compareByPlanScore = new Comparator<PlanModel>() {
 		@Override
 		public int compare(PlanModel m1, PlanModel m2) {
 			String att = getScoreAttribute();
