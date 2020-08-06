@@ -47,6 +47,8 @@ public class CompositeGate extends Gate {
 	private final static String KEY_NAME = "Name";
 	private final static String KEY_SCORE = "Score";
 	private final static String KEY_FAIR = "Fair";
+	private final static String KEY_NORMALIZED = "Normalized";
+	private final static String KEY_RAW = "Raw";
 	private final static String KEY_UNFAIR = "Unfair";
 	private final static String KEY_WEIGHT = "Weight";
 	private final Label detailLabel = new Label("Individual Metric Results"); 
@@ -126,7 +128,7 @@ public class CompositeGate extends Gate {
 				nv.setValue(KEY_WEIGHT, weight);
 				double raw = gate.getScore(plan.getId());
 				double fairness = 0.;
-				nv.setValue(KEY_SCORE, raw);
+				nv.setValue(KEY_RAW, raw);
 				if( fair>unfair) {  // (large is good)
 					if(raw<unfair) fairness = 0.;
 					else if(raw>unfair) fairness = 10;
@@ -141,6 +143,7 @@ public class CompositeGate extends Gate {
 						fairness = 10.*(unfair - raw)/(unfair-fair);
 					}
 				}
+				nv.setValue(KEY_NORMALIZED, fairness);
 				LOGGER.info(String.format("CompositeGate: evaluating %s (%2.2f->%2.2f)",gate.getTitle(), raw,fairness));
 				gateList.add(nv);
 				scores[row] = fairness;
@@ -178,6 +181,8 @@ public class CompositeGate extends Gate {
 		fact.setFormat(KEY_WEIGHT, "%2.1f");
 		fact.setFormat(KEY_FAIR, "%2.1f");
 		fact.setFormat(KEY_UNFAIR, "%2.1f");
+		fact.setFormat(KEY_NORMALIZED, "%2.1f");
+		fact.setFormat(KEY_RAW, "%2.1f");
 		fact.setFormat(KEY_SCORE, "%2.1f");
 
 		int colno = 0;
@@ -205,13 +210,17 @@ public class CompositeGate extends Gate {
 		col.getColumns().add(subcol);
 		colno++;
 		
-		// Now add plan scores
+		// Now add plan raw/normalized scores
 		for(PlanModel plan:sortedPlans ) {
 			// These columns have no cells, just sub-columns.
 			col = new TableColumn<>(plan.getName());
 			col.setPrefWidth(SCORE_COL_WIDTH);
 			detailTable.getColumns().add(col);
-			subcol = new TableColumn<>(KEY_SCORE);
+			subcol = new TableColumn<>(KEY_RAW);
+			subcol.setCellValueFactory(fact);
+			subcol.setUserData(colno);
+			col.getColumns().add(subcol);
+			subcol = new TableColumn<>(KEY_NORMALIZED);
 			subcol.setCellValueFactory(fact);
 			subcol.setUserData(colno);
 			col.getColumns().add(subcol);
