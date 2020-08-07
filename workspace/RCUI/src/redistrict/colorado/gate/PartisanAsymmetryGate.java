@@ -12,6 +12,8 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
+import org.apache.commons.math3.stat.descriptive.moment.Mean;
+import org.apache.commons.math3.stat.descriptive.rank.Median;
 import org.apache.commons.math3.stat.inference.TestUtils;
 
 import javafx.collections.FXCollections;
@@ -96,8 +98,11 @@ public class PartisanAsymmetryGate extends Gate {
 		Text t1 = new Text("The declination function treats asymmetry in the vote distribution as indicative of gerrymandering.");
 		Text t2 = new Text("When plotted the function shows a geometric angle that can be easily visualized. ");
 		Text t3 = new Text("In our usage a negative angle indicates an unfair Democratic advantage and a positive angle indicates a Republican advantage. ");
-		Text t4 = new Text("An angle of more than 0.3 radians indicates probable manipulation.");
-		info.getChildren().addAll(t1,t2,t3,t4);
+		Text t4 = new Text("An angle of more than 0.3 radians indicates probable manipulation. We want this score to be ");
+		Text t5 = new Text("minimized");
+		t5.setStyle("-fx-font-weight: bold");
+		Text t6 = new Text(".");
+		info.getChildren().addAll(t1,t2,t3,t4,t5,t6);
 	}
 	private void updateEfficiencyGapInfo(TextFlow info) {
 		Text t1 = new Text("Efficiency gap is the sum of the differences of wasted votes for the two parties divided by the total number of votes. A wasted vote is a ");
@@ -119,7 +124,7 @@ public class PartisanAsymmetryGate extends Gate {
 	private void updateMeanMedianInfo(TextFlow info) {
 		Text t1 = new Text("Mean-median is a measure of vote bias. ");
 		Text t2 = new Text("The mean-median difference is a party’s median vote share minus its mean vote share across all districts. ");
-		Text t3 = new Text("The difference is expressed as a percentage.  We want this score to be ");
+		Text t3 = new Text("The difference is expressed as a percentage of total voted.  We want this score to be ");
 		Text t4 = new Text("minimized");
 		t4.setStyle("-fx-font-weight: bold");
 		Text t5 = new Text(".");
@@ -210,6 +215,7 @@ public class PartisanAsymmetryGate extends Gate {
 			scoreMap.put(plan.getId(),nv);
 		}
 		Collections.sort(plans,compareByPlanScore);  // 
+		Collections.reverse(plans);
 		sortedPlans.clear();
 		sortedPlans.addAll(plans);
 		updateChart();
@@ -245,6 +251,7 @@ public class PartisanAsymmetryGate extends Gate {
 			scoreMap.put(plan.getId(),nv);
 		}
 		Collections.sort(plans,compareByPlanScore);  // 
+		Collections.reverse(plans);
 		sortedPlans.clear();
 		sortedPlans.addAll(plans);
 		updateChart();
@@ -289,19 +296,29 @@ public class PartisanAsymmetryGate extends Gate {
 	private void evaluateMeanMedian(List<PlanModel> plans) {
 		voteSeatCurves.clear();
 		for(PlanModel plan:plans) {
-			VoteSeatCurve vsc = new VoteSeatCurve(plan.getMetrics());
-			vsc.generate();
-			voteSeatCurves.add(vsc);
-			
+			Median median = new Median();
+			Mean mean = new Mean();
+			double population = 0;
+			double data[] = new double[plan.getMetrics().size()];
+					
+			int index = 0;
+			for(PlanFeature feat:plan.getMetrics()) {
+				data[index] = feat.getDemocrat();
+				population = population + feat.getDemocrat() + feat.getRepublican();
+				index++;
+			}
+			double val = median.evaluate(data) - mean.evaluate(data);
+			val = val/population;
 			NameValue nv = new NameValue(plan.getName());
-			nv.setValue(KEY_PERCENT_VOTES, 100.*Math.abs(vsc.getVoteImbalance()));
+			nv.setValue(KEY_PERCENT_VOTES, Math.abs(100.*val));
 			nv.setValue(KEY_PLAN, plan.getName());
 			String party = "Democrat";
-			if( vsc.getVoteImbalance() > 0.5 ) party = "Republican";
+			if( val > 0.0 ) party = "Republican";
 			nv.setValue(KEY_PARTY,party); // Party with advantage
 			scoreMap.put(plan.getId(),nv);
 		}
-		Collections.sort(plans,compareByPlanScore);  // 
+		Collections.sort(plans,compareByPlanScore);  
+		Collections.reverse(plans);
 		sortedPlans.clear();
 		sortedPlans.addAll(plans);
 		updateChart();

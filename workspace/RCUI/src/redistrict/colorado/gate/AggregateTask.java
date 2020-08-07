@@ -162,7 +162,10 @@ public class AggregateTask  extends Task<List<PlanFeature>> {
 	}	
 	/**
 	 * Augment a single polygon (district) with values from a county (or municipal) boundaries dataset.
-	 * Simply sum the number of times there is a partial mapping.
+	 * Simply sum the number of times there is a total or partial mapping.
+	 * @param planFeature a feature representing a district
+	 * @param polygon an area representing a county
+	 * @param am the model holding the metrics
 	 */
 	public void aggregateCountyBoundaries(PlanFeature planFeat, Geometry polygon,AnalysisModel am) {
 		if( am == null ) return;

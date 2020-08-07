@@ -131,7 +131,7 @@ public class CompositeGate extends Gate {
 				nv.setValue(KEY_RAW, raw);
 				if( fair>unfair) {  // (large is good)
 					if(raw<unfair) fairness = 0.;
-					else if(raw>unfair) fairness = 10;
+					else if(raw>fair) fairness = 10;
 					else {
 						fairness = 10.*(raw - unfair)/(fair-unfair);
 					}

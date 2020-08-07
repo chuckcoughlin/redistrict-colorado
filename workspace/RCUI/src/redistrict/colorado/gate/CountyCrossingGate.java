@@ -39,8 +39,8 @@ public class CountyCrossingGate extends Gate {
 	private final static String KEY_NAME = "Name";
 	private final static String KEY_PLAN = "Plan";
 	
-	private final Label aggregateLabel = new Label("County Crossing");
-	private final Label detailLabel = new Label("Number of Counties in each District");
+	private final Label aggregateLabel = new Label("Excess County Crossing");
+	private final Label detailLabel = new Label("Number of Counties Overlapped by District");
 	
 	public CountyCrossingGate() {
 		xAxis.setAutoRanging(true);
@@ -81,7 +81,7 @@ public class CountyCrossingGate extends Gate {
 			scoreMap.put(plan.getId(),nv);
 		}
 		Collections.sort(plans,compareByPlanScore);  // 
-		Collections.reverse(plans);
+		Collections.reverse(plans);  // Count should be minimized
 		sortedPlans.clear();
 		sortedPlans.addAll(plans);
 		updateChart();
@@ -135,7 +135,7 @@ public class CountyCrossingGate extends Gate {
 
 		int colno = 0;
 		int maxrows = 0;  // Max districts among plans
-		double widthFactor = 1./(3*sortedPlans.size());
+		double widthFactor = 1./(2*sortedPlans.size());
 		for(PlanModel plan:sortedPlans ) {
 			int ndistricts = plan.getMetrics().size();
 			if(ndistricts>maxrows) maxrows = ndistricts;
