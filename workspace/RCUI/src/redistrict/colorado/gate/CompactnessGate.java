@@ -44,7 +44,7 @@ public class CompactnessGate extends Gate {
 	private final static String KEY_NAME = "Name";
 	private final static String KEY_PLAN = "Plan";
 	private final Label aggregateLabel = new Label("Harmonic Mean of District Scores");
-	private final Label detailLabel = new Label("Polsby-Popper Score (normalized Isoperimetric Quotient)");
+	private final Label detailLabel = new Label("Polsby-Popper Score (normalized Isoperimetric Quotient) by District");
 	private final Map<Long,List<NameValue>> districtScores; 
 	
 	public CompactnessGate() {

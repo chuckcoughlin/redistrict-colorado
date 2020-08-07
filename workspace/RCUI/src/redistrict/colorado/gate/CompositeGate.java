@@ -47,7 +47,7 @@ public class CompositeGate extends Gate {
 	private final static String KEY_NAME = "Name";
 	private final static String KEY_SCORE = "Score";
 	private final static String KEY_FAIR = "Fair";
-	private final static String KEY_NORMALIZED = "Normalized";
+	private final static String KEY_SCALED = "Scaled";
 	private final static String KEY_RAW = "Raw";
 	private final static String KEY_UNFAIR = "Unfair";
 	private final static String KEY_WEIGHT = "Weight";
@@ -143,7 +143,7 @@ public class CompositeGate extends Gate {
 						fairness = 10.*(unfair - raw)/(unfair-fair);
 					}
 				}
-				nv.setValue(KEY_NORMALIZED, fairness);
+				nv.setValue(KEY_SCALED, fairness);
 				LOGGER.info(String.format("CompositeGate: evaluating %s (%2.2f->%2.2f)",gate.getTitle(), raw,fairness));
 				gateList.add(nv);
 				scores[row] = fairness;
@@ -181,7 +181,7 @@ public class CompositeGate extends Gate {
 		fact.setFormat(KEY_WEIGHT, "%2.1f");
 		fact.setFormat(KEY_FAIR, "%2.1f");
 		fact.setFormat(KEY_UNFAIR, "%2.1f");
-		fact.setFormat(KEY_NORMALIZED, "%2.1f");
+		fact.setFormat(KEY_SCALED, "%2.1f");
 		fact.setFormat(KEY_RAW, "%2.1f");
 		fact.setFormat(KEY_SCORE, "%2.1f");
 
@@ -220,7 +220,7 @@ public class CompositeGate extends Gate {
 			subcol.setCellValueFactory(fact);
 			subcol.setUserData(colno);
 			col.getColumns().add(subcol);
-			subcol = new TableColumn<>(KEY_NORMALIZED);
+			subcol = new TableColumn<>(KEY_SCALED);
 			subcol.setCellValueFactory(fact);
 			subcol.setUserData(colno);
 			col.getColumns().add(subcol);
@@ -262,6 +262,8 @@ public class CompositeGate extends Gate {
 		values.add(nv);
 		for(PlanModel plan:sortedPlans ) {
 			nv = scoreMap.get(plan.getId());
+			// Move the score to the normalized column so the table finds it.
+			nv.setValue(KEY_SCALED, nv.getValue(KEY_SCORE));
 			values.add(nv);
 		}
 		ditems.add(values);

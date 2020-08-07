@@ -81,15 +81,12 @@ public class FeatureUtil {
      */
 	public static class IDComparator implements Comparator<Feature> {
 		public int compare(Feature f1, Feature f2) {
-
 			if (f1.getID() < f2.getID()) {
 				return -1;
 			}
-
 			if (f1.getID() > f2.getID()) {
 				return 1;
 			}
-
 			return 0;
 		}
 	}	

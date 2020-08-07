@@ -182,7 +182,7 @@ public abstract class Gate extends VBox {
 	};
 	// Compare plans based on the scoring attribute for this gate. The attribute
 	// must be numeric. The scoreMap must be pre-populated with name-value objects
-	// containing that attribute.
+	// containing that attribute. Sort order is increasing.
 	protected Comparator<PlanModel> compareByPlanScore = new Comparator<PlanModel>() {
 		@Override
 		public int compare(PlanModel m1, PlanModel m2) {
@@ -191,17 +191,17 @@ public abstract class Gate extends VBox {
 				scoreMap.get(m2.getId()).getValue(att) != null   ) {
 				double r1 = Double.parseDouble(scoreMap.get(m1.getId()).getValue(att).toString());
 				double r2 = Double.parseDouble(scoreMap.get(m2.getId()).getValue(att).toString());
-				return (r1>r2?1:0);
+				return Double.compare(r2,r1);
 			}
 			return 0;
 		}
 	};
 	
-	// Compare double values in a list
+	// Compare double values in a list. Sort is increasing order.
 	protected Comparator<Double> compareByValue = new Comparator<Double>() {
 	    @Override
 	    public int compare(Double dbl1, Double dbl2) {
-	        return(dbl1>dbl2?1:0);
+	    	return Double.compare(dbl2,dbl1);
 	    }
 	};
 	

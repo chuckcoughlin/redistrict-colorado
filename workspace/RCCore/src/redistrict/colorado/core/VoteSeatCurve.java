@@ -213,7 +213,6 @@ public class VoteSeatCurve {
 			int result = 0;
 			if( (sv1.getVotes() > sv2.getVotes())) result = 1;
 			else if( (sv1.getVotes()<sv2.getVotes())) result = -1;
-			
 			return result;
 		}
 	};
