@@ -1,10 +1,10 @@
 ## Redistrict Colorado
 ## User Guide
 *FairnessAnalyzer* is designed to answer the question "Which is fairer?" when dealing with competing redistricting plans. The user configures plans and controls their evaluation based on a collection of external datasets which contain
-district geometries, voter
-affiliation and demographic information. This guide walks through the use and installation of the application.  
+plan geometries, voter
+affiliation and demographic information. The application computes an array of metrics for the purpose of comparing two or more redistricting plans for fairness. See the [Comparisons](#Comparisons) page to view the final results.
 
- The application computes an array of metrics for the purpose of comparing two or more redistricting plans for fairness. The criteria used are largely based on the work of Kevin Baas and his [autoredistrict](http://autoredistrict.org/index.php) project.
+ This guide walks through the use and installation of the application.
 
  ### Table of Contents <a id="table-of-contents"></a>
 
@@ -13,6 +13,7 @@ affiliation and demographic information. This guide walks through the use and in
     * [Calculations](#calculations)
       * [Setup](#setup)
       * [Metrics](#metrics)
+      * [Comparisons](#comparisons)
  * [Datasets](#datasets)
     * [Attribute Aliases](#aliases)
     * [Sources](#sources)
@@ -21,12 +22,12 @@ affiliation and demographic information. This guide walks through the use and in
 
 ### Overview <a id="overview"></a>
 
-![SplitPane](/images/application_plans.png)
+![SplitPane](/images/splash_screen.png)
 ```                  Splash Screen     ```
 
 The application's main interface is a split pane with
 actions in the left side controlling what is displayed on the right. A *View* menu controls which of three contexts is displayed. The contexts are:
- * Plans - these are the redistricting plans. Each plan is based on a dataset containing voting district boundaries. The plan context includes a setup pane for configuration of the weightings, affiliation and demographic datasets necessary for plan evaluation. Most importantly, this context includes an analysis screen which shows the result of side-by-side comparisons.
+ * Plans - these are the redistricting plans. Each plan is based on a dataset containing voting district boundaries. The plan dialogs include a setup pane for configuration of the weightings, affiliation and demographic datasets necessary for plan evaluation. Most importantly, there is an analysis screen which shows the result of side-by-side comparisons.
  * Datasets - a dataset holds information necessary for the construction and evaluation of a plan. Datasets are not part of the application as distributed, but are loaded in from files downloaded independently. Datasets correspond to a "shapefile" and contain geographic and other information.
  * Districts - a voting district is one of the regions of a dataset. The purpose of the *district* screen is to view boundary details of a dataset.
 
@@ -35,20 +36,23 @@ actions in the left side controlling what is displayed on the right. A *View* me
 
 ### Plans <a id="plans"></a>
 The figure below shows the plan superimposed over a Google Map. The Google Map has
-controls for pan, zoom and map type. The map is colorized to indicate the
-predominant affiliation within each district. Additionally a 'click' within a
-district will popup an information window with metrics for that district.
+controls for pan, zoom and map type. As shown map areas are colored to indicate the
+predominant affiliation within each district. The legend shows the numerical range
+associated with the color range. Other colorizing options include color coding by
+racial makeup of the district, and no colorization at all.
 
 ![MapOverlay](/images/plan_map.png)
 ```                  Plan Overlay Onto Google Maps     ```
 
-This view is accessible only if there is a current internet connection.
+A 'click' within a
+district will popup an information window with metrics for that district. Map views are accessible only if there is a current internet connection
+and the user has entered a valid Google key.
 
-The next figure shows the plan context after selection of a "Properties" button. The screen shows aggregated quantities by district
+The next figure shows the plan dialog after selection of a "Properties" button. The screen shows aggregated quantities by district
 based on the boundary, affiliation and demographics datasets selected for the analysis. When this page is first selected,
-application computes the aggregated values. This is a compute-intensive
+the application computes aggregated values. This is a compute-intensive
 process and may take as long as a minute or two. Once the
-calculations have been made, results are cached for speedy access.
+calculations have been made, results are cached for speed in subsequent accesses.
 
 ![Plan Properties](/images/plan_properties.png)
 ```                  Plan Properties     ```
@@ -75,7 +79,7 @@ Before the comparison can be made, the criteria for making that comparison must 
 ![Setup](/images/metric_setup.png)
 ```                  Comparison Setup    ```
 
-Additionally, parameters are defined for each of the separate metrics (with the exception of the `Composite`). This includes a weighting that defines the relative importance of the particular metric. A range is also set to define the best and worst possible numeric values for the metric. This allows the values to be reasonably scaled with respect to each other.
+Additionally, parameters are defined for each of the separate metrics (with the exception of the `Composite`). This includes a weighting that defines the relative importance of the particular metric. A range is also set to define the best and worst possible numeric values for the metric. This allows the values to be reasonably scaled with respect to each other. The "Info" button on the weightings table displays a screen for suggestions of reasonable limits for each metric.
 
 ##### Metrics <a id="metrics"></a>
 ###### Compactness:
@@ -161,6 +165,15 @@ from unfair-to-fair are taken from the setup screen.
 
 The overall metric calculation assigns a value
 From 0-10 for each of the other metrics depending on how the score falls within the specified range. The composite result is simply the weighted average of the individual scores.  
+
+###### Comparisons <a id="comparisons"></a>
+The results page shows the evaluations for each plan as well as the overall score. The evaluations are presented as bar charts with the bars ordered with the "best" result on top. Depending on the metric a "good" result may be the smallest numbetr
+
+![Results](/images/plan_comparisons.png)
+```                  Results    ```
+
+Clicking on any of the comparison boxes will display a detail screen with additional statistics Which
+support the results shown in the graphs. The makeup of these statistics changes with the metric.
 
 ### Datasets <a id="datasets"></a>
 
