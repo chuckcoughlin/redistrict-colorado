@@ -51,8 +51,7 @@ public class PartisanAsymmetryGate extends Gate {
 	private final static String KEY_DECLINATION = "Declination"; 
 	private final static String KEY_GAP = "Efficiency Gap"; 
 	private final static String KEY_MARGIN = "Margin"; 
-
-	private final static String KEY_PERCENT_VOTES = "%of Votes"; 
+	private final static String KEY_MM_DIFF = "Median-Mean ~%"; 
 	private final static String KEY_PROBABILITY = "Probability"; 
 	private final static String KEY_SCORE = "Score";  // Value appropriate to metric
 	private final static String KEY_SEAT_BIAS = "Seat Bias"; 
@@ -157,7 +156,7 @@ public class PartisanAsymmetryGate extends Gate {
 			case DECLINATION: 	 key = KEY_DECLINATION; break;
 			case EFFICIENCY_GAP: key = KEY_GAP;   break;
 			case LOPSIDED_WINS:  key = KEY_PROBABILITY;   break;
-			case MEAN_MEDIAN:    key = KEY_PERCENT_VOTES;  break;
+			case MEAN_MEDIAN:    key = KEY_MM_DIFF;  break;
 			case PARTISAN_BIAS:  key = KEY_SEAT_BIAS;  break;
 		}
 		return key;
@@ -290,12 +289,16 @@ public class PartisanAsymmetryGate extends Gate {
 		updateChart();
 	}
 	/**
-	 * Sort the districts by name and save the % democrat score.
+	 * The score is the median-mean expressed as % of total votes
 	 * Compute overall results.
 	 */
 	private void evaluateMeanMedian(List<PlanModel> plans) {
 		voteSeatCurves.clear();
 		for(PlanModel plan:plans) {
+			VoteSeatCurve vsc = new VoteSeatCurve(plan.getMetrics());
+			vsc.generate();
+			voteSeatCurves.add(vsc);
+			
 			Median median = new Median();
 			Mean mean = new Mean();
 			double population = 0;
@@ -307,10 +310,12 @@ public class PartisanAsymmetryGate extends Gate {
 				population = population + feat.getDemocrat() + feat.getRepublican();
 				index++;
 			}
-			double val = median.evaluate(data) - mean.evaluate(data);
+			double meanValue = mean.evaluate(data);
+			double medianValue = median.evaluate(data);
+			double val = medianValue - meanValue;
 			val = val/population;
 			NameValue nv = new NameValue(plan.getName());
-			nv.setValue(KEY_PERCENT_VOTES, Math.abs(100.*val));
+			nv.setValue(KEY_MM_DIFF, Math.abs(100.*val));
 			nv.setValue(KEY_PLAN, plan.getName());
 			String party = "Democrat";
 			if( val > 0.0 ) party = "Republican";
@@ -422,7 +427,7 @@ public class PartisanAsymmetryGate extends Gate {
 				getResultsForLopsidedWins(pane);
 				break;
 			case MEAN_MEDIAN:
-				aggregateLabel.setText("Mean-Median ~ % of votes for 50% of seats / Advantaged Party");
+				aggregateLabel.setText("Mean-Median ~ Median Mean ~ votes, Me / Advantaged Party");
 				detailLabel.setText("Vote-Seat Comparison");
 				getResultsForMeanMedian(pane);
 				break;
