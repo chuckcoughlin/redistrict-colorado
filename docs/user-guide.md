@@ -2,7 +2,7 @@
 ## User Guide
 *FairnessAnalyzer* is designed to answer the question "Which is fairer?" when dealing with competing redistricting plans. The user configures plans and controls their evaluation based on a collection of external datasets which contain
 plan geometries, voter
-affiliation and demographic information. The application computes an array of metrics for the purpose of comparing two or more redistricting plans for fairness. See the [Comparisons](#Comparisons) page to view the final results.
+affiliation and demographic information. The application computes a set of 8 of metrics for the purpose of comparing two or more redistricting plans for fairness. See the [Comparisons](#Comparisons) page to view the final results.
 
  This guide walks through the use and installation of the application.
 
@@ -104,7 +104,7 @@ subtracting the total number of counties. We want this score to be minimized.
 The same metric could be computed using municipal or other boundaries instead of counties if so desired. The limiting factor is the availability of shapefiles that define the boundaries.
 
 ###### Partisan Asymmetry:
-Partisan asymmetry is a measure of the extent to which boundaries favor one party or the other. The application provides 4 different algorithms for this metric.
+Partisan asymmetry is a measure of the extent to which boundaries favor one party or the other. The application provides 5 different algorithms for this metric. Only one of these is used at a time in the composite calculation.
 
 `Declination`
 The declination function is described [here](https://observablehq.com/@sahilchinoy/gerrymandering-the-declination-function). It is a measure of partisan symmetry that does not assume any particular seats-votes proportionality.
@@ -166,10 +166,10 @@ from unfair-to-fair are taken from the setup screen.
 The overall metric calculation assigns a value
 From 0-10 for each of the other metrics depending on how the score falls within the specified range. The composite result is simply the weighted average of the individual scores.  
 
-###### Comparisons <a id="comparisons"></a>
-The results page shows the evaluations for each plan as well as the overall score. The evaluations are presented as bar charts with the bars ordered with the "best" result on top. Depending on the metric a "good" result may be the smallest numbetr
+##### Comparisons <a id="comparisons"></a>
+The results page compares metrics for each plan. Evaluations are presented as bar charts with the bars ordered with the "best" result on top. Depending on the metric a "good" result may be the smallest number.
 
-![Results](/images/plan_comparisons.png)
+![Results](/images/plan_comparison.png)
 ```                  Results    ```
 
 Clicking on any of the comparison boxes will display a detail screen with additional statistics Which
