@@ -2,7 +2,7 @@
 ## User Guide
 *FairnessAnalyzer* is designed to answer the question "Which is fairer?" when dealing with competing redistricting plans. The user configures plans and controls their evaluation based on a collection of external datasets which contain
 plan geometries, voter
-affiliation and demographic information. The application computes a set of 8 of metrics for the purpose of comparing two or more redistricting plans for fairness. See the [Comparisons](#Comparisons) page to view the final results.
+affiliation and demographic information. The application computes a set of 8 metrics for the purpose of comparing two or more redistricting plans for fairness. See the [Comparisons](#Comparisons) page to view the final results.
 
  This guide walks through the use and installation of the application.
 
@@ -168,6 +168,7 @@ From 0-10 for each of the other metrics depending on how the score falls within 
 
 ##### Comparisons <a id="comparisons"></a>
 The results page compares metrics for each plan. Evaluations are presented as bar charts with the bars ordered with the "best" result on top. Depending on the metric a "good" result may be the smallest number.
+The composite score is a weighted average of scaled values of the 8 other values.
 
 ![Results](/images/plan_comparison.png)
 ```                  Results    ```
