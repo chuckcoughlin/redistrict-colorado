@@ -150,7 +150,7 @@ The numerical value of the metric is the number of seats in excess of the "deser
 
 ###### Racial Vote Dilution
 This metric describes the extent, if any, to which voters of different ethnicities are disbursed across districts to avoid concentrations where they have a majority
-or near-majority. We define voting power as the ratio between the estimated votes by an ethnic group in a district and the vote margin. This value is scaled by the overall population to margin ratio. The final metric is the mean absolute deviation over the districts of the log of the result. A value of zero implies a perfectly homogeneous, i.e. diluted, distribution of voters. The metric value is the minimum
+or near-majority. We define voting power as the ratio between the estimated votes by an ethnic group in a district and the vote margin. This value is scaled by the overall population to margin ratio. The final metric is the mean absolute deviation over the districts of the log of the result. A value of zero implies a perfectly homogeneous, i.e. diluted, distribution of voters. The metric value is the maximum
 score across the groups.
 
 ###### Voting Power Imbalance:
@@ -236,5 +236,5 @@ The application consists of three components:
    *jar* file.
   * Database - the application depends on a SQLite database to persist its state. SQLite is natively resident on most systems.
   * Shapefiles - the data files must be downloaded into the local file system. Locations of some publicly available data files are listed [here](https://github.com/chuckcoughlin/redistrict-colorado/tree/master/docs/datasets.md). Shapefiles may be either the zipped configuration holding .shp, .dbf, and .shx files or a single DBase (.dbf) file.
-  * Google Maps - In order to use the map overly feature on the `Districts` panel, each user must have their own key to the Google Maps API. Directions for obtaining
+  * Google Maps - In order to use the map overlay feature on the `District` and `Plan` panels, each user must have their own key to the Google Maps API. Directions for obtaining
   the free key may be obtained [here](https://developers.google.com/maps/documentation/javascript/tutorial#api_key). The key may be entered on the main menu pulldown under the Colorado flag. Once a new key has been entered the application must be restarted.

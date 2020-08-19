@@ -62,7 +62,11 @@ public class RacialVoteDilutionGate extends Gate {
 		Text t2 = new Text("Scale this value by the overall vote population to margin ratio. Take the log of the result.");
 		Text t3 = new Text("Compute the mean absolute deviation (MAD) across the districts. A MAD value near zero implies dilution. Compare ethnic groups.");
 		Text t4 = new Text("Take the minimum value and record the associated ethnic group.");
-		info.getChildren().addAll(t1,t2,t3,t4);
+		Text t5 = new Text( "Use the  ");
+		Text t6 = new Text("maximum");
+		t6.setStyle("-fx-font-weight: bold"); 
+		Text t7 = new Text( " result");
+		info.getChildren().addAll(t1,t2,t3,t4,t5,t6,t7);
 		return info;
 	}
 	public String getScoreAttribute() { return KEY_MAD; };
@@ -93,7 +97,6 @@ public class RacialVoteDilutionGate extends Gate {
 			planAnalyzers.put(plan.getId(), vpa);
 		}
 		Collections.sort(plans,compareByPlanScore); 
-		Collections.reverse(plans);   // Because minimum is best.
 		sortedPlans.clear();
 		sortedPlans.addAll(plans);
 		updateChart();

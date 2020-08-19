@@ -9,7 +9,8 @@ import java.util.logging.Logger;
 /**
  * Voting power analysis across ethnic groups and districts
  * Adapted from Autoredistrict.org
- * See: http://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence 
+ * MAD - mean absolute deviation
+ * 		sum absolute differences from mean. divide by count 
  */
 public class VotingPowerAnalyzer {
 	private final static String CLSS = "VotingPower";
@@ -47,19 +48,26 @@ public class VotingPowerAnalyzer {
 	 */
 	public double getRacialVoteDilution() {
 		dilutions = new HashMap<>();
-    	double dilution = Double.MAX_VALUE;   // MAD for most diluted ethnicity
     	for(Ethnicity ethnicity:Ethnicity.getEthnicities()) {
     		List<VotingPower> powers = emap.get(ethnicity);
-    		double score = Double.MAX_VALUE;
+    		double scores[] = new double[powers.size()];
+    		int index = 0;
     		for(VotingPower vp:powers) {
     			double power = vp.getNormalizedVotePower();
-    			score = Math.abs(Math.log(power));
-				dilutions.put(ethnicity, score);
-    			if( score<dilution ) {
-    				dilution = score;
-    				this.mostDilute = ethnicity;
-    			}
+    			scores[index] = Math.log(power);   // Previously we took the abs 
+				index++;	
     		}
+    		Double value = MeanAbsoluteDeviation.evaluate(scores);
+    		dilutions.put(ethnicity, value);
+    	}
+    	// Compute the minimum among ethnicities
+    	double dilution = Double.MAX_VALUE;
+    	for( Ethnicity ethnicity:dilutions.keySet()) {
+    		Double val = dilutions.get(ethnicity);
+    		if( val<dilution ) {
+				dilution = val;
+				this.mostDilute = ethnicity;
+			}
     	}
     	return dilution;
     }
