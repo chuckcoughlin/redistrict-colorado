@@ -101,7 +101,7 @@ public class MapViewTest4 extends Application implements MapComponentInitialized
 			double south = envelope.getMinY();
 			double west = envelope.getMinX();
 			// Set the bounds to enclose the area of interest
-			mapView.getEngine().executeScript(String.format("initBounds(%8.6f,%8.6f,%8.6f,%8.6f)",north,east,south,west));
+			mapView.executeScript(String.format("initBounds(%8.6f,%8.6f,%8.6f,%8.6f)",north,east,south,west));
 
 			// Add the polygons
 			String nameAttribute = Database.getInstance().getAttributeAliasTable().nameForAlias(model.getId(), StandardAttributes.ID.name());
@@ -130,19 +130,19 @@ public class MapViewTest4 extends Application implements MapComponentInitialized
 
 	// Add a polygon to the map
 	private void addPolygon(String name,Polygon poly) {
-		mapView.getEngine().executeScript("clearCoordinates()");
+		mapView.executeScript("clearCoordinates()");
 		//String format = "MapViewTest4: addPolygon (%f,%f)";
 		for(Coordinate c:poly.getCoordinates()) {
-			mapView.getEngine().executeScript(String.format("addCoordinate(%s,%s)",String.valueOf(c.x),String.valueOf(c.y)));
+			mapView.executeScript(String.format("addCoordinate(%s,%s)",String.valueOf(c.x),String.valueOf(c.y)));
 			//LOGGER.info(String.format(format, c.x,c.y));
 		}
-		mapView.getEngine().executeScript("addPolygon()");
+		mapView.executeScript("addPolygon()");
 	}
 	
 	private void setLabel(String label) {
 		String script = "setLabel(\'"+label+"\')";
 		LOGGER.info(script);
-		mapView.getEngine().executeScript("setLabel(\'"+label+"\')");
+		mapView.executeScript("setLabel(\'"+label+"\')");
 	}
 	public static void main(String[] args) {
 		String arg = args[0];

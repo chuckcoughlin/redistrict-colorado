@@ -51,7 +51,7 @@ public class MapViewTest3 extends Application implements MapComponentInitialized
 		//Set the bounds of the map.
 		//Document doc = mapView.getEngine().getDocument();
 		//mapView.dumpDocument(doc);
-		mapView.getEngine().executeScript(String.format("initBounds(%8.2f,%8.2f,%8.2f,%8.2f)",north,east,south,west));
+		mapView.executeScript(String.format("initBounds(%8.2f,%8.2f,%8.2f,%8.2f)",north,east,south,west));
 		
 	}
 

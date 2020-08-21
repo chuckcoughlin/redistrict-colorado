@@ -70,8 +70,13 @@ public class GoogleMapView extends AnchorPane {
     	this.key = api;
     }
     
-    public WebEngine getEngine() { return this.webengine; }
-    
+    /**
+     * Synchronize execution of Javascript
+     * @param script script to be executed by Google engine
+     */
+    public synchronized void executeScript(String script) {
+    	this.webengine.executeScript(script);
+    }
     /**
      * Start the web-engine and display the first version of the map.
      */

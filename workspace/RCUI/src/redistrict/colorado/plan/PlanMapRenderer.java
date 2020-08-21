@@ -73,7 +73,7 @@ public class PlanMapRenderer implements MapComponentInitializedListener {
 			double south = boundary.getMinY();
 			double west = boundary.getMinX();
 			// Set the bounds to enclose the area of interest
-			overlay.getEngine().executeScript(String.format("initBounds(%8.6f,%8.6f,%8.6f,%8.6f)",north,east,south,west));
+			overlay.executeScript(String.format("initBounds(%8.6f,%8.6f,%8.6f,%8.6f)",north,east,south,west));
 			String nameAttribute = Database.getInstance().getAttributeAliasTable().nameForAlias(model.getBoundary().getId(), StandardAttributes.ID.name());
 			// Add the polygons
 			for(Feature feat:model.getBoundary().getFeatures().getFeatures()) {
@@ -107,10 +107,10 @@ public class PlanMapRenderer implements MapComponentInitializedListener {
 	private void addPolygon(String name,PlanFeature feature,Polygon poly) {
 		if( feature==null ) return;  
 		
-		overlay.getEngine().executeScript("clearCoordinates()");
+		overlay.executeScript("clearCoordinates()");
 		//String format = "PlanMapRenderer: addPolygon (%f,%f)";
 		for(Coordinate c:poly.getCoordinates()) {
-			overlay.getEngine().executeScript(String.format("addCoordinate(%s,%s)",String.valueOf(c.x),String.valueOf(c.y)));
+			overlay.executeScript(String.format("addCoordinate(%s,%s)",String.valueOf(c.x),String.valueOf(c.y)));
 			//LOGGER.info(String.format(format, c.x,c.y));
 		}
 		String color = "#FFFFFF00";  // Transparent
@@ -121,7 +121,7 @@ public class PlanMapRenderer implements MapComponentInitializedListener {
 			color = colorGenerator.getDemographicsColor(model.getMinWhite(),model.getMaxWhite(),feature);
 		}
 		String content = makeContent(feature); 
-		overlay.getEngine().executeScript(String.format("addPolygon('%s','%s','%s')",name,color,content));
+		overlay.executeScript(String.format("addPolygon('%s','%s','%s')",name,color,content));
 	}
 	
 	// Do a linear search for the plan feature by name.

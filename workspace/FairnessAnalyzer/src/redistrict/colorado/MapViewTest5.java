@@ -86,7 +86,7 @@ public class MapViewTest5 extends Application implements MapComponentInitialized
 				double south = boundary.getMinY();
 				double west = boundary.getMinX();
 				// Set the bounds to enclose the area of interest
-				mapView.getEngine().executeScript(String.format("initBounds(%8.6f,%8.6f,%8.6f,%8.6f)",north,east,south,west));
+				mapView.executeScript(String.format("initBounds(%8.6f,%8.6f,%8.6f,%8.6f)",north,east,south,west));
 				String nameAttribute = Database.getInstance().getAttributeAliasTable().nameForAlias(model.getId(), StandardAttributes.ID.name());
 
 				// Add the polygons
@@ -118,17 +118,17 @@ public class MapViewTest5 extends Application implements MapComponentInitialized
 	}
 	// Add a polygon to the map. The name is already single-quoted.
 	private void addPolygon(String name,Polygon poly) {
-		mapView.getEngine().executeScript("clearCoordinates()");
+		mapView.executeScript("clearCoordinates()");
 		//String format = "MapViewTest5: addPolygon (%f,%f)";
 		for(Coordinate c:poly.getCoordinates()) {
-			mapView.getEngine().executeScript(String.format("addCoordinate(%s,%s)",String.valueOf(c.x),String.valueOf(c.y)));
+			mapView.executeScript(String.format("addCoordinate(%s,%s)",String.valueOf(c.x),String.valueOf(c.y)));
 			//LOGGER.info(String.format(format, c.x,c.y));
 		}
 		String color = "#33DD33";
 		String info  = makeContent(name);
 		String script = String.format("addPolygon('%s','%s','%s')",name,color,info);
 		LOGGER.info(script);
-		mapView.getEngine().executeScript(script);
+		mapView.executeScript(script);
 	}
 
 	private String makeContent(String name) {

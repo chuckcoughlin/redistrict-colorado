@@ -67,7 +67,7 @@ public class DistrictMapRenderer  implements MapComponentInitializedListener {
 			double south = envelope.getMinY();
 			double west = envelope.getMinX();
 			// Set the bounds to enclose the area of interest
-			overlay.getEngine().executeScript(String.format("initBounds(%8.6f,%8.6f,%8.6f,%8.6f)",north,east,south,west));
+			overlay.executeScript(String.format("initBounds(%8.6f,%8.6f,%8.6f,%8.6f)",north,east,south,west));
 
 			// Add the polygon
 			String nameAttribute = Database.getInstance().getAttributeAliasTable().nameForAlias(model.getId(), StandardAttributes.ID.name());
@@ -94,16 +94,16 @@ public class DistrictMapRenderer  implements MapComponentInitializedListener {
 	}
 	// Add a polygon to the map
 	private void addPolygon(String name,Polygon poly) {
-		overlay.getEngine().executeScript("clearCoordinates()");
+		overlay.executeScript("clearCoordinates()");
 		//String format = "MapViewTest4: addPolygon (%f,%f)";
 		for(Coordinate c:poly.getCoordinates()) {
-			overlay.getEngine().executeScript(String.format("addCoordinate(%s,%s)",String.valueOf(c.x),String.valueOf(c.y)));
+			overlay.executeScript(String.format("addCoordinate(%s,%s)",String.valueOf(c.x),String.valueOf(c.y)));
 			//LOGGER.info(String.format(format, c.x,c.y));
 		}
-		overlay.getEngine().executeScript("addPolygon()");
+		overlay.executeScript("addPolygon()");
 	}
 	private void setLabel(String label) {
 		String script = "setLabel(\'"+label+"\')";
-		overlay.getEngine().executeScript(script);
+		overlay.executeScript(script);
 	}
 }
