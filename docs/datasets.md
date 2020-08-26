@@ -1,5 +1,5 @@
 ## Datasets
-The list below describes some publicly-available data-sets that are compatible with the tools in this repository. Caution: The links may have changed since this writing.
+The list below describes some publicly-available data-sets that are compatible with the tools in this repository. Caution: Links may have changed since this writing.
 
 * [Harvard dataverse](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/NH5S2I)
  * co_2016.zip - Precinct-level presidential and senatorial election results for 2016. A typical feature field has a name like: *G16PREDCli*, which means:
@@ -23,14 +23,13 @@ The list below describes some publicly-available data-sets that are compatible w
 
 
 * [autoredistrict](ftp://autoredistrict.org/pub/shapefiles_2010_vtd/Colorado/2010/2012/vtd/) - Results of the *autoredistrict* application run for the state of Colorado.
-  * autoredistrict_chuck.dbf - fair plan as a result of my personal run of the *autoredistrict* application.
+  * autobd.zip - results from *autoredistrict*  optimizing only for compactness and population equality.
+  * autosm.zip - fully optimized results from *autoredistrict*.
 
-
-* [TIGER Shapefiles](https://www.census.gov/geographies/mapping-files/time-series/geo/tiger-data.html)- These are the official US Census Bureau data files.
-    * ACS_2018_5YR_BG_08.gdb.zip - demographic data by block group from the Census Bureau American Factfinder community survey. Data are in ESRI GeoDatabase format and
-    thus must be converted before use.
+* [TIGER Shapefiles](https://www.census.gov/geographies/mapping-files/time-series/geo/tiger-data.html)- It appears that official US Census Bureau data files are no longer available as `shapefiles`. They are instead using the proprietary the ESRI GeoDatabase format. (See discussion below).
+    * ACS_2018_5YR_BG_08.gdb.zip - demographic data by block group from the Census Bureau American Factfinder community survey.
 
 
 #### GeoDatabase
-The application does not handle ESRI GeoDatabase files directly. However, these files may be converted to shapefiles using the link below. The cost is <$10 per conversion.
+The application does not handle ESRI GeoDatabase files directly. However, these files may be converted to `shapefiles` using the link below. The cost is <$10 per conversion.
 https://mygeodata.cloud/converter/gdb-to-shp

@@ -1,19 +1,14 @@
 #!/bin/bash
-# Working directory is the project directory (Build).
-# Synchronize the distribution area with the current build products.
-# The link_run_analyzer script has already created a stripped down JVM
-# if the APP area.
+# Create an installation bundle. It is simply a file to be unzipped
+# in the user's home directory. It contains the jlinked-java code, an
+# empty database and directory for storage of shapefiles.
 BUILD=`pwd`
-export APP=${BUILD}/../../app
-mkdir -p ${APP}/bin
-mkdir -p ${APP}/db
-export PATH=$PATH:/usr/local/bin
+export INSTALL=${BUILD}/install
+mkdir -p ${INSTALL}/db
+mkdir -p ${INSTALL}/data
 
-cd ../Configuration
-echo "Installing configuration files, database ..."
-
-
-cd ../Build
+cd $INSTALL
 echo "Synchronizing application jar files ..."
+
 
 echo "Analyzer update is complete."

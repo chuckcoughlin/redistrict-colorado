@@ -1,9 +1,15 @@
-<!-- Common ant routines intended for including in other scripts -->
+<!-- Common ant routines intended for including in other scripts 
+  install.dir is used for executing the application from Eclipse
+  release.dir is used for creating the installation bundle.
+-->
 <project name="ant.common" basedir=".">
 	<property name="archive.dir" value="${basedir}/../Archive" />
 	<property name="bin.dir" value="${basedir}/../../bin" />
 	<property name="build.version" value="1.0" />
+	<property name="bundle.name" value="DistrictPlanAnalyzer" />
+	<property name="configuration.dir" value="${basedir}/../Configuration" />
 	<property name="install.dir" location="${basedir}/../../app" />
+	<property name="release.dir" location="${basedir}/../../release/DistrictPlanAnalyzer" />
 	<property name="lib.dir" value="${basedir}/lib" />
 	<property name="arch.mod.dir" value="${basedir}/../Archive/lib" />
 	<property name="fx.sdk.dir" value="${basedir}/../Archive/lib/javafx-sdk-13.0.1/lib" />

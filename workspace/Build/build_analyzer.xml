@@ -136,7 +136,7 @@
 		<echo message="Compile the Redistrict Colorado analyzer" />
 		<delete dir="${temp.dir}" />
 		<mkdir dir="${temp.dir}"/>
-		<javac	srcdir="../FairnessAnalyzer/src"
+		<javac	srcdir="../DistrictPlanAnalyzer/src"
 				destdir="${temp.dir}"
 				compiler="javac10+"
 				source="13" target="13"
@@ -145,14 +145,14 @@
 				includeantruntime="false"
 		/>
 		<copy todir="${temp.dir}">
-			<fileset dir="../FairnessAnalyzer/src">
+			<fileset dir="../DistrictPlanAnalyzer/src">
 				<include name="**/*.css"/>
 				<include name="**/*.png"/>
 			</fileset>
 		</copy>
 		<jar destfile="${lib.dir}/${rc-analyzer-jar}" includes="**/*.class,**/*.png,**/*.css" basedir="${temp.dir}">
 			<manifest>
-				<attribute name="Main-Class" value="redistrict.colorado.MapAnalyzer"/>
+				<attribute name="Main-Class" value="redistrict.colorado.DistrictPlanAnalyzer"/>
 			</manifest>
 		</jar>
 	</target>
@@ -192,5 +192,37 @@
 			</copy>
 		<chmod dir="${install.dir}/bin" perm="ugo+rx"
 			includes="*.sh"/>
-	</target>		
+	</target>
+	<!-- Create an execution area, then zip into the release bundle -->
+	<target name="release" >
+		<echo message="Creating execution area in ${release.dir}" />
+		<delete dir="${release.dir}"/>
+		<mkdir dir="${release.dir}" />
+		<copy todir="${release.dir}">
+			<fileset dir="${configuration.dir}/bin">
+				<include name="*_launcher.sh"/>
+			</fileset>
+		</copy>
+		<mkdir dir="${release.dir}/lib" />
+		<copy todir="${release.dir}/lib">
+			<fileset dir="${lib.dir}">
+				<include name="*.jar"/>
+			</fileset>
+			<fileset dir="${arch.mod.dir}">
+				<include name="*.jar"/>
+			</fileset>
+		</copy>
+		<echo message="Copying javaFX mod files into ${release.dir}/mod" />
+		<mkdir dir="${release.dir}/mod" />
+		<copy todir="${release.dir}/mod">
+			<fileset dir="${fx.jmod.dir}">
+				<include name="*.jmod"/>
+			</fileset>
+		</copy>
+		<chmod dir="${release.dir}" perm="ugo+rx" includes="*.sh"/>
+		<!-- now zip the result -->
+		<zip destfile="${release.dir}/../${bundle.name}.zip"
+			 basedir="${release.dir}"
+		/>
+	</target>	
 </project>

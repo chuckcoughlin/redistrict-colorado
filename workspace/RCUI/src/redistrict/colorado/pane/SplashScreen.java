@@ -18,7 +18,7 @@ import redistrict.colorado.ui.ViewMode;
  */
 public class SplashScreen extends BasicRightSideNode {
 	private final static String BACKDROP = "images/ColoradoCapitol.png";
-	private Label headerLabel = new Label("Redistrict-Colorado Analyzer");
+	private Label headerLabel = new Label("District Plan Analyzer");
 	private static final GuiUtil guiu = new GuiUtil();
 	
 	public SplashScreen() {

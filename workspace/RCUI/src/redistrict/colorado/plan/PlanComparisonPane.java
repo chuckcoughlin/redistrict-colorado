@@ -1,5 +1,5 @@
 /**  
- * Copyright (C) 2019 Charles Coughlin
+ * Copyright (C) 2019-2020 Charles Coughlin
  * 
  * This program is free software; you may redistribute it and/or
  * modify it under the terms of the GNU General Public License.
@@ -37,7 +37,7 @@ public class PlanComparisonPane extends BasicRightSideNode {
 	private static final double COL_PERCENT_WIDTH = 20.;
 	private static final double ROW_PERCENT_HEIGHT = 30.;
 	private static final double COLUMN_PAD = 40.;
-	private Label headerLabel = new Label("Fairness Comparison");
+	private Label headerLabel = new Label("District Plan Comparison");
 	private List<PlanModel> models;
 	private final GridPane grid;
 
