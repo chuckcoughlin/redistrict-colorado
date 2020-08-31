@@ -1,0 +1,2 @@
+#!/bin/bash
+bash -i ~/PlanAnalyzer/app/run_analyzer.sh

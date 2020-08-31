@@ -1,8 +1,5 @@
 #!/bin/bash
-# Link JavaFX into a custom runtime, then execute.
-# The custom JRE makes the application portable.
-# (also I couldn't get this to work any other way)
-# The current directory is Build
+# This is the runner for executing from within Eclipse
 #
 # NOTE: To use ScenicView, start both the tool and application outside
 #        of Eclipse. Scripts are in ~/bin. 

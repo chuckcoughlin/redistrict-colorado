@@ -1,6 +1,6 @@
 ## Toolchain
 
-This document describes system setup and tools involved in building "DistrictPlanAnalyzer" from source. It also lists and credits its open source dependencies. This application is built under a GPL2 license.
+This document describes system setup and tools involved in building "PlanAnalyzer" from source. It also lists and credits its open source dependencies. This application is built under a GPL2 license.
 
 ***
 ### Table of Contents <a id="table-of-contents"></a>
@@ -45,7 +45,7 @@ The open source jar files listed in the next section have all been manually upda
   ```
 ***
 ### Software <a id="software"/>
-The purpose of this section is to identify sources and give attribution to the various projects upon which this application is based. *DistrictPlanAnalyzer* is published under a GPL2 open source license.
+The purpose of this section is to identify sources and give attribution to the various projects upon which this application is based. *PlanAnalyzer* is published under a GPL2 open source license.
 
 #### Metrics  <a id="metrics"></a>
 

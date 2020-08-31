@@ -136,7 +136,7 @@
 		<echo message="Compile the Redistrict Colorado analyzer" />
 		<delete dir="${temp.dir}" />
 		<mkdir dir="${temp.dir}"/>
-		<javac	srcdir="../DistrictPlanAnalyzer/src"
+		<javac	srcdir="../PlanAnalyzer/src"
 				destdir="${temp.dir}"
 				compiler="javac10+"
 				source="13" target="13"
@@ -145,19 +145,19 @@
 				includeantruntime="false"
 		/>
 		<copy todir="${temp.dir}">
-			<fileset dir="../DistrictPlanAnalyzer/src">
+			<fileset dir="../PlanAnalyzer/src">
 				<include name="**/*.css"/>
 				<include name="**/*.png"/>
 			</fileset>
 		</copy>
 		<jar destfile="${lib.dir}/${rc-analyzer-jar}" includes="**/*.class,**/*.png,**/*.css" basedir="${temp.dir}">
 			<manifest>
-				<attribute name="Main-Class" value="redistrict.colorado.DistrictPlanAnalyzer"/>
+				<attribute name="Main-Class" value="redistrict.colorado.PlanAnalyzer"/>
 			</manifest>
 		</jar>
 	</target>
 	
-	<!-- Copy the new jar files and scripts into the installation area. -->
+	<!-- Prepare an installaton area for running from within Eclipse -->
 	<target name="deploy" >
 		<echo message="Copying jar files into ${install.dir}/lib" />
 		<mkdir dir="${install.dir}/lib" />
@@ -196,15 +196,19 @@
 	<!-- Create an execution area, then zip into the release bundle -->
 	<target name="release" >
 		<echo message="Creating execution area in ${release.dir}" />
-		<delete dir="${release.dir}"/>
-		<mkdir dir="${release.dir}" />
-		<copy todir="${release.dir}">
+		<delete dir="${release.dir}/"/>
+		<mkdir dir="${release.dir}/app" />
+		<copy todir="${release.dir}/app">
 			<fileset dir="${configuration.dir}/bin">
-				<include name="*_launcher.sh"/>
+				<include name="*.sh"/>
+				<include name="*.app/**"/>
+				<exclude name="mk*"/>
 			</fileset>
 		</copy>
-		<mkdir dir="${release.dir}/lib" />
-		<copy todir="${release.dir}/lib">
+		<chmod dir="${release.dir}/app" perm="ugo+rx"
+			includes="*.sh"/>
+		<mkdir dir="${release.dir}/app/lib" />
+		<copy todir="${release.dir}/app/lib">
 			<fileset dir="${lib.dir}">
 				<include name="*.jar"/>
 			</fileset>
@@ -213,16 +217,23 @@
 			</fileset>
 		</copy>
 		<echo message="Copying javaFX mod files into ${release.dir}/mod" />
-		<mkdir dir="${release.dir}/mod" />
-		<copy todir="${release.dir}/mod">
+		<mkdir dir="${release.dir}/app/mod" />
+		<copy todir="${release.dir}/app/mod">
 			<fileset dir="${fx.jmod.dir}">
 				<include name="*.jmod"/>
 			</fileset>
 		</copy>
-		<chmod dir="${release.dir}" perm="ugo+rx" includes="*.sh"/>
-		<!-- now zip the result -->
-		<zip destfile="${release.dir}/../${bundle.name}.zip"
-			 basedir="${release.dir}"
-		/>
+		<mkdir dir="${release.dir}/app/sql" />
+		<copy todir="${release.dir}/app/sql">
+			<fileset dir="${configuration.dir}/sql">
+				<include name="*.sql"/>
+			</fileset>
+		</copy>
+		<!-- Run a shell script to fix permissions, tar and compress the result -->
+		<exec executable="/bin/bash" >
+			<arg value="${basedir}/release_bundle.sh"/>
+			<arg value="${release.dir}"/>
+			<arg value="${bundle.name}"/>
+		</exec>
 	</target>	
 </project>

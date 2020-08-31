@@ -1,0 +1,232 @@
+/* Stylesheet for MapAnalyzer */
+/* ======== Variables ======= */
+*
+{
+	-ma-dark-blue:        #2E40CD;
+	-ma-light-background: #FAFAFA;
+	-ma-button-background: #DADADA;
+}
+/* ======== Core Classes ======= */
+.root {
+  -fx-background-color:-ma-light-background;
+  -fx-font-family: "Arial";
+  -fx-padding: 2px;
+}
+.button{
+  -fx-background-color: -ma-light-background;
+}
+.dialog-pane .button {
+ -fx-font-family: 'Open Sans', sans-serif; 
+-fx-font-size: 14;
+-fx-text-fill: #55595c;
+-fx-background-color: #d0d0d0;
+}
+.menu {
+	-fx-font-weight: bold;
+}
+.table-cell {
+     -fx-border-color: lightgrey ;
+     -fx-border-width: 1;
+}
+.table-view .column-header {
+    -fx-border-color: darkgray ;
+    -fx-box-border: lightgrey;
+}
+/* ======== Custom Classes ======= */
+.bordered-grid {
+	-fx-padding: 10; 
+	-fx-border-style: solid inside;
+	-fx-border-width: 1;
+	-fx-border-insets: 3; 
+	-fx-border-radius: 3;
+}
+.composite-gate {
+    -fx-alignment: center-left;
+}
+.graph-box {
+	-fx-background-color:-ma-light-background; 
+	-fx-alignment: center;
+	-fx-border-color: black;
+    -fx-border-width: 1 1 1 1;
+    -fx-border-radius: 0 0 3 3;
+}
+.graph-rectangle {
+    -fx-fill: -ma-light-background;
+    -fx-stroke: black;
+    -fx-stroke-width: 1;
+    -fx-stroke-line-cap: round;
+}
+.graph-header {
+	-fx-background-color:-ma-light-background; 
+	-fx-font-size: 10pt;
+	-fx-font-weight: bold;
+	-fx-border-color: black;
+    -fx-border-width: 1 1 0 1;
+    -fx-border-radius: 3 3 0 0;
+	-fx-text-alignment: center;
+	-fx-text-overrun: ellipsis;
+}
+
+.layer-edit-diagram {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+.legend-score-label {
+	-fx-background-color: transparent;
+	-fx-border-color: transparent;
+	-fx-text-fill: black;
+	-fx-font-size: 12pt;
+	-fx-font-weight: bold;
+	-fx-text-alignment: right;
+	-fx-text-overrun: ellipsis;
+	-fx-pref-height: 20;
+	-fx-max-height:20;
+}
+.list-cell-name {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+.list-cell-field {
+    -fx-font-size: 12px;
+    -fx-font-weight: normal;
+}
+.list-cell-field-small {
+    -fx-font-size: 10px;
+    -fx-font-weight: normal;
+} 
+.list-cell-button {
+    -fx-pref-height: 40;
+    -fx-pref-width: 40;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-background-radius: 0;
+    -fx-background-color: transparent;
+}
+.list-cell-icon {
+    -fx-pref-height: 48;
+    -fx-pref-width: 48;
+}
+.list-cell-icon {
+    -fx-background-color: rgba(0, 0, 0, 0)
+}
+.list-header-label {
+	-fx-background-color:-ma-light-background;
+	-fx-font-size: 16pt;
+	-fx-font-weight: bold;
+	-fx-alignment: center;
+	-fx-text-alignment: center;
+	-fx-text-overrun: ellipsis;
+	-fx-pref-height: 40;
+	-fx-max-height:40;
+}
+.small-combo {
+	-fx-background-color: -ma-light-background;
+	-fx-border-color: black;
+	-fx-text-fill: black;
+	-fx-font-size: 10pt;
+	-fx-font-weight: normal;
+	-fx-text-alignment: center;
+	-fx-text-overrun: ellipsis;
+	-fx-pref-height: 15;
+	-fx-max-height:15;
+}
+.small-label {
+	-fx-background-color: transparent;
+	-fx-border-color: transparent;
+	-fx-text-fill: black;
+	-fx-font-size: 8pt;
+	-fx-font-weight: normal;
+	-fx-text-alignment: center;
+	-fx-text-overrun: ellipsis;
+	-fx-pref-height: 15;
+	-fx-max-height:15;
+}
+.splash-label {
+	-fx-background-color: transparent;
+	-fx-border-color: transparent;
+	-fx-text-fill: white;
+	-fx-font-size: 16pt;
+	-fx-font-weight: bold;
+	-fx-alignment: center;
+	-fx-text-alignment: center;
+	-fx-text-overrun: ellipsis;
+	-fx-pref-height: 48;
+	-fx-max-height:48;
+}
+.splash-screen {
+	-fx-min-height: 200;
+	-fx-pref-height: 800;
+	-fx-max-height:2000;
+	-fx-min-width: 400;
+	-fx-pref-width: 800;
+	-fx-max-width:4000;
+}
+.very-small-label {
+	-fx-background-color: transparent;
+	-fx-border-color: transparent;
+	-fx-text-fill: black;
+	-fx-font-size: 7pt;
+	-fx-font-weight: normal;
+	-fx-text-overrun: ellipsis;
+	-fx-pref-height: 12;
+	-fx-max-height:12;
+}
+/* ======== By Component ID ======= */
+#ButtonAdd {
+	-fx-background-color:-ma-light-background;
+	-fx-border-radius: 3;
+}
+#ButtonAnalyze, #ButtonSetup {
+	-fx-background-color: -ma-dark-blue;
+	-fx-font-size: 10pt;
+	-fx-text-fill: white;
+	-fx-font-weight: bold;
+	-fx-alignment: center;
+	-fx-text-alignment: center;
+	-fx-border-radius: 4;
+	-fx-pref-height: 28;
+	-fx-max-height:28;
+}
+#BorderedCell {
+	-fx-border-color: black; 
+	-fx-border-style: solid inside;
+	-fx-border-width: 1;
+}
+#ButtonDelete {
+	 -fx-border-radius: 3;
+}
+#ButtonDown {
+	 -fx-background-color:-ma-light-background;
+}
+#ButtonInfo {
+	-fx-background-color: transparent;
+}
+#ButtonMetrics, #ButtonCancel {
+	-fx-background-color:-ma-button-background;
+}
+#ButtonSave {
+	-fx-background-color: royalblue;
+	-fx-font-size: 10pt;
+	-fx-text-fill: white;
+	-fx-font-weight: bold;
+	-fx-alignment: center;
+	-fx-text-alignment: center;
+	-fx-border-radius: 4;
+	-fx-pref-height: 28;
+	-fx-max-height:28;
+}
+
+#ButtonShapefile {
+	-fx-background-color: lightslategrey;
+	-fx-font-size: 9pt;
+	-fx-text-fill: white;
+	-fx-font-weight: bold;
+	-fx-alignment: center;
+	-fx-text-alignment: center;
+	-fx-border-radius: 4;
+	-fx-pref-height: 24;
+	-fx-max-height:24;
+}
+#LabelScore {
+	-fx-font-size: 10pt;
+}

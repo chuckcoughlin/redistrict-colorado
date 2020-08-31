@@ -1,6 +1,6 @@
 ## Redistrict Colorado
 ## User Guide
-*DIatrictPlanAnalyzer* is designed to answer the question "Which is fairer?" when dealing with competing redistricting plans. The user configures plans and controls their evaluation based on a collection of external datasets which contain
+*PlanAnalyzer* is designed to answer the question "Which is fairer?" when dealing with competing redistricting plans. The user configures plans and controls their evaluation based on a collection of external datasets which contain
 the plan geometries plus voter
 affiliation and demographic information. The application computes a set of 8 metrics for the purpose of evaluating two or more redistricting plans for fairness. See the [Comparisons](#Comparisons) page to view examples of final results.
 
@@ -22,7 +22,7 @@ This guide walks through the applications's user interface and defines the detai
 
 ### Overview <a id="overview"></a>
 
-![SplitPane](/images/splash_screen.png)
+![SplitPane](../images/splash_screen.png)
 ```                  Splash Screen     ```
 
 The application's main interface is a split pane with
@@ -31,7 +31,7 @@ actions in the left side controlling what is displayed on the right. A *View* me
  * Datasets - a dataset holds information necessary for the construction and evaluation of a plan. Datasets are not part of the application as distributed, but are loaded in from files downloaded independently. Datasets correspond to a "shapefile" and contain geographic and other information.
  * Districts - a voting district is one of the regions of a dataset. The purpose of the *district* screen is to view boundary details of a dataset.
 
-![Menu](/images/view_menu.png)
+![Menu](../images/view_menu.png)
 ```                  View Menu     ```
 
 ### Plans <a id="plans"></a>
@@ -41,7 +41,7 @@ predominant affiliation within each district. The legend shows the numerical ran
 associated with the color range. Other colorizing options include color coding by
 racial makeup of the district, or no colorization at all.
 
-![MapOverlay](/images/plan_map.png)
+![MapOverlay](../images/plan_map.png)
 ```                  Plan Overlay Onto Google Maps     ```
 
 A 'click' within a
@@ -54,7 +54,7 @@ the application computes aggregated values. This is a compute-intensive
 process and may take as long as a minute or two. Once the
 calculations have been made, results are cached for speed in subsequent accesses.
 
-![Plan Properties](/images/plan_properties.png)
+![Plan Properties](../images/plan_properties.png)
 ```                  Plan Properties     ```
 
 The next image shows the configuration screen for a plan.
@@ -66,7 +66,7 @@ boundaries for that plan. The color selection refers to the
 bar color that will be used to identify this plan on the
 plan comparison page.
 
-![Plan Definition](/images/plan_definition.png)
+![Plan Definition](../images/plan_definition.png)
 ```                  Plan Definition     ```
 
 #### Calculations <a id="calculations"></a>
@@ -76,7 +76,7 @@ comparison screen by selection of the appropriate blue "information" icon.
 ###### Setup <a id="setup"></a>
 Before Comparisons can be made, the criteria for making that comparison must be configured. The datasets used to evaluate demographics and affiliations are set on the `Setup` screen shown below.
 
-![Setup](/images/metric_setup.png)
+![Setup](../images/metric_setup.png)
 ```                  Comparison Setup    ```
 
 Additionally, parameters are defined for each of the separate metrics (with the exception of the `Composite`). These include a weighting and scaling range. The weighting defines the relative importance of the particular metric. The range defines the best and worst possible numeric values for the metric. This allows the values to be reasonably scaled with respect to each other. The "Info" button on the weightings table displays a screen for suggestions of reasonable limits for each metric.
@@ -208,7 +208,7 @@ in a new session.
 
 ##### Standard Attribute Aliases <a id="aliases"></a>
 Within a shapefile, a feature corresponds to a geographical area and is represented by a polygon in latitude/longitude units. Features have an arbitrary set of attributes depending on the purpose of the file. There is no naming standard (that I am aware of) for these attributes. In order to correlate features from different dataset we have adopted a set of attributes aliases which are recognized by different elements of the application and which must be assigned by the user of
- *DistrictPlanAnalyzer*. These are:
+ *PlanAnalyzer*. These are:
   * ID - a unique identifier of the feature. This is the value that appears on the tree-view navigation panel in "District" scope.
   * BLACK - African-American population.
   * DEMOCRAT - votes cast for Democratic candidates.
@@ -231,5 +231,5 @@ Within a shapefile, a feature corresponds to a geographical area and is represen
 The *districts* section shows details of districts within any "boundary" dataset. The details are displayed simply by clicking on the district within the tree layout.
 The figure below shows the resulting map superimposed over a Google Map. The Google Map has
 controls for pan, zoom and map type. This allows for detailed inspection of the plan boundaries.
-![DistrictOverlay](/images/district_map.png)
+![DistrictOverlay](../images/district_map.png)
 ```                  District Overlay Onto Google Maps     ```

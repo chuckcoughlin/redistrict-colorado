@@ -25,3 +25,8 @@ Feature additions.
  	* DBase (.dbf) files may be used directly for input.
 	* Created plans from AutoRedistroct.org results
  * Plan Maps - added combo box in the header to select colorizing option
+
+#### 1.4 Sept 10, 2020
+Feature additions.
+ * Installation documentation
+ * Install bundle

@@ -1,5 +1,5 @@
 ## Redistrict Colorado
-"DistrictPlanAnalyzer" compares redistricting plans for fairness. It was specifically designed to analyze competing plans for redistricting in Colorado after the 2020 census, but is, in fact, generally applicable in any state.
+"PlanAnalyzer" compares redistricting plans for fairness. It was specifically designed to analyze competing plans for redistricting in Colorado after the 2020 census, but is, in fact, generally applicable in any state.
 
 The tool is a desktop application that takes "Shapefile" maps of district boundaries and combines them with population and voter affiliation statistics to generate an array of metrics. The ultimate goal is to directly compare multiple redistricting plans using a single-valued metric.
 
