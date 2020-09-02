@@ -5,9 +5,13 @@
  */
 package redistrict.colorado.core;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
@@ -60,7 +64,20 @@ public class LoggerUtility {
 	        if( h instanceof FileHandler ) root.removeHandler(h);
 	    }
 
-		FileHandler fh;  
+		FileHandler fh; 
+		
+		// Delete then create the log directory
+		try {
+			deleteDirectory(PathConstants.LOG_DIR);
+	        String dirPath = PathConstants.LOG_DIR.toString();
+	        File file = new File(dirPath);
+	        file.mkdir();
+	    }
+	    catch(IOException ex)
+	    {
+	        ex.printStackTrace();
+	    }
+		
 		
 	    try {  
 	        // Configure the logger with handler and formatter 
@@ -69,7 +86,6 @@ public class LoggerUtility {
 	        fh.setLevel(Level.INFO); // Display info and worse in the log file
 	        root.addHandler(fh);
 	        fh.setFormatter(new RCFormatter());
-
 	    } 
 	    catch (SecurityException e) {  
 	        e.printStackTrace();  
@@ -92,6 +108,18 @@ public class LoggerUtility {
 	        if( h instanceof FileHandler ) root.removeHandler(h);
 	    }  
 	}
+	// Use for the log directory. It deletes children recursively
+	private void deleteDirectory(Path path) throws IOException {
+		if (Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) {
+			try (DirectoryStream<Path> entries = Files.newDirectoryStream(path)) {
+				for (Path entry : entries) {
+					deleteDirectory(entry);
+				}
+			}
+		}
+		Files.delete(path);
+	}
+	
 	public final class RCFormatter extends Formatter {
 		private static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss.SSS ";
 		private final String LINE_SEPARATOR = System.getProperty("line.separator");

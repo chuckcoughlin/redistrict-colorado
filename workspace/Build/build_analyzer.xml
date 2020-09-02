@@ -201,6 +201,7 @@
 		<copy todir="${release.dir}/app">
 			<fileset dir="${configuration.dir}/bin">
 				<include name="*.sh"/>
+				<include name="*.bat"/>
 				<include name="*.app/**"/>
 				<exclude name="mk*"/>
 			</fileset>
