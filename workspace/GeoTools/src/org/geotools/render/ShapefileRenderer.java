@@ -72,7 +72,7 @@ public class ShapefileRenderer {
      * @param filter containing pan or zoom commands.
      */
     private void paint(GraphicsContext graphics,Envelope mapExtent,Rectangle paintArea, Style style,FeatureFilter filter ) {
-    	//LOGGER.info(String.format("%s.paint: layer %s",CLSS,layer.getTitle()));
+    	LOGGER.info(String.format("%s.paint: layer %s",CLSS,layer.getTitle()));
     	FeatureCollection collection = layer.getFeatures();
     	Envelope enclosure = collection.getEnvelope();
     	graphics.save();
@@ -84,7 +84,7 @@ public class ShapefileRenderer {
     	double scalex = RendererUtilities.calculateXScale(mapExtent, paintArea);
     	double scaley = RendererUtilities.calculateYScale(mapExtent, paintArea);
     	graphics.scale(scalex, scaley);
-    	//LOGGER.info(String.format("%s.paint: scale %2.1fx, %2.1fy",CLSS,scalex,scaley));
+    	LOGGER.info(String.format("%s.paint: scale %2.1fx, %2.1fy",CLSS,scalex,scaley));
     	//graphics.setFill(Color.RED);
     	//graphics.fillOval(4.0,1.1,.3,.3);    // south east
     	
@@ -94,8 +94,8 @@ public class ShapefileRenderer {
     	painter.setOffsetX(minx);
     	painter.setOffsetY(maxy);
     	
-    	//LOGGER.info(String.format("%s.paint: translate (%2.1f,%2.1f) (%2.1f, %2.1f)",CLSS,
-    	//		enclosure.getMinX(),enclosure.getMinY(),enclosure.getMaxX(),enclosure.getMaxY()));
+    	LOGGER.info(String.format("%s.paint: translate (%2.1f,%2.1f) (%2.1f, %2.1f)",CLSS,
+    			enclosure.getMinX(),enclosure.getMinY(),enclosure.getMaxX(),enclosure.getMaxY()));
     	
     	// We've already transformed the graphics context
     	// Now draw features in the layer individually

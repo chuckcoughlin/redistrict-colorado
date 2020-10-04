@@ -122,7 +122,7 @@ public class Shapefile  {
     /**
      * Initializer: Read the open stream and populate the shapefile. This
      * version of the method reads the index file to determine which
-     * records are of interest.
+     * records are of interest. (TODO)
      * @param in InputStream ready for reading
      * @exception IOException If the file can't be opened.
      */
@@ -186,14 +186,12 @@ public class Shapefile  {
     /**
      * Get the number of errors found after a read.
      */
-     public int getErrorCount() {return errorCount;}
-     /**
-      * Get the array of geometries
-      */
-      public GeometryCollection getGeometryCollection() {return geometryCollection;}
+    public int getErrorCount() {return errorCount;}
+    /**
+     * Get the array of geometries
+     */
+    public GeometryCollection getGeometryCollection() {return geometryCollection;}
 
-   
-    
     /**
      * Returns a string describing the shape type.
      * @param index An int coresponding to the shape type to be described

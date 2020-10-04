@@ -26,7 +26,8 @@ Feature additions.
 	* Created plans from AutoRedistroct.org results
  * Plan Maps - added combo box in the header to select colorizing option
 
-#### 1.4 Sept 10, 2020
+#### 1.4 Sept 25, 2020
 Feature additions.
+ * Handle shapefiles with other than straight lat-lon projections.
  * Installation documentation
  * Install bundle

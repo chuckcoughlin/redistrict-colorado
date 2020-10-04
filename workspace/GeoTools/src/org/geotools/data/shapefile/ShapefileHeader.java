@@ -23,6 +23,7 @@ import org.openjump.io.EndianType;
 public class ShapefileHeader{
 	private static final String CLSS = "ShapefileHeader";
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
+	private static final boolean DEBUG = true;
     private int fileCode = -1;
     public int fileLength = -1;
     private int version = -1;
@@ -44,22 +45,25 @@ public class ShapefileHeader{
             inputStream.readInt();
         }
         fileLength = inputStream.readInt();  // Note: bytes = length*2
-        //LOGGER.info(String.format("%s.load: - length (%d)",CLSS,fileLength));
+        if( DEBUG ) LOGGER.info(String.format("%s.load: - length (%d)",CLSS,fileLength));
         inputStream.setType(EndianType.LITTLE);
         version=inputStream.readInt();
-        //LOGGER.info(String.format("%s.load: - version (%d)",CLSS,version));
         shapeType=inputStream.readInt();
-        //LOGGER.info(String.format("%s.load: - shapetype (%d)",CLSS,shapeType));
+        if( DEBUG ) LOGGER.info(String.format("%s.load: - version (%d),shapetype (%d)",CLSS,version,shapeType));
        
         // Minimum bounding rectangle - minx, miny, maxx, maxy
-        for(int i=0 ; i<4 ; i++){
-            inputStream.readDouble();
-        }
+        double minx = inputStream.readDouble();
+        double miny = inputStream.readDouble();
+        double maxx = inputStream.readDouble();
+        double maxy = inputStream.readDouble();
+        if( DEBUG ) LOGGER.info(String.format("%s.load: - bounds: %3.2f,%3.2f,%3.2f,%3.2f",CLSS,minx,miny,maxx,maxy));
+        
         // Zmin, Zmax, Mmin, Mmax
-        inputStream.readDouble();
-        inputStream.readDouble();
-        inputStream.readDouble();
-        inputStream.readDouble();
+        double zmin = inputStream.readDouble();
+        double zmax = inputStream.readDouble();
+        double mmin = inputStream.readDouble();
+        double mmax = inputStream.readDouble();
+        //if( DEBUG ) LOGGER.info(String.format("%s.load: - bounds: %3.2f,%3.2f,%3.2f,%3.2f",CLSS,zmin,zmax,mmin,mmax));
     }
     
     public void setFileLength(int fileLength){

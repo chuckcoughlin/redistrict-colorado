@@ -21,9 +21,8 @@ The following steps apply to a clean initial installation. For application updat
 
  1. Create a folder named `PlanAnalyzer` in your home directory. When complete this will contain all files needed to run the application.
  2. Navigate to the installation bundle located in the repository [here](/release/PlanAnalyzer.tgz), then click on the download link.
- 3. The downloaded file is *PlanAnalyzer.tgz*. Unbundle it and move the resulting `app` folder into your `PlanAnalyzer` directory. Inside that `app` folder is a sub-folder named `db`. Move it into the `PlanAnalyzer` directory. You can remove *PlanAnalyzer.tgz*.
- 4. The application requires Java 13 or newer. Java is downloadable from [Oracle Java](https://www.oracle.com/java/technologies/javase-downloads.html) or [Open JDK](https://adoptopenjdk.net/releases.html?variant=openjdk14&jvmVariant=hotspot)
- The second alternative avoids having to make a (free) Oracle account and allows download of the smaller JRE. Make sure to download the version appropriate for your platform.
+ 3. The downloaded file is *PlanAnalyzer.tgz*. Unbundle it and move the resulting `app` folder into the `PlanAnalyzer` folder created earlier. Inside that `app` folder is a sub-folder named `db`. Move it up a level to be under `PlanAnalyzer`. You can now delete *PlanAnalyzer.tgz*.
+ 4. The application requires Java 13 or newer. Java is downloadable from [Oracle Java](https://www.oracle.com/java/technologies/javase-downloads.html). Make sure to download the version appropriate for your platform.
  5. Download any `shapefiles` that might be needed for the analysis. Store them in a new `data` subdirectory of `PlanAnalyzer`. At a minimum you will need a file that defines the district boundaries for any plan to be compared, a file that contains state-wide voter affiliations, and a file that contains population counts. See [Datasets](https://github.com/chuckcoughlin/redistrict-colorado/tree/master/docs/datasets.md) for suggestions on where these files might be obtained.
  6. Start the application and configure an analysis. In general, the following elements must be defined:
      * Datasets: On the `Dataset` panel, create a new dataset for each `shapefile`. Use the edit button in the dataset row to display a panel that can be used for its definition. Once the file path to the external file is defined, a "Save" will cause it to be read. You can then see the attributes contained in the file. Be sure to define aliases for the attributes of interest. "Save" again.
@@ -33,17 +32,18 @@ The following steps apply to a clean initial installation. For application updat
      * Results: Select the "Analyze" button to view the results.  
 
  Refer to the [User Guide](http://github.com/chuckcoughlin/redistrict-colorado/tree/master/docs/user-guide.md) for further details.
- 7. In order to use the map overlay features on the `District` and `Plan` panels of the application, each installation must have their own key to the Google Maps API. Directions for obtaining
- the free key are [here](https://developers.google.com/maps/documentation/javascript/tutorial#api_key). Once the application is running, the key may be entered on the main menu pulldown under the Colorado flag. Once a new key has been entered the application must be restarted for it to be recognized.
+ 7. In order to use map features on the `District` and `Plan` panels, the application must be configured with a Google Maps API key. Each installation must have their own key. Directions for obtaining
+ the free key may be found [here](https://developers.google.com/maps/documentation/javascript/tutorial#api_key). With the application running, the key may be entered on the main menu pulldown under the Colorado flag. Once a key has been entered the first time, the application must be restarted for it to be recognized.
 
 ### Mac OSX <a id="Appendix"></a>
 ```
+1) Your home directory can be located in the main menu of the Finder under Go->Home.
 3) Double-clicking the .tgz file will uncompress and unpack it.
-6) In the app directory, the file named PlanAnalyzer.app may be double-clicked to execute the application. This file may be moved to the desktop or Applications directory if desired.
+6) In the `app` folder, the file named PlanAnalyzer.app may be double-clicked to execute the application. This file may be moved to the desktop or Applications folder if desired.
 ```
 
 ### Linux <a id="linux"></a>
-The following are executed from a `bash` terminal session.
+The following may be executed from a `bash` terminal session.
   ```
   1) mkdir ~/PlanAnalyzer
   2) tar -xzf PlanAnalyzer.tgz

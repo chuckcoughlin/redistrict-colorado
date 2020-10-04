@@ -7,17 +7,12 @@
 package redistrict.colorado.district;
 import java.util.logging.Logger;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Label;
+import redistrict.colorado.bind.EventBindingHub;
 import redistrict.colorado.core.DatasetModel;
 import redistrict.colorado.db.Database;
 import redistrict.colorado.gmaps.GoogleMapView;
 import redistrict.colorado.pane.BasicRightSideNode;
-import redistrict.colorado.pane.NavigationPane;
 import redistrict.colorado.pref.PreferenceKeys;
 import redistrict.colorado.ui.DisplayOption;
 import redistrict.colorado.ui.UIConstants;
@@ -47,6 +42,10 @@ import redistrict.colorado.ui.ViewMode;
 			setRightAnchor(headerLabel,UIConstants.LIST_PANEL_RIGHT_MARGIN);
 			
 			String key = Database.getInstance().getPreferencesTable().getParameter(PreferenceKeys.GOOGLE_API_KEY);
+			if( key==null || key.length()<GoogleMapView.MIN_KEY_LENGTH ) {
+	    		EventBindingHub.getInstance().setMessage(
+	    				"The application must be configured with a valid Google Maps API key before maps can be displayed.");
+	    	}
 			GoogleMapView view = new GoogleMapView(key,GoogleMapView.DISTRICT_PATH);
 			view.setMinWidth(UIConstants.SCENE_WIDTH-UIConstants.LIST_PANEL_LEFT_MARGIN-UIConstants.LIST_PANEL_RIGHT_MARGIN);
 			view.setMinHeight(UIConstants.SCENE_HEIGHT);

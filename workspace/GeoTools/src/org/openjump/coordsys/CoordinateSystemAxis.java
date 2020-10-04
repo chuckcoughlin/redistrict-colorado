@@ -26,7 +26,7 @@ package org.openjump.coordsys;
  * Taken from DefaultCoordinateSystemAxis.
  *
  * <p>In some case, the axis name is constrained by ISO 19111 depending on the {@linkplain
- * org.opengis.referencing.crs.CoordinateReferenceSystem coordinate reference system} type. These
+ * org.openjump.coordsys.referencing.crs.CoordinateReferenceSystem coordinate reference system} type. These
  * constraints are identified in the javadoc by "<cite>ISO 19111 name is...</cite>" sentences. This
  * constraint works in two directions; for example the names "<cite>geodetic latitude</cite>" and
  * "<cite>geodetic longitude</cite>" shall be used to designate the coordinate axis names associated

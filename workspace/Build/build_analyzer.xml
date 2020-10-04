@@ -230,7 +230,7 @@
 				<include name="*.sql"/>
 			</fileset>
 		</copy>
-		<!-- Run a shell script to fix permissions, tar and compress the result -->
+		<!-- Run a shell script to fix permissions, create the database, tar and compress the result -->
 		<exec executable="/bin/bash" >
 			<arg value="${basedir}/release_bundle.sh"/>
 			<arg value="${release.dir}"/>

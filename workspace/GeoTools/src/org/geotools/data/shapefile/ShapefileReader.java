@@ -27,10 +27,10 @@ import java.util.logging.Logger;
 
 import org.geotools.data.dbf.CodePage;
 import org.geotools.data.dbf.DbaseFile;
+import org.geotools.data.wkt.ProjectionFile;
 import org.geotools.util.Geometries;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
-import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.operation.union.CascadedPolygonUnion;
@@ -44,7 +44,7 @@ import org.openjump.io.CompressedFile;
 import org.openjump.io.EndianAwareInputStream;
 
 /**
- * ShapefileReader contains static methods for handling Shapefiles. is specialized to read Shapefiles. 
+ * ShapefileReader contains static methods for handling Shapefiles.
  * 
  * Uses a modified version of geotools to do the .dbf and .shp
  * file reading. 
@@ -65,6 +65,7 @@ public class ShapefileReader {
     	boolean success = false;
     	if( CompressedFile.isArchive(fname)) {
     		if( CompressedFile.getFnameByExtension(fname, ".dbf")!=null &&
+    			CompressedFile.getFnameByExtension(fname, ".prj")!=null &&
     			CompressedFile.getFnameByExtension(fname, ".shp")!=null &&
     			CompressedFile.getFnameByExtension(fname, ".shx")!=null ) {
     			success = true;
@@ -111,6 +112,7 @@ public class ShapefileReader {
     	
     	Shapefile shapefile = null;
     	DbaseFile dbfFile = null;
+    	ProjectionFile  prjFile = null;
     	if( isUncompressedDbFile(shpFileName)) {
     		dbfFile = getDbfFile(shpFileName,Charset.defaultCharset());
     	}
@@ -119,6 +121,7 @@ public class ShapefileReader {
         	String charsetName = readCharset(shpFileName);   
         	dbfFile = getDbfFile(shpFileName,Charset.forName(charsetName));
         	shapefile = getShapefile(shpFileName,dbfFile);
+        	prjFile   = getPrjFile(shpFileName,Charset.forName(charsetName));
     	}
     	FeatureSchema fs;
     	if( shapefile!=null ) {
@@ -153,7 +156,7 @@ public class ShapefileReader {
     					featureCollection.add(feature);
     				}
     			}
-    			// Merge geometries in each VTD into an aggregated multi-polygon.
+    			// Merge geometries in each VTD into an aggregated multi-polygon (if district column is defined).
     			else if(districtColumn!=null) {
     				LOGGER.info(String.format("%s.read: ------- AGGREGATING geometries from %s------------", CLSS,districtColumn));
     				Map<String,List<Polygon>> aggegatedDistrictMap = new HashMap<>();
@@ -305,6 +308,35 @@ public class ShapefileReader {
     	}
     	return dbfFile;
     }
+    /**
+     * Get a DbfFile.
+     * @param srcFileName either a dbf or an archive file (*.zip etc.)
+     * @param charset the charset to use to read this dbf file
+     * @return a DbfFile object for the dbf file named FileName
+     * @throws IOException if an I/O error occurs during dbf file reading
+     */
+    private static ProjectionFile getPrjFile(String srcFileName, Charset charset)  {
+    	ProjectionFile prj = null;
+    	String fname = "";
+    	try {
+    		fname = CompressedFile.getFnameByExtension(srcFileName,".prj");
+    	}
+    	catch(Exception ex) {
+    		LOGGER.severe(String.format("%s: Failed to find projection file in %s (%s)",CLSS,srcFileName,ex.getLocalizedMessage()));
+    		return null;
+    	}
+    	try (InputStream in = CompressedFile.openFile(srcFileName,fname);
+    		 EndianAwareInputStream eastream = new EndianAwareInputStream(in)) {
+    		
+    		ProjectionFile file = new ProjectionFile(charset);
+    		file.load(eastream);
+    		prj = file;
+    	}
+    	catch(Exception ex) {
+    		LOGGER.severe(String.format("%s: Failed to load projection file %s (%s)",CLSS,srcFileName,ex.getLocalizedMessage()));
+    	}
+    	return prj;
+    }
     // If the dbfFile and shape index files exist, then use them. Otherwise process the .shp file directly
     private static Shapefile getShapefile(String shpfileName, DbaseFile dbfFile)  {
     	Shapefile shape = null;
@@ -345,7 +377,7 @@ public class ShapefileReader {
     		fname = CompressedFile.getFnameByExtension(srcFileName,".shx");
     	}
     	catch(Exception ex) {
-    		LOGGER.severe(String.format("%s: Failed to open shape index file %s  (%s)",CLSS,srcFileName,ex.getLocalizedMessage()));
+    		LOGGER.severe(String.format("%s: Failed to find shape index file in %s  (%s)",CLSS,srcFileName,ex.getLocalizedMessage()));
     		return null;
     	}
     	try (InputStream in = CompressedFile.openFile(srcFileName,fname);

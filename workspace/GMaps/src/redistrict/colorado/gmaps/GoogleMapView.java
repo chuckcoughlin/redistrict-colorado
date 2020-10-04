@@ -43,8 +43,9 @@ import javafx.scene.web.WebView;
  */
 public class GoogleMapView extends AnchorPane {
 	private static final String CLSS = "GoogleMapView";
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	private static final Logger LOGGER = Logger.getLogger(CLSS);
+	public static final int MIN_KEY_LENGTH = 20; // An API key is at least this long
     public static final String BOUNDS_PATH   = "html/googlemapbounds.html";    // specify initial bounds
     public static final String DISTRICT_PATH = "html/googlemapdistrict.html";  // overlay a district polygon
     public static final String PAGE_PATH     = "html/googlemaps.html";  	   // "vanilla" test version
@@ -75,12 +76,16 @@ public class GoogleMapView extends AnchorPane {
      * @param script script to be executed by Google engine
      */
     public synchronized void executeScript(String script) {
-    	this.webengine.executeScript(script);
+    	if( initialized ) this.webengine.executeScript(script);
     }
     /**
      * Start the web-engine and display the first version of the map.
      */
     public void start() {
+    	// We can't validate the key, but if it is too short it certainly is no good.
+    	if( key==null || key.length()<MIN_KEY_LENGTH ) {
+    		return;
+    	}
     	CountDownLatch latch = new CountDownLatch(1);
         Runnable initWebView = () -> {
         	try {
@@ -171,7 +176,7 @@ public class GoogleMapView extends AnchorPane {
             //webengine.executeScript("google.maps.event.trigger(" + map.getVariableName() + ", 'resize')");
         }
     }
-    public void removeMacpInitializedListener(MapComponentInitializedListener listener) {
+    public void removeMapInitializedListener(MapComponentInitializedListener listener) {
         synchronized (mapInitializedListeners) {
             mapInitializedListeners.remove(listener);
         }

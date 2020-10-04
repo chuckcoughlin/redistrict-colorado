@@ -71,7 +71,7 @@ public class DbaseFile  {
     	}
 
     	instream.skipBytes(1); // end of field defs marker
-    	LOGGER.fine("Dbf file initialized");
+    	LOGGER.fine("Dbf file loaded");
     }
     
     /**
