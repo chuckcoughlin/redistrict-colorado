@@ -165,34 +165,6 @@ public final class Element {
         parseSeparator(text, position, parser.symbols.closingBrackets[bracketIndex]);
     }
 
-
-    //////////////////////////////////////////////////////////////////////////////////////
-    ////////                                                                      ////////
-    ////////    Construction of a ParseException when a string can't be parsed    ////////
-    ////////                                                                      ////////
-    //////////////////////////////////////////////////////////////////////////////////////
-    /**
-     * Returns a {@link ParseException} with the specified cause. A localized string <code>
-     * "Error in <{@link #keyword}>"</code> will be prepend to the message. The error index will be
-     * the starting index of this {@code Element}.
-     *
-     * @param cause The cause of the failure, or {@code null} if none.
-     * @param message The message explaining the cause of the failure, or {@code null} for reusing
-     *     the same message than {@code cause}.
-     * @return The exception to be thrown.
-     */
-    public ParseException parseFailed(final Exception cause, String message) {
-        if (message == null) {
-            message = cause.getLocalizedMessage();
-        }
-        ParseException exception = new ParseException("ParseFailed: "+message, offset);
-       
-        exception.initCause(cause);
-        return exception;
-    }
-
-  
-
     /**
      * Returns {@code true} if this element is the root element. For example in a WKT like {@code
      * "GEOGCS["name", DATUM["name, ...]]"}, this is true for {@code "GEOGCS"} and false for all

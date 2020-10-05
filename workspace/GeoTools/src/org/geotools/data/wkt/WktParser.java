@@ -16,64 +16,27 @@ parseMathTransform *    GeoTools - The Open Source Java GIS Toolkit
  */
 package org.geotools.data.wkt;
 
-import static java.util.Collections.singletonMap;
-
-import java.io.BufferedReader;
 import java.text.ParseException;
 import java.text.ParsePosition;
 import java.util.ArrayList;
-import java.util.Formattable;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.measure.quantity.Angle;
 import javax.measure.quantity.Length;
 import javax.measure.quantity.Quantity;
+import javax.measure.unit.MetricSystem;
+import javax.measure.unit.USCustomarySystem;
+import javax.measure.unit.Unit;
 
-import org.geotools.measure.Units;
-import org.geotools.metadata.i18n.ErrorKeys;
-import org.geotools.metadata.i18n.Errors;
-import org.geotools.metadata.iso.citation.Citations;
-import org.geotools.referencing.NamedIdentifier;
-import org.geotools.referencing.cs.AbstractCS;
-import org.geotools.referencing.cs.DefaultCoordinateSystemAxis;
-import org.geotools.referencing.cs.DirectionAlongMeridian;
-import org.geotools.referencing.datum.BursaWolfParameters;
-import org.geotools.referencing.datum.DefaultGeodeticDatum;
-import org.geotools.referencing.datum.DefaultPrimeMeridian;
-import org.geotools.referencing.datum.DefaultVerticalDatum;
-import org.geotools.referencing.factory.epsg.CartesianAuthorityFactory;
-import org.geotools.referencing.operation.DefiningConversion;
-import org.geotools.util.Arguments;
-import org.opengis.parameter.ParameterNotFoundException;
-import org.opengis.parameter.ParameterValue;
-import org.opengis.parameter.ParameterValueGroup;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.NoSuchIdentifierException;
-import org.opengis.referencing.crs.CRSFactory;
-import org.opengis.referencing.crs.CompoundCRS;
-import org.opengis.referencing.crs.DerivedCRS;
-import org.opengis.referencing.crs.EngineeringCRS;
-import org.opengis.referencing.crs.GeocentricCRS;
-import org.opengis.referencing.crs.GeographicCRS;
-import org.opengis.referencing.crs.ProjectedCRS;
-import org.opengis.referencing.crs.VerticalCRS;
-import org.opengis.referencing.cs.CSFactory;
-import org.opengis.referencing.cs.EllipsoidalCS;
-import org.opengis.referencing.datum.Datum;
-import org.opengis.referencing.datum.DatumFactory;
-import org.opengis.referencing.datum.Ellipsoid;
-import org.opengis.referencing.datum.EngineeringDatum;
-import org.opengis.referencing.datum.GeodeticDatum;
-import org.opengis.referencing.datum.PrimeMeridian;
-import org.opengis.referencing.datum.VerticalDatum;
-import org.opengis.referencing.datum.VerticalDatumType;
-import org.opengis.referencing.operation.Conversion;
-import org.opengis.referencing.operation.NoninvertibleTransformException;
-import org.opengis.referencing.operation.OperationMethod;
+import org.geotools.datum.Citation;
+import org.geotools.datum.Citations;
+import org.geotools.datum.Datum;
+import org.geotools.datum.DefaultGeodeticDatum;
+import org.geotools.datum.PrimeMeridian;
+import org.geotools.datum.VerticalDatum;
 import org.openjump.coordsys.AxisDirection;
 import org.openjump.coordsys.CoordinateSystem;
 import org.openjump.coordsys.CoordinateSystemAxis;
@@ -95,9 +58,10 @@ import org.openjump.coordsys.CoordinateSystemAxis;
  * @see <A HREF="http://gdal.org/wktproblems.html">OGC WKT Coordinate System Issues</A>
  */
 public class WktParser extends MathTransformParser {
-    /** For cross-version compatibility. */
+    private static final String CLSS = "WktParser";
+    private static final Logger LOGGER = Logger.getLogger(CLSS);
     private static final long serialVersionUID = -144097689843465085L;
-
+    
     /**
      * {@code true} in order to allows the non-standard Oracle syntax. Oracle put the Bursa-Wolf
      * parameters straight into the {@code DATUM} elements, without enclosing them in a {@code
@@ -105,30 +69,13 @@ public class WktParser extends MathTransformParser {
      */
     private static final boolean ALLOW_ORACLE_SYNTAX = true;
 
-    /**
-     * The mapping between WKT element name and the object class to be created. Will be created by
-     * {@link #getTypeMap} only when first needed. Keys must be upper case.
-     */
-    private static Map<String, Class<?>> TYPES;
-
-    /** The factory to use for creating {@linkplain Datum datum}. */
-    protected final DatumFactory datumFactory;
-
-    /** The factory to use for creating {@linkplain CoordinateSystem coordinate systems}. */
-    protected final CSFactory csFactory;
-
-    /**
-     * The factory to use for creating {@linkplain CoordinateReferenceSystem coordinate reference
-     * systems}.
-     */
-    protected final CRSFactory crsFactory;
-
     /** The list of {@linkplain AxisDirection axis directions} from their name. */
     private final Map<String, AxisDirection> directions;
+    private Datum datum = null;    // The datum (origin) found in the parse
 
     /** Constructs a parser using the default set of symbols and factories. */
     public WktParser() {
-        this(Symbols.DEFAULT);
+    	super(Symbols.DEFAULT);
     }
 
     
@@ -142,10 +89,11 @@ public class WktParser extends MathTransformParser {
     public CoordinateSystem parseCoordinateSystem(final String text)
             throws ParseException {
         final Element element = getTree(text, new ParsePosition(0));
-        final CoordinateReferenceSystem crs = parseCoordinateReferenceSystem(element);
+        final CoordinateSystem cs = parseCoordinateSystem(element);
         element.close();
-        return crs;
+        return cs;
     }
+
 
     /**
      * Parses a coordinate reference system element.
@@ -153,29 +101,33 @@ public class WktParser extends MathTransformParser {
      * @return element The next element as a {@link CoordinateReferenceSystem} object.
      * @throws ParseException if the next element can't be parsed.
      */
-    private CoordinateReferenceSystem parseCoordinateReferenceSystem(final Element element)
-            throws ParseException {
+    private CoordinateSystem parseCoordinateSystem(final Element element) throws ParseException {
         final Object key = element.peek();
+        final String keyword = ((Element) key).keyword.trim().toUpperCase(symbols.locale);
         if (key instanceof Element) {
-            final String keyword = ((Element) key).keyword.trim().toUpperCase(symbols.locale);
-            CoordinateReferenceSystem r = null;
+            CoordinateSystem r = null;
             try {
-                if ("GEOGCS".equals(keyword)) return r = parseGeoGCS(element);
-                if ("PROJCS".equals(keyword)) return r = parseProjCS(element);
-                if ("GEOCCS".equals(keyword)) return r = parseGeoCCS(element);
-                if ("VERT_CS".equals(keyword)) return r = parseVertCS(element);
-                if ("LOCAL_CS".equals(keyword)) return r = parseLocalCS(element);
-                if ("COMPD_CS".equals(keyword)) return r = parseCompdCS(element);
-                if ("FITTED_CS".equals(keyword)) return r = parseFittedCS(element);
-            } finally {
-                // Work around for simulating post-conditions in Java.
-                assert isValid(r, keyword) : element;
+                if(      "GEOGCS".equals(keyword)) return r = parseGeoGCS(element);
+                else if ("PROJCS".equals(keyword)) return r = parseProjCS(element);
+                else if ("GEOCCS".equals(keyword)) return r = parseGeoCCS(element);
+                else if ("VERT_CS".equals(keyword)) return r = parseVertCS(element);
+                else if ("LOCAL_CS".equals(keyword)) return r = parseLocalCS(element);
+                else if ("COMPD_CS".equals(keyword)) return r = parseCompdCS(element);
+                else if ("FITTED_CS".equals(keyword)) return r = parseFittedCS(element);
+            } 
+            catch(ParseException pe) {
+            	LOGGER.severe(String.format("%s.parseCoordinateSystem: Unknown key - %s",CLSS,keyword));
             }
         }
-        throw element.parseFailed(null, Errors.format(ErrorKeys.UNKNOW_TYPE_$1, key));
+        return null;
     }
 
     /**
+     * @return The datum as last encountered in the text string
+     */
+    public Datum getDatum() { return datum; }
+    
+    /**  
      * Parses the next element in the specified <cite>Well Known Text</cite> (WKT) tree.
      *
      * @param element The element to be parsed.
@@ -191,38 +143,29 @@ public class WktParser extends MathTransformParser {
             final String keyword = ((Element) key).keyword.trim().toUpperCase(symbols.locale);
             Object r = null;
             try {
-                if ("AXIS".equals(keyword)) return r = parseAxis(element, SI.METRE, true);
-                if ("PRIMEM".equals(keyword)) return r = parsePrimem(element, NonSI.DEGREE_ANGLE);
-                if ("TOWGS84".equals(keyword)) return r = parseToWGS84(element);
-                if ("SPHEROID".equals(keyword)) return r = parseSpheroid(element);
-                if ("VERT_DATUM".equals(keyword)) return r = parseVertDatum(element);
-                if ("LOCAL_DATUM".equals(keyword)) return r = parseLocalDatum(element);
-                if ("DATUM".equals(keyword))
-                    return r = parseDatum(element, DefaultPrimeMeridian.GREENWICH);
+                if (     "AXIS".equals(keyword)) return r = parseAxis(element, MetricSystem.METRE, true);
+                else if ("PRIMEM".equals(keyword)) return r = parsePrimem(element,USCustomarySystem.DEGREE_ANGLE);
+                else if ("TOWGS84".equals(keyword)) return r = parseToWGS84(element);
+                else if ("SPHEROID".equals(keyword)) return r = parseSpheroid(element);
+                else if ("VERT_DATUM".equals(keyword)) return r = parseVertDatum(element);
+                else if ("LOCAL_DATUM".equals(keyword)) return r = parseLocalDatum(element);
+                else if ("DATUM".equals(keyword)) {
+                    this.datum = parseDatum(element, PrimeMeridian.GREENWICH);
+                    return datum;
+                }
                 r = parseMathTransform(element, false);
                 if (r != null) {
                     return r;
                 }
-            } finally {
-                // Work around for simulating post-conditions in Java.
-                assert isValid(r, keyword) : element;
+            } 
+            catch(ParseException pe) {
+            	LOGGER.severe(String.format("%s.parse: Unknown key - %s",CLSS,keyword));
             }
         }
-        return parseCoordinateReferenceSystem(element);
+        return null;
     }
 
-    /**
-     * Checks if the parsed object is of the expected type. This is also a way to check the
-     * consistency of the {@link #TYPES} map.
-     */
-    private static boolean isValid(final Object parsed, final String keyword) {
-        if (parsed == null) {
-            // Required in order to avoid AssertionError in place of ParseException.
-            return true;
-        }
-        final Class type = getClassOf(keyword);
-        return type != null && type.isInstance(parsed);
-    }
+
 
     /**
      * Returns the properties to be given to the parsed object. This method is invoked automatically
@@ -277,15 +220,11 @@ public class WktParser extends MathTransformParser {
             throws ParseException {
         final boolean isRoot = parent.isRoot();
         final Element element = parent.pullOptionalElement("AUTHORITY");
-        Map<String, Object> properties;
+        Map<String, Object> properties = new HashMap<>();
         if (element == null) {
-            if (isRoot) {
-                properties = new HashMap<String, Object>(4);
-                properties.put(IdentifiedObject.NAME_KEY, name);
-            } else {
-                properties = singletonMap(IdentifiedObject.NAME_KEY, (Object) name);
-            }
-        } else {
+            properties.put(IdentifiedObject.NAME_KEY, name);
+        } 
+        else {
             final String auth = element.pullString("name");
             // the code can be annotation marked but could be a number to
             String code = element.pullOptionalString("code");
@@ -295,9 +234,9 @@ public class WktParser extends MathTransformParser {
             }
             element.close();
             final Citation authority = Citations.fromName(auth);
-            properties = new HashMap<String, Object>(4);
-            properties.put(IdentifiedObject.NAME_KEY, new NamedIdentifier(authority, name));
-            properties.put(IdentifiedObject.IDENTIFIERS_KEY, new NamedIdentifier(authority, code));
+            properties = new HashMap<>();
+            properties.put(IdentifiedObject.NAME_KEY, authority.getTitle());
+            properties.put(IdentifiedObject.IDENTIFIERS_KEY, authority.getIdentifiers().get(code));
         }
         if (isRoot) {
             properties = alterProperties(properties);
@@ -375,7 +314,8 @@ public class WktParser extends MathTransformParser {
         final AxisDirection direction;
         if (orientation != null) {
             direction = directions.get(orientation.keyword.trim().toUpperCase());
-        } else {
+        } 
+        else {
             String directionName = element.pullString("orientation");
             direction = DirectionAlongMeridian.parse(directionName).getDirection();
         }
@@ -442,13 +382,9 @@ public class WktParser extends MathTransformParser {
         final Element element = parent.pullElement("PRIMEM");
         final String name = element.pullString("name");
         final double longitude = element.pullDouble("longitude");
-        final Map<String, ?> properties = parseAuthority(element, name);
+        final Map<String,Object> properties = parseAuthority(element, name);
         element.close();
-        try {
-            return datumFactory.createPrimeMeridian(properties, longitude, angularUnit);
-        } catch (FactoryException exception) {
-            throw element.parseFailed(exception, null);
-        }
+        return new PrimeMeridian(properties, longitude, angularUnit);
     }
 
     /**
@@ -663,10 +599,10 @@ public class WktParser extends MathTransformParser {
         final Element element = parent.pullElement("VERT_DATUM");
         final String name = element.pullString("name");
         final int datum = element.pullInteger("datum");
-        final Map<String, ?> properties = parseAuthority(element, name);
+        final Map<String,Object> properties = parseAuthority(element, name);
         element.close();
         final VerticalDatumType type =
-                DefaultVerticalDatum.getVerticalDatumTypeFromLegacyCode(datum);
+                VerticalDatum.getVerticalDatumTypeFromLegacyCode(datum);
         if (type == null) {
             throw element.parseFailed(null, Errors.format(ErrorKeys.UNKNOW_TYPE_$1, datum));
         }
@@ -697,7 +633,7 @@ public class WktParser extends MathTransformParser {
         final Element element = parent.pullElement("LOCAL_DATUM");
         final String name = element.pullString("name");
         element.pullInteger("datum");
-        final Map<String, ?> properties = parseAuthority(element, name);
+        final Map<String, Object> properties = parseAuthority(element, name);
         element.close();
         try {
             return datumFactory.createEngineeringDatum(properties);
@@ -1027,112 +963,5 @@ public class WktParser extends MathTransformParser {
         } catch (NoninvertibleTransformException exception) {
             throw element.parseFailed(exception, null);
         }
-    }
-
-    /**
-     * Returns the class of the specified WKT element. For example this method returns <code>
-     * {@linkplain ProjectedCRS}.class</code> for element "{@code PROJCS}".
-     *
-     * @param element The WKT element name.
-     * @return The GeoAPI class of the specified element, or {@code null} if unknow.
-     */
-    public static Class<?> getClassOf(String element) {
-        if (element == null) {
-            return null;
-        }
-        element = element.trim().toUpperCase(Locale.US);
-        final Class<?> type = getTypeMap().get(element);
-        assert type == null || type.equals(MathTransform.class) || element.equals(getNameOf(type))
-                : type;
-        return type;
-    }
-
-    /**
-     * Returns the WKT name of the specified object type. For example this method returns "{@code
-     * PROJCS}" for type <code>{@linkplain ProjectedCRS}.class</code>.
-     *
-     * @param type The GeoAPI class of the specified element.
-     * @return The WKT element name, or {@code null} if unknow.
-     * @since 2.4
-     */
-    public static String getNameOf(final Class<?> type) {
-        if (type != null) {
-            for (final Map.Entry<String, Class<?>> entry : getTypeMap().entrySet()) {
-                final Class<?> candidate = entry.getValue();
-                if (candidate.isAssignableFrom(type)) {
-                    return entry.getKey();
-                }
-            }
-        }
-        return null;
-    }
-
-    /** Returns the type map. */
-    private static Map<String, Class<?>> getTypeMap() {
-        if (TYPES == null) {
-            final Map<String, Class<?>> map = new LinkedHashMap<String, Class<?>>(25);
-            map.put("GEOGCS", GeographicCRS.class);
-            map.put("PROJCS", ProjectedCRS.class);
-            map.put("GEOCCS", GeocentricCRS.class);
-            map.put("VERT_CS", VerticalCRS.class);
-            map.put("LOCAL_CS", EngineeringCRS.class);
-            map.put("COMPD_CS", CompoundCRS.class);
-            map.put("FITTED_CS", DerivedCRS.class);
-            map.put("AXIS", CoordinateSystemAxis.class);
-            map.put("PRIMEM", PrimeMeridian.class);
-            map.put("TOWGS84", BursaWolfParameters.class);
-            map.put("SPHEROID", Ellipsoid.class);
-            map.put("VERT_DATUM", VerticalDatum.class);
-            map.put("LOCAL_DATUM", EngineeringDatum.class);
-            map.put("DATUM", GeodeticDatum.class);
-            map.put("PARAM_MT", MathTransform.class);
-            map.put("CONCAT_MT", MathTransform.class);
-            map.put("INVERSE_MT", MathTransform.class);
-            map.put("PASSTHROUGH_MT", MathTransform.class);
-            TYPES = map; // Sets the field only once completed, in order to avoid synchronisation.
-            // It is not a big deal in current implementation if two Maps are created.
-        }
-        return TYPES;
-    }
-
-    /**
-     * Read WKT strings from the {@linkplain System#in standard input stream} and reformat them to
-     * the {@linkplain System#out standard output stream}. The input is read until it reach the
-     * end-of-file ({@code [Ctrl-Z]} if reading from the keyboard), or until an unparsable WKT has
-     * been hit. Optional arguments are:
-     *
-     * <TABLE CELLPADDING='0' CELLSPACING='0'>
-     *   <TR><TD NOWRAP><CODE>-authority</CODE> <VAR>&lt;name&gt;</VAR></TD>
-     *       <TD NOWRAP>&nbsp;The authority to prefer when choosing WKT entities names.</TD></TR>
-     *   <TR><TD NOWRAP><CODE>-indentation</CODE> <VAR>&lt;value&gt;</VAR></TD>
-     *       <TD NOWRAP>&nbsp;Set the indentation (0 for output on a single line)</TD></TR>
-     *   <TR><TD NOWRAP><CODE>-encoding</CODE> <VAR>&lt;code&gt;</VAR></TD>
-     *       <TD NOWRAP>&nbsp;Set the character encoding</TD></TR>
-     *   <TR><TD NOWRAP><CODE>-locale</CODE> <VAR>&lt;language&gt;</VAR></TD>
-     *       <TD NOWRAP>&nbsp;Set the language for the output (e.g. "fr" for French)</TD></TR>
-     * </TABLE>
-     *
-     * @param args The command line arguments.
-     */
-    @SuppressWarnings("PMD.CloseResource")
-    public static void main(String[] args) {
-        final Arguments arguments = new Arguments(args);
-        final Integer indentation = arguments.getOptionalInteger(Formattable.INDENTATION);
-        final String authority = arguments.getOptionalString("-authority");
-        arguments.getRemainingArguments(0);
-        if (indentation != null) {
-            Formattable.setIndentation(indentation.intValue());
-        }
-        final BufferedReader in = new BufferedReader(Arguments.getReader(System.in));
-        try {
-            final WktParser wktParser = new WktParser();
-            if (authority != null) {
-                wktParser.setAuthority(Citations.fromName(authority));
-            }
-            wktParser.reformat(in, arguments.out, arguments.err);
-        } catch (Exception exception) {
-            java.util.logging.Logger.getGlobal().log(java.util.logging.Level.INFO, "", exception);
-        }
-        // Do not close 'in', since it is the standard input stream.
     }
 }
