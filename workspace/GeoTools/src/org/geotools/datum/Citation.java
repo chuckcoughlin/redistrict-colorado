@@ -89,7 +89,7 @@ public class Citation {
      * method for the creation of constants, and for making sure that all of them use the same
      * identifier type.
      */
-    final void addAuthority(final String identifier, final boolean asTitle) {
+    public final void addAuthority(final String identifier, final boolean asTitle) {
         if (asTitle) {
             getAlternateTitles().add(identifier);
         }

@@ -14,24 +14,16 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.data.wkt;
+package org.geotools.operation;
 
 import java.net.URI;
 import java.text.ParseException;
 import java.text.ParsePosition;
-import org.geotools.metadata.i18n.ErrorKeys;
-import org.geotools.metadata.i18n.Errors;
-import org.geotools.referencing.AbstractIdentifiedObject;
-import org.geotools.referencing.ReferencingFactoryFinder;
-import org.opengis.parameter.ParameterValue;
-import org.opengis.parameter.ParameterValueGroup;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.NoSuchIdentifierException;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.MathTransformFactory;
-import org.opengis.referencing.operation.NoninvertibleTransformException;
-import org.opengis.referencing.operation.Operation;
-import org.opengis.referencing.operation.OperationMethod;
+
+import org.geotools.data.wkt.AbstractParser;
+import org.geotools.data.wkt.Element;
+import org.geotools.data.wkt.Symbols;
+import org.openjump.feature.Operation;
 
 /**
  * Parser for {@linkplain MathTransform math transform} <A
@@ -45,8 +37,8 @@ import org.opengis.referencing.operation.OperationMethod;
  * @author Rueben Schulz
  */
 public class MathTransformParser extends AbstractParser {
-    /** The factory to use for creating math transforms. */
-    protected final MathTransformFactory mtFactory;
+   private final static String CLSS = "MathTransformParser";
+
 
     /**
      * The classification of the last math transform or projection parsed, or {@code null} if none.
@@ -62,7 +54,7 @@ public class MathTransformParser extends AbstractParser {
 
     /** Constructs a parser using the default set of symbols. */
     public MathTransformParser() {
-        this(Symbols.DEFAULT);
+    	super(Symbols.DEFAULT);
     }
 
     /**
@@ -72,19 +64,9 @@ public class MathTransformParser extends AbstractParser {
      * @todo Pass hints in argument.
      */
     public MathTransformParser(final Symbols symbols) {
-        this(symbols, ReferencingFactoryFinder.getMathTransformFactory(null));
+        super(symbols);
     }
 
-    /**
-     * Constructs a parser for the specified set of symbols and factory.
-     *
-     * @param symbols The symbols for parsing and formatting numbers.
-     * @param mtFactory The factory to use to create {@link MathTransform} objects.
-     */
-    public MathTransformParser(final Symbols symbols, final MathTransformFactory mtFactory) {
-        super(symbols);
-        this.mtFactory = mtFactory;
-    }
 
     /**
      * Parses a math transform element.
@@ -120,8 +102,7 @@ public class MathTransformParser extends AbstractParser {
      * @return The next element as a {@link MathTransform} object.
      * @throws ParseException if the next element can't be parsed.
      */
-    final MathTransform parseMathTransform(final Element element, final boolean required)
-            throws ParseException {
+    final MathTransform parseMathTransform(final Element element, final boolean required) throws ParseException {
         lastMethod = null;
         classification = null;
         final Object key = element.peek();
@@ -133,7 +114,7 @@ public class MathTransformParser extends AbstractParser {
             if ("PASSTHROUGH_MT".equals(keyword)) return parsePassThroughMT(element);
         }
         if (required) {
-            throw element.parseFailed(null, Errors.format(ErrorKeys.UNKNOW_TYPE_$1, key));
+        	throw new ParseException(String.format("%s.parse: Unknown key - %s",CLSS,key),0);
         }
         return null;
     }
@@ -221,8 +202,10 @@ public class MathTransformParser extends AbstractParser {
             transform = parseMathTransform(element, true).inverse();
             element.close();
             return transform;
-        } catch (NoninvertibleTransformException exception) {
-            throw element.parseFailed(exception, null);
+        }
+        catch (TransformException exception) {
+            throw new ParseException(String.format("%s.parseInverseMT: Exception inverting matrix (%s)",
+            		CLSS,exception.getLocalizedMessage()),0);
         }
     }
 

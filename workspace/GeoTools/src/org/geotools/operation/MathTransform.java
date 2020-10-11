@@ -7,14 +7,13 @@
  *
  *    All Rights Reserved. http://www.opengis.org/legal/
  */
-package org.geotools.data.wkt;
+package org.geotools.operation;
 
-import static org.opengis.annotation.Obligation.*;
-import static org.opengis.annotation.Specification.*;
+import java.util.Map;
 
-import org.opengis.annotation.UML;
-import org.opengis.geometry.DirectPosition;
-import org.opengis.geometry.MismatchedDimensionException;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.util.GeometryEditor.CoordinateOperation;
+import org.opengis.MismatchedDimensionException;
 
 /**
  * Transforms multi-dimensional coordinate points. This interface transforms coordinate value for a
@@ -41,27 +40,26 @@ import org.opengis.geometry.MismatchedDimensionException;
  * @see MathTransformFactory
  * @see CoordinateOperation#getMathTransform
  */
-@UML(identifier = "CT_MathTransform", specification = OGC_01009)
 public interface MathTransform {
     /**
      * Gets the dimension of input points.
      *
      * @return The dimension of input points.
      */
-    @UML(identifier = "getDimSource", specification = OGC_01009)
-    int getSourceDimensions();
+    public int getSourceDimensions();
 
     /**
      * Gets the dimension of output points.
      *
      * @return The dimension of output points.
      */
-    @UML(identifier = "getDimTarget", specification = OGC_01009)
-    int getTargetDimensions();
+    public int getTargetDimensions();
+    
+    public Map<String,Object> getProperties();
 
     /**
      * Transforms the specified {@code ptSrc} and stores the result in {@code ptDst}. If {@code
-     * ptDst} is {@code null}, a new {@link DirectPosition} object is allocated and then the result
+     * ptDst} is {@code null}, a new {@link Coordinate} object is allocated and then the result
      * of the transformation is stored in this object. In either case, {@code ptDst}, which contains
      * the transformed point, is returned for convenience. If {@code ptSrc} and {@code ptDst} are
      * the same object, the input point is correctly overwritten with the transformed point.
@@ -75,8 +73,7 @@ public interface MathTransform {
      *     expected dimension.
      * @throws TransformException if the point can't be transformed.
      */
-    @UML(identifier = "transform", specification = OGC_01009)
-    DirectPosition transform(DirectPosition ptSrc, DirectPosition ptDst)
+    public Coordinate transform(Coordinate ptSrc, Coordinate ptDst)
             throws MismatchedDimensionException, TransformException;
 
     /**
@@ -101,8 +98,7 @@ public interface MathTransform {
      *     Implementations that fall in the later case should set the {@linkplain
      *     TransformException#getLastCompletedTransform last completed transform} to {@code this}.
      */
-    @UML(identifier = "transformList", specification = OGC_01009)
-    void transform(double[] srcPts, int srcOff, double[] dstPts, int dstOff, int numPts)
+    public void transform(double[] srcPts, int srcOff, double[] dstPts, int dstOff, int numPts)
             throws TransformException;
 
     /**
@@ -127,7 +123,7 @@ public interface MathTransform {
      *     Implementations that fall in the later case should set the {@linkplain
      *     TransformException#getLastCompletedTransform last completed transform} to {@code this}.
      */
-    void transform(float[] srcPts, int srcOff, float[] dstPts, int dstOff, int numPts)
+    public void transform(float[] srcPts, int srcOff, float[] dstPts, int dstOff, int numPts)
             throws TransformException;
 
     /**
@@ -152,7 +148,7 @@ public interface MathTransform {
      *     TransformException#getLastCompletedTransform last completed transform} to {@code this}.
      * @since GeoAPI 2.2
      */
-    void transform(float[] srcPts, int srcOff, double[] dstPts, int dstOff, int numPts)
+    public void transform(float[] srcPts, int srcOff, double[] dstPts, int dstOff, int numPts)
             throws TransformException;
 
     /**
@@ -177,7 +173,7 @@ public interface MathTransform {
      *     TransformException#getLastCompletedTransform last completed transform} to {@code this}.
      * @since GeoAPI 2.2
      */
-    void transform(double[] srcPts, int srcOff, float[] dstPts, int dstOff, int numPts)
+    public void transform(double[] srcPts, int srcOff, float[] dstPts, int dstOff, int numPts)
             throws TransformException;
 
     /**
@@ -214,8 +210,7 @@ public interface MathTransform {
      * @throws MismatchedDimensionException if {@code point} doesn't have the expected dimension.
      * @throws TransformException if the derivative can't be evaluated at the specified point.
      */
-    @UML(identifier = "derivative", specification = OGC_01009)
-    Matrix derivative(final DirectPosition point)
+    public Matrix derivative(final Coordinate point)
             throws MismatchedDimensionException, TransformException;
 
     /**
@@ -228,8 +223,7 @@ public interface MathTransform {
      * @return The inverse transform.
      * @throws NoninvertibleTransformException if the transform can't be inversed.
      */
-    @UML(identifier = "inverse", specification = OGC_01009)
-    MathTransform inverse() throws NoninvertibleTransformException;
+    public MathTransform inverse() throws TransformException;
 
     /**
      * Tests whether this transform does not move any points.
@@ -237,18 +231,5 @@ public interface MathTransform {
      * @return {@code true} if this {@code MathTransform} is an identity transform; {@code false}
      *     otherwise.
      */
-    @UML(identifier = "isIdentity", specification = OGC_01009)
-    boolean isIdentity();
-
-    /**
-     * Returns a <cite>Well Known Text</cite> (WKT) for this object. Well know text are <A
-     * HREF="../doc-files/WKT.html">defined in extended Backus Naur form</A>. This operation may
-     * fails if an object is too complex for the WKT format capability.
-     *
-     * @return The <A HREF="../doc-files/WKT.html"><cite>Well Known Text</cite> (WKT)</A> for this
-     *     object.
-     * @throws UnsupportedOperationException If this object can't be formatted as WKT.
-     */
-    @UML(identifier = "getWKT", specification = OGC_01009)
-    String toWKT() throws UnsupportedOperationException;
+    public boolean isIdentity();
 }

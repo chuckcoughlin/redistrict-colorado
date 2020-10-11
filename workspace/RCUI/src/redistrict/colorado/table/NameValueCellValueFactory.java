@@ -46,7 +46,7 @@ public class NameValueCellValueFactory implements Callback<TableColumn.CellDataF
 			Object val = nv.getValue(columnName);
 			if( val==null ) val = nv.getValue(columnName.toUpperCase());
 			// Empty string is empty field
-			if( val.toString().isBlank() ) {
+			if( val.toString().isEmpty() ) {
 				property.setValue("");
 			}
 			else if( format==null  ) {

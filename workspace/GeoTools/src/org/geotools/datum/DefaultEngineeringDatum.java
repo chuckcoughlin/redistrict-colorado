@@ -36,7 +36,7 @@ import org.opengis.referencing.datum.EngineeringDatum;
  * @version $Id$
  * @author Martin Desruisseaux (IRD)
  */
-public class DefaultEngineeringDatum extends BasicDatum implements EngineeringDatum {
+public class DefaultEngineeringDatum extends Datum implements EngineeringDatum {
     /** Serial number for interoperability with different versions. */
     private static final long serialVersionUID = 1498304918725248637L;
 
@@ -73,7 +73,7 @@ public class DefaultEngineeringDatum extends BasicDatum implements EngineeringDa
 
     /**
      * Constructs an engineering datum from a set of properties. The properties map is given
-     * unchanged to the {@linkplain BasicDatum#AbstractDatum(Map) super-class constructor}.
+     * unchanged to the {@linkplain Datum#AbstractDatum(Map) super-class constructor}.
      *
      * @param properties Set of properties. Should contains at least {@code "name"}.
      */

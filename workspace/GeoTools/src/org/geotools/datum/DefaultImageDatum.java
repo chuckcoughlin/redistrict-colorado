@@ -36,7 +36,7 @@ import org.opengis.referencing.datum.PixelInCell;
  * @author Martin Desruisseaux (IRD)
  * @since 2.1
  */
-public class DefaultImageDatum extends BasicDatum implements ImageDatum {
+public class DefaultImageDatum extends Datum implements ImageDatum {
     /** Serial number for interoperability with different versions. */
     private static final long serialVersionUID = -4304193511244150936L;
 
@@ -69,7 +69,7 @@ public class DefaultImageDatum extends BasicDatum implements ImageDatum {
 
     /**
      * Constructs an image datum from a set of properties. The properties map is given unchanged to
-     * the {@linkplain BasicDatum#AbstractDatum(Map) super-class constructor}.
+     * the {@linkplain Datum#AbstractDatum(Map) super-class constructor}.
      *
      * @param properties Set of properties. Should contains at least {@code "name"}.
      * @param pixelInCell the way the image grid is associated with the image data attributes.

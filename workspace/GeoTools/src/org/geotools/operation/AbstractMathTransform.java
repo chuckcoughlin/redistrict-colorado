@@ -17,45 +17,25 @@
  *    This package contains documentation from OpenGIS specifications.
  *    OpenGIS consortium's work is fully acknowledged here.
  */
-package org.geotools.data.wkt;
+package org.geotools.operation;
 
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.IllegalPathStateException;
+import java.awt.geom.Line2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
-import org.geotools.geometry.GeneralDirectPosition;
-import org.geotools.geometry.util.ShapeUtilities;
-import org.geotools.metadata.i18n.ErrorKeys;
-import org.geotools.metadata.i18n.Errors;
-import org.geotools.metadata.i18n.Vocabulary;
-import org.geotools.metadata.i18n.VocabularyKeys;
-import org.geotools.referencing.operation.matrix.GeneralMatrix;
-import org.geotools.referencing.operation.matrix.Matrix1;
-import org.geotools.referencing.operation.matrix.MatrixFactory;
-import org.geotools.referencing.operation.matrix.SingularMatrixException;
-import org.geotools.referencing.operation.matrix.XMatrix;
-import org.geotools.referencing.wkt.Formattable;
-import org.geotools.util.Classes;
-import org.geotools.util.Utilities;
-import org.opengis.geometry.DirectPosition;
-import org.opengis.geometry.MismatchedDimensionException;
-import org.opengis.metadata.Identifier;
-import org.opengis.parameter.InvalidParameterValueException;
-import org.opengis.parameter.ParameterDescriptorGroup;
-import org.opengis.parameter.ParameterValueGroup;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.MathTransform1D;
-import org.opengis.referencing.operation.MathTransform2D;
-import org.opengis.referencing.operation.Matrix;
-import org.opengis.referencing.operation.NoninvertibleTransformException;
-import org.opengis.referencing.operation.Operation;
-import org.opengis.referencing.operation.OperationMethod;
-import org.opengis.referencing.operation.TransformException;
-import si.uom.NonSI;
-import si.uom.SI;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.geotools.data.wkt.IdentifiedObject;
+import org.geotools.util.ShapeUtilities;
+import org.locationtech.jts.geom.Coordinate;
+import org.opengis.MismatchedDimensionException;
+
+
 
 /**
  * Provides a default implementation for most methods required by the {@link MathTransform}
@@ -68,9 +48,14 @@ import si.uom.SI;
  * @since 2.0
  * @author Martin Desruisseaux (IRD)
  */
-public abstract class AbstractMathTransform implements MathTransform {
-    /** Constructs a math transform. */
-    protected AbstractMathTransform() {}
+public abstract class AbstractMathTransform extends IdentifiedObject implements MathTransform {
+	private static final String CLSS = "AbstractMathTransform";
+	private static final int DIM2 = 2; // The only dimension we care about.
+	private final Map<String,Object> properties;
+	
+    protected AbstractMathTransform() {
+    	this.properties = new HashMap<>();
+    }
 
     /**
      * Returns a name for this math transform (never {@code null}). This convenience methods returns
@@ -81,51 +66,18 @@ public abstract class AbstractMathTransform implements MathTransform {
      * @since 2.5
      */
     public String getName() {
-        final ParameterDescriptorGroup descriptor = getParameterDescriptors();
-        if (descriptor != null) {
-            final Identifier identifier = descriptor.getName();
-            if (identifier != null) {
-                final String code = identifier.getCode();
-                if (code != null) {
-                    return code;
-                }
-            }
-        }
-        return Classes.getShortClassName(this);
+        String name = (String) properties.get(NAME_KEY);
+        if( name==null ) name = this.getClass().getSimpleName();
+        return null;
     }
 
-    /** Gets the dimension of input points. */
+    public Map<String,Object> getProperties() { return this.properties; }
+    
+    /** Gets the dimension of input points. Must be 2 */
     public abstract int getSourceDimensions();
 
-    /** Gets the dimension of output points. */
+    /** Gets the dimension of output points. Must be 2 */
     public abstract int getTargetDimensions();
-
-    /**
-     * Returns the parameter descriptors for this math transform, or {@code null} if unknow. This
-     * method is similar to {@link OperationMethod#getParameters}, except that {@code MathTransform}
-     * returns parameters in standard units (usually {@linkplain SI#METER meters} or {@linkplain
-     * NonSI#DEGREE_ANGLE decimal degrees}).
-     *
-     * @return The parameter descriptors for this math transform, or {@code null}.
-     * @see OperationMethod#getParameters
-     */
-    public ParameterDescriptorGroup getParameterDescriptors() {
-        return null;
-    }
-
-    /**
-     * Returns the parameter values for this math transform, or {@code null} if unknow. This method
-     * is similar to {@link Operation#getParameterValues}, except that {@code MathTransform} returns
-     * parameters in standard units (usually {@linkplain SI#METER meters} or {@linkplain
-     * NonSI#DEGREE_ANGLE decimal degrees}). Since this method returns a copy of the parameter
-     * values, any change to a value will have no effect on this math transform.
-     *
-     * @return A copy of the parameter values for this math transform, or {@code null}.
-     * @see Operation#getParameterValues
-     */
-    public ParameterValueGroup getParameterValues() {
-        return null;
-    }
 
     /**
      * Tests whether this transform does not move any points. The default implementation always
@@ -144,7 +96,7 @@ public abstract class AbstractMathTransform implements MathTransform {
      */
     private static String constructMessage(
             final String argument, final int dimension, final int expected) {
-        return Errors.format(ErrorKeys.MISMATCHED_DIMENSION_$3, argument, dimension, expected);
+    	return String.format("%s.%s: Mismatched dimension %d vs %d", CLSS,argument,dimension,expected);
     }
 
     /**
@@ -164,18 +116,19 @@ public abstract class AbstractMathTransform implements MathTransform {
      */
     public Point2D transform(final Point2D ptSrc, final Point2D ptDst) throws TransformException {
         int dim;
-        if ((dim = getSourceDimensions()) != 2) {
-            throw new MismatchedDimensionException(constructMessage("ptSrc", 2, dim));
+        if ((dim = getSourceDimensions()) != DIM2) {
+            throw new MismatchedDimensionException(constructMessage("ptSrc", DIM2, dim));
         }
-        if ((dim = getTargetDimensions()) != 2) {
-            throw new MismatchedDimensionException(constructMessage("ptDst", 2, dim));
+        if ((dim = getTargetDimensions()) != DIM2) {
+            throw new MismatchedDimensionException(constructMessage("ptDst", DIM2, dim));
         }
         final double[] ord = new double[] {ptSrc.getX(), ptSrc.getY()};
         this.transform(ord, 0, ord, 0, 1);
         if (ptDst != null) {
             ptDst.setLocation(ord[0], ord[1]);
             return ptDst;
-        } else {
+        } 
+        else {
             return new Point2D.Double(ord[0], ord[1]);
         }
     }
@@ -183,56 +136,38 @@ public abstract class AbstractMathTransform implements MathTransform {
     /**
      * Transforms the specified {@code ptSrc} and stores the result in {@code ptDst}. The default
      * implementation delegates to {@link #transform(double[],int,double[],int,int)}.
+     * Since we are dealing with 2D coordinates, there is no issue of dimension.
+     * 
+     * Transforms the coordinates using a temporary 'double[]' buffer,
+     * and copy the transformation result in the destination position.
      */
-    public DirectPosition transform(final DirectPosition ptSrc, DirectPosition ptDst)
-            throws TransformException {
-        int dimPoint = ptSrc.getDimension();
+    public Coordinate transform(final Coordinate ptSrc, Coordinate ptDst) throws TransformException {
+        int dimPoint = DIM2;  // There may be 3 dimensions there, but we only care about 2.
         final int dimSource = getSourceDimensions();
         final int dimTarget = getTargetDimensions();
         if (dimPoint != dimSource) {
-            throw new MismatchedDimensionException(constructMessage("ptSrc", dimPoint, dimSource));
+        	throw new MismatchedDimensionException(constructMessage("ptSrc", dimPoint, dimSource));
         }
+        final double[] array = new double[DIM2];
         if (ptDst != null) {
-            dimPoint = ptDst.getDimension();
-            if (dimPoint != dimTarget) {
-                throw new MismatchedDimensionException(
-                        constructMessage("ptDst", dimPoint, dimTarget));
-            }
-            /*
-             * Transforms the coordinates using a temporary 'double[]' buffer,
-             * and copy the transformation result in the destination position.
-             */
-            final double[] array;
-            if (dimSource >= dimTarget) {
-                array = ptSrc.getCoordinate();
-            } else {
-                array = new double[dimTarget];
-                for (int i = dimSource; --i >= 0; ) {
-                    array[i] = ptSrc.getOrdinate(i);
-                }
-            }
-            transform(array, 0, array, 0, 1);
-            for (int i = dimTarget; --i >= 0; ) {
-                ptDst.setOrdinate(i, array[i]);
-            }
-        } else {
-            /*
-             * Destination not set.  We are going to create the destination here.  Since we know
-             * that the destination will be the Geotools implementation, write directly into the
-             * 'ordinates' array.
-             */
-            final GeneralDirectPosition destination;
-            ptDst = destination = new GeneralDirectPosition(dimTarget);
-            final double[] source;
-            if (dimSource <= dimTarget) {
-                source = destination.ordinates;
-                for (int i = dimSource; --i >= 0; ) {
-                    source[i] = ptSrc.getOrdinate(i);
-                }
-            } else {
-                source = ptSrc.getCoordinate();
-            }
-            transform(source, 0, destination.ordinates, 0, 1);
+        	if (dimPoint != dimTarget) {
+        		throw new MismatchedDimensionException(constructMessage("ptDst", dimPoint, dimTarget));
+        	}
+
+        	for (int i = DIM2; --i >= 0; ) {
+        		array[i] = ptSrc.getOrdinate(i);
+        	}
+        } 
+        else {
+        	 // Destination not set.  Create it destination here.  
+        	ptDst = new Coordinate();
+        	for (int i = DIM2; --i >= 0; ) {
+        		array[i]  = ptSrc.getOrdinate(i);
+        	}
+        }
+        transform(array, 0, array, 0, 1);
+        for (int i = DIM2; --i >= 0; ) {
+        	ptDst.setOrdinate(i, array[i]);
         }
         return ptDst;
     }
@@ -255,7 +190,7 @@ public abstract class AbstractMathTransform implements MathTransform {
             tmpPts[i] = srcPts[srcOff + i];
         }
         transform(tmpPts, 0, tmpPts, 0, numPts);
-        for (int i = numPts * dimTarget; --i >= 0; ) {
+        for (int i = numPts * dimTarget; --i >= 0;) {
             dstPts[dstOff + i] = (float) tmpPts[i];
         }
     }
@@ -304,7 +239,8 @@ public abstract class AbstractMathTransform implements MathTransform {
                 dstPts[dstOff + i] = srcPts[srcOff + i];
             }
             transform(dstPts, dstOff, dstPts, dstOff, numPts);
-        } else {
+        } 
+        else {
             final double[] tmpPts = new double[numPts * dimSource];
             for (int i = tmpPts.length; --i >= 0; ) {
                 tmpPts[i] = srcPts[srcOff + i];
@@ -312,6 +248,17 @@ public abstract class AbstractMathTransform implements MathTransform {
             transform(tmpPts, 0, dstPts, 0, numPts);
         }
     }
+    
+    /**
+     * This is the method that must be implemented in the subclasses
+     */
+    public abstract void transform(
+            final double[] srcPts,
+            final int srcOff,
+            final double[] dstPts,
+            final int dstOff,
+            final int numPts)
+            throws TransformException;
 
     /**
      * Transform the specified shape. The default implementation computes quadratic curves using
@@ -513,7 +460,7 @@ public abstract class AbstractMathTransform implements MathTransform {
         if (dimSource != 2) {
             throw new MismatchedDimensionException(constructMessage("point", 2, dimSource));
         }
-        throw new TransformException(Errors.format(ErrorKeys.CANT_COMPUTE_DERIVATIVE));
+        throw new TransformException(String.format("%s.derivative: Can't compute derivative", CLSS));
     }
 
     /**
@@ -536,29 +483,27 @@ public abstract class AbstractMathTransform implements MathTransform {
      * @throws MismatchedDimensionException if {@code point} doesn't have the expected dimension.
      * @throws TransformException if the derivative can't be evaluated at the specified point.
      */
-    public Matrix derivative(final DirectPosition point) throws TransformException {
+    public Matrix derivative(final Coordinate point) throws TransformException {
         final int dimSource = getSourceDimensions();
         if (point == null) {
-            if (dimSource == 2) {
-                return derivative((Point2D) null);
+            if (dimSource == DIM2) {
+                return derivative((Coordinate) null);
             }
-        } else {
-            final int dimPoint = point.getDimension();
+        } 
+        else {
+            final int dimPoint = DIM2;
             if (dimPoint != dimSource) {
                 throw new MismatchedDimensionException(
                         constructMessage("point", dimPoint, dimSource));
             }
             if (dimSource == 2) {
-                if (point instanceof Point2D) {
-                    return derivative((Point2D) point);
+                if (point instanceof Coordinate) {
+                    return derivative((Coordinate) point);
                 }
-                return derivative(new Point2D.Double(point.getOrdinate(0), point.getOrdinate(1)));
-            }
-            if (this instanceof MathTransform1D) {
-                return new Matrix1(((MathTransform1D) this).derivative(point.getOrdinate(0)));
+                return derivative(new Coordinate(point.getOrdinate(0), point.getOrdinate(1)));
             }
         }
-        throw new TransformException(Errors.format(ErrorKeys.CANT_COMPUTE_DERIVATIVE));
+        throw new TransformException(String.format("%s.derivative: Cannot compute derivative",CLSS));
     }
 
     /**
@@ -566,11 +511,11 @@ public abstract class AbstractMathTransform implements MathTransform {
      * if this transform is an identity transform, and throws a {@link
      * NoninvertibleTransformException} otherwise. Subclasses should override this method.
      */
-    public MathTransform inverse() throws NoninvertibleTransformException {
+    public MathTransform inverse() throws TransformException {
         if (isIdentity()) {
             return this;
         }
-        throw new NoninvertibleTransformException(Errors.format(ErrorKeys.NONINVERTIBLE_TRANSFORM));
+        throw new TransformException(String.format("%s.inverse: Non invertable transform",CLSS));
     }
 
     /**
@@ -624,35 +569,15 @@ public abstract class AbstractMathTransform implements MathTransform {
      *     transformed} position would be the equals.
      */
     @Override
-    public boolean equals(final Object object) {
+    public boolean equals(final Object that) {
         // Do not check 'object==this' here, since this
         // optimization is usually done in subclasses.
-        if (object != null && getClass().equals(object.getClass())) {
-            final AbstractMathTransform that = (AbstractMathTransform) object;
-            return Utilities.equals(this.getParameterDescriptors(), that.getParameterDescriptors());
+        if (that != null && getClass().equals(that.getClass())) {
+            return this.equals((AbstractMathTransform)that);
         }
         return false;
     }
 
-    /**
-     * Format the inner part of a <A
-     * HREF="http://geoapi.sourceforge.net/snapshot/javadoc/org/opengis/referencing/doc-files/WKT.html"><cite>Well
-     * Known Text</cite> (WKT)</A> element. The default implementation formats all parameter values
-     * returned by {@link #getParameterValues}. The parameter group name is used as the math
-     * transform name.
-     *
-     * @param formatter The formatter to use.
-     * @return The WKT element name, which is {@code "PARAM_MT"} in the default implementation.
-     */
-    @Override
-    protected String formatWKT(final Formatter formatter) {
-        final ParameterValueGroup parameters = getParameterValues();
-        if (parameters != null) {
-            formatter.append(formatter.getName(parameters.getDescriptor()));
-            formatter.append(parameters);
-        }
-        return "PARAM_MT";
-    }
 
     /**
      * Makes sure that an argument is non-null. This is a convenience method for subclass
@@ -663,10 +588,9 @@ public abstract class AbstractMathTransform implements MathTransform {
      * @throws InvalidParameterValueException if {@code object} is null.
      */
     protected static void ensureNonNull(final String name, final Object object)
-            throws InvalidParameterValueException {
+            throws IllegalArgumentException {
         if (object == null) {
-            throw new InvalidParameterValueException(
-                    Errors.format(ErrorKeys.NULL_ARGUMENT_$1, name), name, object);
+            throw new IllegalArgumentException(String.format("%s.ensureNonNull: %s null argument", CLSS,name));
         }
     }
 
@@ -766,24 +690,7 @@ public abstract class AbstractMathTransform implements MathTransform {
         if (matrix instanceof XMatrix) {
             return (XMatrix) matrix;
         }
-        return MatrixFactory.create(matrix);
-    }
-
-    /**
-     * Wraps the specified matrix in a Geotools implementation of {@link Matrix}. If {@code matrix}
-     * is already an instance of {@code GeneralMatrix}, then it is returned unchanged. Otherwise,
-     * all elements are copied in a new {@code GeneralMatrix} object.
-     *
-     * <p>Before to use this method, check if a {@link XMatrix} (to be obtained with {@link
-     * #toXMatrix}) would be suffisient. Use this method only if a {@code GeneralMatrix} is really
-     * necessary.
-     */
-    static GeneralMatrix toGMatrix(final Matrix matrix) {
-        if (matrix instanceof GeneralMatrix) {
-            return (GeneralMatrix) matrix;
-        } else {
-            return new GeneralMatrix(matrix);
-        }
+        return new XMatrix(matrix);
     }
 
     /**
@@ -791,15 +698,15 @@ public abstract class AbstractMathTransform implements MathTransform {
      * of a {@link SingularMatrixException}), then the exception is wrapped into a {@link
      * NoninvertibleTransformException}.
      */
-    static Matrix invert(final Matrix matrix) throws NoninvertibleTransformException {
+    static Matrix invert(final Matrix matrix) throws TransformException {
         try {
             final XMatrix m = toXMatrix(matrix);
             m.invert();
             return m;
-        } catch (SingularMatrixException exception) {
-            NoninvertibleTransformException e =
-                    new NoninvertibleTransformException(
-                            Errors.format(ErrorKeys.NONINVERTIBLE_TRANSFORM));
+        } 
+        catch (SingularMatrixException exception) {
+            TransformException e =
+                    new TransformException(String.format("%s.invert: Non-invertable matrix", CLSS));
             e.initCause(exception);
             throw e;
         }
@@ -839,10 +746,9 @@ public abstract class AbstractMathTransform implements MathTransform {
          */
         @Override
         public String getName() {
-            return AbstractMathTransform.this.getName()
-                    + " ("
-                    + Vocabulary.format(VocabularyKeys.INVERSE_TRANSFORM)
-                    + ')';
+        	return AbstractMathTransform.this.getName()
+        			+ " (inverse)";
+
         }
 
         /**
@@ -875,7 +781,7 @@ public abstract class AbstractMathTransform implements MathTransform {
          * inverse of the matrix returned by the enclosing math transform.
          */
         @Override
-        public Matrix derivative(final DirectPosition point) throws TransformException {
+        public Matrix derivative(final Coordinate point) throws TransformException {
             return invert(AbstractMathTransform.this.derivative(this.transform(point, null)));
         }
 
@@ -917,34 +823,10 @@ public abstract class AbstractMathTransform implements MathTransform {
             }
             if (object instanceof Inverse) {
                 final Inverse that = (Inverse) object;
-                return Utilities.equals(this.inverse(), that.inverse());
-            } else {
+                return this.inverse().equals(that.inverse());
+            } 
+            else {
                 return false;
-            }
-        }
-
-        /**
-         * Format the inner part of a <A
-         * HREF="http://geoapi.sourceforge.net/snapshot/javadoc/org/opengis/referencing/doc-files/WKT.html"><cite>Well
-         * Known Text</cite> (WKT)</A> element. If this inverse math transform has any parameter
-         * values, then this method format the WKT as in the {@linkplain
-         * AbstractMathTransform#formatWKT super-class method}. Otherwise this method format the
-         * math transform as an <code>"INVERSE_MT"</code> entity.
-         *
-         * @param formatter The formatter to use.
-         * @return The WKT element name, which is <code>"PARAM_MT"</code> or <code>"INVERSE_MT"
-         *     </code> in the default implementation.
-         */
-        @Override
-        protected String formatWKT(final Formatter formatter) {
-            final ParameterValueGroup parameters = getParameterValues();
-            if (parameters != null) {
-                formatter.append(formatter.getName(parameters.getDescriptor()));
-                formatter.append(parameters);
-                return "PARAM_MT";
-            } else {
-                formatter.append((Formattable) AbstractMathTransform.this);
-                return "INVERSE_MT";
             }
         }
     }

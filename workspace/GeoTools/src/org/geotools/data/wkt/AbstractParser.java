@@ -16,19 +16,11 @@
  */
 package org.geotools.data.wkt;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Writer;
 import java.text.DecimalFormat;
-import java.text.FieldPosition;
-import java.text.Format;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.ParsePosition;
 import java.util.logging.Logger;
-
-import javax.swing.text.Utilities;
 
 /**
  * Base class for <cite>Well Know Text</cite> (WKT) parser. We've removed all

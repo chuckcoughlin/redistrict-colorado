@@ -65,6 +65,7 @@ The *Archive* eclipse project is a collection of open-source library modules
 used in the application. These have all been updated for compatibility with
 Java 13.
 
+* https://github.com/lessthanoptimal/ejml. Efficient Java Matrix Library version 0.39.
 * https://commons.apache.org/proper/commons-compress/ commons-compress-1.19.jar Apache commons compression handling. I modified code to remove dependencies on unused compression types that required external references. These included: 7Zip, Brotli, LZMA, XZ and ZStandard.
 *  https://commons.apache.org/proper/commons-lang commons-lang3-3.9.jar Apache commons helper utilities
 *  https://commons.apache.org/proper/commons-math commons-math3-3.6.jar Apache commons math utilities

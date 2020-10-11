@@ -26,12 +26,12 @@ package org.geotools.data.wkt;
  * @author Martin Desruisseaux (IRD)
  * @since GeoAPI 2.0
  */
-public interface IdentifiedObject {
+public class IdentifiedObject {
     /**
      * Keys for well-known properties. These are always lower-case.
      */
-    String NAME_KEY = "name";
-    String ALIAS_KEY = "alias";
-    String IDENTIFIERS_KEY = "identifiers";
-    String REMARKS_KEY = "remarks";
+    public static final String NAME_KEY = "name";
+    public static final String ALIAS_KEY = "alias";
+    public static final String IDENTIFIERS_KEY = "identifiers";
+    public static final String REMARKS_KEY = "remarks";
 }

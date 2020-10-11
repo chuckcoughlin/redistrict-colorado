@@ -34,7 +34,7 @@ import java.util.Map;
  * @author Martin Desruisseaux (IRD)
  * @since 2.1
  */
-public class VerticalDatum extends BasicDatum  {
+public class VerticalDatum extends Datum  {
     /** Serial number for interoperability with different versions. */
     private static final long serialVersionUID = 380347456670516572L;
 
@@ -97,7 +97,7 @@ public class VerticalDatum extends BasicDatum  {
 
     /**
      * Constructs a vertical datum from a set of properties. The properties map is given unchanged
-     * to the {@linkplain BasicDatum#AbstractDatum(Map) super-class constructor}.
+     * to the {@linkplain Datum#AbstractDatum(Map) super-class constructor}.
      *
      * @param properties Set of properties. Should contains at least {@code "name"}.
      * @param type The type of this vertical datum.

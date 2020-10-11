@@ -17,15 +17,11 @@
  *    This package contains documentation from OpenGIS specifications.
  *    OpenGIS consortium's work is fully acknowledged here.
  */
-package org.geotools.referencing.datum;
+package org.geotools.datum;
 
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
-import org.geotools.metadata.i18n.VocabularyKeys;
-import org.geotools.referencing.AbstractIdentifiedObject;
-import org.opengis.referencing.datum.TemporalDatum;
-import org.opengis.util.InternationalString;
 
 /**
  * A temporal datum defines the origin of a temporal coordinate reference system.
@@ -34,7 +30,7 @@ import org.opengis.util.InternationalString;
  * @author Martin Desruisseaux (IRD)
  * @since 2.1
  */
-public class DefaultTemporalDatum extends BasicDatum implements TemporalDatum {
+public class DefaultTemporalDatum extends Datum implements TemporalDatum {
     /** Serial number for interoperability with different versions. */
     private static final long serialVersionUID = 3357241732140076884L;
 
@@ -123,7 +119,7 @@ public class DefaultTemporalDatum extends BasicDatum implements TemporalDatum {
 
     /**
      * Constructs a temporal datum from a set of properties. The properties map is given unchanged
-     * to the {@linkplain BasicDatum#AbstractDatum(Map) super-class constructor}.
+     * to the {@linkplain Datum#AbstractDatum(Map) super-class constructor}.
      *
      * @param properties Set of properties. Should contains at least {@code "name"}.
      * @param origin The date and time origin of this temporal datum.
@@ -145,7 +141,7 @@ public class DefaultTemporalDatum extends BasicDatum implements TemporalDatum {
 
     /** Description of the point or points used to anchor the datum to the Earth. */
     @Override
-    public InternationalString getAnchorPoint() {
+    public String getAnchorPoint() {
         return super.getAnchorPoint();
     }
 

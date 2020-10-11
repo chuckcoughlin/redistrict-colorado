@@ -15,6 +15,7 @@
 	<property name="fx.sdk.dir" value="${basedir}/../Archive/lib/javafx-sdk-13.0.1/lib" />
 	<property name="fx.jmod.dir" value="${basedir}/../Archive/jmod/javafx-jmods-13.0.1" />
 	<property name="temp.dir" value="${basedir}/temp" />
+	<property name="ejml-jar" value="ejml-0.39.jar" />
 	<property name="geolib-jar" value="geolib-1.50.jar" />
 	<property name="geotools-jar" value="geotools-22.1.jar" />
 	<property name="jsr-275-jar" value="jsr275-0.9.5.jar" />

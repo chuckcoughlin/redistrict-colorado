@@ -86,8 +86,7 @@ public class WktParser extends MathTransformParser {
      * @return The coordinate reference system.
      * @throws ParseException if the string can't be parsed.
      */
-    public CoordinateSystem parseCoordinateSystem(final String text)
-            throws ParseException {
+    public CoordinateSystem parseCoordinateSystem(final String text) throws ParseException {
         final Element element = getTree(text, new ParsePosition(0));
         final CoordinateSystem cs = parseCoordinateSystem(element);
         element.close();

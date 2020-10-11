@@ -17,7 +17,7 @@
  *    This package contains documentation from OpenGIS specifications.
  *    OpenGIS consortium's work is fully acknowledged here.
  */
-package org.geotools.referencing.datum;
+package org.geotools.datum;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,17 +26,8 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import org.geotools.metadata.iso.citation.Citations;
-import org.geotools.referencing.AbstractIdentifiedObject;
-import org.geotools.referencing.NamedIdentifier;
-import org.geotools.referencing.operation.matrix.XMatrix;
-import org.geotools.referencing.wkt.Formatter;
-import org.opengis.referencing.ReferenceIdentifier;
-import org.opengis.referencing.datum.Datum;
-import org.opengis.referencing.datum.Ellipsoid;
-import org.opengis.referencing.datum.GeodeticDatum;
-import org.opengis.referencing.datum.PrimeMeridian;
-import org.opengis.referencing.operation.Matrix;
+
+
 
 /**
  * Defines the location and precise orientation in 3-dimensional space of a defined ellipsoid (or
@@ -49,7 +40,7 @@ import org.opengis.referencing.operation.Matrix;
  * @see Ellipsoid
  * @see PrimeMeridian
  */
-public class DefaultGeodeticDatum extends BasicDatum implements GeodeticDatum {
+public class DefaultGeodeticDatum extends Datum  {
     /** Serial number for interoperability with different versions. */
     private static final long serialVersionUID = 8832100095648302943L;
 
@@ -121,7 +112,7 @@ public class DefaultGeodeticDatum extends BasicDatum implements GeodeticDatum {
 
     /**
      * Constructs a geodetic datum from a set of properties. The properties map is given unchanged
-     * to the {@linkplain BasicDatum#AbstractDatum(Map) super-class constructor}. Additionally,
+     * to the {@linkplain Datum#AbstractDatum(Map) super-class constructor}. Additionally,
      * the following properties are understood by this construtor:
      *
      * <p>
@@ -393,28 +384,4 @@ public class DefaultGeodeticDatum extends BasicDatum implements GeodeticDatum {
         return code;
     }
 
-    /**
-     * Format the inner part of a <A
-     * HREF="http://geoapi.sourceforge.net/snapshot/javadoc/org/opengis/referencing/doc-files/WKT.html"><cite>Well
-     * Known Text</cite> (WKT)</A> element.
-     *
-     * @param formatter The formatter to use.
-     * @return The WKT element name, which is "DATUM"
-     */
-    @Override
-    protected String formatWKT(final Formatter formatter) {
-        // Do NOT invokes the super-class method, because
-        // horizontal datum do not write the datum type.
-        formatter.append(ellipsoid);
-        if (bursaWolf != null) {
-            for (int i = 0; i < bursaWolf.length; i++) {
-                final BursaWolfParameters transformation = bursaWolf[i];
-                if (isWGS84(transformation.targetDatum)) {
-                    formatter.append(transformation);
-                    break;
-                }
-            }
-        }
-        return "DATUM";
-    }
 }
