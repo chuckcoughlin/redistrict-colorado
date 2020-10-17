@@ -10,6 +10,7 @@ module org.geotools {
 	requires org.apache.commons.compress;
 	requires commons.math3;
 	requires geographic.lib;
+	requires ejml;
 	
 	exports org.geotools.data.dbf;
 	exports org.geotools.data.shapefile;

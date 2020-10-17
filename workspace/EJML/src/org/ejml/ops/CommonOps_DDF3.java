@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.ejml.dense.fixed;
+package org.ejml.ops;
 
 import org.ejml.UtilEjml;
 import org.ejml.data.DMatrix3;

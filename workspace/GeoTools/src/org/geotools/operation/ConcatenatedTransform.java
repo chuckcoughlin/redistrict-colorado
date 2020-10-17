@@ -80,9 +80,9 @@ public class ConcatenatedTransform extends AbstractMathTransform implements Seri
      * Returns the underlying matrix for the specified transform, or {@code null} if the matrix is
      * unavailable.
      */
-    private static XMatrix getMatrix(final MathTransform transform) {
+    private static Matrix getMatrix(final MathTransform transform) {
         if (transform instanceof LinearTransform) {
-            return toXMatrix(((LinearTransform) transform).getMatrix());
+            return toMatrix(((LinearTransform) transform).getMatrix());
         }
         if (transform instanceof AffineTransform) {
             return new Matrix3((AffineTransform) transform);
@@ -214,15 +214,15 @@ public class ConcatenatedTransform extends AbstractMathTransform implements Seri
          * If both transforms use matrix, then we can create
          * a single transform using the concatenated matrix.
          */
-        final XMatrix matrix1 = getMatrix(tr1);
+        final Matrix matrix1 = getMatrix(tr1);
         if (matrix1 != null) {
-            final XMatrix matrix2 = getMatrix(tr2);
+            final Matrix matrix2 = getMatrix(tr2);
             if (matrix2 != null) {
                 // Compute "matrix = matrix2 * matrix1". Reuse an existing matrix object
                 // if possible, which is always the case when both matrix are square.
                 final int numRow = matrix2.getNumRow();
                 final int numCol = matrix1.getNumCol();
-                final XMatrix matrix;
+                final Matrix matrix;
                 if (numCol == matrix2.getNumCol()) {
                     matrix = matrix2;
                     matrix2.multiply(matrix1);
@@ -494,8 +494,8 @@ public class ConcatenatedTransform extends AbstractMathTransform implements Seri
      */
     @Override
     public Matrix derivative(final Point2D point) throws TransformException {
-        final XMatrix matrix1 = toXMatrix(transform1.derivative(point));
-        final XMatrix matrix2 = toXMatrix(transform2.derivative(transform1.transform(point, null)));
+        final Matrix matrix1 = toMatrix(transform1.derivative(point));
+        final Matrix matrix2 = toMatrix(transform2.derivative(transform1.transform(point, null)));
         matrix2.multiply(matrix1);
         return matrix2;
     }
@@ -515,9 +515,9 @@ public class ConcatenatedTransform extends AbstractMathTransform implements Seri
         // if possible, which is always the case when both matrix are square.
         final int numRow = matrix2.getNumRow();
         final int numCol = matrix1.getNumCol();
-        final XMatrix matrix;
+        final Matrix matrix;
         if (numCol == matrix2.getNumCol()) {
-            matrix = toXMatrix(matrix2);
+            matrix = toMatrix(matrix2);
             matrix.multiply(matrix1);
         } else {
             final GeneralMatrix m = new GeneralMatrix(numRow, numCol);

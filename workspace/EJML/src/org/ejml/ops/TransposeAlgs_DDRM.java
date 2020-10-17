@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.ejml.dense.row.misc;
+package org.ejml.ops;
 
 import org.ejml.data.DMatrixD1;
 

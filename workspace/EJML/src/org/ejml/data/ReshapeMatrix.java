@@ -23,7 +23,7 @@ package org.ejml.data;
  *
  * @author Peter Abeles
  */
-public interface ReshapeMatrix extends Matrix{
+public interface ReshapeMatrix extends EJMLMatrix{
     /**
      * Equivalent to invoking reshape(numRows,numCols,false);
      *

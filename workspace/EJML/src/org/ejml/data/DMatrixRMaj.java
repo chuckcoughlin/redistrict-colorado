@@ -153,11 +153,11 @@ public class DMatrixRMaj extends DMatrixD1 {
      *
      * @param mat Matrix whose values will be copied.  Not modified.
      */
-    public DMatrixRMaj(DMatrix mat) {
+    public DMatrixRMaj(EJMLMatrix mat) {
         this(mat.getNumRows(),mat.getNumCols());
         for( int i = 0; i < numRows; i++ ) {
             for( int j = 0; j < numCols; j++ ) {
-                set(i,j, mat.get(i,j));
+                setElement(i,j, mat.getElement(i,j));
             }
         }
     }
@@ -212,7 +212,7 @@ public class DMatrixRMaj extends DMatrixD1 {
      * @param value The element's new value.
      */
     @Override
-    public void set( int row , int col , double value ) {
+    public void setElement( int row , int col , double value ) {
         if( col < 0 || col >= numCols || row < 0 || row >= numRows ) {
             throw new IllegalArgumentException("Specified element is out of bounds: ("+row+" , "+col+")");
         }
@@ -220,7 +220,6 @@ public class DMatrixRMaj extends DMatrixD1 {
         data[ row * numCols + col ] = value;
     }
 
-    @Override
     public void unsafe_set( int row , int col , double value ) {
         data[ row * numCols + col ] = value;
     }
@@ -254,7 +253,7 @@ public class DMatrixRMaj extends DMatrixD1 {
      * @return The value of the element.
      */
     @Override
-    public double get( int row , int col ) {
+    public double getElement( int row , int col ) {
         if( col < 0 || col >= numCols || row < 0 || row >= numRows ) {
             throw new IllegalArgumentException("Specified element is out of bounds: "+row+" "+col);
         }
@@ -262,7 +261,6 @@ public class DMatrixRMaj extends DMatrixD1 {
         return data[ row * numCols + col ];
     }
 
-    @Override
     public double unsafe_get( int row , int col ) {
         return data[ row * numCols + col ];
     }
@@ -289,7 +287,6 @@ public class DMatrixRMaj extends DMatrixD1 {
      *
      * @return The number of elements in the matrix.
      */
-    @Override
     public int getNumElements() {
         return numRows*numCols;
     }
@@ -342,44 +339,40 @@ public class DMatrixRMaj extends DMatrixD1 {
      *
      * @return A new identical matrix.
      */
-    @SuppressWarnings({"unchecked"})
     @Override
-    public DMatrixRMaj copy() {
+    public DMatrixRMaj clone() {
         return new DMatrixRMaj(this);
     }
 
     @Override
-    public void set(Matrix original) {
-        DMatrix m = (DMatrix)original;
+    public void set(EJMLMatrix original) {
+    	DMatrixRMaj m = (DMatrixRMaj)original;
 
         reshape(original.getNumRows(),original.getNumCols());
 
         if( original instanceof DMatrixRMaj) {
             // do a faster copy if its of type DMatrixRMaj
             System.arraycopy(((DMatrixRMaj)m).data,0,data,0,numRows*numCols);
-        } else {
+        } 
+        else {
             int index = 0;
             for (int i = 0; i < numRows; i++) {
                 for (int j = 0; j < numCols; j++) {
-                    data[index++] = m.get(i, j);
+                    data[index++] = m.getElement(i, j);
                 }
             }
         }
     }
 
-
-
-    @Override
     public DMatrixRMaj createLike() {
         return new DMatrixRMaj(numRows,numCols);
     }
 
-    @Override
+
     public DMatrixRMaj create(int numRows, int numCols) {
         return new DMatrixRMaj(numRows,numCols);
     }
 
-    @Override
     public MatrixType getType() {
         return MatrixType.DDRM;
     }

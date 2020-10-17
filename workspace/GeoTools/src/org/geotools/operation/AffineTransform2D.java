@@ -27,6 +27,7 @@ import java.awt.geom.RectangularShape;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.geotools.operation.matrix.Matrix;
 import org.locationtech.jts.geom.Coordinate;
 
 
@@ -189,7 +190,7 @@ public class AffineTransform2D extends AffineTransform
 
     /** Returns this transform as an affine transform matrix. */
     public Matrix getMatrix() {
-        return new XMatrix(this.getMatrix());
+        return new Matrix(this.getMatrix());
     }
 
     /**
@@ -197,7 +198,7 @@ public class AffineTransform2D extends AffineTransform
      * the same everywhere.
      */
     public Matrix derivative(final Point2D point) {
-        return new XMatrix(
+        return new Matrix(
                 getScaleX(), getShearX(),
                 getShearY(), getScaleY());
     }

@@ -14,7 +14,7 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.referencing.operation.matrix;
+package org.geotools.operation.matrix;
 
 import java.awt.geom.AffineTransform;
 import java.io.BufferedReader;
@@ -24,21 +24,14 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.text.FieldPosition;
 import java.text.NumberFormat;
-import java.text.ParseException;
 import java.util.Locale;
+
 import org.ejml.UtilEjml;
 import org.ejml.data.DMatrixRMaj;
-import org.ejml.dense.row.CommonOps_DDRM;
-import org.geotools.metadata.i18n.ErrorKeys;
-import org.geotools.metadata.i18n.Errors;
-import org.geotools.util.ContentFormatException;
-import org.geotools.util.LineFormat;
-import org.geotools.util.Utilities;
-import org.geotools.util.XArray;
-import org.opengis.geometry.Envelope;
-import org.opengis.geometry.MismatchedDimensionException;
-import org.opengis.referencing.cs.AxisDirection;
-import org.opengis.referencing.operation.Matrix;
+import org.ejml.ops.CommonOps_DDRM;
+import org.opengis.MismatchedDimensionException;
+import org.openjump.coordsys.AxisDirection;
+
 
 /**
  * A two dimensional array of numbers. Row and column numbering begins with zero.
@@ -51,7 +44,7 @@ import org.opengis.referencing.operation.Matrix;
  * @see java.awt.geom.AffineTransform
  */
 public class GeneralMatrix implements Matrix, Serializable {
-    /** Serial number for interoperability with different versions. */
+    private static final String CLSS = "General Matrix";
     private static final long serialVersionUID = 8447482612423035361L;
 
     DMatrixRMaj mat;
@@ -109,8 +102,8 @@ public class GeneralMatrix implements Matrix, Serializable {
      */
     public GeneralMatrix(final int numRow, final int numCol, final Matrix matrix) {
         mat = new DMatrixRMaj(numRow, numCol);
-        if (matrix.getNumRow() != numRow || matrix.getNumCol() != numCol) {
-            throw new IllegalArgumentException(Errors.format(ErrorKeys.ILLEGAL_MATRIX_SIZE));
+        if (matrix.getNumRows() != numRow || matrix.getNumCols() != numCol) {
+        	throw new IllegalArgumentException(String.format("%s: Illegal matrix size (%d, args)",CLSS,matrix.getNumRows()));
         }
         for (int j = 0; j < numRow; j++) {
             for (int i = 0; i < numCol; i++) {
@@ -128,14 +121,15 @@ public class GeneralMatrix implements Matrix, Serializable {
      */
     public GeneralMatrix(final double[][] matrix) throws IllegalArgumentException {
         mat = new DMatrixRMaj(matrix);
-        final int numRow = getNumRow();
-        final int numCol = getNumCol();
+        final int numRow = getNumRows();
+        final int numCol = getNumCols();
         for (int j = 0; j < numRow; j++) {
             if (matrix[j].length != numCol) {
-                throw new IllegalArgumentException(Errors.format(ErrorKeys.MATRIX_NOT_REGULAR));
+            	throw new IllegalArgumentException(String.format("%s: Illegal matrix not regular (%d)",
+            			CLSS,mat.getNumRows()));
             }
             for (int i = 0; i < numCol; i++) {
-                mat.set(j, i, matrix[j][i]);
+                mat.setElement(j, i, matrix[j][i]);
             }
         }
     }
@@ -149,13 +143,13 @@ public class GeneralMatrix implements Matrix, Serializable {
         if (matrix instanceof GeneralMatrix) {
             mat = new DMatrixRMaj(((GeneralMatrix) matrix).mat);
         } else {
-            mat = new DMatrixRMaj(matrix.getNumRow(), matrix.getNumCol());
+            mat = new DMatrixRMaj(matrix.getNumRows(), matrix.getNumCols());
 
-            final int height = getNumRow();
-            final int width = getNumCol();
+            final int height = getNumRows();
+            final int width = getNumCols();
             for (int j = 0; j < height; j++) {
                 for (int i = 0; i < width; i++) {
-                    mat.set(j, i, matrix.getElement(j, i));
+                    mat.setElement(j, i, matrix.getElement(j, i));
                 }
             }
         }
@@ -194,162 +188,6 @@ public class GeneralMatrix implements Matrix, Serializable {
                         });
         assert isAffine() : this;
     }
-
-    /**
-     * Constructs a transform that maps a source region to a destination region. Axis order and
-     * direction are left unchanged.
-     *
-     * <p>If the source dimension is equals to the destination dimension, then the transform is
-     * affine. However, the following special cases are also handled:
-     *
-     * <UL>
-     *   <LI>If the target dimension is smaller than the source dimension, then extra dimensions are
-     *       dropped.
-     *   <LI>If the target dimension is greater than the source dimension, then the coordinates in
-     *       the new dimensions are set to 0.
-     * </UL>
-     *
-     * @param srcRegion The source region.
-     * @param dstRegion The destination region.
-     */
-    public GeneralMatrix(final Envelope srcRegion, final Envelope dstRegion) {
-        mat = new DMatrixRMaj(dstRegion.getDimension() + 1, srcRegion.getDimension() + 1);
-
-        // Next lines should be first if only Sun could fix RFE #4093999 (sigh...)
-        final int srcDim = srcRegion.getDimension();
-        final int dstDim = dstRegion.getDimension();
-        for (int i = Math.min(srcDim, dstDim); --i >= 0; ) {
-            double scale = dstRegion.getSpan(i) / srcRegion.getSpan(i);
-            double translate = dstRegion.getMinimum(i) - srcRegion.getMinimum(i) * scale;
-            setElement(i, i, scale);
-            setElement(i, srcDim, translate);
-        }
-        setElement(dstDim, srcDim, 1);
-        assert (srcDim != dstDim) || isAffine() : this;
-    }
-
-    /**
-     * Constructs a transform changing axis order and/or direction. For example, the transform may
-     * converts (NORTH,WEST) coordinates into (EAST,NORTH). Axis direction can be inversed only. For
-     * example, it is illegal to transform (NORTH,WEST) coordinates into (NORTH,DOWN).
-     *
-     * <p>If the source dimension is equals to the destination dimension, then the transform is
-     * affine. However, the following special cases are also handled: <br>
-     *
-     * <UL>
-     *   <LI>If the target dimension is smaller than the source dimension, extra axis are dropped.
-     *       An exception is thrown if the target contains some axis not found in the source.
-     * </UL>
-     *
-     * @param srcAxis The set of axis direction for source coordinate system.
-     * @param dstAxis The set of axis direction for destination coordinate system.
-     * @throws IllegalArgumentException If {@code dstAxis} contains some axis not found in {@code
-     *     srcAxis}, or if some colinear axis were found.
-     */
-    public GeneralMatrix(final AxisDirection[] srcAxis, final AxisDirection[] dstAxis) {
-        this(null, srcAxis, null, dstAxis, false);
-    }
-
-    /**
-     * Constructs a transform mapping a source region to a destination region. Axis order and/or
-     * direction can be changed during the process. For example, the transform may convert
-     * (NORTH,WEST) coordinates into (EAST,NORTH). Axis direction can be inversed only. For example,
-     * it is illegal to transform (NORTH,WEST) coordinates into (NORTH,DOWN).
-     *
-     * <p>If the source dimension is equals to the destination dimension, then the transform is
-     * affine. However, the following special cases are also handled: <br>
-     *
-     * <UL>
-     *   <LI>If the target dimension is smaller than the source dimension, extra axis are dropped.
-     *       An exception is thrown if the target contains some axis not found in the source.
-     * </UL>
-     *
-     * @param srcRegion The source region.
-     * @param srcAxis Axis direction for each dimension of the source region.
-     * @param dstRegion The destination region.
-     * @param dstAxis Axis direction for each dimension of the destination region.
-     * @throws MismatchedDimensionException if the envelope dimension doesn't matches the axis
-     *     direction array length.
-     * @throws IllegalArgumentException If {@code dstAxis} contains some axis not found in {@code
-     *     srcAxis}, or if some colinear axis were found.
-     */
-    public GeneralMatrix(
-            final Envelope srcRegion,
-            final AxisDirection[] srcAxis,
-            final Envelope dstRegion,
-            final AxisDirection[] dstAxis) {
-        this(srcRegion, srcAxis, dstRegion, dstAxis, true);
-    }
-
-    /**
-     * Implementation of constructors expecting envelope and/or axis directions.
-     *
-     * @param validRegions {@code true} if source and destination regions must be taken in account.
-     *     If {@code false}, then source and destination regions will be ignored and may be null.
-     */
-    private GeneralMatrix(
-            final Envelope srcRegion,
-            final AxisDirection[] srcAxis,
-            final Envelope dstRegion,
-            final AxisDirection[] dstAxis,
-            final boolean validRegions) {
-        this(dstAxis.length + 1, srcAxis.length + 1);
-        if (validRegions) {
-            ensureDimensionMatch("srcRegion", srcRegion, srcAxis.length);
-            ensureDimensionMatch("dstRegion", dstRegion, dstAxis.length);
-        }
-        /*
-         * Map source axis to destination axis.  If no axis is moved (for example if the user
-         * want to transform (NORTH,EAST) to (SOUTH,EAST)), then source and destination index
-         * will be equal.   If some axis are moved (for example if the user want to transform
-         * (NORTH,EAST) to (EAST,NORTH)),  then ordinates at index {@code srcIndex} will
-         * have to be moved at index {@code dstIndex}.
-         */
-        setZero();
-        for (int dstIndex = 0; dstIndex < dstAxis.length; dstIndex++) {
-            boolean hasFound = false;
-            final AxisDirection dstAxe = dstAxis[dstIndex];
-            final AxisDirection search = dstAxe.absolute();
-            for (int srcIndex = 0; srcIndex < srcAxis.length; srcIndex++) {
-                final AxisDirection srcAxe = srcAxis[srcIndex];
-                if (search.equals(srcAxe.absolute())) {
-                    if (hasFound) {
-                        // TODO: Use the localized version of 'getName' in GeoAPI 2.1
-                        throw new IllegalArgumentException(
-                                Errors.format(
-                                        ErrorKeys.COLINEAR_AXIS_$2, srcAxe.name(), dstAxe.name()));
-                    }
-                    hasFound = true;
-                    /*
-                     * Set the matrix elements. Some matrix elements will never
-                     * be set. They will be left to zero, which is their wanted
-                     * value.
-                     */
-                    final boolean normal = srcAxe.equals(dstAxe);
-                    double scale = (normal) ? +1 : -1;
-                    double translate = 0;
-                    if (validRegions) {
-                        translate =
-                                (normal)
-                                        ? dstRegion.getMinimum(dstIndex)
-                                        : dstRegion.getMaximum(dstIndex);
-                        scale *= dstRegion.getSpan(dstIndex) / srcRegion.getSpan(srcIndex);
-                        translate -= srcRegion.getMinimum(srcIndex) * scale;
-                    }
-                    setElement(dstIndex, srcIndex, scale);
-                    setElement(dstIndex, srcAxis.length, translate);
-                }
-            }
-            if (!hasFound) {
-                // TODO: Use the localized version of 'getName' in GeoAPI 2.1
-                throw new IllegalArgumentException(
-                        Errors.format(ErrorKeys.NO_SOURCE_AXIS_$1, dstAxis[dstIndex].name()));
-            }
-        }
-        setElement(dstAxis.length, srcAxis.length, 1);
-        assert (srcAxis.length != dstAxis.length) || isAffine() : this;
-    }
-
     //
     // In-place operations
     //
@@ -363,34 +201,16 @@ public class GeneralMatrix implements Matrix, Serializable {
         if (matrix instanceof GeneralMatrix) {
             return ((GeneralMatrix) matrix).mat;
         } else {
-            DMatrixRMaj a = new DMatrixRMaj(matrix.getNumRow(), matrix.getNumCol());
+            DMatrixRMaj a = new DMatrixRMaj(matrix.getNumRows(), matrix.getNumCols());
             for (int j = 0; j < a.numRows; j++) {
                 for (int i = 0; i < a.numCols; i++) {
-                    a.set(j, i, matrix.getElement(j, i));
+                    a.setElement(j, i, matrix.getElement(j, i));
                 }
             }
             return a;
         }
     }
 
-    /**
-     * Convenience method for checking object dimension validity. This method is usually invoked for
-     * argument checking.
-     *
-     * @param name The name of the argument to check.
-     * @param envelope The envelope to check.
-     * @param dimension The expected dimension for the object.
-     * @throws MismatchedDimensionException if the envelope doesn't have the expected dimension.
-     */
-    private static void ensureDimensionMatch(
-            final String name, final Envelope envelope, final int dimension)
-            throws MismatchedDimensionException {
-        final int dim = envelope.getDimension();
-        if (dimension != dim) {
-            throw new MismatchedDimensionException(
-                    Errors.format(ErrorKeys.MISMATCHED_DIMENSION_$3, name, dim, dimension));
-        }
-    }
 
     /**
      * Retrieves the specifiable values in the transformation matrix into a 2-dimensional array of
@@ -405,8 +225,8 @@ public class GeneralMatrix implements Matrix, Serializable {
         if (matrix instanceof GeneralMatrix) {
             return ((GeneralMatrix) matrix).getElements();
         }
-        final int numCol = matrix.getNumCol();
-        final double[][] rows = new double[matrix.getNumRow()][];
+        final int numCol = matrix.getNumCols();
+        final double[][] rows = new double[matrix.getNumRows()][];
         for (int j = 0; j < rows.length; j++) {
             final double[] row;
             rows[j] = row = new double[numCol];
@@ -426,8 +246,8 @@ public class GeneralMatrix implements Matrix, Serializable {
      * @return The matrix elements.
      */
     public final double[][] getElements() {
-        final int numCol = getNumCol();
-        final double[][] rows = new double[getNumRow()][];
+        final int numCol = getNumCols();
+        final double[][] rows = new double[getNumRows()][];
         for (int j = 0; j < rows.length; j++) {
             getRow(j, rows[j] = new double[numCol]);
         }
@@ -436,8 +256,8 @@ public class GeneralMatrix implements Matrix, Serializable {
 
     /** {@inheritDoc} */
     public final boolean isAffine() {
-        int dimension = getNumRow();
-        if (dimension != getNumCol()) {
+        int dimension = getNumRows();
+        if (dimension != getNumCols()) {
             return false;
         }
         dimension--;
@@ -489,10 +309,10 @@ public class GeneralMatrix implements Matrix, Serializable {
         if (matrix instanceof GeneralMatrix) {
             a = new DMatrixRMaj(((GeneralMatrix) matrix).mat);
         } else {
-            a = new DMatrixRMaj(matrix.getNumRow(), matrix.getNumCol());
+            a = new DMatrixRMaj(matrix.getNumRows(), matrix.getNumCols());
             for (int j = 0; j < mat.numRows; j++) {
                 for (int i = 0; i < mat.numCols; i++) {
-                    mat.set(j, i, matrix.getElement(j, i));
+                    mat.setElement(j, i, matrix.getElement(j, i));
                 }
             }
         }
@@ -509,7 +329,7 @@ public class GeneralMatrix implements Matrix, Serializable {
      * @return The number of rows in the matrix.
      */
     @Override
-    public int getNumRow() {
+    public int getNumRows() {
         return mat.getNumRows();
     }
 
@@ -519,7 +339,7 @@ public class GeneralMatrix implements Matrix, Serializable {
      * @return The number of columns in the matrix.
      */
     @Override
-    public int getNumCol() {
+    public int getNumCols() {
         return mat.getNumCols();
     }
 
@@ -532,7 +352,7 @@ public class GeneralMatrix implements Matrix, Serializable {
      */
     @Override
     public double getElement(int row, int column) {
-        return mat.get(row, column);
+        return mat.getElement(row, column);
     }
 
     public void setColumn(int column, double... values) {
@@ -548,7 +368,7 @@ public class GeneralMatrix implements Matrix, Serializable {
                             + ".");
         }
         for (int i = 0; i < values.length; i++) {
-            mat.set(i, column, values[i]);
+            mat.setElement(i, column, values[i]);
         }
     }
 
@@ -566,7 +386,7 @@ public class GeneralMatrix implements Matrix, Serializable {
         }
 
         for (int i = 0; i < values.length; i++) {
-            mat.set(row, i, values[i]);
+            mat.setElement(row, i, values[i]);
         }
     }
 
@@ -579,12 +399,12 @@ public class GeneralMatrix implements Matrix, Serializable {
      */
     @Override
     public void setElement(int row, int column, double value) {
-        mat.set(row, column, value);
+        mat.setElement(row, column, value);
     }
 
     /** Sets each value of the matrix to 0.0. */
     @Override
-    public void setZero() {
+    public void zero() {
         mat.zero();
     }
 
@@ -596,8 +416,8 @@ public class GeneralMatrix implements Matrix, Serializable {
 
     /** Returns {@code true} if this matrix is an identity matrix. */
     public final boolean isIdentity() {
-        final int numRow = getNumRow();
-        final int numCol = getNumCol();
+        final int numRow = getNumRows();
+        final int numCol = getNumCols();
         if (numRow != numCol) {
             return false;
         }
@@ -625,8 +445,8 @@ public class GeneralMatrix implements Matrix, Serializable {
     /** Returns {@code true} if the matrix is an identity matrix using the provided tolerance. */
     static boolean isIdentity(final Matrix matrix, double tolerance) {
         tolerance = Math.abs(tolerance);
-        final int numRow = matrix.getNumRow();
-        final int numCol = matrix.getNumCol();
+        final int numRow = matrix.getNumRows();
+        final int numCol = matrix.getNumCols();
         if (numRow != numCol) {
             return false;
         }
@@ -681,12 +501,12 @@ public class GeneralMatrix implements Matrix, Serializable {
 
     /** Compares the element values. */
     static boolean epsilonEquals(final Matrix m1, final Matrix m2, final double tolerance) {
-        final int numRow = m1.getNumRow();
-        if (numRow != m2.getNumRow()) {
+        final int numRow = m1.getNumRows();
+        if (numRow != m2.getNumRows()) {
             return false;
         }
-        final int numCol = m1.getNumCol();
-        if (numCol != m2.getNumCol()) {
+        final int numCol = m1.getNumCols();
+        if (numCol != m2.getNumCols()) {
             return false;
         }
         for (int j = 0; j < numRow; j++) {
@@ -715,9 +535,8 @@ public class GeneralMatrix implements Matrix, Serializable {
      */
     public final AffineTransform toAffineTransform2D() throws IllegalStateException {
         int check;
-        if ((check = getNumRow()) != 3 || (check = getNumCol()) != 3) {
-            throw new IllegalStateException(
-                    Errors.format(ErrorKeys.NOT_TWO_DIMENSIONAL_$1, check - 1));
+        if ((check = getNumRows()) != 3 || (check = getNumCols()) != 3) {
+            throw new IllegalStateException("Not 2 dimensional");
         }
         if (isAffine()) {
             return new AffineTransform(
@@ -728,109 +547,11 @@ public class GeneralMatrix implements Matrix, Serializable {
                     getElement(0, 2),
                     getElement(1, 2));
         }
-        throw new IllegalStateException(Errors.format(ErrorKeys.NOT_AN_AFFINE_TRANSFORM));
+        throw new IllegalStateException("Not an affine transform");
     }
 
-    /**
-     * Loads data from the specified file until the first blank line or end of file.
-     *
-     * @param file The file to read.
-     * @return The matrix parsed from the file.
-     * @throws IOException if an error occured while reading the file.
-     * @since 2.2
-     */
-    public static GeneralMatrix load(final File file) throws IOException {
-        final BufferedReader in = new BufferedReader(new FileReader(file));
-        try {
-            return load(in, Locale.US);
-        } finally {
-            in.close();
-        }
-    }
 
-    /**
-     * Loads data from the specified streal until the first blank line or end of stream.
-     *
-     * @param in The stream to read.
-     * @param locale The locale for the numbers to be parsed.
-     * @return The matrix parsed from the stream.
-     * @throws IOException if an error occured while reading the stream.
-     * @since 2.2
-     */
-    public static GeneralMatrix load(final BufferedReader in, final Locale locale)
-            throws IOException {
-        final LineFormat parser = new LineFormat(locale);
-        double[] data = null;
-        double[] row = null;
-        int numRow = 0;
-        int numData = 0;
-        String line;
-        while ((line = in.readLine()) != null) {
-            if ((line = line.trim()).length() == 0) {
-                if (numRow == 0) {
-                    continue;
-                } else {
-                    break;
-                }
-            }
-            try {
-                parser.setLine(line);
-                row = parser.getValues(row);
-            } catch (ParseException exception) {
-                throw new ContentFormatException(exception.getLocalizedMessage(), exception);
-            }
-            final int upper = numData + row.length;
-            if (data == null) {
-                // Assumes a square matrix.
-                data = new double[numData * numData];
-            }
-            if (upper > data.length) {
-                data = XArray.resize(data, upper * 2);
-            }
-            System.arraycopy(row, 0, data, numData, row.length);
-            numData = upper;
-            numRow++;
-            assert numData % numRow == 0 : numData;
-        }
-        data = (data != null) ? XArray.resize(data, numData) : new double[0];
-        return new GeneralMatrix(numRow, numData / numRow, data);
-    }
 
-    /**
-     * Returns a string representation of this matrix. The returned string is implementation
-     * dependent. It is usually provided for debugging purposes only.
-     */
-    @Override
-    public String toString() {
-        return toString(this);
-    }
-
-    /**
-     * Returns a string representation of the specified matrix. The returned string is
-     * implementation dependent. It is usually provided for debugging purposes only.
-     */
-    static String toString(final Matrix matrix) {
-        final int numRow = matrix.getNumRow();
-        final int numCol = matrix.getNumCol();
-        StringBuffer buffer = new StringBuffer();
-        final int columnWidth = 12;
-        final String lineSeparator = System.getProperty("line.separator", "\n");
-        final FieldPosition dummy = new FieldPosition(0);
-        final NumberFormat format = NumberFormat.getNumberInstance();
-        format.setGroupingUsed(false);
-        format.setMinimumFractionDigits(6);
-        format.setMaximumFractionDigits(6);
-        for (int j = 0; j < numRow; j++) {
-            for (int i = 0; i < numCol; i++) {
-                final int position = buffer.length();
-                buffer = format.format(matrix.getElement(j, i), buffer, dummy);
-                final int spaces = Math.max(columnWidth - (buffer.length() - position), 1);
-                buffer.insert(position, Utilities.spaces(spaces));
-            }
-            buffer.append(lineSeparator);
-        }
-        return buffer.toString();
-    }
 
     // Method Compatibility
     /** Returns a clone of this matrix. */
@@ -868,7 +589,7 @@ public class GeneralMatrix implements Matrix, Serializable {
      */
     public void getColumn(int col, double[] array) {
         for (int j = 0; j < array.length; j++) {
-            array[j] = mat.get(j, col);
+            array[j] = mat.getElement(j, col);
         }
     }
 
@@ -879,7 +600,7 @@ public class GeneralMatrix implements Matrix, Serializable {
 
     @Override
     public void mul(double scalar, Matrix matrix) {
-        DMatrixRMaj a = new DMatrixRMaj(matrix.getNumRow(), matrix.getNumCol());
+        DMatrixRMaj a = new DMatrixRMaj(matrix.getNumRows(), matrix.getNumCols());
         CommonOps_DDRM.scale(scalar, internal(matrix), a);
         mat = a;
     }
@@ -892,7 +613,7 @@ public class GeneralMatrix implements Matrix, Serializable {
      */
     public void getRow(int row, double[] array) {
         for (int i = 0; i < array.length; i++) {
-            array[i] = mat.get(row, i);
+            array[i] = mat.getElement(row, i);
         }
     }
 
@@ -979,19 +700,19 @@ public class GeneralMatrix implements Matrix, Serializable {
     }
 
     @Override
-    public void add(double scalar, XMatrix matrix) {
+    public void add(double scalar, Matrix matrix) {
         DMatrixRMaj a = internal(matrix);
         mat.reshape(a.numRows, a.numCols, false);
         CommonOps_DDRM.add(a, scalar, mat);
     }
 
     @Override
-    public void add(XMatrix matrix) {
+    public void add(Matrix matrix) {
         CommonOps_DDRM.add(mat, internal(matrix), mat);
     }
 
     @Override
-    public void add(XMatrix matrix1, XMatrix matrix2) {
+    public void add(Matrix matrix1, Matrix matrix2) {
         DMatrixRMaj a = internal(matrix1);
         DMatrixRMaj b = internal(matrix2);
         mat.reshape(a.numRows, a.numCols, false);

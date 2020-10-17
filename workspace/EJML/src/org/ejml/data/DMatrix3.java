@@ -24,8 +24,9 @@ package org.ejml.data;
  *
  * @author Peter Abeles
  */
-public class DMatrix3 implements DMatrixFixed {
-    public double a1,a2,a3;
+public class DMatrix3 implements EJMLMatrix {
+	private static final long serialVersionUID = -640839944086691604L;
+	public double a1,a2,a3;
 
     public DMatrix3() {
     }
@@ -64,11 +65,10 @@ public class DMatrix3 implements DMatrixFixed {
     }
 
     @Override
-    public double get(int row, int col) {
+    public double getElement(int row, int col) {
         return unsafe_get(row,col);
     }
 
-    @Override
     public double unsafe_get(int row, int col) {
         if( row != 0 && col != 0 )
             throw new IllegalArgumentException("Row or column must be zero since this is a vector");
@@ -87,11 +87,10 @@ public class DMatrix3 implements DMatrixFixed {
     }
 
     @Override
-    public void set(int row, int col, double val) {
+    public void setElement(int row, int col, double val) {
         unsafe_set(row,col,val);
     }
 
-    @Override
     public void unsafe_set(int row, int col, double val) {
         if( row != 0 && col != 0 )
             throw new IllegalArgumentException("Row or column must be zero since this is a vector");
@@ -110,17 +109,17 @@ public class DMatrix3 implements DMatrixFixed {
     }
 
     @Override
-    public void set(Matrix original) {
-        DMatrix m = (DMatrix)original;
+    public void set(EJMLMatrix original) {
+        DMatrix3 m = (DMatrix3)original;
 
         if( m.getNumCols() == 1 && m.getNumRows() == 3 ) {
-            a1 = m.get(0,0);
-            a2 = m.get(1,0);
-            a3 = m.get(2,0);
+            a1 = m.getElement(0,0);
+            a2 = m.getElement(1,0);
+            a3 = m.getElement(2,0);
         } else if( m.getNumRows() == 1 && m.getNumCols() == 3 ){
-            a1 = m.get(0,0);
-            a2 = m.get(0,1);
-            a3 = m.get(0,2);
+            a1 = m.getElement(0,0);
+            a2 = m.getElement(0,1);
+            a3 = m.getElement(0,2);
         } else {
             throw new IllegalArgumentException("Incompatible shape");
         }
@@ -136,22 +135,19 @@ public class DMatrix3 implements DMatrixFixed {
         return 1;
     }
 
-    @Override
     public int getNumElements() {
         return 3;
     }
 
     @Override
-    public <T extends Matrix> T copy() {
-        return (T)new DMatrix3(this);
+    public DMatrix3 clone() {
+        return new DMatrix3(this);
     }
 
-    @Override
-    public <T extends Matrix> T createLike() {
+    public <T extends EJMLMatrix> T createLike() {
         return (T)new DMatrix3();
     }
 
-    @Override
     public MatrixType getType() {
         return MatrixType.UNSPECIFIED;
     }}

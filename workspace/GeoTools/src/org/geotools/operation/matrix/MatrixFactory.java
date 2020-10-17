@@ -14,9 +14,7 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.referencing.operation.matrix;
-
-import org.opengis.referencing.operation.Matrix;
+package org.geotools.operation.matrix;
 
 /**
  * Static utility methods for creating matrix. This factory selects one of the {@link Matrix1},
@@ -38,7 +36,7 @@ public final class MatrixFactory {
      * @param size For an affine transform, this is the number of source and target dimensions + 1.
      * @return An identity matrix of the given size.
      */
-    public static XMatrix create(final int size) {
+    public static Matrix create(final int size) {
         switch (size) {
             case 1:
                 return new Matrix1();
@@ -65,7 +63,7 @@ public final class MatrixFactory {
      *     1.
      * @return An identity matrix of the given size.
      */
-    public static XMatrix create(final int numRow, final int numCol) {
+    public static Matrix create(final int numRow, final int numCol) {
         if (numRow == numCol) {
             return create(numRow);
         } else {
@@ -74,9 +72,9 @@ public final class MatrixFactory {
     }
 
     /** Creates a new matrix which is a copy of the specified matrix. */
-    public static XMatrix create(final Matrix matrix) {
-        final int size = matrix.getNumRow();
-        if (size == matrix.getNumCol()) {
+    public static Matrix create(final Matrix matrix) {
+        final int size = matrix.getNumRows();
+        if (size == matrix.getNumCols()) {
             switch (size) {
                 case 1:
                     return new Matrix1(matrix);

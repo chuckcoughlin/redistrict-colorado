@@ -24,16 +24,23 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.IllegalPathStateException;
 import java.awt.geom.Line2D;
+import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.ejml.data.DMatrixRMaj;
 import org.geotools.data.wkt.IdentifiedObject;
+import org.geotools.operation.matrix.Matrix;
+import org.geotools.operation.matrix.MatrixFactory;
+import org.geotools.operation.matrix.SingularMatrixException;
 import org.geotools.util.ShapeUtilities;
 import org.locationtech.jts.geom.Coordinate;
 import org.opengis.MismatchedDimensionException;
+
+import com.sun.javafx.geom.QuadCurve2D;
 
 
 
@@ -683,14 +690,14 @@ public abstract class AbstractMathTransform extends IdentifiedObject implements 
 
     /**
      * Wraps the specified matrix in a Geotools implementation of {@link Matrix}. If {@code matrix}
-     * is already an instance of {@code XMatrix}, then it is returned unchanged. Otherwise, all
-     * elements are copied in a new {@code XMatrix} object.
+     * is already an instance of {@code Matrix}, then it is returned unchanged. Otherwise, all
+     * elements are copied in a new {@code Matrix} object.
      */
-    static XMatrix toXMatrix(final Matrix matrix) {
-        if (matrix instanceof XMatrix) {
-            return (XMatrix) matrix;
+    static Matrix toMatrix(final Matrix matrix) {
+        if (matrix instanceof Matrix) {
+            return (Matrix) matrix;
         }
-        return new XMatrix(matrix);
+        return MatrixFactory.create(matrix.getNumCols());  // Assume a square matrix
     }
 
     /**
@@ -700,7 +707,7 @@ public abstract class AbstractMathTransform extends IdentifiedObject implements 
      */
     static Matrix invert(final Matrix matrix) throws TransformException {
         try {
-            final XMatrix m = toXMatrix(matrix);
+            final Matrix m = toMatrix(matrix);
             m.invert();
             return m;
         } 

@@ -200,7 +200,7 @@ public class ProjectiveTransform extends AbstractMathTransform
     public static Matrix createSelectMatrix(final int sourceDim, final int[] toKeep)
             throws IndexOutOfBoundsException {
         final int targetDim = toKeep.length;
-        final XMatrix matrix = MatrixFactory.create(targetDim + 1, sourceDim + 1);
+        final Matrix matrix = MatrixFactory.create(targetDim + 1, sourceDim + 1);
         matrix.setZero();
         for (int j = 0; j < targetDim; j++) {
             matrix.setElement(j, toKeep[j], 1);
@@ -416,7 +416,7 @@ public class ProjectiveTransform extends AbstractMathTransform
     /**
      * Tests whether this transform does not move any points by using the provided tolerance. This
      * method work in the same way than {@link
-     * org.geotools.referencing.operation.matrix.XMatrix#isIdentity(double)}.
+     * org.geotools.referencing.operation.matrix.Matrix#isIdentity(double)}.
      *
      * @since 2.4
      */
@@ -448,7 +448,7 @@ public class ProjectiveTransform extends AbstractMathTransform
             if (isIdentity()) {
                 inverse = this;
             } else {
-                final XMatrix matrix = getGeneralMatrix();
+                final Matrix matrix = getGeneralMatrix();
                 try {
                     matrix.invert();
                 } catch (SingularMatrixException

@@ -14,16 +14,15 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.referencing.operation.matrix;
+package org.geotools.operation.matrix;
 
 import java.awt.geom.AffineTransform;
 import java.io.Serializable;
+
 import org.ejml.UtilEjml;
 import org.ejml.data.DMatrix3x3;
-import org.ejml.dense.fixed.CommonOps_DDF3;
-import org.geotools.metadata.i18n.ErrorKeys;
-import org.geotools.metadata.i18n.Errors;
-import org.opengis.referencing.operation.Matrix;
+import org.ejml.ops.CommonOps_DDF3;
+
 
 /**
  * A matrix of fixed {@value #SIZE}&times;{@value #SIZE} size.
@@ -33,8 +32,8 @@ import org.opengis.referencing.operation.Matrix;
  * @version $Id$
  * @author Martin Desruisseaux (IRD)
  */
-public class Matrix3 implements XMatrix, Serializable {
-    /** Serial number for interoperability with different versions. */
+public class Matrix3 implements Matrix, Serializable {
+    private static final String CLSS = "Matrix3";
     private static final long serialVersionUID = 8902061778871586612L;
 
     /** The matrix size, which is {@value}. */
@@ -73,8 +72,8 @@ public class Matrix3 implements XMatrix, Serializable {
      */
     public Matrix3(final Matrix matrix) {
         mat = new DMatrix3x3();
-        if (matrix.getNumRow() != SIZE || matrix.getNumCol() != SIZE) {
-            throw new IllegalArgumentException(Errors.format(ErrorKeys.ILLEGAL_MATRIX_SIZE));
+        if (matrix.getNumRows() != SIZE || matrix.getNumCols() != SIZE) {
+        	throw new IllegalArgumentException(String.format("%s: Illegal matrix size (%d, args)",CLSS,matrix.getNumRows()));
         }
         for (int j = 0; j < SIZE; j++) {
             for (int i = 0; i < SIZE; i++) {
@@ -110,7 +109,7 @@ public class Matrix3 implements XMatrix, Serializable {
      * Returns the number of rows in this matrix, which is always {@value #SIZE} in this
      * implementation.
      */
-    public final int getNumRow() {
+    public final int getNumRows() {
         return SIZE;
     }
 
@@ -118,7 +117,7 @@ public class Matrix3 implements XMatrix, Serializable {
      * Returns the number of colmuns in this matrix, which is always {@value #SIZE} in this
      * implementation.
      */
-    public final int getNumCol() {
+    public final int getNumCols() {
         return SIZE;
     }
 
@@ -238,7 +237,7 @@ public class Matrix3 implements XMatrix, Serializable {
      */
     @Override
     public double getElement(int row, int column) {
-        return mat.get(row, column);
+        return mat.getElement(row, column);
     }
 
     public void setColumn(int column, double... values) {
@@ -254,7 +253,7 @@ public class Matrix3 implements XMatrix, Serializable {
                             + ".");
         }
         for (int i = 0; i < values.length; i++) {
-            mat.set(i, column, values[i]);
+            mat.setElement(i, column, values[i]);
         }
     }
 
@@ -272,7 +271,7 @@ public class Matrix3 implements XMatrix, Serializable {
         }
 
         for (int i = 0; i < values.length; i++) {
-            mat.set(row, i, values[i]);
+            mat.setElement(row, i, values[i]);
         }
     }
 
@@ -285,12 +284,12 @@ public class Matrix3 implements XMatrix, Serializable {
      */
     @Override
     public void setElement(int row, int column, double value) {
-        mat.set(row, column, value);
+        mat.setElement(row, column, value);
     }
 
     /** Sets each value of the matrix to 0.0. */
     @Override
-    public void setZero() {
+    public void zero() {
         CommonOps_DDF3.fill(mat, 0);
     }
 
@@ -302,8 +301,8 @@ public class Matrix3 implements XMatrix, Serializable {
 
     /** Returns {@code true} if this matrix is an identity matrix. */
     public final boolean isIdentity() {
-        final int numRow = getNumRow();
-        final int numCol = getNumCol();
+        final int numRow = getNumRows();
+        final int numCol = getNumCols();
         if (numRow != numCol) {
             return false;
         }
@@ -392,16 +391,7 @@ public class Matrix3 implements XMatrix, Serializable {
                     getElement(0, 2),
                     getElement(1, 2));
         }
-        throw new IllegalStateException(Errors.format(ErrorKeys.NOT_AN_AFFINE_TRANSFORM));
-    }
-
-    /**
-     * Returns a string representation of this matrix. The returned string is implementation
-     * dependent. It is usually provided for debugging purposes only.
-     */
-    @Override
-    public String toString() {
-        return GeneralMatrix.toString(this);
+        throw new IllegalStateException("Matrix3.toAffineTransform2D: Not an affine transform");
     }
 
     /**
@@ -412,7 +402,7 @@ public class Matrix3 implements XMatrix, Serializable {
      */
     public void getColumn(int col, double[] array) {
         for (int j = 0; j < array.length; j++) {
-            array[j] = mat.get(j, col);
+            array[j] = mat.getElement(j, col);
         }
     }
 
@@ -436,7 +426,7 @@ public class Matrix3 implements XMatrix, Serializable {
      */
     public void getRow(int row, double[] array) {
         for (int i = 0; i < array.length; i++) {
-            array[i] = mat.get(row, i);
+            array[i] = mat.getElement(row, i);
         }
     }
 
@@ -555,7 +545,7 @@ public class Matrix3 implements XMatrix, Serializable {
     }
 
     @Override
-    public void add(double scalar, XMatrix matrix) {
+    public void add(double scalar, Matrix matrix) {
         DMatrix3x3 a = internal(matrix);
         mat.a11 = scalar + a.a11;
         mat.a12 = scalar + a.a12;
@@ -569,12 +559,12 @@ public class Matrix3 implements XMatrix, Serializable {
     }
 
     @Override
-    public void add(XMatrix matrix) {
+    public void add(Matrix matrix) {
         CommonOps_DDF3.add(mat, internal(matrix), mat);
     }
 
     @Override
-    public void add(XMatrix matrix1, XMatrix matrix2) {
+    public void add(Matrix matrix1, Matrix matrix2) {
         DMatrix3x3 a = internal(matrix1);
         DMatrix3x3 b = internal(matrix2);
         CommonOps_DDF3.add(a, b, mat);

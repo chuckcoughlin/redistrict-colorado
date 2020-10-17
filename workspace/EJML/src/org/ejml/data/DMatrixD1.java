@@ -27,8 +27,10 @@ import org.ejml.UtilEjml;
  *
  * @author Peter Abeles
  */
-public abstract class DMatrixD1 implements ReshapeMatrix, DMatrix {
-    /**
+public abstract class DMatrixD1 implements ReshapeMatrix, EJMLMatrix {
+	private static final long serialVersionUID = 5353056775215695330L;
+
+	/**
      * Where the raw data for the matrix is stored.  The format is type dependent.
      */
     public double[] data = UtilEjml.ZERO_LENGTH_F64;
@@ -41,7 +43,10 @@ public abstract class DMatrixD1 implements ReshapeMatrix, DMatrix {
      * Number of columns in the matrix.
      */
     public int numCols;
-
+    
+    @Override
+    public abstract DMatrixD1 clone();
+    
     /**
      * Used to get a reference to the internal data.
      *
@@ -79,9 +84,7 @@ public abstract class DMatrixD1 implements ReshapeMatrix, DMatrix {
     public void set( DMatrixD1 b )
     {
         this.reshape(b.numRows,b.numCols);
-
         int dataLength = b.getNumElements();
-
         System.arraycopy(b.data, 0, this.data, 0, dataLength);
     }
 
@@ -256,6 +259,9 @@ public abstract class DMatrixD1 implements ReshapeMatrix, DMatrix {
         return numCols;
     }
 
+    public int getNumElements() {
+    	return numRows*numCols;
+    }
     /**
      * Sets the number of rows.
      *

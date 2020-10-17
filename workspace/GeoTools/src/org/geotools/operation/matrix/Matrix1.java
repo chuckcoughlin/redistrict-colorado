@@ -14,12 +14,10 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.referencing.operation.matrix;
+package org.geotools.operation.matrix;
 
 import java.io.Serializable;
-import org.geotools.metadata.i18n.ErrorKeys;
-import org.geotools.metadata.i18n.Errors;
-import org.opengis.referencing.operation.Matrix;
+
 
 /**
  * A matrix of fixed {@value #SIZE}&times;{@value #SIZE} size. This trivial matrix is returned as a
@@ -29,7 +27,8 @@ import org.opengis.referencing.operation.Matrix;
  * @version $Id$
  * @author Martin Desruisseaux (IRD)
  */
-public class Matrix1 implements XMatrix, Serializable {
+public class Matrix1 implements Matrix, Serializable {
+	private static final String CLSS = "Matrix1";
     /** Serial number for interoperability with different versions. */
     private static final long serialVersionUID = -4829171016106097031L;
 
@@ -54,8 +53,8 @@ public class Matrix1 implements XMatrix, Serializable {
      * matrix size must be {@value #SIZE}&times;{@value #SIZE}.
      */
     public Matrix1(final Matrix matrix) {
-        if (matrix.getNumRow() != SIZE || matrix.getNumCol() != SIZE) {
-            throw new IllegalArgumentException(Errors.format(ErrorKeys.ILLEGAL_MATRIX_SIZE));
+        if (matrix.getNumRows() != SIZE || matrix.getNumCols() != SIZE) {
+        	throw new IllegalArgumentException(String.format("%s: Illegal matrix size (%d)",CLSS,matrix.getNumRows()));
         }
         m00 = matrix.getElement(0, 0);
     }
@@ -64,7 +63,8 @@ public class Matrix1 implements XMatrix, Serializable {
      * Returns the number of rows in this matrix, which is always {@value #SIZE} in this
      * implementation.
      */
-    public final int getNumRow() {
+    @Override
+    public final int getNumRows() {
         return SIZE;
     }
 
@@ -72,11 +72,12 @@ public class Matrix1 implements XMatrix, Serializable {
      * Returns the number of colmuns in this matrix, which is always {@value #SIZE} in this
      * implementation.
      */
-    public final int getNumCol() {
+    @Override
+    public final int getNumCols() {
         return SIZE;
     }
 
-    /** {@inheritDoc} */
+    @Override
     public final double getElement(final int row, final int col) {
         if (row == 0 && col == 0) {
             return m00;
@@ -85,7 +86,7 @@ public class Matrix1 implements XMatrix, Serializable {
         }
     }
 
-    /** {@inheritDoc} */
+    @Override
     public final void setElement(final int row, final int col, final double value) {
         if (row == 0 && col == 0) {
             m00 = value;
@@ -94,12 +95,12 @@ public class Matrix1 implements XMatrix, Serializable {
         }
     }
 
-    /** {@inheritDoc} */
-    public final void setZero() {
+    @Override
+    public final void zero() {
         m00 = 0;
     }
 
-    /** {@inheritDoc} */
+    @Override
     public final void setIdentity() {
         m00 = 1;
     }
@@ -126,21 +127,21 @@ public class Matrix1 implements XMatrix, Serializable {
 
     @Override
     public void negate(Matrix matrix) {
-        if (matrix.getNumRow() != SIZE || matrix.getNumCol() != SIZE) {
-            throw new IllegalArgumentException(Errors.format(ErrorKeys.ILLEGAL_MATRIX_SIZE));
+        if (matrix.getNumRows() != SIZE || matrix.getNumCols() != SIZE) {
+        	throw new IllegalArgumentException(String.format("%s: Illegal matrix size (%d)",CLSS,matrix.getNumRows()));
         }
         m00 = -matrix.getElement(0, 0);
     }
 
-    /** {@inheritDoc} */
+    @Override
     public final void transpose() {
         // Nothing to do for a 1x1 matrix.
     }
 
     @Override
     public void transpose(Matrix matrix) {
-        if (matrix.getNumRow() != SIZE || matrix.getNumCol() != SIZE) {
-            throw new IllegalArgumentException(Errors.format(ErrorKeys.ILLEGAL_MATRIX_SIZE));
+        if (matrix.getNumRows() != SIZE || matrix.getNumCols() != SIZE) {
+        	throw new IllegalArgumentException(String.format("%s: Illegal matrix size (%d)",CLSS,matrix.getNumRows()));
         }
         m00 = matrix.getElement(0, 0);
     }
@@ -155,8 +156,8 @@ public class Matrix1 implements XMatrix, Serializable {
 
     @Override
     public void invert(Matrix matrix) throws SingularMatrixException {
-        if (matrix.getNumRow() != SIZE || matrix.getNumCol() != SIZE) {
-            throw new IllegalArgumentException(Errors.format(ErrorKeys.ILLEGAL_MATRIX_SIZE));
+        if (matrix.getNumRows() != SIZE || matrix.getNumCols() != SIZE) {
+        	throw new IllegalArgumentException(String.format("%s.invert: Illegal matrix size (%d)",CLSS,matrix.getNumRows()));
         }
         if (matrix.getElement(0, 0) == 0) {
             throw new SingularMatrixException("1 dimensional matrix is singular");
@@ -166,15 +167,10 @@ public class Matrix1 implements XMatrix, Serializable {
 
     /** {@inheritDoc} */
     public final void multiply(final Matrix matrix) {
-        if (matrix.getNumRow() != SIZE || matrix.getNumCol() != SIZE) {
-            throw new IllegalArgumentException(Errors.format(ErrorKeys.ILLEGAL_MATRIX_SIZE));
+        if (matrix.getNumRows() != SIZE || matrix.getNumCols() != SIZE) {
+        	throw new IllegalArgumentException(String.format("%s.multiply: Illegal matrix size (%d)",CLSS,matrix.getNumRows()));
         }
         m00 *= matrix.getElement(0, 0);
-    }
-
-    /** {@inheritDoc} */
-    public boolean equals(final Matrix matrix, final double tolerance) {
-        return GeneralMatrix.epsilonEquals(this, matrix, tolerance);
     }
 
     /**
@@ -196,14 +192,6 @@ public class Matrix1 implements XMatrix, Serializable {
         return (int) (Double.doubleToLongBits(m00) ^ serialVersionUID);
     }
 
-    /**
-     * Returns a string representation of this matrix. The returned string is implementation
-     * dependent. It is usually provided for debugging purposes only.
-     */
-    @Override
-    public String toString() {
-        return GeneralMatrix.toString(this);
-    }
 
     /** Returns a clone of this matrix. */
     @Override
@@ -216,7 +204,6 @@ public class Matrix1 implements XMatrix, Serializable {
         }
     }
 
-    @Override
     public void getRow(int row, double[] array) {
         if (array.length != 1) {
             throw new IllegalArgumentException(
@@ -232,7 +219,6 @@ public class Matrix1 implements XMatrix, Serializable {
         array[0] = m00;
     }
 
-    @Override
     public void setRow(int row, double... values) {
         if (values.length != 1) {
             throw new IllegalArgumentException(
@@ -244,7 +230,6 @@ public class Matrix1 implements XMatrix, Serializable {
         m00 = values[0];
     }
 
-    @Override
     public void getColumn(int column, double[] array) {
         if (array.length != 1) {
             throw new IllegalArgumentException(
@@ -260,7 +245,6 @@ public class Matrix1 implements XMatrix, Serializable {
         array[0] = m00;
     }
 
-    @Override
     public void setColumn(int column, double... values) {
         if (values.length != 0) {
             throw new IllegalArgumentException(
@@ -278,30 +262,31 @@ public class Matrix1 implements XMatrix, Serializable {
     }
 
     @Override
-    public void add(double scalar, XMatrix matrix) {
-        if (matrix.getNumRow() != SIZE || matrix.getNumCol() != SIZE) {
-            throw new IllegalArgumentException(Errors.format(ErrorKeys.ILLEGAL_MATRIX_SIZE));
+    public void add(double scalar, Matrix matrix) {
+        if (matrix.getNumRows() != SIZE || matrix.getNumCols() != SIZE) {
+        	throw new IllegalArgumentException(String.format("%s: Illegal matrix size (%d)",CLSS,matrix.getNumRows()));
         }
         m00 = scalar + matrix.getElement(0, 0);
     }
 
     @Override
-    public void add(XMatrix matrix) {
-        if (matrix.getNumRow() != SIZE || matrix.getNumCol() != SIZE) {
-            throw new IllegalArgumentException(Errors.format(ErrorKeys.ILLEGAL_MATRIX_SIZE));
+    public void add(Matrix matrix) {
+        if (matrix.getNumRows() != SIZE || matrix.getNumCols() != SIZE) {
+        	throw new IllegalArgumentException(String.format("%s: Illegal matrix size (%d)",CLSS,matrix.getNumRows()));
         }
         m00 += matrix.getElement(0, 0);
     }
 
     @Override
-    public void add(XMatrix matrix1, XMatrix matrix2) {
-        if (matrix1.getNumRow() != SIZE || matrix1.getNumCol() != SIZE) {
-            throw new IllegalArgumentException(Errors.format(ErrorKeys.ILLEGAL_MATRIX_SIZE));
+    public void add(Matrix matrix1, Matrix matrix2) {
+        if (matrix1.getNumRows() != SIZE || matrix1.getNumCols() != SIZE) {
+        	throw new IllegalArgumentException(String.format("%s.add: Matrix size mismatch(%d vs %d)",
+        			CLSS,matrix1.getNumRows(),matrix2.getNumRows()));
         }
-        if (matrix2.getNumRow() != SIZE || matrix2.getNumCol() != SIZE) {
-            throw new IllegalArgumentException(Errors.format(ErrorKeys.ILLEGAL_MATRIX_SIZE));
+        if (matrix2.getNumRows() != SIZE || matrix2.getNumCols() != SIZE) {
+        	throw new IllegalArgumentException(String.format("%s: Illegal matrix size (%d)",CLSS,matrix1.getNumRows()));
         }
-        m00 = matrix1.getElement(0, 0) + matrix2.getElement(0, 0);
+        m00 = matrix1.getElement(0,0) + matrix2.getElement(0,0);
     }
 
     @Override
@@ -316,27 +301,27 @@ public class Matrix1 implements XMatrix, Serializable {
 
     @Override
     public void mul(double scalar, Matrix matrix) {
-        if (matrix.getNumRow() != SIZE || matrix.getNumCol() != SIZE) {
-            throw new IllegalArgumentException(Errors.format(ErrorKeys.ILLEGAL_MATRIX_SIZE));
+        if (matrix.getNumRows() != SIZE || matrix.getNumCols() != SIZE) {
+        	throw new IllegalArgumentException(String.format("%s: Illegal matrix size (%d)",CLSS,matrix.getNumRows()));
         }
         m00 = scalar * matrix.getElement(0, 0);
     }
 
     @Override
     public void mul(Matrix matrix) {
-        if (matrix.getNumRow() != SIZE || matrix.getNumCol() != SIZE) {
-            throw new IllegalArgumentException(Errors.format(ErrorKeys.ILLEGAL_MATRIX_SIZE));
+        if (matrix.getNumRows() != SIZE || matrix.getNumCols() != SIZE) {
+        	throw new IllegalArgumentException(String.format("%s: Illegal matrix size (%d)",CLSS,matrix.getNumRows()));
         }
         m00 *= matrix.getElement(0, 0);
     }
 
     @Override
     public void mul(Matrix matrix1, Matrix matrix2) {
-        if (matrix1.getNumRow() != SIZE || matrix1.getNumCol() != SIZE) {
-            throw new IllegalArgumentException(Errors.format(ErrorKeys.ILLEGAL_MATRIX_SIZE));
+        if (matrix1.getNumRows() != SIZE || matrix1.getNumCols() != SIZE) {
+        	throw new IllegalArgumentException(String.format("%s: Illegal matrix size (%d)",CLSS,matrix1.getNumRows()));
         }
-        if (matrix2.getNumRow() != SIZE || matrix2.getNumCol() != SIZE) {
-            throw new IllegalArgumentException(Errors.format(ErrorKeys.ILLEGAL_MATRIX_SIZE));
+        if (matrix2.getNumRows() != SIZE || matrix2.getNumCols() != SIZE) {
+        	throw new IllegalArgumentException(String.format("%s: Illegal matrix size (%d)",CLSS,matrix1.getNumRows()));
         }
         m00 = matrix1.getElement(0, 0) * matrix2.getElement(0, 0);
     }
@@ -348,27 +333,27 @@ public class Matrix1 implements XMatrix, Serializable {
 
     @Override
     public void sub(Matrix matrix) {
-        if (matrix.getNumRow() != SIZE || matrix.getNumCol() != SIZE) {
-            throw new IllegalArgumentException(Errors.format(ErrorKeys.ILLEGAL_MATRIX_SIZE));
+        if (matrix.getNumRows() != SIZE || matrix.getNumCols() != SIZE) {
+        	throw new IllegalArgumentException(String.format("%s: Illegal matrix size (%d)",CLSS,matrix.getNumRows()));
         }
         m00 -= matrix.getElement(0, 0);
     }
 
     @Override
     public void sub(double scalar, Matrix matrix) {
-        if (matrix.getNumRow() != SIZE || matrix.getNumCol() != SIZE) {
-            throw new IllegalArgumentException(Errors.format(ErrorKeys.ILLEGAL_MATRIX_SIZE));
+        if (matrix.getNumRows() != SIZE || matrix.getNumCols() != SIZE) {
+        	throw new IllegalArgumentException(String.format("%s: Illegal matrix size (%d)",CLSS,matrix.getNumRows()));
         }
         m00 = scalar - matrix.getElement(0, 0);
     }
 
     @Override
     public void sub(Matrix matrix1, Matrix matrix2) {
-        if (matrix1.getNumRow() != SIZE || matrix1.getNumCol() != SIZE) {
-            throw new IllegalArgumentException(Errors.format(ErrorKeys.ILLEGAL_MATRIX_SIZE));
+        if (matrix1.getNumRows() != SIZE || matrix1.getNumCols() != SIZE) {
+        	throw new IllegalArgumentException(String.format("%s: Illegal matrix size (%d)",CLSS,matrix1.getNumRows()));
         }
-        if (matrix2.getNumRow() != SIZE || matrix2.getNumCol() != SIZE) {
-            throw new IllegalArgumentException(Errors.format(ErrorKeys.ILLEGAL_MATRIX_SIZE));
+        if (matrix2.getNumRows() != SIZE || matrix2.getNumCols() != SIZE) {
+        	throw new IllegalArgumentException(String.format("%s: Illegal matrix size (%d)",CLSS,matrix1.getNumRows()));
         }
         m00 = matrix1.getElement(0, 0) - matrix2.getElement(0, 0);
     }

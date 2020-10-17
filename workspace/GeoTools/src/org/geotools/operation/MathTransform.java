@@ -9,8 +9,10 @@
  */
 package org.geotools.operation;
 
+import java.awt.geom.NoninvertibleTransformException;
 import java.util.Map;
 
+import org.geotools.operation.matrix.Matrix;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.util.GeometryEditor.CoordinateOperation;
 import org.opengis.MismatchedDimensionException;

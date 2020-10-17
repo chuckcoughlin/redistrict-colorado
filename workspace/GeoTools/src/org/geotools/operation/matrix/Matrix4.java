@@ -14,11 +14,7 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.referencing.operation.matrix;
-
-import org.geotools.metadata.i18n.ErrorKeys;
-import org.geotools.metadata.i18n.Errors;
-import org.opengis.referencing.operation.Matrix;
+package org.geotools.operation.matrix;
 
 /**
  * A matrix of fixed {@value #SIZE}&times;{@value #SIZE} size. It is used primarily for supporting
@@ -29,8 +25,8 @@ import org.opengis.referencing.operation.Matrix;
  * @version $Id$
  * @author Martin Desruisseaux (IRD)
  */
-public class Matrix4 extends GeneralMatrix implements XMatrix {
-    /** Serial number for interoperability with different versions. */
+public class Matrix4 extends GeneralMatrix implements Matrix {
+    private static final String CLSS = "Matrix4";
     private static final long serialVersionUID = 5685762518066856311L;
 
     /** The matrix size, which is {@value}. */
@@ -77,8 +73,8 @@ public class Matrix4 extends GeneralMatrix implements XMatrix {
      */
     public Matrix4(final Matrix matrix) {
         super(SIZE);
-        if (matrix.getNumRow() != SIZE || matrix.getNumCol() != SIZE) {
-            throw new IllegalArgumentException(Errors.format(ErrorKeys.ILLEGAL_MATRIX_SIZE));
+        if (matrix.getNumRows() != SIZE || matrix.getNumCols() != SIZE) {
+        	throw new IllegalArgumentException(String.format("%s: Illegal matrix size (%d, args)",CLSS,matrix.getNumRows()));
         }
         for (int j = 0; j < SIZE; j++) {
             for (int i = 0; i < SIZE; i++) {
@@ -91,7 +87,8 @@ public class Matrix4 extends GeneralMatrix implements XMatrix {
      * Returns the number of rows in this matrix, which is always {@value #SIZE} in this
      * implementation.
      */
-    public final int getNumRow() {
+    @Override
+    public final int getNumRows() {
         return SIZE;
     }
 
@@ -99,7 +96,8 @@ public class Matrix4 extends GeneralMatrix implements XMatrix {
      * Returns the number of colmuns in this matrix, which is always {@value #SIZE} in this
      * implementation.
      */
-    public final int getNumCol() {
+    @Override
+    public final int getNumCols() {
         return SIZE;
     }
 

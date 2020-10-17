@@ -26,7 +26,7 @@ package org.ejml.data;
  *
  * @author Peter Abeles
  */
-public class DMatrix3x3 implements DMatrixFixed {
+public class DMatrix3x3 implements EJMLMatrix {
 
     public double a11,a12,a13;
     public double a21,a22,a23;
@@ -73,11 +73,10 @@ public class DMatrix3x3 implements DMatrixFixed {
     }
 
     @Override
-    public double get(int row, int col) {
+    public double getElement(int row, int col) {
         return unsafe_get(row,col);
     }
 
-    @Override
     public double unsafe_get(int row, int col) {
         if( row == 0 ) {
             if( col == 0 ) {
@@ -108,11 +107,10 @@ public class DMatrix3x3 implements DMatrixFixed {
     }
 
     @Override
-    public void set(int row, int col, double val) {
+    public void setElement(int row, int col, double val) {
         unsafe_set(row,col,val);
     }
 
-    @Override
     public void unsafe_set(int row, int col, double val) {
         if( row == 0 ) {
             if( col == 0 ) {
@@ -143,20 +141,20 @@ public class DMatrix3x3 implements DMatrixFixed {
     }
 
     @Override
-    public void set(Matrix original) {
+    public void set(EJMLMatrix original) {
         if( original.getNumCols() != 3 || original.getNumRows() != 3 )
             throw new IllegalArgumentException("Rows and/or columns do not match");
-        DMatrix m = (DMatrix)original;
+        DMatrix3x3 m = (DMatrix3x3)original;
         
-        a11 = m.get(0,0);
-        a12 = m.get(0,1);
-        a13 = m.get(0,2);
-        a21 = m.get(1,0);
-        a22 = m.get(1,1);
-        a23 = m.get(1,2);
-        a31 = m.get(2,0);
-        a32 = m.get(2,1);
-        a33 = m.get(2,2);
+        a11 = m.getElement(0,0);
+        a12 = m.getElement(0,1);
+        a13 = m.getElement(0,2);
+        a21 = m.getElement(1,0);
+        a22 = m.getElement(1,1);
+        a23 = m.getElement(1,2);
+        a31 = m.getElement(2,0);
+        a32 = m.getElement(2,1);
+        a33 = m.getElement(2,2);
     }
 
     @Override
@@ -169,22 +167,18 @@ public class DMatrix3x3 implements DMatrixFixed {
         return 3;
     }
 
-    @Override
     public int getNumElements() {
         return 9;
     }
-
     @Override
-    public <T extends Matrix> T copy() {
-        return (T)new DMatrix3x3(this);
+    public DMatrix3x3 clone() {
+        return new DMatrix3x3(this);
     }
 
-    @Override
-    public <T extends Matrix> T createLike() {
+    public <T extends EJMLMatrix> T createLike() {
         return (T)new DMatrix3x3();
     }
 
-    @Override
     public MatrixType getType() {
         return MatrixType.UNSPECIFIED;
     }}

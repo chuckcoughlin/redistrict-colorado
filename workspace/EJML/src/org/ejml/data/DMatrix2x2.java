@@ -25,9 +25,9 @@ package org.ejml.data;
  *
  * @author Peter Abeles
  */
-public class DMatrix2x2 implements DMatrixFixed {
-
-    public double a11,a12;
+public class DMatrix2x2 implements EJMLMatrix {
+	private static final long serialVersionUID = 2389516892562215705L;
+	public double a11,a12;
     public double a21,a22;
 
     public DMatrix2x2() {
@@ -64,11 +64,10 @@ public class DMatrix2x2 implements DMatrixFixed {
     }
 
     @Override
-    public double get(int row, int col) {
+    public double getElement(int row, int col) {
         return unsafe_get(row,col);
     }
-
-    @Override
+    
     public double unsafe_get(int row, int col) {
         if( row == 0 ) {
             if( col == 0 ) {
@@ -87,11 +86,10 @@ public class DMatrix2x2 implements DMatrixFixed {
     }
 
     @Override
-    public void set(int row, int col, double val) {
+    public void setElement(int row, int col, double val) {
         unsafe_set(row,col,val);
     }
 
-    @Override
     public void unsafe_set(int row, int col, double val) {
         if( row == 0 ) {
             if( col == 0 ) {
@@ -110,15 +108,15 @@ public class DMatrix2x2 implements DMatrixFixed {
     }
 
     @Override
-    public void set(Matrix original) {
+    public void set(EJMLMatrix original) {
         if( original.getNumCols() != 2 || original.getNumRows() != 2 )
             throw new IllegalArgumentException("Rows and/or columns do not match");
-        DMatrix m = (DMatrix)original;
+        DMatrix2x2 m = (DMatrix2x2)original;
         
-        a11 = m.get(0,0);
-        a12 = m.get(0,1);
-        a21 = m.get(1,0);
-        a22 = m.get(1,1);
+        a11 = m.getElement(0,0);
+        a12 = m.getElement(0,1);
+        a21 = m.getElement(1,0);
+        a22 = m.getElement(1,1);
     }
 
     @Override
@@ -131,22 +129,19 @@ public class DMatrix2x2 implements DMatrixFixed {
         return 2;
     }
 
-    @Override
     public int getNumElements() {
         return 4;
     }
 
     @Override
-    public <T extends Matrix> T copy() {
-        return (T)new DMatrix2x2(this);
+    public DMatrix2x2 clone() {
+        return new DMatrix2x2(this);
     }
 
-    @Override
-    public <T extends Matrix> T createLike() {
+    public <T extends EJMLMatrix> T createLike() {
         return (T)new DMatrix2x2();
     }
 
-    @Override
     public MatrixType getType() {
         return MatrixType.UNSPECIFIED;
     }}

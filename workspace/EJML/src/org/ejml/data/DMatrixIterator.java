@@ -102,7 +102,7 @@ public class DMatrixIterator implements Iterator<Double> {
             subCol = index / submatrixStride;
         }
         index++;
-        return a.get(subRow+minRow,subCol+minCol);
+        return a.getElement(subRow+minRow,subCol+minCol);
     }
 
     @Override
@@ -133,6 +133,6 @@ public class DMatrixIterator implements Iterator<Double> {
      * @param value The element's new value.
      */
     public void set( double value ) {
-        a.set(subRow+minRow,subCol+minCol,value);
+        a.setElement(subRow+minRow,subCol+minCol,value);
     }
 }

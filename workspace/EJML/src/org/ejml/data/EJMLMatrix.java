@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2017, Peter Abeles. All Rights Reserved.
+ * Copyright (c) 2009-2020, Peter Abeles. All Rights Reserved.
  *
  * This file is part of Efficient Java Matrix Library (EJML).
  *
@@ -18,13 +18,59 @@
 
 package org.ejml.data;
 
+import java.io.Serializable;
+
 /**
- * Interface for all 64F real matrices.
+ * Base interface for all rectangular 64F real matrices
  *
  * @author Peter Abeles
  */
-public interface DMatrix extends Matrix {
+public interface EJMLMatrix extends Serializable {
 
+    /**
+     * Returns the number of rows in this matrix.
+     *
+     * @return Number of rows.
+     */
+    public int getNumRows();
+
+    /**
+     * Returns the number of columns in this matrix.
+     *
+     * @return Number of columns.
+     */
+    public int getNumCols();
+
+    /**
+     * Sets all values inside the matrix to zero
+     */
+    public void zero();
+
+    /**
+     * Creates an exact copy of the matrix
+     */
+     public EJMLMatrix clone();
+
+    /**
+     * Creates a new matrix with the same shape as this matrix
+     */
+    //<T extends EJMLMatrix> T createLike();
+
+    /**
+     * Creates a new matrix of the same type with the specified shape
+     */
+    //<T extends Matrix> T create( int numRows , int numCols );
+
+    /**
+     * Sets this matrix to be identical to the 'original' matrix passed in.
+     */
+    public void set( EJMLMatrix original );
+
+    /**
+     * Returns the type of matrix
+     */
+    //MatrixType getType();
+    
     /**
      * Returns the value of value of the specified matrix element.
      *
@@ -32,7 +78,7 @@ public interface DMatrix extends Matrix {
      * @param col Matrix element's column index.
      * @return The specified element's value.
      */
-    double get(int row, int col);
+    public double getElement(int row, int col);
 
     /**
      * Same as {@link #get} but does not perform bounds check on input parameters.  This results in about a 25%
@@ -44,7 +90,7 @@ public interface DMatrix extends Matrix {
      * @param col Matrix element's column index.
      * @return The specified element's value.
      */
-    double unsafe_get(int row, int col);
+    //double unsafe_get(int row, int col);
 
     /**
      * Sets the value of the specified matrix element.
@@ -53,7 +99,7 @@ public interface DMatrix extends Matrix {
      * @param col Matrix element's column index.
      * @param val The element's new value.
      */
-    void set(int row, int col, double val);
+    public void setElement(int row, int col, double val);
 
     /**
      * Same as {@link #set} but does not perform bounds check on input parameters.  This results in about a 25%
@@ -65,7 +111,7 @@ public interface DMatrix extends Matrix {
      * @param col Matrix element's column index.
      * @param val The element's new value.
      */
-    void unsafe_set(int row, int col, double val);
+    //void unsafe_set(int row, int col, double val);
 
     /**
      * Returns the number of elements in this matrix, which is the number of rows
@@ -73,5 +119,5 @@ public interface DMatrix extends Matrix {
      *
      * @return Number of elements in this matrix.
      */
-    int getNumElements();
+    //int getNumElements();
 }

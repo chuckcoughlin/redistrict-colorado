@@ -87,7 +87,7 @@ public enum MatrixType {
         return classType;
     }
 
-    public Matrix create(int rows , int cols ) {
+    public EJMLMatrix create(int rows , int cols ) {
         switch( this ) {
             case DDRM: return new DMatrixRMaj(rows,cols);
             default:

@@ -28,7 +28,7 @@ import java.util.Random;
 import org.ejml.data.DGrowArray;
 import org.ejml.data.DMatrixRMaj;
 import org.ejml.data.IGrowArray;
-import org.ejml.data.Matrix;
+import org.ejml.data.EJMLMatrix;
 
 /**
  * Various functions that are useful but don't have a clear location that they belong in.
@@ -83,8 +83,29 @@ public class UtilEjml {
         return a;
     }
 
-
-    public static void checkSameShape( Matrix a, Matrix b, boolean allowedSameInstance ) {
+    public static DMatrixRMaj reshapeOrDeclare( DMatrixRMaj target,DMatrixRMaj reference ) {
+        if (target == null)
+            return reference.createLike();
+        else if (target.getNumRows() != reference.getNumRows() || target.getNumCols() != reference.getNumCols())
+            target.reshape(reference.getNumRows(), reference.getNumCols());
+        return target;
+    }
+    /**
+     * If the input matrix is null a new matrix is created and returned. If it exists it will be reshaped and returned.
+     *
+     * @param target (Input/Output) matrix which is to be checked. Can be null.
+     * @param reference (Input) Refernece matrix who's shape will be matched
+     * @return modified matrix or new matrix
+     */
+    public static DMatrixRMaj reshapeOrDeclare( DMatrixRMaj target, DMatrixRMaj reference, int rows, int cols ) {
+        if (target == null)
+            return reference.create(rows, cols);
+        else if (target.getNumRows() != rows || target.getNumCols() != cols)
+            target.reshape(rows, cols);
+        return target;
+    }
+    
+    public static void checkSameShape( EJMLMatrix a, EJMLMatrix b, boolean allowedSameInstance ) {
         if (a.getNumRows() != b.getNumRows() || a.getNumCols() != b.getNumCols()) {
             throw new MatrixDimensionException("Must be same shape. " + a.getNumRows() + "x" + a.getNumCols() + " vs " + b.getNumRows() + "x" + b.getNumCols());
         }
@@ -92,7 +113,7 @@ public class UtilEjml {
             throw new IllegalArgumentException("Must not be the same instance");
     }
 
-    public static void checkSameShape( Matrix a, Matrix b, Matrix c ) {
+    public static void checkSameShape( EJMLMatrix a, EJMLMatrix b, EJMLMatrix c ) {
         if (a.getNumRows() != b.getNumRows() || a.getNumCols() != b.getNumCols()) {
             throw new MatrixDimensionException("Must be same shape. " + a.getNumRows() + "x" + a.getNumCols() + " vs " + b.getNumRows() + "x" + b.getNumCols());
         }
@@ -215,7 +236,7 @@ public class UtilEjml {
         int index = start;
         for (int i = 0; i < numRows; i++) {
             for (int j = 0; j < numColumns; j++) {
-                ret.set(i, j, Double.parseDouble(vals[index++]));
+                ret.setElement(i, j, Double.parseDouble(vals[index++]));
             }
         }
 
@@ -305,13 +326,13 @@ public class UtilEjml {
         return d;
     }
 
-    public static String stringShapes( Matrix A, Matrix B, Matrix C ) {
+    public static String stringShapes( EJMLMatrix A, EJMLMatrix B, EJMLMatrix C ) {
         return "( " + A.getNumRows() + "x" + A.getNumCols() + " ) " +
                 "( " + B.getNumRows() + "x" + B.getNumCols() + " ) " +
                 "( " + C.getNumRows() + "x" + C.getNumCols() + " )";
     }
 
-    public static String stringShapes( Matrix A, Matrix B ) {
+    public static String stringShapes( EJMLMatrix A, EJMLMatrix B ) {
         return "( " + A.getNumRows() + "x" + A.getNumCols() + " ) " +
                 "( " + B.getNumRows() + "x" + B.getNumCols() + " )";
     }
@@ -428,7 +449,7 @@ public class UtilEjml {
             Annotation[] argumentAnnotations = annotations[i];
             if (argumentAnnotations.length == 0)
                 continue;
-            if (!Matrix.class.isAssignableFrom(types[i]))
+            if (!EJMLMatrix.class.isAssignableFrom(types[i]))
                 continue;
             Annotation last = argumentAnnotations[argumentAnnotations.length - 1];
             if (last.toString().contains("Nullable"))

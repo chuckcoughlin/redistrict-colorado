@@ -46,7 +46,7 @@ public interface LinearTransform extends MathTransform {
      * <blockquote>
      *
      * <pre>
-     * {@linkplain #getMatrix()}.{@linkplain XMatrix#isIdentity(double) isIdentity}(tolerance);
+     * {@linkplain #getMatrix()}.{@linkplain Matrix#isIdentity(double) isIdentity}(tolerance);
      * </pre>
      *
      * </blockquote>

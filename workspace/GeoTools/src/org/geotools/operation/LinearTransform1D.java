@@ -87,7 +87,7 @@ public class LinearTransform1D extends AbstractMathTransform
 
     /** Returns this transform as an affine transform matrix. */
     public Matrix getMatrix() {
-        return new XMatrix(scale, offset, 0, 1);
+        return new Matrix(scale, offset, 0, 1);
     }
 
     /** Creates the inverse transform of this object. */
@@ -117,7 +117,7 @@ public class LinearTransform1D extends AbstractMathTransform
     /**
      * Tests whether this transform does not move any points by using the provided tolerance. This
      * method work in the same way than {@link
-     * org.geotools.referencing.operation.matrix.XMatrix#isIdentity(double)}.
+     * org.geotools.referencing.operation.matrix.Matrix#isIdentity(double)}.
      *
      * @since 2.3.1
      */
