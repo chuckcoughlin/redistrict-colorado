@@ -20,11 +20,19 @@
 package org.geotools.operation;
 
 import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.ejml.MatrixDimensionException;
+import org.geotools.datum.Citations;
+import org.geotools.operation.matrix.GeneralMatrix;
+import org.geotools.operation.matrix.Matrix;
+import org.geotools.operation.matrix.MatrixFactory;
+import org.geotools.operation.matrix.SingularMatrixException;
 
 
 /**
@@ -68,7 +76,7 @@ import java.util.Map;
  */
 public class ProjectiveTransform extends AbstractMathTransform
         implements LinearTransform, Serializable {
-    /** Serial number for interoperability with different versions. */
+    private static final String CLSS = "ProjectiveTransform";
     private static final long serialVersionUID = -2104496465933824935L;
 
     /** The number of rows. */
@@ -90,8 +98,8 @@ public class ProjectiveTransform extends AbstractMathTransform
      * @param matrix The matrix.
      */
     protected ProjectiveTransform(final Matrix matrix) {
-        numRow = matrix.getNumRow();
-        numCol = matrix.getNumCol();
+        numRow = matrix.getNumRows();
+        numCol = matrix.getNumCols();
         elt = new double[numRow * numCol];
         int index = 0;
         for (int j = 0; j < numRow; j++) {
@@ -109,8 +117,8 @@ public class ProjectiveTransform extends AbstractMathTransform
      * @return The transform for the given matrix.
      */
     public static LinearTransform create(final Matrix matrix) {
-        final int dimension = matrix.getNumRow() - 1;
-        if (dimension == matrix.getNumCol() - 1) {
+        final int dimension = matrix.getNumRows() - 1;
+        if (dimension == matrix.getNumCols() - 1) {
             if (matrix.isIdentity()) {
                 return IdentityTransform.create(dimension);
             }
@@ -361,7 +369,7 @@ public class ProjectiveTransform extends AbstractMathTransform
      */
     @Override
     public Matrix derivative(final Point2D point) {
-        return derivative((DirectPosition) null);
+        return derivative((Coordinate) null);
     }
 
     /**
@@ -369,7 +377,7 @@ public class ProjectiveTransform extends AbstractMathTransform
      * the same everywhere.
      */
     @Override
-    public Matrix derivative(final DirectPosition point) {
+    public Matrix derivative(final Coordinate point) {
         final GeneralMatrix matrix = getGeneralMatrix();
         matrix.setSize(numRow - 1, numCol - 1);
         return matrix;
@@ -454,8 +462,7 @@ public class ProjectiveTransform extends AbstractMathTransform
                 } catch (SingularMatrixException
                         | IllegalArgumentException
                         | MatrixDimensionException exception) {
-                    throw new NoninvertibleTransformException(
-                            Errors.format(ErrorKeys.NONINVERTIBLE_TRANSFORM), exception);
+                    throw new NoninvertibleTransformException("Non-invertable transform");
                 }
                 inverse = createInverse(matrix);
                 inverse.inverse = this;

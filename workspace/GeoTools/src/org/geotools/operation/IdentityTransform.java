@@ -18,7 +18,8 @@ package org.geotools.operation;
 
 import java.io.Serializable;
 
-import org.geotools.referencing.operation.matrix.MatrixFactory;
+import org.geotools.operation.matrix.Matrix;
+import org.geotools.operation.matrix.MatrixFactory;
 import org.locationtech.jts.geom.Coordinate;
 
 /**

@@ -64,7 +64,7 @@ public class Matrix2 implements Matrix, Serializable {
      */
     public Matrix2(final Matrix matrix) {
         if (matrix.getNumRows() != SIZE || matrix.getNumCols() != SIZE) {
-        	throw new IllegalArgumentException(String.format("%s: Illegal matrix size (%d, args)",CLSS,matrix.getNumRows()));
+        	throw new IllegalArgumentException(String.format("%s: Illegal matrix size (%d)",CLSS,matrix.getNumRows()));
         }
         m00 = matrix.getElement(0, 0);
         m01 = matrix.getElement(0, 1);
@@ -78,7 +78,7 @@ public class Matrix2 implements Matrix, Serializable {
             return (Matrix2) matrix;
         } else {
             if (matrix.getNumRows() != SIZE || matrix.getNumCols() != SIZE) {
-            	throw new IllegalArgumentException(String.format("%s: Illegal matrix size (%d, args)",CLSS,matrix.getNumRows()));
+            	throw new IllegalArgumentException(String.format("%s: Illegal matrix size (%d)",CLSS,matrix.getNumRows()));
             }
             return new Matrix2(matrix);
         }

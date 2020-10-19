@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.geotools.data.wkt.IdentifiedObject;
+import org.geotools.operation.matrix.Matrix;
 import org.opengis.MismatchedDimensionException;
-import org.openjump.feature.Operation;
 
 /**
  * Definition of an algorithm used to perform a coordinate operation. Most operation methods use a

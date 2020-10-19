@@ -23,7 +23,6 @@ import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.IllegalPathStateException;
-import java.awt.geom.Line2D;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
@@ -31,7 +30,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.ejml.data.DMatrixRMaj;
 import org.geotools.data.wkt.IdentifiedObject;
 import org.geotools.operation.matrix.Matrix;
 import org.geotools.operation.matrix.MatrixFactory;
@@ -39,8 +37,6 @@ import org.geotools.operation.matrix.SingularMatrixException;
 import org.geotools.util.ShapeUtilities;
 import org.locationtech.jts.geom.Coordinate;
 import org.opengis.MismatchedDimensionException;
-
-import com.sun.javafx.geom.QuadCurve2D;
 
 
 
@@ -285,8 +281,8 @@ public abstract class AbstractMathTransform extends IdentifiedObject implements 
 
     /**
      * Transforms a geometric shape. This method always copy transformed coordinates in a new
-     * object. The new object is usually a {@link GeneralPath}, but may also be a {@link Line2D} or
-     * a {@link QuadCurve2D} if such simplification is possible.
+     * object. The new object is usually a {@link GeneralPath}, but may also be a Line2D or
+     * a QuadCurve2D if such simplification is possible.
      *
      * @param shape The geometric shape to transform.
      * @param preTransform An optional affine transform to apply <em>before</em> the transformation

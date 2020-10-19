@@ -42,6 +42,7 @@ import org.openjump.feature.FeatureDataset;
 import org.openjump.feature.FeatureSchema;
 import org.openjump.io.CompressedFile;
 import org.openjump.io.EndianAwareInputStream;
+import org.openjump.io.EndianType;
 
 /**
  * ShapefileReader contains static methods for handling Shapefiles.
@@ -229,6 +230,13 @@ public class ShapefileReader {
     				}
     			}
     		}
+    		// If the projection file yielded a transform, use if.
+    		if( prjFile!=null ) {
+    			for( Feature feat:featureCollection.getFeatures()) {
+    				Geometry geom = feat.getGeometry();
+    				feat.setGeometry(prjFile.reproject(geom));
+    			}
+    		}
     	}
     	// Shapefile is null, so we need to get the geometries from the DbfFile
     	// This doesn't work ... the lone dbfFiles that I've found don't have 
@@ -309,11 +317,11 @@ public class ShapefileReader {
     	return dbfFile;
     }
     /**
-     * Get a DbfFile.
+     * Get a Projection file (.prj). The entire file should be little endian.
      * @param srcFileName either a dbf or an archive file (*.zip etc.)
      * @param charset the charset to use to read this dbf file
-     * @return a DbfFile object for the dbf file named FileName
-     * @throws IOException if an I/O error occurs during dbf file reading
+     * @return a ProjectionFile object for the prj file named srcFileName
+     * @throws IOException if an I/O error occurs during prj file reading
      */
     private static ProjectionFile getPrjFile(String srcFileName, Charset charset)  {
     	ProjectionFile prj = null;
@@ -326,7 +334,8 @@ public class ShapefileReader {
     		return null;
     	}
     	try (InputStream in = CompressedFile.openFile(srcFileName,fname);
-    		 EndianAwareInputStream eastream = new EndianAwareInputStream(in)) {
+    		EndianAwareInputStream eastream = new EndianAwareInputStream(in)) {
+    		eastream.setType(EndianType.LITTLE);
     		
     		ProjectionFile file = new ProjectionFile(charset);
     		file.load(eastream);

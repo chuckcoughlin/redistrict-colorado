@@ -5,7 +5,10 @@ import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.util.logging.Logger;
 
-import org.openjump.coordsys.CoordinateSystem;
+import org.geotools.operation.MathTransformFilter;
+import org.locationtech.jts.geom.CoordinateFilter;
+import org.locationtech.jts.geom.Geometry;
+import org.openjump.coordsys.CoordinateReferenceSystem;
 import org.openjump.io.EndianAwareInputStream;
 
 
@@ -18,7 +21,7 @@ public class ProjectionFile  {
 	private static final Logger LOGGER = Logger.getLogger(CLSS); 
     private final WktParser parser;
 	private final Charset charset;
-    private CoordinateSystem cs;
+    private CoordinateFilter filter;
 
     /**
      * Constructor. 
@@ -27,17 +30,16 @@ public class ProjectionFile  {
     public ProjectionFile(Charset charset) {
     	this.charset = charset;
     	this.parser = new WktParser();
-    	this.cs = null;
+    	this.filter = null;
     }
     
     /**
-     * Return the Coordinate System retrieved by this reader. We bypass
-     * the Coordinate Reference System as it's just a pass-thru.
+     * Return the transform which we will use to modify the geometries.
      *
-     * @return the Coordinate System
+     * @return the transform
      */
-    public CoordinateSystem getCoordinateSystem() {
-        return cs;
+    public CoordinateFilter getFilter() {
+        return filter;
     }
     
     /**
@@ -53,12 +55,25 @@ public class ProjectionFile  {
     	String wkt = buffer.toString();
     	LOGGER.info(wkt);
     	try {
-    		cs = parser.parseCoordinateSystem(wkt);
+    		CoordinateReferenceSystem crs = parser.parseCoordinateReferenceSystem(wkt);
+    		filter = new MathTransformFilter(crs);
     	}
     	catch (ParseException pe) {
     		LOGGER.severe(String.format("%s.load: Exception %s", CLSS,pe.getLocalizedMessage()));
     	}
     	
     	LOGGER.fine("Prj file loaded");
+    }
+    
+    /**
+     * Apply the transform to a geometry.
+     * @param geom
+     * @return
+     */
+    public Geometry reproject(Geometry geom) {
+    	if( filter!=null ) {
+    		geom.apply(filter);
+    	}
+    	return geom.copy();
     }
 }

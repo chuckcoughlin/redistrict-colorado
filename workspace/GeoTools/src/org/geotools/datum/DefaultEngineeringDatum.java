@@ -17,7 +17,7 @@
  *    This package contains documentation from OpenGIS specifications.
  *    OpenGIS consortium's work is fully acknowledged here.
  */
-package org.geotools.referencing.datum;
+package org.geotools.datum;
 
 import java.util.Collections;
 import java.util.Map;

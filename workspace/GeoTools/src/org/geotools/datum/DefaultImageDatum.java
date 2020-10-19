@@ -17,7 +17,7 @@
  *    This package contains documentation from OpenGIS specifications.
  *    OpenGIS consortium's work is fully acknowledged here.
  */
-package org.geotools.referencing.datum;
+package org.geotools.datum;
 
 import java.util.Collections;
 import java.util.Map;
@@ -124,21 +124,4 @@ public class DefaultImageDatum extends Datum implements ImageDatum {
         return super.hashCode() ^ pixelInCell.hashCode();
     }
 
-    /**
-     * Format the inner part of a <A
-     * HREF="http://geoapi.sourceforge.net/snapshot/javadoc/org/opengis/referencing/doc-files/WKT.html"><cite>Well
-     * Known Text</cite> (WKT)</A> element.
-     *
-     * <p><strong>Note:</strong> WKT of image datum is not yet part of OGC specification.
-     *
-     * @param formatter The formatter to use.
-     * @return The WKT element name.
-     */
-    @Override
-    protected String formatWKT(final Formatter formatter) {
-        super.formatWKT(formatter);
-        formatter.append(pixelInCell);
-        formatter.setInvalidWKT(ImageDatum.class);
-        return "IMAGE_DATUM";
-    }
 }

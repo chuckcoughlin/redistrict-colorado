@@ -18,6 +18,12 @@ package org.geotools.operation;
 
 import java.io.Serializable;
 
+import org.geotools.operation.matrix.GeneralMatrix;
+import org.geotools.operation.matrix.Matrix;
+import org.geotools.operation.matrix.MatrixFactory;
+import org.locationtech.jts.geom.Coordinate;
+import org.opengis.MismatchedDimensionException;
+
 
 /**
  * Transform which passes through a subset of ordinates to another transform. This allows transforms
@@ -135,10 +141,9 @@ public class PassThroughTransform extends AbstractMathTransform implements Seria
          * PassThroughTransform object. It is faster and easier to concatenate.
          */
         if (subTransform instanceof LinearTransform) {
-            GeneralMatrix matrix = toGMatrix(((LinearTransform) subTransform).getMatrix());
-            matrix =
-                    PassThroughTransform.expand(
-                            matrix, firstAffectedOrdinate, numTrailingOrdinates, 1);
+            Matrix matrix = MatrixFactory.create(((LinearTransform) subTransform).getMatrix());
+            matrix = PassThroughTransform.expand(
+                            new GeneralMatrix(matrix), firstAffectedOrdinate, numTrailingOrdinates, 1);
             return ProjectiveTransform.create(matrix);
         }
         /*
@@ -262,17 +267,13 @@ public class PassThroughTransform extends AbstractMathTransform implements Seria
 
     /** Gets the derivative of this transform at a point. */
     @Override
-    public Matrix derivative(final DirectPosition point) throws TransformException {
+    public Matrix derivative(final Coordinate point) throws TransformException {
         final int nSkipped = firstAffectedOrdinate + numTrailingOrdinates;
         final int transDim = subTransform.getSourceDimensions();
         final int pointDim = point.getDimension();
         if (pointDim != transDim + nSkipped) {
-            throw new MismatchedDimensionException(
-                    Errors.format(
-                            ErrorKeys.MISMATCHED_DIMENSION_$3,
-                            "point",
-                            pointDim,
-                            transDim + nSkipped));
+            throw new MismatchedDimensionException(String.format("%s: Mismatched point dimension (%d)",
+            		CLSS,pointDim));
         }
         final GeneralDirectPosition subPoint = new GeneralDirectPosition(transDim);
         for (int i = 0; i < transDim; i++) {
@@ -287,7 +288,7 @@ public class PassThroughTransform extends AbstractMathTransform implements Seria
 
     /**
      * Creates a pass through transform from a matrix. This method is invoked when the sub-transform
-     * can be express as a matrix. It is also invoked for computing the matrix returned by {@link
+     * can be expressed as a matrix. It is also invoked for computing the matrix returned by {@link
      * #derivative}.
      *
      * @param subMatrix The sub-transform as a matrix.
@@ -296,17 +297,17 @@ public class PassThroughTransform extends AbstractMathTransform implements Seria
      * @param affine 0 if the matrix do not contains translation terms, or 1 if the matrix is an
      *     affine transform with translation terms.
      */
-    private static GeneralMatrix expand(
+    private static Matrix expand(
             final GeneralMatrix subMatrix,
             final int firstAffectedOrdinate,
             final int numTrailingOrdinates,
             final int affine) {
         final int nSkipped = firstAffectedOrdinate + numTrailingOrdinates;
-        final int numRow = subMatrix.getNumRow() - affine;
-        final int numCol = subMatrix.getNumCol() - affine;
+        final int numRow = subMatrix.getNumRows() - affine;
+        final int numCol = subMatrix.getNumCols() - affine;
         final GeneralMatrix matrix =
                 new GeneralMatrix(numRow + nSkipped + affine, numCol + nSkipped + affine);
-        matrix.setZero();
+        matrix.zero();
 
         //  Set UL part to 1:   [ 1  0             ]
         //                      [ 0  1             ]
@@ -382,7 +383,7 @@ public class PassThroughTransform extends AbstractMathTransform implements Seria
             final PassThroughTransform that = (PassThroughTransform) object;
             return this.firstAffectedOrdinate == that.firstAffectedOrdinate
                     && this.numTrailingOrdinates == that.numTrailingOrdinates
-                    && Utilities.equals(this.subTransform, that.subTransform);
+                    && this.subTransform.equals( that.subTransform);
         }
         return false;
     }

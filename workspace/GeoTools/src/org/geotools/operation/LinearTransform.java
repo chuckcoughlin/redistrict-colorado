@@ -19,6 +19,8 @@
  */
 package org.geotools.operation;
 
+import org.geotools.operation.matrix.Matrix;
+
 /**
  * Interface for linear {@link MathTransform}s. A linear transform can be express as an affine
  * transform using a {@linkplain #getMatrix matrix}. The {@linkplain Matrix#getNumCol number of

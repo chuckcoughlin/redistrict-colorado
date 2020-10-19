@@ -16,8 +16,15 @@
  */
 package org.geotools.operation;
 
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
+
+import org.geotools.operation.matrix.GeneralMatrix;
+import org.geotools.operation.matrix.Matrix;
+import org.geotools.operation.matrix.Matrix3;
+import org.locationtech.jts.geom.Coordinate;
+
 
 
 /**
@@ -29,7 +36,7 @@ import java.io.Serializable;
  * @author Martin Desruisseaux (IRD)
  */
 public class ConcatenatedTransform extends AbstractMathTransform implements Serializable {
-    /** Serial number for interoperability with different versions. */
+    private static final String CLSS = "ConcatenatedTransform";
     private static final long serialVersionUID = 5772066656987558634L;
 
     /** Small number for floating point comparaisons. */
@@ -69,8 +76,7 @@ public class ConcatenatedTransform extends AbstractMathTransform implements Seri
         this.transform2 = transform2;
         if (!isValid()) {
             throw new IllegalArgumentException(
-                    Errors.format(
-                            ErrorKeys.CANT_CONCATENATE_TRANSFORMS_$2,
+            		String.format("%s: Can't concatenate transforms %s and %s", CLSS,
                             getName(transform1),
                             getName(transform2)));
         }
@@ -128,12 +134,9 @@ public class ConcatenatedTransform extends AbstractMathTransform implements Seri
         final int dim2 = tr2.getSourceDimensions();
         if (dim1 != dim2) {
             throw new IllegalArgumentException(
-                    Errors.format(
-                                    ErrorKeys.CANT_CONCATENATE_TRANSFORMS_$2,
-                                    getName(tr1),
-                                    getName(tr2))
-                            + ' '
-                            + Errors.format(ErrorKeys.MISMATCHED_DIMENSION_$2, dim1, dim2));
+            		String.format("%s.create: Mismatched dimensions %s and %s", CLSS,
+                            getName(tr1),
+                            getName(tr2)));
         }
         MathTransform mt = createOptimized(tr1, tr2);
         if (mt != null) {
@@ -220,10 +223,10 @@ public class ConcatenatedTransform extends AbstractMathTransform implements Seri
             if (matrix2 != null) {
                 // Compute "matrix = matrix2 * matrix1". Reuse an existing matrix object
                 // if possible, which is always the case when both matrix are square.
-                final int numRow = matrix2.getNumRow();
-                final int numCol = matrix1.getNumCol();
+                final int numRow = matrix2.getNumRows();
+                final int numCol = matrix1.getNumCols();
                 final Matrix matrix;
-                if (numCol == matrix2.getNumCol()) {
+                if (numCol == matrix2.getNumCols()) {
                     matrix = matrix2;
                     matrix2.multiply(matrix1);
                 } else {
@@ -284,14 +287,15 @@ public class ConcatenatedTransform extends AbstractMathTransform implements Seri
             if (tr1 instanceof MathTransform1D && tr2 instanceof MathTransform1D) {
                 return new ConcatenatedTransformDirect1D(
                         (MathTransform1D) tr1, (MathTransform1D) tr2);
-            } else {
+            } 
+            else {
                 return new ConcatenatedTransform1D(tr1, tr2);
             }
-        } else
+        } 
         /*
          * Checks if the result need to be a MathTransform2D.
          */
-        if (dimSource == 2 && dimTarget == 2) {
+        else if (dimSource == 2 && dimTarget == 2) {
             if (tr1 instanceof MathTransform2D && tr2 instanceof MathTransform2D) {
                 return new ConcatenatedTransformDirect2D(
                         (MathTransform2D) tr1, (MathTransform2D) tr2);
@@ -320,7 +324,7 @@ public class ConcatenatedTransform extends AbstractMathTransform implements Seri
                 }
             }
         }
-        return Classes.getShortClassName(transform);
+        return transform.getClass().getCanonicalName();
     }
 
     /**
@@ -371,7 +375,7 @@ public class ConcatenatedTransform extends AbstractMathTransform implements Seri
 
     /** Transforms the specified {@code ptSrc} and stores the result in {@code ptDst}. */
     @Override
-    public DirectPosition transform(final DirectPosition ptSrc, final DirectPosition ptDst)
+    public Coordinate transform(final Coordinate ptSrc, final Coordinate ptDst)
             throws TransformException {
         assert isValid();
         //  Note: If we know that the transfert dimension is the same than source
@@ -508,15 +512,15 @@ public class ConcatenatedTransform extends AbstractMathTransform implements Seri
      * @throws TransformException if the derivative can't be evaluated at the specified point.
      */
     @Override
-    public Matrix derivative(final DirectPosition point) throws TransformException {
+    public Matrix derivative(final Coordinate point) throws TransformException {
         final Matrix matrix1 = transform1.derivative(point);
         final Matrix matrix2 = transform2.derivative(transform1.transform(point, null));
         // Compute "matrix = matrix2 * matrix1". Reuse an existing matrix object
         // if possible, which is always the case when both matrix are square.
-        final int numRow = matrix2.getNumRow();
-        final int numCol = matrix1.getNumCol();
+        final int numRow = matrix2.getNumRows();
+        final int numCol = matrix1.getNumCols();
         final Matrix matrix;
-        if (numCol == matrix2.getNumCol()) {
+        if (numCol == matrix2.getNumCols()) {
             matrix = toMatrix(matrix2);
             matrix.multiply(matrix1);
         } else {
@@ -551,8 +555,8 @@ public class ConcatenatedTransform extends AbstractMathTransform implements Seri
         }
         if (super.equals(object)) {
             final ConcatenatedTransform that = (ConcatenatedTransform) object;
-            return Utilities.equals(this.transform1, that.transform1)
-                    && Utilities.equals(this.transform2, that.transform2);
+            return this.transform1.equals(that.transform1)
+                    && this.transform2.equals(that.transform2);
         }
         return false;
     }

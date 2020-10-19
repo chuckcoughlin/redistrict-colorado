@@ -18,6 +18,8 @@ package org.geotools.operation;
 
 import java.io.Serializable;
 
+import org.geotools.operation.matrix.Matrix;
+import org.geotools.operation.matrix.Matrix2;
 import org.locationtech.jts.geom.Coordinate;
 
 /**
@@ -87,7 +89,7 @@ public class LinearTransform1D extends AbstractMathTransform
 
     /** Returns this transform as an affine transform matrix. */
     public Matrix getMatrix() {
-        return new Matrix(scale, offset, 0, 1);
+        return new Matrix2(scale, offset, 0, 1);
     }
 
     /** Creates the inverse transform of this object. */

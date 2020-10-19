@@ -103,7 +103,7 @@ public class GeneralMatrix implements Matrix, Serializable {
     public GeneralMatrix(final int numRow, final int numCol, final Matrix matrix) {
         mat = new DMatrixRMaj(numRow, numCol);
         if (matrix.getNumRows() != numRow || matrix.getNumCols() != numCol) {
-        	throw new IllegalArgumentException(String.format("%s: Illegal matrix size (%d, args)",CLSS,matrix.getNumRows()));
+        	throw new IllegalArgumentException(String.format("%s: Illegal matrix size (%d)",CLSS,matrix.getNumRows()));
         }
         for (int j = 0; j < numRow; j++) {
             for (int i = 0; i < numCol; i++) {
@@ -142,7 +142,8 @@ public class GeneralMatrix implements Matrix, Serializable {
     public GeneralMatrix(final Matrix matrix) {
         if (matrix instanceof GeneralMatrix) {
             mat = new DMatrixRMaj(((GeneralMatrix) matrix).mat);
-        } else {
+        } 
+        else {
             mat = new DMatrixRMaj(matrix.getNumRows(), matrix.getNumCols());
 
             final int height = getNumRows();

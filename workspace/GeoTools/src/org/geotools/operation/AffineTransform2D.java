@@ -28,6 +28,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.geotools.operation.matrix.Matrix;
+import org.geotools.operation.matrix.Matrix2;
+import org.geotools.operation.matrix.Matrix3;
 import org.locationtech.jts.geom.Coordinate;
 
 
@@ -40,8 +42,7 @@ import org.locationtech.jts.geom.Coordinate;
  * @version $Id$
  * @author Martin Desruisseaux (IRD)
  */
-public class AffineTransform2D extends AffineTransform
-        implements MathTransform, LinearTransform, Cloneable {
+public class AffineTransform2D extends AffineTransform implements MathTransform, LinearTransform, Cloneable {
     /** Serial number for interoperability with different versions. */
     private static final long serialVersionUID = -5266837898367149069L;
 
@@ -190,7 +191,7 @@ public class AffineTransform2D extends AffineTransform
 
     /** Returns this transform as an affine transform matrix. */
     public Matrix getMatrix() {
-        return new Matrix(this.getMatrix());
+    	return new Matrix3(this); 
     }
 
     /**
@@ -198,9 +199,9 @@ public class AffineTransform2D extends AffineTransform
      * the same everywhere.
      */
     public Matrix derivative(final Point2D point) {
-        return new Matrix(
-                getScaleX(), getShearX(),
-                getShearY(), getScaleY());
+    	  return new Matrix2(
+                  getScaleX(), getShearX(),
+                  getShearY(), getScaleY());
     }
 
     /**

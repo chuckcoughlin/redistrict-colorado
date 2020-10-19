@@ -73,7 +73,7 @@ public class Matrix3 implements Matrix, Serializable {
     public Matrix3(final Matrix matrix) {
         mat = new DMatrix3x3();
         if (matrix.getNumRows() != SIZE || matrix.getNumCols() != SIZE) {
-        	throw new IllegalArgumentException(String.format("%s: Illegal matrix size (%d, args)",CLSS,matrix.getNumRows()));
+        	throw new IllegalArgumentException(String.format("%s: Illegal matrix size (%d)",CLSS,matrix.getNumRows()));
         }
         for (int j = 0; j < SIZE; j++) {
             for (int i = 0; i < SIZE; i++) {

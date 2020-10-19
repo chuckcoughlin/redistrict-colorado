@@ -16,6 +16,7 @@ parseMathTransform *    GeoTools - The Open Source Java GIS Toolkit
  */
 package org.geotools.data.wkt;
 
+import java.awt.geom.NoninvertibleTransformException;
 import java.text.ParseException;
 import java.text.ParsePosition;
 import java.util.ArrayList;
@@ -37,7 +38,11 @@ import org.geotools.datum.Datum;
 import org.geotools.datum.DefaultGeodeticDatum;
 import org.geotools.datum.PrimeMeridian;
 import org.geotools.datum.VerticalDatum;
+import org.geotools.operation.MathTransform;
+import org.geotools.operation.MathTransformParser;
+import org.geotools.operation.OperationMethod;
 import org.openjump.coordsys.AxisDirection;
+import org.openjump.coordsys.CoordinateReferenceSystem;
 import org.openjump.coordsys.CoordinateSystem;
 import org.openjump.coordsys.CoordinateSystemAxis;
 
@@ -86,11 +91,11 @@ public class WktParser extends MathTransformParser {
      * @return The coordinate reference system.
      * @throws ParseException if the string can't be parsed.
      */
-    public CoordinateSystem parseCoordinateSystem(final String text) throws ParseException {
+    public CoordinateReferenceSystem parseCoordinateReferenceSystem(final String text) throws ParseException {
         final Element element = getTree(text, new ParsePosition(0));
-        final CoordinateSystem cs = parseCoordinateSystem(element);
+        CoordinateReferenceSystem crs = parseCoordinateReferenceSystem(element);
         element.close();
-        return cs;
+        return crs;
     }
 
 
@@ -100,11 +105,11 @@ public class WktParser extends MathTransformParser {
      * @return element The next element as a {@link CoordinateReferenceSystem} object.
      * @throws ParseException if the next element can't be parsed.
      */
-    private CoordinateSystem parseCoordinateSystem(final Element element) throws ParseException {
+    private CoordinateReferenceSystem parseCoordinateReferenceSystem(final Element element) throws ParseException {
         final Object key = element.peek();
         final String keyword = ((Element) key).keyword.trim().toUpperCase(symbols.locale);
         if (key instanceof Element) {
-            CoordinateSystem r = null;
+            CoordinateReferenceSystem r = null;
             try {
                 if(      "GEOGCS".equals(keyword)) return r = parseGeoGCS(element);
                 else if ("PROJCS".equals(keyword)) return r = parseProjCS(element);
@@ -118,7 +123,7 @@ public class WktParser extends MathTransformParser {
             	LOGGER.severe(String.format("%s.parseCoordinateSystem: Unknown key - %s",CLSS,keyword));
             }
         }
-        return null;
+        return r;
     }
 
     /**
