@@ -16,24 +16,8 @@
  */
 package org.geotools.geometry;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
-import org.geotools.geometry.GeometryFactoryFinder;
-import org.graalvm.compiler.hotspot.replacements.TypeCheckSnippetUtils.Hints;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.Polygon;
-import org.opengis.geometry.PositionFactory;
-import org.opengis.geometry.aggregate.MultiPrimitive;
-import org.opengis.geometry.coordinate.PolyhedralSurface;
-import org.opengis.geometry.primitive.Curve;
-import org.opengis.geometry.primitive.Point;
-import org.opengis.geometry.primitive.PrimitiveFactory;
-import org.opengis.geometry.primitive.Ring;
-import org.opengis.geometry.primitive.SurfaceBoundary;
+import org.geotools.util.GeometryUtilities;
+import org.locationtech.jts.geom.Coordinate;
 import org.openjump.coordsys.AxisDirection;
 import org.openjump.coordsys.CoordinateReferenceSystem;
 import org.openjump.coordsys.CoordinateSystem;
@@ -61,7 +45,7 @@ public final class JTSUtils {
      * Converts a DirectPosition to a JTS Coordinate. Returns a newly instantiated Coordinate
      * object.
      */
-    public static org.locationtech.jts.geom.Coordinate directPositionToCoordinate(
+    public static Coordinate directPositionToCoordinate(
             DirectPosition dp) {
         double x = Double.NaN, y = Double.NaN, z = Double.NaN;
         int d = dp.getDimension();
@@ -82,8 +66,7 @@ public final class JTSUtils {
      * DirectPosition. If the dimension of the DirectPosition is less than three, then the unused
      * ordinates of the Coordinate are set to Double.NaN.
      */
-    public static void directPositionToCoordinate(
-            DirectPosition dp, org.locationtech.jts.geom.Coordinate result) {
+    public static void directPositionToCoordinate( DirectPosition dp, Coordinate result) {
         int d = dp.getDimension();
         if (d >= 1) {
             result.x = dp.getOrdinate(0);
@@ -114,21 +97,6 @@ public final class JTSUtils {
         return GEOMETRY_FACTORY.createPoint(directPositionToCoordinate(dp));
     }
 
-    /** Converts a JTS Coordinate to a DirectPosition with the given CRS. */
-    public static DirectPosition coordinateToDirectPosition(
-            org.locationtech.jts.geom.Coordinate c, CoordinateReferenceSystem crs) {
-
-        Hints hints = new Hints(Hints.CRS, crs);
-        PositionFactory pf = GeometryFactoryFinder.getPositionFactory(hints);
-
-        double[] vertices;
-        if (crs == null) vertices = new double[3];
-        else vertices = new double[crs.getCoordinateSystem().getDimension()];
-        DirectPosition result = pf.createDirectPosition(vertices);
-        coordinateToDirectPosition(c, result);
-        return result;
-    }
-
     /** Extracts the values of a JTS coordinate into an existing DirectPosition object. */
     public static void coordinateToDirectPosition(
             org.locationtech.jts.geom.Coordinate c, DirectPosition result) {
@@ -138,13 +106,13 @@ public final class JTSUtils {
         final CoordinateSystem cs = crs.getCoordinateSystem();
 
         if (d >= 1) {
-            int xIndex = GeometryUtils.getDirectedAxisIndex(cs, AxisDirection.EAST);
+            int xIndex = GeometryUtilities.getDirectedAxisIndex(cs, AxisDirection.EAST);
             result.setOrdinate(xIndex, c.x); // 0
             if (d >= 2) {
-                int yIndex = GeometryUtils.getDirectedAxisIndex(cs, AxisDirection.NORTH);
+                int yIndex = GeometryUtilities.getDirectedAxisIndex(cs, AxisDirection.NORTH);
                 result.setOrdinate(yIndex, c.y); // 1
                 if (d >= 3) {
-                    int zIndex = GeometryUtils.getDirectedAxisIndex(cs, AxisDirection.UP);
+                    int zIndex = GeometryUtilities.getDirectedAxisIndex(cs, AxisDirection.UP);
                     result.setOrdinate(zIndex, c.getZ()); // 2
                     // If d > 3, then the remaining ordinates of the DP are
                     // (so far) left with their original values.  So we init
@@ -153,17 +121,9 @@ public final class JTSUtils {
                         for (int i = 3; i < d; i++) {
                             result.setOrdinate(i, 0.0);
                         }
-                    }
+                    }		
                 }
             }
         }
     }
-
-    /** Converts a JTS Point to a DirectPosition with the given CRS. */
-    public static DirectPosition pointToDirectPosition(
-            org.locationtech.jts.geom.Point p, CoordinateReferenceSystem crs) {
-        return coordinateToDirectPosition(p.getCoordinate(), crs);
-    }
-
-    
 }

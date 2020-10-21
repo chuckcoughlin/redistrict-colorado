@@ -46,7 +46,6 @@ import org.openjump.coordsys.CoordinateReferenceSystem;
 import org.openjump.coordsys.CoordinateSystem;
 import org.openjump.coordsys.CoordinateSystemAxis;
 
-
 /**
  * Parser for <A
  * HREF="http://geoapi.sourceforge.net/snapshot/javadoc/org/opengis/referencing/doc-files/WKT.html"><cite>Well
@@ -327,7 +326,8 @@ public class WktParser extends MathTransformParser {
         element.close();
 
         if (direction == null) {
-            throw element.parseFailed(null, Errors.format(ErrorKeys.UNKNOW_TYPE_$1, orientation));
+            throw element.parseFailed(null, String.format("%s.CoordinateSystemAxis: Unknown type (%s)",
+            		CLSS, orientation.toString()));
         }
         try {
             return createAxis(properties, name, direction, unit);
@@ -532,7 +532,8 @@ public class WktParser extends MathTransformParser {
         } catch (ParameterNotFoundException exception) {
             throw param.parseFailed(
                     exception,
-                    Errors.format(ErrorKeys.UNEXPECTED_PARAMETER_$1, exception.getParameterName()));
+                    String.format("%s.ParameterVallueGroup: Unknown parameter (%s)",
+                    		CLSS,exception.getParameterName()));
         }
         return parameters;
     }

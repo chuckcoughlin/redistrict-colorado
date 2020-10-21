@@ -18,6 +18,8 @@ package org.geotools.util;
 
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Polygon;
+import org.openjump.coordsys.AxisDirection;
+import org.openjump.coordsys.CoordinateSystem;
 
 /**
  * Convert geometry type to a string
@@ -47,4 +49,21 @@ public final class GeometryUtilities {
 		}
 		return text;
 	}
+	/**
+     * @return the index of an axis in a given coordinate system,
+     * axes are specified using org.opengis.referencing.cs.AxisDirection
+     * used by JTS geometry wrappers
+     * - code from com.polexis.referencing.cs.CSUtils
+     * - is AbstractCS a more appropriate place for this?
+     */
+    public static int getDirectedAxisIndex(
+            final CoordinateSystem cs, final AxisDirection direction) {
+        int dimension = cs.getDimension();
+        for (int i = 0; i < dimension; i++) {
+            if (cs.getAxis(i).getDirection().equals(direction)) {
+                return i;
+            }
+        }
+        return -1;
+    }
 }

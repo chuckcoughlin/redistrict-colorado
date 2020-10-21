@@ -32,26 +32,26 @@ import org.openjump.coordsys.CoordinateReferenceSystem;
 
 /**
  * This class implements JTS's CoordinateFilter interface using a GeoAPI MathTransform object to
- * actually perform the work.
+ * actually perform the work. From GeometryImpl.java.
  */
 public class MathTransformFilter implements CoordinateFilter {
 	private MathTransform transform;
-	private DirectPosition src;
-	private DirectPosition dst;
+	private Coordinate tmp;
 
-	public MathTransformFilter(MathTransform transform, CoordinateReferenceSystem oldCRS,
-			CoordinateReferenceSystem newCRS) {
+	public MathTransformFilter(MathTransform transform) {
 		this.transform = transform;
-		src = new DirectPosition(oldCRS);
-		dst = new DirectPosition(newCRS);
+		tmp = new Coordinate();
 	}
 
+    // Transform the coordinate in place
 	public void filter(Coordinate coord) {
-		// Load the input into a DirectPosition
-		JTSUtils.coordinateToDirectPosition(coord, src);
 		try {
-			// Do the transform math.
-			transform.transform(src, dst);
+			// Do the transform math, then load the result
+			// back into the coordinate.
+			transform.transform(coord, tmp);
+			coord.x = tmp.x;
+			coord.y = tmp.y;
+			coord.z = tmp.z;
 		} 
 		catch (MismatchedDimensionException e) {
 			throw new RuntimeException(e);
@@ -59,8 +59,6 @@ public class MathTransformFilter implements CoordinateFilter {
 		catch (TransformException e) {
 			throw new RuntimeException(e);
 		}
-		// Load the result back into the Coordinate.
-		JTSUtils.directPositionToCoordinate(dst, coord);
 	}
 }
 
