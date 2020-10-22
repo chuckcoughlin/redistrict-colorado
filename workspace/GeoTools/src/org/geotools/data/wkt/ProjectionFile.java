@@ -55,8 +55,9 @@ public class ProjectionFile  {
     	String wkt = buffer.toString();
     	LOGGER.info(wkt);
     	try {
-    		CoordinateReferenceSystem crs = parser.parseCoordinateReferenceSystem(wkt);
-    		filter = new MathTransformFilter(crs); 
+    		parser.parseTree(wkt);
+    		
+    		filter = parser.getCoordinateFilter(); 
     	}
     	catch (ParseException pe) {
     		LOGGER.severe(String.format("%s.load: Exception %s", CLSS,pe.getLocalizedMessage()));

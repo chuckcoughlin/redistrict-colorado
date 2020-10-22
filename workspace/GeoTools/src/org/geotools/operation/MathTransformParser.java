@@ -23,6 +23,7 @@ import java.text.ParsePosition;
 import org.geotools.data.wkt.AbstractParser;
 import org.geotools.data.wkt.Element;
 import org.geotools.data.wkt.Symbols;
+import org.locationtech.jts.geom.CoordinateFilter;
 import org.openjump.feature.Operation;
 
 /**
@@ -39,7 +40,8 @@ import org.openjump.feature.Operation;
 public class MathTransformParser extends AbstractParser {
    private final static String CLSS = "MathTransformParser";
 
-
+   private MathTransform transform;
+   private CoordinateFilter filter;
     /**
      * The classification of the last math transform or projection parsed, or {@code null} if none.
      */
@@ -52,71 +54,43 @@ public class MathTransformParser extends AbstractParser {
      */
     private OperationMethod lastMethod;
 
-    /** Constructs a parser using the default set of symbols. */
-    public MathTransformParser() {
-    	super(Symbols.DEFAULT);
-    }
-
     /**
-     * Constructs a parser using the specified set of symbols and the default factories.
+     * Constructs a parser using a specified set of symbols.
      *
      * @param symbols The symbols for parsing and formatting numbers.
      * @todo Pass hints in argument.
      */
     public MathTransformParser(final Symbols symbols) {
         super(symbols);
+        this.transform = new AffineTransform2D();
     }
+
+    public CoordinateFilter getCoordinateFilter() { return new MathTransformFilter(transform); }
+    public MathTransform getTransform() { return this.transform; }
+
 
 
     /**
-     * Parses a math transform element.
+     * Parses the next element as a MathTransform.
      *
-     * @param text The text to be parsed.
-     * @return The math transform.
-     * @throws ParseException if the string can't be parsed.
-     */
-    public MathTransform parseMathTransform(final String text) throws ParseException {
-        final Element element = getTree(text, new ParsePosition(0));
-        final MathTransform mt = parseMathTransform(element, true);
-        element.close();
-        return mt;
-    }
-
-    /**
-     * Parses the next element in the specified <cite>Well Know Text</cite> (WKT) tree.
-     *
-     * @param element The element to be parsed.
-     * @return The object.
-     * @throws ParseException if the element can't be parsed.
-     */
-    protected Object parse(final Element element) throws ParseException {
-        return parseMathTransform(element, true);
-    }
-
-    /**
-     * Parses the next element (a {@link MathTransform}) in the specified <cite>Well Know
-     * Text</cite> (WKT) tree.
-     *
-     * @param element The parent element.
+     * @param element the element to be parsed..
      * @param required True if parameter is required and false in other case.
      * @return The next element as a {@link MathTransform} object.
      * @throws ParseException if the next element can't be parsed.
      */
-    final MathTransform parseMathTransform(final Element element, final boolean required) throws ParseException {
+    protected boolean analyzeMathTransform( Element element) throws ParseException {
+    	final String keyword = element.getKeyword();
+    	boolean result = false;
         lastMethod = null;
         classification = null;
-        final Object key = element.peek();
-        if (key instanceof Element) {
-            final String keyword = ((Element) key).keyword.trim().toUpperCase(symbols.locale);
+
             if ("PARAM_MT".equals(keyword)) return parseParamMT(element);
-            if ("CONCAT_MT".equals(keyword)) return parseConcatMT(element);
-            if ("INVERSE_MT".equals(keyword)) return parseInverseMT(element);
-            if ("PASSTHROUGH_MT".equals(keyword)) return parsePassThroughMT(element);
-        }
-        if (required) {
-        	throw new ParseException(String.format("%s.parse: Unknown key - %s",CLSS,key),0);
-        }
-        return null;
+            else if ("CONCAT_MT".equals(keyword)) return parseConcatMT(element);
+            else if ("INVERSE_MT".equals(keyword)) return parseInverseMT(element);
+            else if ("PASSTHROUGH_MT".equals(keyword)) return parsePassThroughMT(element);
+        
+
+        return result;
     }
 
     /**

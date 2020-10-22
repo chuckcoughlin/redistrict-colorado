@@ -40,29 +40,21 @@ import java.util.Set;
  * @see Ellipsoid
  * @see PrimeMeridian
  */
-public class DefaultGeodeticDatum extends Datum  {
-    /** Serial number for interoperability with different versions. */
+public class GeodeticDatum extends Datum  {
     private static final long serialVersionUID = 8832100095648302943L;
 
     /** The default WGS 1984 datum. */
-    public static final DefaultGeodeticDatum WGS84;
+    public static final GeodeticDatum WGS84;
 
     static {
-        final ReferenceIdentifier[] identifiers = {
-            new NamedIdentifier(Citations.OGC, "WGS84"),
-            new NamedIdentifier(Citations.ORACLE, "WGS 84"),
-            new NamedIdentifier(null, "WGS_84"),
-            new NamedIdentifier(null, "WGS 1984"),
-            new NamedIdentifier(Citations.EPSG, "WGS_1984"),
-            new NamedIdentifier(Citations.ESRI, "D_WGS_1984"),
-            new NamedIdentifier(Citations.EPSG, "World Geodetic System 1984")
-        };
-        final Map<String, Object> properties = new HashMap<String, Object>(4);
+        final Map<String, Object> properties = new HashMap<>();
+        properties.put(Citations.OGC, "WGS84");
+        
         properties.put(NAME_KEY, identifiers[0]);
         properties.put(ALIAS_KEY, identifiers);
         WGS84 =
-                new DefaultGeodeticDatum(
-                        properties, DefaultEllipsoid.WGS84, DefaultPrimeMeridian.GREENWICH);
+                new GeodeticDatum(
+                        properties, DefaultEllipsoid.WGS84, PrimeMeridian.GREENWICH);
     }
 
     /**
@@ -88,13 +80,13 @@ public class DefaultGeodeticDatum extends Datum  {
      *
      * @since 2.2
      */
-    public DefaultGeodeticDatum(final GeodeticDatum datum) {
+    public GeodeticDatum(final GeodeticDatum datum) {
         super(datum);
         ellipsoid = datum.getEllipsoid();
         primeMeridian = datum.getPrimeMeridian();
         bursaWolf =
-                (datum instanceof DefaultGeodeticDatum)
-                        ? ((DefaultGeodeticDatum) datum).bursaWolf
+                (datum instanceof GeodeticDatum)
+                        ? ((GeodeticDatum) datum).bursaWolf
                         : null;
     }
 
@@ -105,7 +97,7 @@ public class DefaultGeodeticDatum extends Datum  {
      * @param ellipsoid The ellipsoid.
      * @param primeMeridian The prime meridian.
      */
-    public DefaultGeodeticDatum(
+    public GeodeticDatum(
             final String name, final Ellipsoid ellipsoid, final PrimeMeridian primeMeridian) {
         this(Collections.singletonMap(NAME_KEY, name), ellipsoid, primeMeridian);
     }
@@ -134,7 +126,7 @@ public class DefaultGeodeticDatum extends Datum  {
      * @param ellipsoid The ellipsoid.
      * @param primeMeridian The prime meridian.
      */
-    public DefaultGeodeticDatum(
+    public GeodeticDatum(
             final Map<String, ?> properties,
             final Ellipsoid ellipsoid,
             final PrimeMeridian primeMeridian) {
@@ -232,12 +224,12 @@ public class DefaultGeodeticDatum extends Datum  {
      * @return An affine transform from {@code source} to {@code target}, or {@code null} if none.
      * @see BursaWolfParameters#getAffineTransform
      */
-    private static XMatrix getAffineTransform(
+    private static Matrix getAffineTransform(
             final GeodeticDatum source, final GeodeticDatum target, Set<GeodeticDatum> exclusion) {
         ensureNonNull("source", source);
         ensureNonNull("target", target);
-        if (source instanceof DefaultGeodeticDatum) {
-            final BursaWolfParameters[] bursaWolf = ((DefaultGeodeticDatum) source).bursaWolf;
+        if (source instanceof GeodeticDatum) {
+            final BursaWolfParameters[] bursaWolf = ((GeodeticDatum) source).bursaWolf;
             if (bursaWolf != null) {
                 for (int i = 0; i < bursaWolf.length; i++) {
                     final BursaWolfParameters transformation = bursaWolf[i];
@@ -251,8 +243,8 @@ public class DefaultGeodeticDatum extends Datum  {
          * No transformation found to the specified target datum.
          * Search if a transform exists in the opposite direction.
          */
-        if (target instanceof DefaultGeodeticDatum) {
-            final BursaWolfParameters[] bursaWolf = ((DefaultGeodeticDatum) target).bursaWolf;
+        if (target instanceof GeodeticDatum) {
+            final BursaWolfParameters[] bursaWolf = ((GeodeticDatum) target).bursaWolf;
             if (bursaWolf != null) {
                 for (int i = 0; i < bursaWolf.length; i++) {
                     final BursaWolfParameters transformation = bursaWolf[i];
@@ -272,9 +264,9 @@ public class DefaultGeodeticDatum extends Datum  {
          *
          *    source   -->   [common datum]   -->   target
          */
-        if (source instanceof DefaultGeodeticDatum && target instanceof DefaultGeodeticDatum) {
-            final BursaWolfParameters[] sourceParam = ((DefaultGeodeticDatum) source).bursaWolf;
-            final BursaWolfParameters[] targetParam = ((DefaultGeodeticDatum) target).bursaWolf;
+        if (source instanceof GeodeticDatum && target instanceof GeodeticDatum) {
+            final BursaWolfParameters[] sourceParam = ((GeodeticDatum) source).bursaWolf;
+            final BursaWolfParameters[] targetParam = ((GeodeticDatum) target).bursaWolf;
             if (sourceParam != null && targetParam != null) {
                 GeodeticDatum sourceStep;
                 GeodeticDatum targetStep;
@@ -283,7 +275,7 @@ public class DefaultGeodeticDatum extends Datum  {
                     for (int j = 0; j < targetParam.length; j++) {
                         targetStep = targetParam[j].targetDatum;
                         if (equals(sourceStep, targetStep, false)) {
-                            final XMatrix step1, step2;
+                            final Matrix step1, step2;
                             if (exclusion == null) {
                                 exclusion = new HashSet<GeodeticDatum>();
                             }
@@ -343,7 +335,7 @@ public class DefaultGeodeticDatum extends Datum  {
             return true; // Slight optimization.
         }
         if (super.equals(object, compareMetadata)) {
-            final DefaultGeodeticDatum that = (DefaultGeodeticDatum) object;
+            final GeodeticDatum that = (GeodeticDatum) object;
             if (equals(this.ellipsoid, that.ellipsoid, compareMetadata)
                     && equals(this.primeMeridian, that.primeMeridian, compareMetadata)) {
                 /*
@@ -360,28 +352,6 @@ public class DefaultGeodeticDatum extends Datum  {
             }
         }
         return false;
-    }
-
-    /**
-     * Returns a hash value for this geodetic datum. {@linkplain #getName Name}, {@linkplain
-     * #getRemarks remarks} and the like are not taken in account. In other words, two geodetic
-     * datums will return the same hash value if they are equal in the sense of <code>
-     * {@link #equals equals}(AbstractIdentifiedObject, <strong>false</strong>)</code>.
-     *
-     * @return The hash code value. This value doesn't need to be the same in past or future
-     *     versions of this class.
-     */
-    @Override
-    @SuppressWarnings("PMD.OverrideBothEqualsAndHashcode")
-    public int hashCode() {
-        int code =
-                (int) serialVersionUID
-                        ^ 37
-                                * (super.hashCode()
-                                        ^ 37
-                                                * (ellipsoid.hashCode()
-                                                        ^ 37 * (primeMeridian.hashCode())));
-        return code;
     }
 
 }

@@ -35,7 +35,6 @@ import java.util.Map;
  * @since 2.1
  */
 public class VerticalDatum extends Datum  {
-    /** Serial number for interoperability with different versions. */
     private static final long serialVersionUID = 380347456670516572L;
 
     /** A copy of the list of vertical types. */

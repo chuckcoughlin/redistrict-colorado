@@ -16,18 +16,24 @@
  */
 package org.geotools.data.wkt;
 
+import java.io.IOException;
+import java.io.StreamTokenizer;
+import java.io.StringReader;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.ParsePosition;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
  * Base class for <cite>Well Know Text</cite> (WKT) parser. We've removed all
  * code dealing with formatted output.
+ * 
+ * Parse then maintain a list of elements. This class maintains the current
+ * parse position in that list.
  *
- * @since 2.0
- * @version $Id$
  * @author Remi Eve
  * @author Martin Desruisseaux (IRD)
  * @see <A
@@ -39,135 +45,158 @@ public abstract class AbstractParser {
 	private static final long serialVersionUID = -5563084488367279495L;
 	private static final String CLSS = "AbstractParser";
 	private static final Logger LOGGER = Logger.getLogger(CLSS); 
-
-	/**
-     * Set to {@code true} if parsing of number in scientific notation is allowed. The way to
-     * achieve that is currently a hack, because {@link NumberFormat} has no API for managing that
-     * as of J2SE 1.5.
-     *
-     * @todo See if a future version of J2SE allows us to get ride of this ugly hack.
-     */
-    private static final boolean SCIENTIFIC_NOTATION = true;
-
-    /** The symbols to use for parsing WKT. */
-    protected final Symbols symbols;
-    /** The object to use for parsing numbers. */
-    private final NumberFormat numberFormat;
+    private static final boolean SCIENTIFIC_NOTATION = true;  // Allow parsing of numbers in scientific notation
+    private static final char[] DELIMS = { '(',')',']','[','"',',' };
+    protected final Symbols symbols;           // Well-known symbols
+    private Element root = new Element();
+   
 
     /**
      * Constructs a parser using the specified set of symbols.
+     * Note that scientific notation for numeric quantities will be recognized.
      *
      * @param symbols The set of symbols to use.
      */
     public AbstractParser(final Symbols symbols) {
         this.symbols = symbols;
-        this.numberFormat = (NumberFormat) symbols.numberFormat.clone();
-        if (SCIENTIFIC_NOTATION && numberFormat instanceof DecimalFormat) {
-            final DecimalFormat numberFormat = (DecimalFormat) this.numberFormat;
-            String pattern = numberFormat.toPattern();
-            if (pattern.indexOf("E0") < 0) {
-                final int split = pattern.indexOf(';');
-                if (split >= 0) {
-                    pattern = pattern.substring(0, split) + "E0" + pattern.substring(split);
-                }
-                pattern += "E0";
-                numberFormat.applyPattern(pattern);
-            }
-        }
     }
 
     /**
-     * Parses a <cite>Well Known Text</cite> (WKT).
+     * Parses a <cite>Well Known Text</cite> (WKT) string. Analyze the
+     * complete string, generating a list of elements each of which
+     * can hold a list of child elements. There is a single root element
+     * which is the coordinate reference system.
+     * 
+     * The parsing takes two passes. In the first the original string
+     * is separated into a tree of elements. In the second that tree
+     * is traversed to analyze what effect, if any, those elements have
+     * on the math transform (which is our objective).
      *
      * @param text The text to be parsed.
-     * @return The object.
      * @throws ParseException if the string can't be parsed.
      */
-    public final Object parseObject(final String text) throws ParseException {
-        final Element element = getTree(text, new ParsePosition(0));
-        final Object object = parse(element);
-        element.close();
-        return object;
-    }
-
-    /**
-     * Parses a <cite>Well Know Text</cite> (WKT).
-     *
-     * @param text The text to be parsed.
-     * @param position The position to start parsing from.
-     * @return The object.
-     */
-    public final Object parseObject(final String text, final ParsePosition position) {
-        final int origin = position.getIndex();
-        try {
-            return parse(getTree(text, position));
-        } catch (ParseException exception) {
-            position.setIndex(origin);
-            if (position.getErrorIndex() < origin) {
-                position.setErrorIndex(exception.getErrorOffset());
-            }
-            return null;
+    public final void parseTree(final String text) throws ParseException {
+        createElements(root,text);
+        for(Element element:root.getChildren()) {
+        	analyzeElement(element);  // Analyze the children of the root
         }
+        
     }
 
-    /** Parse the number at the given position. */
-    final Number parseNumber(String text, final ParsePosition position) {
-        if (SCIENTIFIC_NOTATION) {
-            /*
-             * HACK: DecimalFormat.parse(...) do not understand lower case 'e' for scientific
-             *       notation. It understand upper case 'E' only. Performs the replacement...
-             */
-            final int base = position.getIndex();
-            Number number = numberFormat.parse(text, position);
-            if (number != null) {
-                int i = position.getIndex();
-                if (i < text.length() && text.charAt(i) == 'e') {
-                    final StringBuilder buffer = new StringBuilder(text);
-                    buffer.setCharAt(i, 'E');
-                    text = buffer.toString();
-                    position.setIndex(base);
-                    number = numberFormat.parse(text, position);
-                }
-            }
-            return number;
-        } else {
-            return numberFormat.parse(text, position);
-        }
+    private void createElements(Element start, String text) throws ParseException {
+    	Element element = start;  // Current element
+    	ParseStatus pstatus;       // current parse position and token
+    	boolean inquote = false;
+    	
+    	while( text.length()>0 ) {
+    		// Quoted text can only be used as a property
+    		if( inquote ) {
+    			pstatus = getQuotedString(text);
+    			element.addParameter(pstatus.getText());
+    			
+    			
+    		}
+    		else {
+    			pstatus = getNextToken(text);
+    			char delim = pstatus.getDelimiter();
+    			
+    			if( delim=='(' || delim=='[' ) {
+    				String keyword = pstatus.getText().trim();
+    				if( keyword.isBlank() ) {
+    					Element child = new Element();
+    					element.addChild(child);
+    					element = child; // Child is now the current
+    				}
+    				else {
+    					keyword = pstatus.getText().trim();
+    					if(!keyword.isBlank()) {
+    						element.setKeyword(pstatus.getText().toUpperCase());
+    					}
+    				}
+    				
+    			}
+    			else if( delim==',' ||  delim==']' ) {
+    				String param = pstatus.getText().trim();
+					if(!param.isBlank()) {
+						element.addParameter(pstatus.getText());
+					}
+    			}
+    			else {
+    				throw new ParseException(String.format("%s.createElements: Unrecognized delimiter (%c)",
+    						CLSS,delim),0);
+    			}
+    			
+    		}
+    		// Remove current fragment from the remainder
+    		if( pstatus.getLength()>text.length()) {
+				text = "";
+			}
+			else {
+				text = text.substring(pstatus.getLength());
+			}	
+    	}
     }
+    
+    /**
+     * Analyze an element and its children. Contribute to the construction
+     * of the MathTransform, if appropriate. Otherwise do nothing.
+     *
+     * @param element The element to be analyzed.
+     * @return true if the element was successfully analyzed.
+     */
+    public abstract boolean analyzeElement(Element element) throws ParseException;
+    
 
     /**
-     * Parses the next element in the specified <cite>Well Know Text</cite> (WKT) tree.
-     *
-     * @param element The element to be parsed.
-     * @return The object.
-     * @throws ParseException if the element can't be parsed.
+     * This is a poor-man's parser. Look for the next occurrence from a list of delimiters.
      */
-    protected abstract Object parse(final Element element) throws ParseException;
-
+    private ParseStatus getNextToken(String text) {
+    	ParseStatus status = new ParseStatus();
+    	char delimiter = '\0';
+    	int pos = Integer.MAX_VALUE;
+    	
+    	for( char d:DELIMS) {
+    		int p = text.indexOf(d);
+    		if( p>=0 && p<pos ) {
+    			pos = p;
+    			delimiter = d;
+    		}
+    	}
+    	if( pos<Integer.MAX_VALUE ) {
+    		status.setDelimiter(delimiter);
+    		status.setLength(pos+1);
+    		status.setText(text.substring(0, pos));
+    	}
+    	return status;
+    }
+    
     /**
-     * Returns a tree of {@link Element} for the specified text.
-     *
-     * @param text The text to parse.
-     * @param position In input, the position where to start parsing from. In output, the first
-     *     character after the separator.
-     * @return The tree of elements to parse.
-     * @throws ParseException If an parsing error occured while creating the tree.
+     * The previous token was a begin-quote. Find its match for the end.
+     * Pass over escaped quotes.
      */
-    protected final Element getTree(final String text, final ParsePosition position)
-            throws ParseException {
-        return new Element(new Element(this, text, position));
+    private ParseStatus getQuotedString(String text) {
+    	ParseStatus status = new ParseStatus();
+    	byte[] bytes = text.getBytes();
+    	boolean escaped = false;
+    	int index = 0;
+    	for( byte c: bytes) {
+    		index++;
+    		if( c=='\'') {
+    			escaped = true;
+    			continue;
+    		}
+    		else if( escaped ) {
+    			escaped = false;
+    			continue;
+    		}
+    		else if( c=='"' ) {
+    			text = text.substring(index);
+    			status.setLength(index);
+    			status.setText(text.trim());
+    			break;			
+    		}
+    	}
+    	return status;
     }
 
-
-    /**
-     * Report a failure while parsing the specified line. Write to the logger as severe.
-     *
-     * @param line The line that failed.
-     * @param errorOffset The error offset in the specified line. This is usually the value provided
-     *     by {@link ParseException#getErrorOffset}.
-     */
-    static void reportError(String line, int errorOffset) {
-        line = line.replace('\r', ' ').replace('\n', ' ');
-        LOGGER.severe(String.format("AbstractParser: Error position %d in %s", errorOffset,line));
-    }
 }

@@ -22,12 +22,9 @@
  */
 package org.geotools.operation;
 
-import org.geotools.geometry.DirectPosition;
-import org.geotools.geometry.JTSUtils;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.CoordinateFilter;
 import org.opengis.MismatchedDimensionException;
-import org.openjump.coordsys.CoordinateReferenceSystem;
 
 
 /**
