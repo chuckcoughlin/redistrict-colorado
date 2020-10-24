@@ -27,6 +27,8 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.geotools.operation.matrix.Matrix;
+
 
 
 /**
@@ -54,7 +56,7 @@ public class GeodeticDatum extends Datum  {
         properties.put(ALIAS_KEY, identifiers);
         WGS84 =
                 new GeodeticDatum(
-                        properties, DefaultEllipsoid.WGS84, PrimeMeridian.GREENWICH);
+                        properties, Ellipsoid.WGS84, PrimeMeridian.GREENWICH);
     }
 
     /**

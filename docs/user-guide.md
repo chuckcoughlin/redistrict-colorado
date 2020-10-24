@@ -125,7 +125,7 @@ The overall metric calculation assigns a value from 0-10 for each of the other m
 ##### Comparisons <a id="comparisons"></a>
 The results page compares metrics for each plan. Evaluations are presented as bar charts with the bars ordered with the "best" result on top. Depending on the metric, a "good" result may be the smallest number. The composite score is a weighted average of scaled values of the 8 other values.
 
-![Results](/images/plan_comparison.png)
+![Results](../images/plan_comparison.png)
 ```                  Results    ```
 
 Clicking on any of the comparison boxes will display a detail screen with additional statistics which support the results shown in the graphs. The makeup of these statistics is dependent on the metric.
@@ -133,7 +133,7 @@ Clicking on any of the comparison boxes will display a detail screen with additi
 ### Datasets <a id="datasets"></a>
 
 The following screen shows the Dataset context in a state just after pressing the "Edit" button for one of its entries.
-![Datasets](/images/application_datasets.png)
+![Datasets](../images/application_datasets.png)
 ```                  Dataset List     ```
 
 On the right side, are components which allow us to change the properties of a dataset, its name, description, shapefile path and role. The role refers to the usage of the dataset in evaluation of a plan.
