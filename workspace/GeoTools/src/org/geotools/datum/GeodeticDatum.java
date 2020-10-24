@@ -36,11 +36,6 @@ import org.geotools.operation.matrix.Matrix;
  * sphere) that approximates the shape of the earth. Used also for Cartesian coordinate system
  * centered in this ellipsoid (or sphere).
  *
- * @since 2.1
- * @version $Id$
- * @author Martin Desruisseaux (IRD)
- * @see Ellipsoid
- * @see PrimeMeridian
  */
 public class GeodeticDatum extends Datum  {
     private static final long serialVersionUID = 8832100095648302943L;
@@ -50,12 +45,9 @@ public class GeodeticDatum extends Datum  {
 
     static {
         final Map<String, Object> properties = new HashMap<>();
-        properties.put(Citations.OGC, "WGS84");
-        
-        properties.put(NAME_KEY, identifiers[0]);
-        properties.put(ALIAS_KEY, identifiers);
-        WGS84 =
-                new GeodeticDatum(
+        properties.put(NAME_KEY, "WGS84");
+        properties.put(ALIAS_KEY, "WGS 84");
+        WGS84 = new GeodeticDatum(
                         properties, Ellipsoid.WGS84, PrimeMeridian.GREENWICH);
     }
 
@@ -83,13 +75,10 @@ public class GeodeticDatum extends Datum  {
      * @since 2.2
      */
     public GeodeticDatum(final GeodeticDatum datum) {
-        super(datum);
+        super(datum.getProperties());
         ellipsoid = datum.getEllipsoid();
         primeMeridian = datum.getPrimeMeridian();
-        bursaWolf =
-                (datum instanceof GeodeticDatum)
-                        ? ((GeodeticDatum) datum).bursaWolf
-                        : null;
+        bursaWolf = datum.bursaWolf;
     }
 
     /**
@@ -129,14 +118,12 @@ public class GeodeticDatum extends Datum  {
      * @param primeMeridian The prime meridian.
      */
     public GeodeticDatum(
-            final Map<String, ?> properties,
+            final Map<String, Object> properties,
             final Ellipsoid ellipsoid,
             final PrimeMeridian primeMeridian) {
         super(properties);
         this.ellipsoid = ellipsoid;
         this.primeMeridian = primeMeridian;
-        ensureNonNull("ellipsoid", ellipsoid);
-        ensureNonNull("primeMeridian", primeMeridian);
         BursaWolfParameters[] bursaWolf;
         final Object object = properties.get(BURSA_WOLF_KEY);
         if (object instanceof BursaWolfParameters) {
@@ -193,7 +180,7 @@ public class GeodeticDatum extends Datum  {
         if (bursaWolf != null) {
             for (int i = 0; i < bursaWolf.length; i++) {
                 final BursaWolfParameters candidate = bursaWolf[i];
-                if (equals(target, candidate.targetDatum, false)) {
+                if( target.equals(candidate.targetDatum) ) {
                     return candidate.clone();
                 }
             }
@@ -219,8 +206,8 @@ public class GeodeticDatum extends Datum  {
      * Returns a matrix that can be used to define a transformation to the specified datum. If no
      * transformation path is found, then this method returns {@code null}.
      *
-     * @param source The source datum.
-     * @param target The target datum.
+     * @param source The source datum, must be non-null.
+     * @param target The target datum, must be non-null.
      * @param exclusion The set of datum to exclude from the search, or {@code null}. This is used
      *     in order to avoid never-ending recursivity.
      * @return An affine transform from {@code source} to {@code target}, or {@code null} if none.
@@ -228,14 +215,12 @@ public class GeodeticDatum extends Datum  {
      */
     private static Matrix getAffineTransform(
             final GeodeticDatum source, final GeodeticDatum target, Set<GeodeticDatum> exclusion) {
-        ensureNonNull("source", source);
-        ensureNonNull("target", target);
         if (source instanceof GeodeticDatum) {
             final BursaWolfParameters[] bursaWolf = ((GeodeticDatum) source).bursaWolf;
             if (bursaWolf != null) {
                 for (int i = 0; i < bursaWolf.length; i++) {
                     final BursaWolfParameters transformation = bursaWolf[i];
-                    if (equals(target, transformation.targetDatum, false)) {
+                    if( target.equals(transformation.targetDatum)) {
                         return transformation.getAffineTransform();
                     }
                 }
@@ -250,8 +235,8 @@ public class GeodeticDatum extends Datum  {
             if (bursaWolf != null) {
                 for (int i = 0; i < bursaWolf.length; i++) {
                     final BursaWolfParameters transformation = bursaWolf[i];
-                    if (equals(source, transformation.targetDatum, false)) {
-                        final XMatrix matrix = transformation.getAffineTransform();
+                    if( source.equals(transformation.targetDatum) ) {
+                        final Matrix matrix = transformation.getAffineTransform();
                         matrix.invert();
                         return matrix;
                     }
@@ -276,7 +261,7 @@ public class GeodeticDatum extends Datum  {
                     sourceStep = sourceParam[i].targetDatum;
                     for (int j = 0; j < targetParam.length; j++) {
                         targetStep = targetParam[j].targetDatum;
-                        if (equals(sourceStep, targetStep, false)) {
+                        if( sourceStep.equals(targetStep) ) {
                             final Matrix step1, step2;
                             if (exclusion == null) {
                                 exclusion = new HashSet<GeodeticDatum>();
@@ -316,44 +301,7 @@ public class GeodeticDatum extends Datum  {
      * specified datum is uncertain (for example because it come from an other implementation).
      */
     public static boolean isWGS84(final Datum datum) {
-        if (datum instanceof AbstractIdentifiedObject) {
-            return WGS84.equals((AbstractIdentifiedObject) datum, false);
-        }
-        // Maybe the specified object has its own test...
         return datum != null && datum.equals(WGS84);
-    }
-
-    /**
-     * Compare this datum with the specified object for equality.
-     *
-     * @param object The object to compare to {@code this}.
-     * @param compareMetadata {@code true} for performing a strict comparaison, or {@code false} for
-     *     comparing only properties relevant to transformations.
-     * @return {@code true} if both objects are equal.
-     */
-    @Override
-    public boolean equals(final AbstractIdentifiedObject object, final boolean compareMetadata) {
-        if (object == this) {
-            return true; // Slight optimization.
-        }
-        if (super.equals(object, compareMetadata)) {
-            final GeodeticDatum that = (GeodeticDatum) object;
-            if (equals(this.ellipsoid, that.ellipsoid, compareMetadata)
-                    && equals(this.primeMeridian, that.primeMeridian, compareMetadata)) {
-                /*
-                 * HACK: We do not consider Bursa Wolf parameters as a non-metadata field.
-                 *       This is needed in order to get equalsIgnoreMetadata(...) to returns
-                 *       'true' when comparing the WGS84 constant in this class with a WKT
-                 *       DATUM element with a TOWGS84[0,0,0,0,0,0,0] element. Furthermore,
-                 *       the Bursa Wolf parameters are not part of ISO 19111 specification.
-                 *       We don't want two CRS to be considered as different because one has
-                 *       more of those transformation informations (which is nice, but doesn't
-                 *       change the CRS itself).
-                 */
-                return !compareMetadata || Arrays.equals(this.bursaWolf, that.bursaWolf);
-            }
-        }
-        return false;
     }
 
 }

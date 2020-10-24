@@ -99,6 +99,7 @@ public class Datum extends IdentifiedObject {
     }
     
     public String getName() { return (String)properties.get(NAME_KEY); }
+    public Map<String,Object> getProperties() { return this.properties; }
    
 
     /**

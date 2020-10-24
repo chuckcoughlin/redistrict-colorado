@@ -34,4 +34,24 @@ public class IdentifiedObject {
     public static final String ALIAS_KEY = "alias";
     public static final String IDENTIFIERS_KEY = "identifiers";
     public static final String REMARKS_KEY = "remarks";
+    
+    /**
+     * Resource keys taken from org.geotools.metadata.i18n.VocabularyKeys.
+     * We've added the accompanying names where needed.
+     */
+    public static final int CARTESIAN = 14;
+    public static final int DEPTH = 44;
+    public static final int ELLIPSOID = 56;
+    public static final int ELLIPSOIDAL = 57;
+    public static final int ERROR = 63;
+    public static final int EXCEPTION = 67;
+    public static final int GEOCENTRIC = 77;
+    public static final int GEOIDAL = 88;
+    public static final int IDENTITY = 102;
+    public static final int LATITUDE = 120;
+    public static final int LONGITUDE = 132;
+    public static final int MATH_TRANSFORM = 135;
+    
+    public static final String GEODIAL_NAME = "GEODIAL";
+    public static final String ELLIPSOIDAL_NAME = "ELLIPSOIDAL";
 }
