@@ -54,4 +54,5 @@ final class IdentityTransform1D extends LinearTransform1D {
             final double[] srcPts, int srcOff, final double[] dstPts, int dstOff, int numPts) {
         System.arraycopy(srcPts, srcOff, dstPts, dstOff, numPts);
     }
+    
 }

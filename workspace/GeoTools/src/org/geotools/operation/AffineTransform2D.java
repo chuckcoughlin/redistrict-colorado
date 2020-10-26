@@ -242,8 +242,8 @@ public class AffineTransform2D extends AffineTransform implements MathTransform,
      * is unmodifiable, which make exact cloning useless.
      */
     @Override
-    public AffineTransform clone() {
-        return new AffineTransform(this);
+    public AffineTransform2D clone() {
+        return new AffineTransform2D(this);
     }
 
 

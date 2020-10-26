@@ -76,6 +76,7 @@ public abstract class AbstractParser {
      * @throws ParseException if the string can't be parsed.
      */
     public final void parseTree(final String text) throws ParseException {
+    	root.setIsRoot(true);
         createElements(root,text);
         for(Element element:root.getChildren()) {
         	analyzeElement(element);  // Analyze the children of the root

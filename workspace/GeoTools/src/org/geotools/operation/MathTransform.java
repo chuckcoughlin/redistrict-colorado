@@ -58,6 +58,8 @@ public interface MathTransform {
     public int getTargetDimensions();
     
     public Map<String,Object> getProperties();
+    public Object getProperty(String key);
+    public void setProperty(String key,Object value);
 
     /**
      * Transforms the specified {@code ptSrc} and stores the result in {@code ptDst}. If {@code
@@ -234,4 +236,6 @@ public interface MathTransform {
      *     otherwise.
      */
     public boolean isIdentity();
+    
+    public MathTransform clone();
 }

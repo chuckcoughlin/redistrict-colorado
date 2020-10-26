@@ -16,15 +16,15 @@
  */
 package org.geotools.operation;
 
-import java.net.URI;
 import java.text.ParseException;
-import java.text.ParsePosition;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.geotools.data.wkt.AbstractParser;
 import org.geotools.data.wkt.Element;
 import org.geotools.data.wkt.Symbols;
 import org.locationtech.jts.geom.CoordinateFilter;
-import org.openjump.feature.Operation;
 
 /**
  * Parser for {@linkplain MathTransform math transform} <A
@@ -38,228 +38,177 @@ import org.openjump.feature.Operation;
  * @author Rueben Schulz
  */
 public class MathTransformParser extends AbstractParser {
-   private final static String CLSS = "MathTransformParser";
+	private final static String CLSS = "MathTransformParser";
 
-   private MathTransform transform;
-   private CoordinateFilter filter;
+	private MathTransform transform;
+	private CoordinateFilter filter;
+	private String classification = null; // classification of the last math transform or projection parsed
+
+	/**
+	 * The method for the last math transform passed, or {@code null} if none.
+	 *
+	 * @see #getOperationMethod
+	 */
+	private OperationMethod lastMethod;
+
+	/**
+	 * Constructs a parser using a specified set of symbols.
+	 *
+	 * @param symbols The symbols for parsing and formatting numbers.
+	 * @todo Pass hints in argument.
+	 */
+	public MathTransformParser(final Symbols symbols) {
+		super(symbols);
+		this.transform = new AffineTransform2D();
+	}
+
+	public CoordinateFilter getCoordinateFilter() { return new MathTransformFilter(transform); }
+	public MathTransform getTransform() { return this.transform; }
+
+	@Override
+	public boolean analyzeElement( Element element) throws ParseException {
+		return analyzeTransform(element);
+	}
+
     /**
-     * The classification of the last math transform or projection parsed, or {@code null} if none.
-     */
-    private String classification;
-
-    /**
-     * The method for the last math transform passed, or {@code null} if none.
-     *
-     * @see #getOperationMethod
-     */
-    private OperationMethod lastMethod;
-
-    /**
-     * Constructs a parser using a specified set of symbols.
-     *
-     * @param symbols The symbols for parsing and formatting numbers.
-     * @todo Pass hints in argument.
-     */
-    public MathTransformParser(final Symbols symbols) {
-        super(symbols);
-        this.transform = new AffineTransform2D();
-    }
-
-    public CoordinateFilter getCoordinateFilter() { return new MathTransformFilter(transform); }
-    public MathTransform getTransform() { return this.transform; }
-
-
-
-    /**
-     * Parses the next element as a MathTransform.
+     * Attempt to parse the next element as a MathTransform, setting the local
+     * transform and filter methods.
      *
      * @param element the element to be parsed..
-     * @param required True if parameter is required and false in other case.
-     * @return The next element as a {@link MathTransform} object.
+     * @return true if the element is handled.
      * @throws ParseException if the next element can't be parsed.
      */
-    protected boolean analyzeMathTransform( Element element) throws ParseException {
+	private boolean analyzeTransform( Element element) throws ParseException {
+		boolean result = false;
     	final String keyword = element.getKeyword();
-    	boolean result = false;
-        lastMethod = null;
-        classification = null;
 
-            if ("PARAM_MT".equals(keyword)) return parseParamMT(element);
-            else if ("CONCAT_MT".equals(keyword)) return parseConcatMT(element);
-            else if ("INVERSE_MT".equals(keyword)) return parseInverseMT(element);
-            else if ("PASSTHROUGH_MT".equals(keyword)) return parsePassThroughMT(element);
-        
-
+            if ("PARAM_MT".equals(keyword)) result = parseParamMT(element);
+            else if ("CONCAT_MT".equals(keyword)) result = parseConcatMT(element);
+            else if ("INVERSE_MT".equals(keyword)) result = parseInverseMT(element);
+            else if ("PASSTHROUGH_MT".equals(keyword)) result = parsePassThroughMT(element);
+            
         return result;
     }
 
     /**
      * Parses a "PARAM_MT" element. This element has the following pattern:
      *
-     * <blockquote>
-     *
-     * <code>
+     * <blockquote> <code>
      * PARAM_MT["<classification-name>" {,<parameter>}* ]
-     * </code>
-     *
-     * </blockquote>
+     * </code> </blockquote>
      *
      * @param parent The parent element.
-     * @return The "PARAM_MT" element as an {@link MathTransform} object.
+     * @return True if the "PARAM_MT" element is successfully parsed.
      * @throws ParseException if the "PARAM_MT" element can't be parsed.
      */
-    private MathTransform parseParamMT(final Element parent) throws ParseException {
-        final Element element = parent.pullElement("PARAM_MT");
-        classification = element.pullString("classification");
-        final ParameterValueGroup parameters;
-        try {
-            parameters = mtFactory.getDefaultParameters(classification);
-        } catch (NoSuchIdentifierException exception) {
-            throw element.parseFailed(exception, null);
-        }
+    private boolean parseParamMT(final Element element) throws ParseException {
+    	if( element.getParameters().size()>0 ) {
+    		classification = element.getParameters().get(0);
+    	}
+      
         /*
          * Scan over all PARAMETER["name", value] elements and
          * set the corresponding parameter in the parameter group.
          */
-        Element param;
-        while ((param = element.pullOptionalElement("PARAMETER")) != null) {
-            final String name = param.pullString("name");
-            final ParameterValue parameter = parameters.parameter(name);
-            final Class type = parameter.getDescriptor().getValueClass();
-            if (Integer.class.equals(type)) {
-                parameter.setValue(param.pullInteger("value"));
-            } else if (Double.class.equals(type)) {
-                parameter.setValue(param.pullDouble("value"));
-            } else if (URI.class.equals(type)) {
-                parameter.setValue(URI.create(param.pullString("value")));
-            } else {
-                parameter.setValue(param.pullString("value"));
-            }
-            param.close();
-        }
-        element.close();
+    	Map<String,Object> properties = new HashMap<>();
+    	for(Element child:element.getChildren()) {
+    		if( child.getKeyword().equalsIgnoreCase("PARAMETER")) {
+    			List<String>params = child.getParameters();
+    			if( params.size()>1) {
+    				properties.put(params.get(0), params.get(1));
+    			}
+    		}
+    	}
         /*
          * We now have all informations for constructing the math transform. If the factory is
          * a Geotools implementation, we will use a special method that returns the operation
          * method used. Otherwise, we will use the ordinary method and will performs a slower
          * search for the operation method later if the user ask for it.
          */
-        final MathTransform transform;
-        try {
-            transform = mtFactory.createParameterizedTransform(parameters);
-        } catch (FactoryException exception) {
-            throw element.parseFailed(exception, null);
-        }
-        lastMethod = mtFactory.getLastMethodUsed();
-        return transform;
+        this.transform = MathTransformFactory.createParameterizedTransform(classification,properties);
+        return true;
     }
 
     /**
      * Parses a "INVERSE_MT" element. This element has the following pattern:
      *
-     * <blockquote>
-     *
-     * <code>
+     * <blockquote> <code>
      * INVERSE_MT[<math transform>]
-     * </code>
+     * </code> </blockquote>
      *
-     * </blockquote>
-     *
-     * @param parent The parent element.
-     * @return The "INVERSE_MT" element as an {@link MathTransform} object.
+     * @param parent The element.
+     * @return True if the "INVERSE_MT" element is successfully parsed.
      * @throws ParseException if the "INVERSE_MT" element can't be parsed.
      */
-    private MathTransform parseInverseMT(final Element parent) throws ParseException {
-        final Element element = parent.pullElement("INVERSE_MT");
+    private boolean parseInverseMT(final Element parent) throws ParseException {
+    	if( parent.getChildren().size()==0) {
+    		throw new ParseException(String.format("%s.parseInverseMT: Missing child element",
+        			CLSS),0);
+    	}
+    	Element element = parent.getChildren().get(0);
         try {
-            final MathTransform transform;
-            transform = parseMathTransform(element, true).inverse();
-            element.close();
-            return transform;
+            if( analyzeTransform(element) ) {
+            	transform = transform.inverse();
+            }
         }
         catch (TransformException exception) {
             throw new ParseException(String.format("%s.parseInverseMT: Exception inverting matrix (%s)",
             		CLSS,exception.getLocalizedMessage()),0);
         }
+        return true;
     }
 
     /**
      * Parses a "PASSTHROUGH_MT" element. This element has the following pattern:
      *
-     * <blockquote>
-     *
-     * <code>
+     * <blockquote> <code>
      * PASSTHROUGH_MT[<integer>, <math transform>]
-     * </code>
+     * </code> </blockquote>
      *
-     * </blockquote>
-     *
-     * @param parent The parent element.
-     * @return The "PASSTHROUGH_MT" element as an {@link MathTransform} object.
+     * @param element The element.
+     * @return True if the "PASSTHROUGH_MT" element is successfully parsed.
      * @throws ParseException if the "PASSTHROUGH_MT" element can't be parsed.
      */
-    private MathTransform parsePassThroughMT(final Element parent) throws ParseException {
-        final Element element = parent.pullElement("PASSTHROUGH_MT");
-        final int firstAffectedOrdinate = parent.pullInteger("firstAffectedOrdinate");
-        final MathTransform transform = parseMathTransform(element, true);
-        element.close();
-        try {
-            return mtFactory.createPassThroughTransform(firstAffectedOrdinate, transform, 0);
-        } catch (FactoryException exception) {
-            throw element.parseFailed(exception, null);
+    private boolean parsePassThroughMT(final Element parent) throws ParseException {
+    	if( parent.getParameters().size()==0 || parent.getChildren().size()==0) {
+    		throw new ParseException(String.format(
+    				"%s.parsePassThroughMT: Missing parameter or child",CLSS),0);
+    	}
+        final int firstAffectedOrdinate = Integer.parseInt(parent.getParameters().get(0));
+        Element element = parent.getChildren().get(0);
+        // TODO: Complete
+        if( analyzeTransform(element) ) {
+        	int numTrailing = 42;
+        	transform = MathTransformFactory.createPassThroughTransform(firstAffectedOrdinate, null,numTrailing);
         }
+
+        return true;
     }
 
     /**
      * Parses a "CONCAT_MT" element. This element has the following pattern:
      *
-     * <blockquote>
-     *
-     * <code>
+     * <blockquote> <code>
      * CONCAT_MT[<math transform> {,<math transform>}*]
-     * </code>
+     * </code> </blockquote>
      *
-     * </blockquote>
-     *
-     * @param parent The parent element.
-     * @return The "CONCAT_MT" element as an {@link MathTransform} object.
+     * @param element The element to parse.
+     * @return True if the "CONCAT_MT" element is successfully parsed.
      * @throws ParseException if the "CONCAT_MT" element can't be parsed.
      */
-    private MathTransform parseConcatMT(final Element parent) throws ParseException {
-        final Element element = parent.pullElement("CONCAT_MT");
-        MathTransform transform = parseMathTransform(element, true);
-        MathTransform optionalTransform;
-        while ((optionalTransform = parseMathTransform(element, false)) != null) {
-            try {
-                transform = mtFactory.createConcatenatedTransform(transform, optionalTransform);
-            } catch (FactoryException exception) {
-                throw element.parseFailed(exception, null);
-            }
+    private boolean parseConcatMT(final Element element) throws ParseException {
+    	MathTransform base = null;
+        for( Element child: element.getChildren()) {
+        	if( base==null ) {
+        		analyzeTransform(child);
+        		base = transform.clone();  
+        	}
+        	else {
+        		base = MathTransformFactory.createConcatenatedTransform(base, transform);
+        	}
+        	transform = base;
         }
-        element.close();
-        return transform;
+        return true;
     }
-
-    /**
-     * Returns the operation method for the last math transform parsed. This is used by {@link
-     * Parser} in order to built {@link org.opengis.referencing.crs.DerivedCRS}.
-     */
-    final OperationMethod getOperationMethod() {
-        if (lastMethod == null) {
-            /*
-             * Safety in case come MathTransformFactory implementation do not support
-             * getLastMethod(). Performs a slower and less robust check as a fallback.
-             */
-            if (classification != null) {
-                for (final OperationMethod method :
-                        mtFactory.getAvailableMethods(Operation.class)) {
-                    if (AbstractIdentifiedObject.nameMatches(method, classification)) {
-                        lastMethod = method;
-                        break;
-                    }
-                }
-            }
-        }
-        return lastMethod;
-    }
+    
 }

@@ -188,4 +188,9 @@ public class IdentityTransform extends AbstractMathTransform
         }
         return false;
     }
+
+	@Override
+	public MathTransform clone() {
+		return new IdentityTransform(this.dimension);
+	}
 }

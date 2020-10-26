@@ -74,15 +74,12 @@ import org.geotools.operation.matrix.SingularMatrixException;
  * @see <A HREF="http://mathworld.wolfram.com/AffineTransformation.html">Affine transformation on
  *     MathWorld</A>
  */
-public class ProjectiveTransform extends AbstractMathTransform
-        implements LinearTransform, Serializable {
+public class ProjectiveTransform extends AbstractMathTransform implements LinearTransform, Serializable {
     private static final String CLSS = "ProjectiveTransform";
     private static final long serialVersionUID = -2104496465933824935L;
 
-    /** The number of rows. */
+    private final Matrix matrix;
     private final int numRow;
-
-    /** The number of columns. */
     private final int numCol;
 
     /** Elements of the matrix. Column indice vary fastest. */
@@ -98,6 +95,7 @@ public class ProjectiveTransform extends AbstractMathTransform
      * @param matrix The matrix.
      */
     protected ProjectiveTransform(final Matrix matrix) {
+    	this.matrix = matrix;
         numRow = matrix.getNumRows();
         numCol = matrix.getNumCols();
         elt = new double[numRow * numCol];
@@ -209,7 +207,7 @@ public class ProjectiveTransform extends AbstractMathTransform
             throws IndexOutOfBoundsException {
         final int targetDim = toKeep.length;
         final Matrix matrix = MatrixFactory.create(targetDim + 1, sourceDim + 1);
-        matrix.setZero();
+        matrix.zero();
         for (int j = 0; j < targetDim; j++) {
             matrix.setElement(j, toKeep[j], 1);
         }
@@ -217,11 +215,6 @@ public class ProjectiveTransform extends AbstractMathTransform
         return matrix;
     }
 
-    /** Returns the parameter descriptors for this math transform. */
-    @Override
-    public ParameterDescriptorGroup getParameterDescriptors() {
-        return ProviderAffine.PARAMETERS;
-    }
 
     /**
      * Returns the matrix elements as a group of parameters values. The number of parameters depends
@@ -238,17 +231,6 @@ public class ProjectiveTransform extends AbstractMathTransform
         return values;
     }
 
-    /**
-     * Returns the matrix elements as a group of parameters values. The number of parameters depends
-     * on the matrix size. Only matrix elements different from their default value will be included
-     * in this group.
-     *
-     * @return A copy of the parameter values for this math transform.
-     */
-    @Override
-    public ParameterValueGroup getParameterValues() {
-        return getParameterValues(getMatrix());
-    }
 
     /**
      * Transforms an array of floating point coordinates by this matrix. Point coordinates must have
@@ -451,7 +433,7 @@ public class ProjectiveTransform extends AbstractMathTransform
 
     /** Creates the inverse transform of this object. */
     @Override
-    public synchronized MathTransform inverse() throws NoninvertibleTransformException {
+    public synchronized MathTransform inverse() throws TransformException {
         if (inverse == null) {
             if (isIdentity()) {
                 inverse = this;
@@ -462,7 +444,7 @@ public class ProjectiveTransform extends AbstractMathTransform
                 } catch (SingularMatrixException
                         | IllegalArgumentException
                         | MatrixDimensionException exception) {
-                    throw new NoninvertibleTransformException("Non-invertable transform");
+                    throw new TransformException("Non-invertable transform");
                 }
                 inverse = createInverse(matrix);
                 inverse.inverse = this;
@@ -666,4 +648,9 @@ public class ProjectiveTransform extends AbstractMathTransform
             return create(AffineTransform.getTranslateInstance(offset, 0));
         }
     }
+
+	@Override
+	public MathTransform clone() {
+		return new ProjectiveTransform(this.matrix);
+	}
 }

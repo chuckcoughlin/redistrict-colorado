@@ -216,4 +216,9 @@ public class LinearTransform1D extends AbstractMathTransform
         }
         return false;
     }
+
+	@Override
+	public MathTransform clone() {
+		return new LinearTransform1D(this.scale,this.offset);
+	}
 }

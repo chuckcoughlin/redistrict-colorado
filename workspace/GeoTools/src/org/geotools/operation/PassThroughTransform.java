@@ -88,7 +88,8 @@ public class PassThroughTransform extends AbstractMathTransform implements Seria
             this.firstAffectedOrdinate = passThrough.firstAffectedOrdinate + firstAffectedOrdinate;
             this.numTrailingOrdinates = passThrough.numTrailingOrdinates + numTrailingOrdinates;
             this.subTransform = passThrough.subTransform;
-        } else {
+        } 
+        else {
             this.firstAffectedOrdinate = firstAffectedOrdinate;
             this.numTrailingOrdinates = numTrailingOrdinates;
             this.subTransform = subTransform;
@@ -387,5 +388,12 @@ public class PassThroughTransform extends AbstractMathTransform implements Seria
         }
         return false;
     }
+
+	@Override
+	public MathTransform clone() {
+		MathTransform sub = null;
+		if(subTransform!=null ) sub = subTransform.clone();
+		return new PassThroughTransform(this.firstAffectedOrdinate,sub,this.numTrailingOrdinates);
+	}
 
 }

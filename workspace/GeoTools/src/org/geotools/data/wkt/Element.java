@@ -25,11 +25,9 @@ import java.util.List;
  * {@link Number} and other {@link Element}. For example:
  *
  * <blockquote>
- *
  * <pre>
  * PRIMEM["Greenwich", 0.0, AUTHORITY["some authority", "Greenwich"]]
  * </pre>
- *
  * </blockquote>
  *
  * Each {@code Element} object can contains an arbitrary number of other elements. 
@@ -37,9 +35,8 @@ import java.util.List;
 public final class Element {
 	private final static String CLSS = "Element";
 
- 
     public String keyword;  // Keyword of this entity. E.g.: "PRIMEM"
-
+    private boolean isRoot = false;
     /**
      * An ordered list of {@link String}s, {@link Number}s and other {@link Element}s. May be {@code
      * null} if the keyword was not followed by a pair of brackets (e.g. "NORTH").
@@ -48,7 +45,7 @@ public final class Element {
     private final List<String> parameters;  // Arguments - String, but may be numeric
 
     /**
-     * Constructs a root element.
+     * Constructs a new element.
      *
      * @param singleton The only children for this root.
      */
@@ -58,13 +55,25 @@ public final class Element {
         parameters = new ArrayList<>();
     }
 
+    public boolean getIsRoot()           { return this.isRoot;  }
     public String getKeyword()           { return this.keyword; }
+    public void setIsRoot(boolean flag)  { this.isRoot = flag;  }
     public void setKeyword(String key)   { this.keyword = key; }
     public void addChild(Element child)  { this.children.add(child); }
     public void addParameter(String obj) { this.parameters.add(obj); }
     
     public List<Element> getChildren()   { return this.children; }
     public List<String>  getParameters() { return this.parameters; }
+    public Element findChild(String key) {
+    	Element child = null;
+    	for( Element c:children ) {
+    		if( c.keyword.equalsIgnoreCase(key) ) {
+    			child = c;
+    			break;
+    		}
+    	}
+    	return child;
+    }
 
    
     /**

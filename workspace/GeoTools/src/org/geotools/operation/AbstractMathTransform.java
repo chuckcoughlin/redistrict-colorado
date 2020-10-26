@@ -75,6 +75,8 @@ public abstract class AbstractMathTransform extends IdentifiedObject implements 
     }
 
     public Map<String,Object> getProperties() { return this.properties; }
+    public Object getProperty(String key) { return this.properties.get(key); }
+    public void setProperty(String key,Object value) { this.properties.put(key,value); }
     
     /** Gets the dimension of input points. Must be 2 */
     public abstract int getSourceDimensions();
@@ -537,7 +539,7 @@ public abstract class AbstractMathTransform extends IdentifiedObject implements 
      *
      * If no special optimization is available for the combined transform, then this method returns
      * {@code null}. In the later case, the concatenation will be prepared by {@link
-     * DefaultMathTransformFactory} using a generic {@link ConcatenatedTransform}.
+     * MathTransformFactory} using a generic {@link ConcatenatedTransform}.
      *
      * <p>The default implementation always returns {@code null}. This method is ought to be
      * overridden by subclasses capable of concatenating some combination of transforms in a special
@@ -714,6 +716,8 @@ public abstract class AbstractMathTransform extends IdentifiedObject implements 
             throw e;
         }
     }
+    
+    public abstract MathTransform clone();
 
     /**
      * Default implementation for inverse math transform. This inner class is the inverse of the
@@ -724,7 +728,7 @@ public abstract class AbstractMathTransform extends IdentifiedObject implements 
      * @version $Id$
      * @author Martin Desruisseaux (IRD)
      */
-    protected abstract class Inverse extends AbstractMathTransform implements Serializable {
+    public abstract class Inverse extends AbstractMathTransform implements Serializable {
         /**
          * Serial number for interoperability with different versions. This serial number is
          * especilly important for inner classes, since the default {@code serialVersionUID}
@@ -831,6 +835,10 @@ public abstract class AbstractMathTransform extends IdentifiedObject implements 
             else {
                 return false;
             }
+        }
+        @Override
+        public MathTransform clone() {
+        	return AbstractMathTransform.this.clone();
         }
     }
 }

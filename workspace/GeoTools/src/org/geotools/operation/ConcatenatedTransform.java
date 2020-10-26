@@ -25,8 +25,6 @@ import org.geotools.operation.matrix.Matrix;
 import org.geotools.operation.matrix.Matrix3;
 import org.locationtech.jts.geom.Coordinate;
 
-
-
 /**
  * Base class for concatenated transform. Concatenated transforms are serializable if all their step
  * transforms are serializables.
@@ -54,7 +52,7 @@ public class ConcatenatedTransform extends AbstractMathTransform implements Seri
     public final MathTransform transform1;
 
     /** The second math transform. */
-    public final MathTransform transform2;
+    public MathTransform transform2;
 
     /**
      * The inverse transform. This field will be computed only when needed. But it is serialized in
@@ -276,41 +274,8 @@ public class ConcatenatedTransform extends AbstractMathTransform implements Seri
      * Continue the construction started by {@link #create}. The construction step is available
      * separatly for testing purpose (in a JUnit test), and for {@link #inverse()} implementation.
      */
-    static ConcatenatedTransform createConcatenatedTransform(
-            final MathTransform tr1, final MathTransform tr2) {
-        final int dimSource = tr1.getSourceDimensions();
-        final int dimTarget = tr2.getTargetDimensions();
-        /*
-         * Checks if the result need to be a MathTransform1D.
-         */
-        if (dimSource == 1 && dimTarget == 1) {
-            if (tr1 instanceof MathTransform1D && tr2 instanceof MathTransform1D) {
-                return new ConcatenatedTransformDirect1D(
-                        (MathTransform1D) tr1, (MathTransform1D) tr2);
-            } 
-            else {
-                return new ConcatenatedTransform1D(tr1, tr2);
-            }
-        } 
-        /*
-         * Checks if the result need to be a MathTransform2D.
-         */
-        else if (dimSource == 2 && dimTarget == 2) {
-            if (tr1 instanceof MathTransform2D && tr2 instanceof MathTransform2D) {
-                return new ConcatenatedTransformDirect2D(
-                        (MathTransform2D) tr1, (MathTransform2D) tr2);
-            } else {
-                return new ConcatenatedTransform2D(tr1, tr2);
-            }
-        } else
-        /*
-         * Checks for the general case.
-         */
-        if (dimSource == tr1.getTargetDimensions() && tr2.getSourceDimensions() == dimTarget) {
-            return new ConcatenatedTransformDirect(tr1, tr2);
-        } else {
-            return new ConcatenatedTransform(tr1, tr2);
-        }
+    static ConcatenatedTransform createConcatenatedTransform(final MathTransform tr1, final MathTransform tr2) {
+        return new ConcatenatedTransform(tr1,tr2);
     }
 
     /** Returns a name for the specified math transform. */
@@ -560,4 +525,9 @@ public class ConcatenatedTransform extends AbstractMathTransform implements Seri
         }
         return false;
     }
+
+	@Override
+	public MathTransform clone() {
+		return new ConcatenatedTransform(this.transform1.clone(),this.transform2.clone());
+	}
 }
